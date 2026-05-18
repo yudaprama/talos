@@ -1,0 +1,52 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/ory-corp/talos/pkg
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/bufbuild/protovalidate
+      - buf.build/grpc-ecosystem/grpc-gateway
+plugins:
+  # Go protobuf
+  - plugin: go
+    out: pkg
+    opt:
+      - paths=source_relative
+
+  # Go gRPC
+  - plugin: go-grpc
+    out: pkg
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+
+  # gRPC Gateway
+  - plugin: grpc-gateway
+    out: pkg
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+      # Disable the patch feature so update_mask is bound from the query
+      # parameter (per AIP-134) instead of being auto-populated and hidden.
+      # When the client omits update_mask, service handlers fall back to the
+      # AIP-134 "implicit from populated fields" rule (see internal/service/fieldmask.go).
+      - allow_patch_feature=false
+
+  # OpenAPI v2
+  - plugin: openapiv2
+    out: api
+    opt:
+      - allow_merge=true
+      - merge_file_name=talos
+      - json_names_for_fields=false
+      # Match the gateway: expose update_mask as a query parameter in the
+      # generated spec so SDK callers can be explicit (e.g., to clear a field).
+      - allow_patch_feature=false
+      # Strip the proto package prefix from schema names (e.g.
+      # v2alpha1IssuedAPIKey -> IssuedAPIKey). The version remains visible in
+      # the URL path (/v2alpha1/...) and proto package (talos.v2alpha1) per
+      # AIP-181; the prefix on every type name was redundant and made SDK
+      # callers verbose for no benefit.
+      - openapi_naming_strategy=simple
+

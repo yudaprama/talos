@@ -1,0 +1,59 @@
+# Database Initialization Dockerfile
+# Builds Ory Talos binary and runs migrations + tenant seeding
+#
+# This is a specialized container that:
+# 1. Builds the commercial binary
+# 2. Runs database migrations
+# 3. Seeds tenant data
+# 4. Exits (one-shot container)
+
+# =============================================================================
+# Build stage
+# =============================================================================
+FROM golang:1.26-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache git make ca-certificates
+
+WORKDIR /build
+
+# Copy the replaced sibling modules referenced by talos/talos/go.mod.
+COPY cloudlib ./cloudlib
+COPY x ./x
+
+# Copy talos sources (context is the repository root).
+COPY talos/talos ./talos/talos
+
+WORKDIR /build/talos/talos
+
+RUN go mod download
+
+# Build the commercial binary
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -tags commercial \
+    -ldflags="-w -s" \
+    -o talos .
+
+# =============================================================================
+# Init stage
+# =============================================================================
+FROM alpine:3.19
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    postgresql-client
+
+# Copy the binary
+COPY --from=builder /build/talos/talos/talos /talos
+
+# Copy migrations
+COPY --from=builder /build/talos/talos/internal/persistence/migrations /migrations
+COPY --from=builder /build/talos/talos/commercial/persistence/migrations /migrations-commercial
+
+# Copy init script
+COPY talos/talos/deployments/docker/scripts/init-db.sh /init-db.sh
+RUN chmod +x /init-db.sh
+
+# Run init script
+ENTRYPOINT ["/init-db.sh"]

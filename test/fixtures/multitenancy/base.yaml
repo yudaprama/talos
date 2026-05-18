@@ -1,0 +1,29 @@
+# Base configuration for multi-tenancy tests
+# This is the foundation config - tenant-specific configs override these values
+
+serve:
+  http:
+    host: 127.0.0.1
+    port: 0
+  metrics:
+    host: 127.0.0.1
+    port: 0
+
+log:
+  level: info
+  format: json
+
+tracing:
+  enabled: false
+
+secrets:
+  default:
+    current: "base-secret-minimum-32-chars-long-xxxxxxxxxxxx"
+    retired: []
+  hmac:
+    current: "base-hmac-secret-32-chars-yyyyyyyyyyyyyy"
+    retired: []
+  pagination:
+    current: "base-pagination-secret-32chars-zzzzzzzz"
+    retired: []
+

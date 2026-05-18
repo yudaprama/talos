@@ -1,0 +1,22 @@
+---
+id: {{{id}}}
+title: "{{{title}}}"
+description: "{{{frontMatter.description}}}"
+sidebar_label: "{{{title}}}"
+hide_title: true
+custom_edit_url: null
+---
+
+{{{markdown}}}
+
+### Quick Links
+
+- [**Admin**](./admin-issue-api-key) — key lifecycle management (issue, rotate, revoke, import, derive tokens, JWKS) and verification (single and batch)
+- [**Self-service**](./revoke-api-key) — proof-of-possession self-revocation for credential holders
+
+```mdx-code-block
+import DocCardList from '@theme/DocCardList';
+import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
+
+<DocCardList items={useCurrentSidebarCategory().items}/>
+```

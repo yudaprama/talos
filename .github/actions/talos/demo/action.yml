@@ -1,0 +1,108 @@
+name: Demo verification
+description: Build the OSS binary, run migrations, start the server, and verify health endpoints.
+inputs:
+  go-version-file:
+    description: Path to go.mod for version detection
+    default: "talos/talos/go.mod"
+  cache-version:
+    description: Cache version; bump to invalidate all caches
+    default: "v5"
+runs:
+  using: composite
+  steps:
+    - name: Setup Go
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+        check-latest: true
+        cache: true
+        cache-dependency-path: |
+          talos/talos/go.sum
+          talos/talos/tools/go.sum
+
+    - name: Build binaries
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        mkdir -p .bin
+        CGO_ENABLED=1 go build -o .bin/talos .
+        echo "Binaries built"
+
+    - name: Run database migrations
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        mkdir -p .db
+        ./.bin/talos migrate up --database "sqlite3://.db/demo.db"
+        echo "Migrations completed"
+
+    - name: Start API server
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        cat > demo-config.yaml <<EOF
+        credentials:
+          issuer: "talos-demo"
+        secrets:
+          default:
+            current: $(openssl rand -base64 32)
+            retired: []
+        db:
+          dsn: "sqlite3://.db/demo.db"
+        EOF
+
+        ./.bin/talos serve --config demo-config.yaml &
+        SERVER_PID=$!
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+        echo "API server started with PID $SERVER_PID"
+
+        for i in {1..30}; do
+          if curl -s http://localhost:4420/health/alive > /dev/null 2>&1; then
+            echo "Server is ready!"
+            break
+          fi
+          if [ $i -eq 30 ]; then
+            echo "Server failed to start"
+            exit 1
+          fi
+          echo "Waiting for server to start... ($i/30)"
+          sleep 1
+        done
+
+    - name: Test health endpoint
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        echo "Testing health endpoint..."
+        response=$(curl -s -w "\n%{http_code}" http://localhost:4420/health/alive)
+        echo "Response: $response"
+        if [[ "$response" != *"200"* ]]; then
+          echo "Health check failed!"
+          exit 1
+        fi
+        echo "Health check passed!"
+
+    - name: Test ready endpoint
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        echo "Testing ready endpoint..."
+        response=$(curl -s -w "\n%{http_code}" http://localhost:4422/health/ready)
+        echo "Response: $response"
+        if [[ "$response" != *"200"* ]]; then
+          echo "Ready check failed!"
+          exit 1
+        fi
+        echo "Ready check passed!"
+
+    - name: Stop API server
+      if: always()
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        if [ -n "$SERVER_PID" ]; then
+          kill $SERVER_PID || true
+          echo "API server stopped"
+        else
+          pkill talos || true
+        fi

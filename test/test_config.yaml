@@ -1,0 +1,106 @@
+# Test configuration for Ory Talos
+# This configuration is optimized for testing environments
+
+# Server configuration
+serve:
+  http:
+    host: "localhost"
+    port: 4420
+    base_url: "http://localhost:4420"
+    request_log:
+      exclude_health_endpoints: true
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "PATCH"
+        - "DELETE"
+        - "OPTIONS"
+      allowed_headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Request-ID"
+      exposed_headers:
+        - "Content-Type"
+      allow_credentials: false
+      max_age: 3600
+      debug: false
+
+  metrics:
+    host: "localhost"
+    port: 4422
+
+# Credential configuration
+credentials:
+  issuer: "talos-test"
+  api_keys:
+    default_ttl: "24h"
+    max_ttl: "8760h"  # 365 days
+    prefix:
+      current: "talos_test"
+      retired: []
+
+  derived_tokens:
+    default_ttl: "1h"
+    jwt:
+      max_ttl: "24h"
+      signing_keys:
+        urls:
+          - "file://./test/fixtures/jwks.json"
+
+    macaroon:
+      max_ttl: "24h"
+      prefix:
+        current: "mc_test"
+        retired: []
+
+# Token issuer (required)
+# Database configuration
+db:
+  # For testing with PostgreSQL
+  dsn: "postgres://postgres:postgres@localhost:5432/talos_test?sslmode=disable&pool_max_conns=10&pool_max_conn_lifetime=5m"
+
+  # For testing with SQLite
+  # dsn: "sqlite://./test/data/talos_test.db"
+
+# Logging configuration
+log:
+  level: "debug"
+  format: "json"
+  leak_sensitive_values: false
+  redaction_text: "[REDACTED]"
+
+# Secrets configuration (required)
+secrets:
+  default:
+    current: "test-hmac-secret-for-api-key-hashing-minimum-32-chars"
+    retired: []
+  pagination:
+    current: "test-pagination-secret-must-be-at-least-32-characters-long"
+    retired: []
+  hmac:
+    current: "test-hmac-secret-for-api-key-checksum-validation-32chars"
+    retired: []
+
+# Tracing configuration
+tracing:
+  enabled: false  # Disabled for tests
+  service_name: "ory-talos-test"
+  service_version: "0.0.0-test"
+  environment: "test"
+  exporter: "stdout"
+  endpoint: ""
+  sample_rate: 1.0
+
+# Cache configuration
+cache:
+  type: "noop"  # Use noop for deterministic tests
+  ttl: "5m"
+
+# Multi-tenancy configuration
+multitenancy:
+  enabled: false

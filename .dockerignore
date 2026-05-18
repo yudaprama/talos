@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+
+# Build artifacts
+.bin/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Test artifacts
+*.test
+coverage.out
+coverage.html
+test-results/
+.test-db/
+
+# Documentation
+docs/
+
+# Development files
+*.md
+!README.md
+Makefile
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Node modules
+node_modules/
+
+# Website (documentation site - not needed in containers)
+website/
+
+# Secrets and local config
+*.local
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Test databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+.claude
+.bin
+.gemini

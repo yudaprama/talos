@@ -1,0 +1,14 @@
+{
+  "error": {
+    "code": 401,
+    "message": "The API key has expired.",
+    "status": "UNAUTHENTICATED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_EXPIRED",
+        "domain": "talos.ory.com"
+      }
+    ]
+  }
+}

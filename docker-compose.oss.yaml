@@ -1,0 +1,81 @@
+# Docker Compose for Ory Talos OSS Edition
+# Builds all containers from source for local development/testing
+# Uses SQLite backend and single-tenant mode
+#
+# Usage:
+#   docker-compose -f docker-compose.oss.yaml up --build
+#
+# Access:
+#   - Backend API: http://localhost:8080
+#   - Health: http://localhost:4422/health/alive
+
+services:
+  # Database initialization (runs migrations on SQLite)
+  db-init:
+    build:
+      context: ../..
+      dockerfile: talos/talos/deployments/docker/Dockerfile.oss.init
+    container_name: ory-talos-db-init-oss
+    environment:
+      DB_DSN: sqlite3:///var/lib/talos/talos.db?_journal_mode=WAL
+    volumes:
+      - sqlite-data:/var/lib/talos
+    networks:
+      - ory-talos-network
+
+  # OSS backend server
+  backend:
+    build:
+      context: ../..
+      dockerfile: talos/talos/deployments/docker/Dockerfile
+    container_name: ory-talos-backend-oss
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      jaeger:
+        condition: service_started
+    environment:
+      # Database (SQLite)
+      DB_DSN: sqlite3:///var/lib/talos/talos.db?_journal_mode=WAL
+      # Server addresses
+      HTTP_ADDR: "0.0.0.0:8080"
+      METRICS_ADDR: "0.0.0.0:4422"
+      # Logging
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+    ports:
+      - "8080:8080"   # HTTP API
+      - "4422:4422"   # Metrics
+    volumes:
+      - ./deployments/docker/config/config.oss.yaml:/etc/talos/config.yaml:ro
+      - ./deployments/docker/config/jwks.json:/etc/talos/jwks.json:ro
+      - sqlite-data:/var/lib/talos
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4422/health/alive"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ory-talos-network
+    command: ["serve", "--config", "/etc/talos/config.yaml"]
+
+  # OpenTelemetry collector + Jaeger UI for tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    container_name: ory-talos-jaeger-oss
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - ory-talos-network
+
+networks:
+  ory-talos-network:
+    driver: bridge
+
+volumes:
+  sqlite-data:

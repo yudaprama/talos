@@ -1,0 +1,13 @@
+{
+  "keys": [
+    {
+      "alg": "EdDSA",
+      "crv": "Ed25519",
+      "d": "9wU3_WztvlwMx4Hi_7glIWncOW6UHGb9jlCt6DfEFkc",
+      "kid": "docker-dev-001",
+      "kty": "OKP",
+      "use": "sig",
+      "x": "4kSA7m5NcbqCP-ffO_4hP3kl4pt4g--3QCmsBl3oNeU"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# Tenant 1 configuration
+secrets:
+  default:
+    current: "docker-compose-tenant1-secret-32-chars-long"
+    retired: []
+  pagination:
+    current: "docker-compose-tenant1-pagination-secret-32ch"
+    retired: []
+
+# Signing keys for token derivation (JWT and macaroon)
+credentials:
+  derived_tokens:
+    jwt:
+      signing_keys:
+        urls:
+          - "file:///etc/talos/jwks.json"

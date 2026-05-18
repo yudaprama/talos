@@ -1,0 +1,14 @@
+# act configuration
+# https://github.com/nektos/act
+
+# Use a more complete Ubuntu image with more tools pre-installed
+-P ubuntu-latest=catthehacker/ubuntu:full-latest
+
+# Reuse containers for faster iterations
+--reuse
+
+# Use artifact server for caching
+--artifact-server-path /tmp/act-artifacts
+
+# Container options
+--container-architecture linux/amd64

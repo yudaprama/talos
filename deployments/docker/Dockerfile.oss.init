@@ -1,0 +1,54 @@
+# Database Initialization Dockerfile for Ory Talos OSS Edition
+# Builds Ory Talos OSS binary and runs migrations on SQLite
+#
+# This is a specialized container that:
+# 1. Builds the OSS binary
+# 2. Runs database migrations
+# 3. Exits (one-shot container)
+
+# =============================================================================
+# Build stage
+# =============================================================================
+FROM golang:1.26-alpine AS builder
+
+# Install build dependencies (gcc/musl-dev required for CGO/sqlite3)
+RUN apk add --no-cache git make ca-certificates gcc musl-dev
+
+WORKDIR /build
+
+# Copy the replaced sibling modules referenced by talos/talos/go.mod.
+COPY cloudlib ./cloudlib
+COPY x ./x
+
+# Copy talos sources (context is the repository root).
+COPY talos/talos ./talos/talos
+
+WORKDIR /build/talos/talos
+
+RUN go mod download
+
+# Build the OSS binary (no commercial tag, CGO required for sqlite3)
+RUN CGO_ENABLED=1 go build \
+    -ldflags="-w -s" \
+    -o talos .
+
+# =============================================================================
+# Init stage
+# =============================================================================
+FROM alpine:3.19
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates
+
+# Copy the binary
+COPY --from=builder /build/talos/talos/talos /talos
+
+# Copy migrations (OSS only)
+COPY --from=builder /build/talos/talos/internal/persistence/migrations /migrations
+
+# Copy init script
+COPY talos/talos/deployments/docker/scripts/init-db-oss.sh /init-db.sh
+RUN chmod +x /init-db.sh
+
+# Run init script
+ENTRYPOINT ["/init-db.sh"]

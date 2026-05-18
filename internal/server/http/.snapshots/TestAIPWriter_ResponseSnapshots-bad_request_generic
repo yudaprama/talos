@@ -1,0 +1,14 @@
+{
+  "error": {
+    "code": 400,
+    "message": "page_token is malformed",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "BAD_REQUEST",
+        "domain": "talos.ory.com"
+      }
+    ]
+  }
+}

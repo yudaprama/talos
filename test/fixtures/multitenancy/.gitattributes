@@ -1,0 +1,3 @@
+# Mark test signing keys as generated test fixtures (not production secrets)
+signing-keys/*.json linguist-generated=true
+signing-keys/*.jwks.json binary

@@ -1,0 +1,425 @@
+# Change these settings only with maintainer confirmation.
+version: "2"
+
+formatters:
+  settings:
+    gofumpt:
+      module-path: github.com/ory-corp/talos
+      extra-rules: true
+
+linters:
+  # Important to keep all linters enabled.
+  default: all
+  disable:
+    - depguard       # Disabled: default rules block legitimate imports (cockroachdb/errors, testify, otel)
+    - exhaustruct    # Disabled: Forces all struct fields to be set explicitly, makes code verbose
+    - lll            # Disabled: Line length violations, many slightly exceed limits and breaking reduces readability
+    - mnd            # Disabled: Magic numbers linter flags things like time.Duration * 5
+    - paralleltest   # Disabled: Many tests use shared state or databases and cannot be parallel
+    - protogetter    # Disabled: Applies to generated protobuf code
+    - varnamelen     # Disabled: Complains about idiomatic Go short names like i, j, tt, db, id
+    - wrapcheck      # Disabled: Wants every error wrapped even when it adds no value
+    - funcorder      # Disabled: Arbitrary function ordering rules
+    # godox - Enabled: Tracks TODO/FIXME comments for tech debt visibility
+    - testpackage    # Disabled: Wants tests in separate _test packages, not always appropriate
+    - cyclop         # Disabled: Cyclomatic complexity - complex business logic requires refactoring beyond scope
+    - funlen         # Disabled: Function length - some functions handle complex workflows
+    - gocognit       # Disabled: Cognitive complexity - similar to cyclop
+    - nestif         # Disabled: Nested if depth - error handling causes nesting
+    - wsl            # Disabled: Deprecated in favor of wsl_v5
+    - wsl_v5         # Disabled: Overly strict whitespace rules that reduce readability
+    - tparallel      # Disabled: Requires explicit t.Parallel() in all subtests, not always needed
+    # testifylint - Enabled: Catches common test assertion mistakes
+    - tagliatelle    # Disabled: Overly strict about struct tag naming conventions
+    - godoclint      # Disabled: Overly strict documentation comment formatting
+    - godot          # Disabled: Requires periods in all comments, reduces readability
+    - nlreturn       # Disabled: Requires blank lines before returns, reduces readability
+    - nonamedreturns # Disabled: Named returns are useful for documentation and defers
+    - noinlineerr    # Disabled: Wrapping errors inline is often clearer than separate variables
+    - perfsprint     # Disabled: Micro-optimizations that hurt readability
+    - ireturn        # Disabled: Returns from jwx library (jwk.Set, jwk.Key) are interfaces by design
+    - godox          # Disabled: TODO/FIXME tracked in docs/.confidential/notes, not enforced in CI
+    - gomoddirectives # Disabled: Monorepo uses local replace directives for sibling modules
+    # intrange - Enabled: Modernizes code with Go 1.22+ integer range syntax
+
+  # Do not disable linters. You may add specific exclusions below instead.
+
+  settings:
+    gosec:
+      excludes:
+        - G101 # Look for hardcoded credentials (too many false positives)
+        - G117 # Exported field matches secret pattern (API key output structs legitimately have "secret")
+        - G702 # Command injection via taint analysis (tools intentionally execute user-provided commands)
+        - G703 # Path traversal via taint analysis (tools intentionally operate on user-provided file paths)
+        - G705 # XSS via taint analysis (CLI tools writing to stderr/buffers, not web responses)
+
+    forbidigo:
+      forbid:
+        - pattern: 'http\.DefaultClient'
+          msg: "use the injected *retryablehttp.Client instead of http.DefaultClient"
+        - pattern: 'http\.Get\b'
+          msg: "use the injected *retryablehttp.Client instead of http.Get"
+        - pattern: 'http\.Post\b'
+          msg: "use the injected *retryablehttp.Client instead of http.Post"
+        - pattern: 'http\.Head\b'
+          msg: "use the injected *retryablehttp.Client instead of http.Head"
+
+    unused:
+      exported-fields-are-used: false
+      parameters-are-used: true
+      local-variables-are-used: false
+      generated-is-used: false
+
+    # Note: All code uses otelx.End(span, &err) which calls span.End() internally
+    # spancheck exclusions below acknowledge tool limitation (cannot recognize otelx.End)
+
+  exclusions:
+    # Exclude generated files
+    generated: lax
+
+    # Exclusion rules
+    rules:
+      # Exclude test files from certain checks
+      - path: "_test\\.go$"
+        linters:
+          - gosec
+          - gochecknoinits # Init functions in tests are common
+          - godoclint    # Test doc comments can be informal
+
+      # Test helpers follow (t *testing.T, ...) convention, not (ctx, t, ...) convention
+      - path: "_test\\.go$"
+        text: "context-as-argument"
+        linters:
+          - revive
+
+      # Exclude E2E test files from containedctx (context in test suite struct is standard)
+      - path: "test/api/"
+        linters:
+          - containedctx
+
+      # Workload tests intentionally call SDK helpers (which use require) from goroutines.
+      # These are performance tests where goroutine-level failures are acceptable.
+      - path: "test/api/workload_"
+        text: "go-require"
+        linters:
+          - testifylint
+
+      # Cache concurrency tests use goroutines to exercise concurrent access patterns.
+      - path: "commercial/cache/cache_test\\.go"
+        text: "go-require"
+        linters:
+          - testifylint
+
+      # TestMain requires os.Exit for test result reporting; explicit cleanup is called before os.Exit
+      - text: "exitAfterDefer"
+        path: "(schema_comparison_test\\.go|commercial/testkit/database\\.go)"
+        linters:
+          - gocritic
+
+      # Test helper parameters may not be fully exercised in all call sites
+      - path: "_test\\.go$"
+        linters:
+          - unparam
+
+      # Exclude cmd package from certain checks (CLI patterns differ)
+      - path: "cmd/"
+        linters:
+          - gochecknoglobals # Global command variables are standard in CLI apps
+          - funcorder        # Command organization is logical, not strict ordering
+          - containedctx     # Context in Config struct for provider lifecycle is acceptable
+
+      # Exclude generated protobuf files
+      - path: "\\.pb\\.go$"
+        linters:
+          - all
+
+      - path: "\\.pb\\.gw\\.go$"
+        linters:
+          - all
+
+      # Exclude tools from forbidigo - CLI tools need stdout output
+      - path: "tools/"
+        linters:
+          - forbidigo
+
+      # Exclude cmd/clidoc from forbidigo - documentation generator needs stdout
+      - path: "cmd/clidoc/"
+        linters:
+          - forbidigo
+
+      # Test files may use bare HTTP clients for test infrastructure (localhost only)
+      - path: "_test\\.go$"
+        linters:
+          - forbidigo
+
+      # Test helpers may use bare HTTP clients for test infrastructure (localhost only)
+      - path: "(testkit|testutil)/"
+        linters:
+          - forbidigo
+
+      - text: "G104: Errors unhandled"
+        linters:
+          - gosec
+
+      # Test infrastructure: log injection in testkit is benign (test env values only)
+      - text: "G706"
+        path: "commercial/testkit/"
+        linters:
+          - gosec
+
+      # Design decision: proxy handler makes controlled upstream HTTP requests
+      - text: "G704"
+        path: "commercial/proxy/handler\\.go"
+        linters:
+          - gosec
+
+      # Ignore errors from fmt.Fprint* to stdout/stderr in CLI code
+      - text: "Error return value of `fmt.Fprint.*` is not checked"
+        path: "cmd/"
+        linters:
+          - errcheck
+
+      # Ignore errors from Close() in defer statements (common cleanup pattern)
+      - text: "Error return value of `.*\\.Close` is not checked"
+        source: "defer.*\\.Close\\(\\)"
+        linters:
+          - errcheck
+
+      # Intentional: Unicode test data
+      - text: "string literal contains rune in Han script"
+        path: "internal/crypto/hash_test.go"
+        linters:
+          - gosmopolitan
+
+      # Design decision: Driver interface needs many methods for comprehensive persistence API
+      - text: "the interface has more than 10 methods"
+        path: "internal/persistence/driver.go"
+        linters:
+          - interfacebloat
+
+      # Intentional: Returning nil to skip invalid keys during iteration
+      - text: "error is not nil.*but it returns nil"
+        path: "internal/verifier/verifier.go"
+        linters:
+          - nilerr
+
+      # Intentional: CacheKey returns nil error when loader returns nilerr (signals not-found)
+      - text: "error is not nil.*but it returns nil"
+        path: "commercial/contextualizer/loader_file\\.go"
+        linters:
+          - nilerr
+
+      # Design decision: OSS persistence driver doesn't need context (commercial edition does)
+      - text: "should pass the context parameter"
+        linters:
+          - contextcheck
+
+      # Complex business logic - refactoring would be out of scope for linting
+      - text: "cyclomatic complexity.*is high"
+        linters:
+          - gocyclo
+
+      # Loop index needed in loop body - cannot convert to integer range
+      - text: "for loop can be changed to use an integer range"
+        path: "internal/service/api_keys.go"
+        linters:
+          - intrange
+
+      # Complex business logic with low maintainability index - requires comprehensive refactoring
+      - text: "Maintainability Index"
+        linters:
+          - maintidx
+
+      # Intentional: Error result always nil for internal helper function
+      - text: "result.*is always nil"
+        path: "internal/crypto/token/macaroon.go"
+        linters:
+          - unparam
+
+      # Design decision: Prometheus metrics are global by convention
+      - text: ".* is a global variable"
+        path: "internal/metrics/"
+        linters:
+          - gochecknoglobals
+
+      # Design decision: Prometheus metrics in commercial proxy are global by convention
+      - text: ".* is a global variable"
+        path: "commercial/proxy/metrics\\.go"
+        linters:
+          - gochecknoglobals
+
+      # Design decision: Schema diff and query diff lookup tables are package-level constants
+      - text: ".* is a global variable"
+        path: "commercial/persistence/migrations/schemadiff/"
+        linters:
+          - gochecknoglobals
+
+      - text: ".* is a global variable"
+        path: "commercial/persistence/sqlc/querydiff/"
+        linters:
+          - gochecknoglobals
+
+      # Test infrastructure: shared container state for testkit
+      - text: ".* is a global variable"
+        path: "commercial/testkit/"
+        linters:
+          - gochecknoglobals
+
+      # TestMain-style test DB connections are package-level by necessity
+      - text: ".* is a global variable"
+        path: "commercial/persistence/migrations/schema_comparison_test\\.go"
+        linters:
+          - gochecknoglobals
+
+      # Design decision: gRPC code name lookup table is a package-level constant map
+      - text: "grpcCodeNames is a global variable"
+        path: "internal/server/http/aip_writer.go"
+        linters:
+          - gochecknoglobals
+
+      # Established package names that intentionally shadow stdlib (crypto, token, metrics, http, version)
+      - text: "avoid package names that conflict with Go standard library"
+        linters:
+          - revive
+
+      # Design decision: Version info set via ldflags at build time
+      - text: "(Version|Commit|BuildTime) is a global variable"
+        path: "main.go"
+        linters:
+          - gochecknoglobals
+
+      # Design decision: Benchmark test globals required for setup
+      - text: ".* is a global variable"
+        path: ".*_bench_test.go$"
+        linters:
+          - gochecknoglobals
+
+      # Intentional: Empty TTL string is valid (nil, nil) for optional duration
+      - text: "return both a `nil` error and an invalid value"
+        path: "cmd/key.go"
+        linters:
+          - nilnil
+
+      # Intentional: Optional values return (nil, nil) when not set
+      - text: "return both a `nil` error and an invalid value"
+        path: "(pagination|tracing|service)/"
+        linters:
+          - nilnil
+
+      # Design decision: SQLite OSS driver uses global network ID (single tenant)
+      - text: "networkID is a global variable"
+        path: "internal/persistence/sqlite/"
+        linters:
+          - gochecknoglobals
+
+      # Intentional: All code uses otelx.End(span, &err) for error capture
+      # spancheck cannot be configured to recognize custom span-ending functions
+      # See: https://github.com/jjti/go-spancheck (no support for end-check-func)
+      # Pattern: defer otelx.End(span, &err) calls span.End() internally after error recording
+      - text: "span.End is not called on all paths"
+        linters:
+          - spancheck
+
+      - text: "return can be reached without calling span.End"
+        linters:
+          - spancheck
+
+      # Test utilities and helpers may be unused in current test suite
+      - path: "internal/testutil/"
+        linters:
+          - unused
+
+      # Test helpers in test files
+      - path: "_test.go$"
+        text: "(type|func).*is unused"
+        linters:
+          - unused
+
+      # Underscore (_) parameters are intentionally unused (idiomatic Go)
+      - text: "var _ is unused"
+        linters:
+          - unused
+
+      # Table-driven tests have similar structure by design (not harmful duplication)
+      - path: "cmd/jwk_test.go$"
+        linters:
+          - dupl
+
+      # Inline validation functions in table-driven tests are not test helpers
+      - path: "cmd/jwk_test.go$"
+        text: "test helper function should start from t.Helper()"
+        linters:
+          - thelper
+
+      # Test mocks use plain string context keys for simplicity; custom types add no value in test code
+      - path: "_test\\.go$"
+        text: "context-keys-type"
+        linters:
+          - revive
+
+      # Test mocks use plain string context keys for simplicity (SA1029)
+      - path: "_test\\.go$"
+        text: "SA1029"
+        linters:
+          - staticcheck
+
+      # Test files use errors.New inline for expected-failure assertions; wrapped sentinels add no value
+      - path: "_test\\.go$"
+        linters:
+          - err113
+
+      # Metrics tests compare integer counter values stored as float64 — direct equality is correct
+      - path: "(internal/metrics/|test/api/)"
+        text: "float-compare"
+        linters:
+          - testifylint
+
+      # Test files share parallel patterns across backends (memory/redis, jwt/macaroon, mysql/postgres) by design
+      - path: "_test\\.go$"
+        linters:
+          - dupl
+
+      # Batch get functions operate on different tables (issued/imported) but share a template by design
+      - path: "commercial/persistence/(mysql|postgres)\\.go"
+        linters:
+          - dupl
+
+      # E2E tests close response bodies via the s.closeBody helper, which the linter cannot detect
+      - path: "test/api/.*_test\\.go$"
+        linters:
+          - bodyclose
+
+      # Design decision: per-service metric descriptors are package-level by Prometheus convention
+      - path: "internal/service/(self_service|api_keys)\\.go"
+        text: ".* is a global variable"
+        linters:
+          - gochecknoglobals
+
+      # Design decision: OTel tracer is a package-level singleton initialized at startup
+      - path: "internal/tracing/"
+        text: ".* is a global variable"
+        linters:
+          - gochecknoglobals
+
+      # Embedded config schema JSON is a package-level constant by design
+      - path: "internal/configschema/"
+        text: ".* is a global variable"
+        linters:
+          - gochecknoglobals
+
+      # Project config schema lookup is a package-level constant by design
+      - path: "commercial/corpctx/"
+        text: ".* is a global variable"
+        linters:
+          - gochecknoglobals
+
+issues:
+  # Maximum issues count per linter (set limit to reduce noise)
+  max-issues-per-linter: 50
+  # Maximum count of issues with the same text
+  max-same-issues: 10
+  # Show only new issues
+  new: false
+
+run:
+  timeout: 5m

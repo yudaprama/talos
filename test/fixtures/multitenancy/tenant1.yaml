@@ -1,0 +1,23 @@
+credentials:
+  issuer: "talos-test"
+  api_keys:
+    prefix:
+      current: "t1"
+    default_ttl: "24h"
+  derived_tokens:
+    default_ttl: "1h"
+    jwt:
+      signing_keys:
+        urls:
+          - "file://./test/fixtures/multitenancy/signing-keys/tenant1-ed25519.jwks.json"
+
+secrets:
+  default:
+    current: "tenant1-secret-minimum-32-chars-long-aaaaaaaaaaa"
+    retired: []
+  hmac:
+    current: "tenant1-hmac-secret-32-chars-bbbbbbbbbbb"
+    retired: []
+  pagination:
+    current: "tenant1-pagination-secret-32chars-ccccccc"
+    retired: []

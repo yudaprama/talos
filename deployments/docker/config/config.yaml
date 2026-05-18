@@ -1,0 +1,135 @@
+# Ory Talos Commercial Edition Configuration
+# Used by docker-compose for local development/testing
+
+# Server configuration
+serve:
+  http:
+    host: "0.0.0.0"
+    port: 8080
+    request_log:
+      exclude_health_endpoints: true
+    cors:
+      enabled: true
+      allowed_origins:
+        - "http://localhost:3001"
+
+        - "http://default.talos.local:3001"
+        - "http://tenant1.talos.local:3001"
+        - "http://tenant2.talos.local:3001"
+      allowed_methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "PATCH"
+      allowed_headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Forwarded-Host"
+      exposed_headers:
+        - "Content-Type"
+      allow_credentials: true
+      max_age: 86400
+      debug: false
+
+  metrics:
+    host: "0.0.0.0"
+    port: 4422
+
+# Credential configuration
+credentials:
+  issuer: "https://api.talos.local"
+  api_keys:
+    default_ttl: "720h"  # 30 days
+    max_ttl: "8760h"  # 365 days
+    prefix:
+      current: "talos"
+      retired: []
+
+  derived_tokens:
+    default_ttl: "1h"
+    jwt:
+      signing_keys:
+        urls:
+          - "base64://eyAgImtleXMiOiBbICAgIHsgICAgICAiYWxnIjogIkVkRFNBIiwgICAgICAiY3J2IjogIkVkMjU1MTkiLCAgICAgICJkIjogIjl3VTNfV3p0dmx3TXg0SGlfN2dsSVduY09XNlVIR2I5amxDdDZEZkVGa2MiLCAgICAgICJraWQiOiAiZG9ja2VyLWRldi0wMDEiLCAgICAgICJrdHkiOiAiT0tQIiwgICAgICAidXNlIjogInNpZyIsICAgICAgIngiOiAiNGtTQTdtNU5jYnFDUC1mZk9fNGhQM2tsNHB0NGctLTNRQ21zQmwzb05lVSIgICAgfSAgXX0="
+
+    macaroon:
+      prefix:
+        current: "mc"
+        retired: []
+
+# Token issuer (required)
+# Database configuration
+db:
+  dsn: "postgres://talos:talos@postgres:5432/talos?sslmode=disable"
+
+# Logging
+log:
+  level: "info"
+  format: "json"
+
+# Secrets (CHANGE THESE IN PRODUCTION!)
+secrets:
+  default:
+    current: "docker-compose-dev-secret-minimum-32-chars-long"
+    retired: []
+  hmac:
+    current: "docker-compose-hmac-secret-minimum-32-chars-long"
+    retired: []
+  pagination:
+    current: "docker-compose-pagination-secret-32-chars"
+    retired: []
+
+# Tracing - exports spans to local Tempo instance from docker-compose.commercial.yaml
+tracing:
+  enabled: true
+  service_name: "ory-talos-commercial"
+  service_version: "dev"
+  environment: "development"
+  exporter: "otlp"
+  endpoint: "tempo:4317"
+  sample_rate: 1.0
+
+# Cache - distributed Redis cache for API key verification (Commercial)
+cache:
+  type: "redis"
+  ttl: "5m"
+  redis:
+    addrs:
+      - "redis:6379"
+    password: ""
+    db: 0
+    pool_size: 100
+    timeout: "3s"
+
+# Rate limit enforcement (Commercial)
+# Uses Redis backend for distributed counting across pods
+rate_limit:
+  enabled: true
+  backend: redis
+
+# Multi-tenancy configuration (Commercial)
+# Each network requires config_path pointing to its tenant-specific config
+multitenancy:
+  enabled: true
+  networks:
+    # Default tenant (localhost access)
+    - hostname: "localhost"
+      id: "00000000-0000-0000-0000-000000000000"
+      config_path: "/etc/talos/tenants/default.yaml"
+    # Default tenant (internal docker-compose service name)
+    - hostname: "backend"
+      id: "00000000-0000-0000-0000-000000000000"
+      config_path: "/etc/talos/tenants/default.yaml"
+    # Default tenant (multi-tenant hostname)
+    - hostname: "default.talos.local"
+      id: "00000000-0000-0000-0000-000000000000"
+      config_path: "/etc/talos/tenants/default.yaml"
+    # Tenant 1
+    - hostname: "tenant1.talos.local"
+      id: "00000000-0000-0000-0000-000000000001"
+      config_path: "/etc/talos/tenants/tenant1.yaml"
+    # Tenant 2
+    - hostname: "tenant2.talos.local"
+      id: "00000000-0000-0000-0000-000000000002"
+      config_path: "/etc/talos/tenants/tenant2.yaml"

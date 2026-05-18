@@ -1,0 +1,17 @@
+{
+  "error": {
+    "code": 404,
+    "message": "key abc123 not found",
+    "status": "NOT_FOUND",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_NOT_FOUND",
+        "domain": "talos.ory.com",
+        "metadata": {
+          "key_id": "abc123"
+        }
+      }
+    ]
+  }
+}

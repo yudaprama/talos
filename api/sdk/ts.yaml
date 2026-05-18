@@ -1,0 +1,7 @@
+supportsES6: true
+ensureUniqueParams: true
+modelPropertyNaming: camelCase
+disallowAdditionalPropertiesIfNotPresent: false
+withInterfaces: false
+useSingleRequestParameter: true
+enumUnknownDefaultCase: true

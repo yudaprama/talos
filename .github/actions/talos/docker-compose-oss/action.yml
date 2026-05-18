@@ -1,0 +1,55 @@
+name: Docker Compose (OSS)
+description: Build, health-check, and tear down the OSS Docker Compose stack.
+runs:
+  using: composite
+  steps:
+    - name: Build and start services
+      shell: bash
+      working-directory: talos/talos
+      run: docker compose -f docker-compose.oss.yaml up --build -d
+      # timeout-minutes cannot be set in composite action steps; set it in the calling job
+
+    - name: Wait for backend to be healthy
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        echo "Waiting for backend to become healthy..."
+        for i in $(seq 1 60); do
+          if docker inspect --format='{{.State.Health.Status}}' ory-talos-backend-oss 2>/dev/null | grep -q healthy; then
+            echo "Backend is healthy!"
+            break
+          fi
+          if [ $i -eq 60 ]; then
+            echo "Backend failed to become healthy within 5 minutes"
+            docker compose -f docker-compose.oss.yaml logs backend
+            docker compose -f docker-compose.oss.yaml logs db-init
+            exit 1
+          fi
+          echo "  Attempt $i/60 - waiting 5s..."
+          sleep 5
+        done
+
+    - name: Verify backend health
+      shell: bash
+      working-directory: talos/talos
+      run: |
+        docker compose -f docker-compose.oss.yaml exec -T backend wget -q -O- http://localhost:4422/health/alive > /dev/null
+        echo "Backend health endpoint OK"
+
+    - name: Show service status
+      if: always()
+      shell: bash
+      working-directory: talos/talos
+      run: docker compose -f docker-compose.oss.yaml ps -a
+
+    - name: Dump logs on failure
+      if: failure()
+      shell: bash
+      working-directory: talos/talos
+      run: docker compose -f docker-compose.oss.yaml logs --tail=100
+
+    - name: Tear down
+      if: always()
+      shell: bash
+      working-directory: talos/talos
+      run: docker compose -f docker-compose.oss.yaml down -v

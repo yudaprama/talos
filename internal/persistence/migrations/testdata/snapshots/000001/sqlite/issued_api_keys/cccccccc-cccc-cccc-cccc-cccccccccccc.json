@@ -1,0 +1,24 @@
+{
+  "nid": "<test-nid>",
+  "key_id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+  "name": "Expired Key",
+  "token_prefix": "dev",
+  "version": 1,
+  "actor_id": null,
+  "scopes": [
+    "read"
+  ],
+  "status": 3,
+  "metadata": {},
+  "last_used_at": null,
+  "expires_at": "2023-12-31T00:00:00Z",
+  "created_at": "2023-12-01T10:00:00Z",
+  "updated_at": "2023-12-01T10:00:00Z",
+  "rate_limit_quota": null,
+  "rate_limit_window": null,
+  "revocation_reason": 0,
+  "revocation_reason_text": null,
+  "allowed_cidrs": [],
+  "request_id": null,
+  "visibility": 2
+}

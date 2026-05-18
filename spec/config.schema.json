@@ -1,0 +1,753 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ory-corp/talos/config.schema.json",
+  "title": "Ory Talos Configuration",
+  "description": "Configuration schema for Ory Talos (OSS and Enterprise Edition). Fields marked with 'x-license-required: true' require an Enterprise license.",
+  "type": "object",
+  "properties": {
+    "serve": {
+      "type": "object",
+      "description": "Server configuration for HTTP and metrics endpoints",
+      "properties": {
+        "http": {
+          "type": "object",
+          "description": "HTTP server configuration. Host and port require restart; CORS, client IP source, and request logging are hot-reloadable.",
+          "properties": {
+            "request_log": {
+              "type": "object",
+              "properties": {
+                "exclude_health_endpoints": {
+                  "title": "Exclude health endpoints from request logging",
+                  "description": "Exclude /health/alive and /health/ready endpoints from request logs",
+                  "type": "boolean",
+                  "default": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "host": {
+              "title": "Host",
+              "description": "The host (interface) that the endpoint listens on. Immutable: requires server restart to change.",
+              "type": "string",
+              "default": "0.0.0.0",
+              "x-immutable": true
+            },
+            "port": {
+              "title": "Port",
+              "description": "The port that the endpoint listens on. Immutable: requires server restart to change.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "default": 4420,
+              "x-immutable": true
+            },
+            "cors": {
+              "$id": "https://raw.githubusercontent.com/ory/x/master/.schemas/corsx/viper.schema.json",
+              "$schema": "http://json-schema.org/draft-07/schema#",
+              "title": "Cross Origin Resource Sharing (CORS)",
+              "description": "Configure [Cross Origin Resource Sharing (CORS)](http://www.w3.org/TR/cors/) using the following options.",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "Enable CORS",
+                  "description": "If set to true, CORS will be enabled and preflight-requests (OPTION) will be answered."
+                },
+                "allowed_origins": {
+                  "title": "Allowed Origins",
+                  "description": "A list of origins a cross-domain request can be executed from. If the special * value is present in the list, all origins will be allowed. An origin may contain a wildcard (*) to replace 0 or more characters (i.e.: http://*.domain.com). Usage of wildcards implies a small performance penality. Only one wildcard can be used per origin.",
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "default": ["*"],
+                  "uniqueItems": true,
+                  "examples": [
+                    "https://example.com",
+                    "https://*.example.com",
+                    "https://*.foo.example.com"
+                  ]
+                },
+                "allowed_methods": {
+                  "type": "array",
+                  "title": "Allowed HTTP Methods",
+                  "description": "A list of methods the client is allowed to use with cross-domain requests.",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "GET",
+                      "HEAD",
+                      "POST",
+                      "PUT",
+                      "DELETE",
+                      "CONNECT",
+                      "TRACE",
+                      "PATCH"
+                    ]
+                  },
+                  "uniqueItems": true,
+                  "default": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+                },
+                "allowed_headers": {
+                  "description": "A list of non simple headers the client is allowed to use with cross-domain requests.",
+                  "title": "Allowed Request HTTP Headers",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minLength": 1,
+                  "uniqueItems": true,
+                  "default": ["Authorization", "Content-Type"]
+                },
+                "exposed_headers": {
+                  "description": "Indicates which headers are safe to expose to the API of a CORS API specification",
+                  "title": "Allowed Response HTTP Headers",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minLength": 1,
+                  "uniqueItems": true,
+                  "default": ["Content-Type"]
+                },
+                "allow_credentials": {
+                  "type": "boolean",
+                  "title": "Allow HTTP Credentials",
+                  "default": false,
+                  "description": "Indicates whether the request can include user credentials like cookies, HTTP authentication or client side SSL certificates."
+                },
+                "max_age": {
+                  "type": "number",
+                  "default": 0,
+                  "title": "Maximum Age",
+                  "description": "Indicates how long (in seconds) the results of a preflight request can be cached. The default is 0 which stands for no max age."
+                },
+                "debug": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "Enable Debugging",
+                  "description": "Set to true to debug server side CORS issues."
+                }
+              },
+              "additionalProperties": false
+            },
+            "client_ip_source": {
+              "title": "Client IP Source",
+              "description": "Determines which HTTP header or connection property is used to resolve the client IP for IP restriction checks. Must match your infrastructure topology. Default (unspecified) uses the TCP remote address. Hot-reloadable: read dynamically per request.",
+              "type": "string",
+              "enum": ["CLIENT_IP_SOURCE_UNSPECIFIED", "CLIENT_IP_SOURCE_REMOTE_ADDR", "CLIENT_IP_SOURCE_CF_CONNECTING_IP", "CLIENT_IP_SOURCE_X_FORWARDED_FOR", "CLIENT_IP_SOURCE_X_REAL_IP", "CLIENT_IP_SOURCE_TRUE_CLIENT_IP"],
+              "default": "CLIENT_IP_SOURCE_UNSPECIFIED"
+            },
+            "trust_forwarded_host": {
+              "title": "Trust X-Forwarded-Host",
+              "description": "Trust the X-Forwarded-Host header for tenant routing. Only enable when Talos runs behind a reverse proxy that strips or overwrites this header from untrusted clients.",
+              "type": "boolean",
+              "default": false,
+              "x-immutable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Prometheus metrics server configuration. Server addresses are immutable (require restart). Requires Enterprise license.",
+          "x-license-required": true,
+          "x-immutable": true,
+          "properties": {
+            "host": {
+              "title": "Host",
+              "description": "The host (interface) that the metrics endpoint listens on. Immutable: requires server restart to change.",
+              "type": "string",
+              "default": "0.0.0.0",
+              "x-immutable": true
+            },
+            "port": {
+              "title": "Port",
+              "description": "The port that the metrics endpoint listens on. Immutable: requires server restart to change.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "default": 4422,
+              "x-immutable": true
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "credentials": {
+      "type": "object",
+      "description": "Credential configuration for API keys and derived tokens (JWT, macaroon)",
+      "properties": {
+        "issuer": {
+          "type": "string",
+          "description": "Token issuer (iss claim) for derived tokens. REQUIRED. Should be a stable URL identifying this deployment (e.g., https://api.example.com).",
+          "minLength": 1
+        },
+        "issuer_retired": {
+          "type": "array",
+          "description": "Retired issuer URLs accepted during token verification. Tokens signed with these issuers remain valid but new tokens use the current issuer.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": []
+        },
+        "clock_skew": {
+          "type": "string",
+          "description": "Maximum clock skew tolerance for timestamp and token validation. Accepts Go duration format (e.g., 5m, 30s). Maximum 600s (10m). Defaults to 5m.",
+          "default": "5m",
+          "maximum": 600
+        },
+        "api_keys": {
+          "type": "object",
+          "description": "API key configuration",
+          "properties": {
+            "default_ttl": {
+              "type": "string",
+              "description": "Default API key TTL (duration string). When not set, keys have no expiry by default.",
+              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$"
+            },
+            "max_ttl": {
+              "type": "string",
+              "description": "Maximum age for API keys with timestamps. Keys older than this are rejected. Format: Go duration (e.g., '24h', '168h', '8760h')",
+              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "default": "8760h",
+              "examples": ["24h", "168h", "720h", "8760h"]
+            },
+            "prefix": {
+              "type": "object",
+              "description": "API key prefix configuration for key generation and verification",
+              "properties": {
+                "current": {
+                  "type": "string",
+                  "description": "Current prefix used for new API key generation. Must be 1-16 alphanumeric characters or underscores.",
+                  "pattern": "^[a-zA-Z0-9_]{1,16}$",
+                  "default": "ory_ak"
+                },
+                "retired": {
+                  "type": "array",
+                  "description": "Retired prefixes accepted during verification for migration purposes. Keys with these prefixes will still verify but new keys use 'current'.",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_]{1,16}$"
+                  },
+                  "default": []
+                },
+                "public_current": {
+                  "type": "string",
+                  "description": "Current prefix used for new PUBLIC API key generation. Must be 1-16 alphanumeric characters or underscores. If not configured, issuing public keys returns an error.",
+                  "pattern": "^[a-zA-Z0-9_]{1,16}$"
+                },
+                "public_retired": {
+                  "type": "array",
+                  "description": "Retired public prefixes accepted during verification for migration purposes.",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_]{1,16}$"
+                  },
+                  "default": []
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "derived_tokens": {
+          "type": "object",
+          "description": "Derived token configuration for JWT and macaroon tokens",
+          "properties": {
+            "default_ttl": {
+              "type": "string",
+              "description": "Default derived token TTL applied to both JWT and macaroon tokens when no explicit TTL is provided in the request (duration string)",
+              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "default": "1h"
+            },
+            "jwt": {
+              "type": "object",
+              "description": "JWT token configuration",
+              "properties": {
+                "signing_key_id": {
+                  "type": "string",
+                  "description": "Optional JWK 'kid' hint used to select the active signing key. When set, derived JWTs are signed with the key whose 'kid' matches and signing fails if no such key exists. When unset, the first key with use=\"sig\" is selected, falling back to the first key in the set."
+                },
+                "signing_keys": {
+                  "type": "object",
+                  "description": "Signing keys configuration for JWT token generation",
+                  "properties": {
+                    "urls": {
+                      "type": "array",
+                      "description": "List of JWKS resources. Only base64:// literals are accepted (e.g. \"base64://<base64-encoded-jwks>\"). Other schemes (file://, https://, http://) are rejected by the Ory Network platform.",
+                      "items": {
+                        "type": "string",
+                        "format": "uri",
+                        "pattern": "^base64://"
+                      },
+                      "default": []
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "macaroon": {
+              "type": "object",
+              "description": "Macaroon token configuration",
+              "properties": {
+                "prefix": {
+                  "type": "object",
+                  "description": "Macaroon token prefix configuration for generation and verification",
+                  "properties": {
+                    "current": {
+                      "type": "string",
+                      "description": "Current prefix used for new macaroon token generation. Must be 1-8 alphanumeric characters or underscores.",
+                      "pattern": "^[a-zA-Z0-9_]{1,8}$",
+                      "default": "mc"
+                    },
+                    "retired": {
+                      "type": "array",
+                      "description": "Retired prefixes accepted during macaroon verification for rotation purposes.",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9_]{1,8}$"
+                      },
+                      "default": []
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["issuer"],
+      "additionalProperties": false
+    },
+    "db": {
+      "type": "object",
+      "description": "Database configuration. Immutable: connection pool is created at startup and cannot be hot-reloaded. Driver type is determined from DSN scheme (sqlite://, postgres://, cockroach://). Connection pool settings are configured via DSN query parameters: max_conns=N, max_idle_conns=N, max_conn_lifetime=5m, max_conn_idle_time=1m. For pgxpool (postgres/cockroach): pool_max_conns, pool_min_conns, pool_max_conn_lifetime, pool_max_conn_idle_time.",
+      "x-immutable": true,
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "Database connection string with scheme and optional query parameters. Immutable: requires server restart to change. Examples: sqlite://./data.db, postgres://user:pass@host:5432/dbname?max_conns=25&max_conn_lifetime=5m, cockroach://user@host:26257/db?pool_max_conns=50",
+          "minLength": 1,
+          "x-immutable": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "cache": {
+      "type": "object",
+      "description": "Cache configuration. Infrastructure (type, memory, redis) is immutable and requires server restart to change. cache.ttl is hot-reloadable and tenant-configurable. Requires Enterprise license.",
+      "x-license-required": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Cache implementation type. Immutable: requires server restart to change. Only noop is available in OSS. memory and redis require Enterprise license.",
+          "enum": ["memory", "redis", "noop"],
+          "default": "noop",
+          "x-immutable": true
+        },
+        "ttl": {
+          "type": "string",
+          "description": "Default cache TTL (duration string). Hot-reloadable and tenant-configurable: changes take effect on new cache writes without restart.",
+          "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+          "default": "5m"
+        },
+        "memory": {
+          "type": "object",
+          "description": "Memory cache configuration. Immutable: requires server restart to change.",
+          "x-immutable": true,
+          "properties": {
+            "max_size": {
+              "type": "integer",
+              "description": "Maximum memory usage in bytes. Immutable: requires server restart to change.",
+              "minimum": 1048576,
+              "maximum": 10737418240,
+              "default": 104857600,
+              "x-immutable": true
+            },
+            "num_counters": {
+              "type": "integer",
+              "description": "Number of counters for frequency estimation. Immutable: requires server restart to change.",
+              "minimum": 100,
+              "maximum": 1000000,
+              "default": 10000,
+              "x-immutable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "redis": {
+          "type": "object",
+          "description": "Redis cache configuration. Immutable: requires server restart to change. Requires Enterprise license.",
+          "x-license-required": true,
+          "x-immutable": true,
+          "properties": {
+            "addrs": {
+              "type": "array",
+              "description": "Redis server addresses (supports cluster/sentinel). Immutable: requires server restart to change.",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9.-]+:[0-9]+$"
+              },
+              "minItems": 1,
+              "default": ["localhost:6379"],
+              "x-immutable": true
+            },
+            "password": {
+              "type": "string",
+              "description": "Redis password. Immutable: requires server restart to change.",
+              "x-immutable": true
+            },
+            "db": {
+              "type": "integer",
+              "description": "Redis database number. Immutable: requires server restart to change.",
+              "minimum": 0,
+              "maximum": 15,
+              "default": 0,
+              "x-immutable": true
+            },
+            "pool_size": {
+              "type": "integer",
+              "description": "Connection pool size",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            },
+            "timeout": {
+              "type": "string",
+              "description": "Redis operation timeout (duration string)",
+              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "default": "3s"
+            },
+            "min_idle_conns": {
+              "type": "integer",
+              "description": "Minimum number of idle connections kept open. Defaults to 2.",
+              "minimum": 0,
+              "default": 2,
+              "x-immutable": true
+            },
+            "conn_max_idle_time": {
+              "type": "string",
+              "description": "Maximum duration a connection may be idle before being closed. Defaults to 5m.",
+              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "default": "5m",
+              "x-immutable": true
+            },
+            "conn_max_lifetime": {
+              "type": "string",
+              "description": "Maximum duration a connection may be reused. Defaults to 30m.",
+              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "default": "30m",
+              "x-immutable": true
+            },
+            "tls": {
+              "type": "object",
+              "description": "TLS configuration for the Redis connection.",
+              "x-immutable": true,
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable TLS using the system certificate pool. Required for TLS-only Redis deployments.",
+                  "default": false,
+                  "x-immutable": true
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "const": "redis"
+              }
+            }
+          },
+          "then": {
+            "required": ["redis"]
+          }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "const": "memory"
+              }
+            }
+          },
+          "then": {
+            "required": ["memory"]
+          }
+        }
+      ]
+    },
+    "rate_limit": {
+      "type": "object",
+      "description": "Rate limit enforcement for API keys with a RateLimitPolicy. Commercial-only. Keys without a policy are never rate limited.",
+      "x-license-required": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable rate limit enforcement. When disabled, policies are stored and returned as metadata but not enforced. Hot-reloadable: can be toggled without restart."
+        },
+        "backend": {
+          "type": "string",
+          "enum": ["memory", "redis"],
+          "default": "memory",
+          "description": "Counter backend. 'memory' uses per-pod in-memory counters (not shared across pods). 'redis' uses the Redis connection from cache.redis for distributed counting. Immutable: requires server restart to change.",
+          "x-immutable": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "last_used": {
+      "type": "object",
+      "description": "Configuration for batched last_used_at timestamp updates. Controls how verification events are collected, deduplicated, and flushed as batch UPDATEs. Immutable: requires server restart to change.",
+      "x-immutable": true,
+      "properties": {
+        "queue_size": {
+          "type": "integer",
+          "description": "Buffer size for the async last-used update queue. When full, new updates are dropped (callers debounce to once per day per key). Immutable: requires server restart to change.",
+          "default": 10000,
+          "minimum": 256,
+          "maximum": 1000000,
+          "x-immutable": true
+        },
+        "flush_size": {
+          "type": "integer",
+          "description": "Number of updates per shard that triggers a batch flush. Immutable: requires server restart to change.",
+          "default": 100,
+          "minimum": 1,
+          "maximum": 10000,
+          "x-immutable": true
+        },
+        "flush_interval": {
+          "type": "string",
+          "description": "Maximum time between batch flushes (Go duration string, e.g. '30s', '1m'). Immutable: requires server restart to change.",
+          "default": "30s",
+          "x-immutable": true
+        },
+        "num_workers": {
+          "type": "integer",
+          "description": "Number of goroutines processing last-used batches. Immutable: requires server restart to change.",
+          "default": 4,
+          "minimum": 1,
+          "maximum": 64,
+          "x-immutable": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "log": {
+      "type": "object",
+      "description": "Logging configuration. Immutable: logger is created at startup and requires server restart to change.",
+      "x-immutable": true,
+      "properties": {
+        "level": {
+          "type": "string",
+          "description": "Log level. Immutable: requires server restart to change. Stack traces are omitted when level=warn, level=error to avoid leaking sensitive details.",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "x-immutable": true
+        },
+        "format": {
+          "type": "string",
+          "description": "Log format. Immutable: requires server restart to change.",
+          "enum": ["json", "text"],
+          "default": "json",
+          "x-immutable": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "tracing": {
+      "type": "object",
+      "description": "OpenTelemetry tracing configuration. Immutable: tracer is created at startup and requires server restart to change. Requires Enterprise license.",
+      "x-license-required": true,
+      "x-immutable": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable tracing. Immutable: requires server restart to change.",
+          "default": false,
+          "x-immutable": true
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Service name reported to OpenTelemetry. Immutable: requires server restart to change.",
+          "default": "talos",
+          "x-immutable": true
+        },
+        "service_version": {
+          "type": "string",
+          "description": "Service version reported to OpenTelemetry. Immutable: requires server restart to change.",
+          "default": "0.0.0",
+          "x-immutable": true
+        },
+        "environment": {
+          "type": "string",
+          "description": "Deployment environment tag in trace attributes. Immutable: requires server restart to change.",
+          "default": "development",
+          "x-immutable": true
+        },
+        "exporter": {
+          "type": "string",
+          "description": "Trace exporter type. Immutable: requires server restart to change.",
+          "enum": ["otlp"],
+          "x-immutable": true
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Trace collector endpoint. Immutable: requires server restart to change.",
+          "x-immutable": true
+        },
+        "sample_rate": {
+          "type": "number",
+          "description": "Sampling rate (0.0 to 1.0). Immutable: requires server restart to change.",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.001,
+          "x-immutable": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "secrets": {
+      "type": "object",
+      "description": "Centralized secrets management. All secrets should be configured here instead of being generated per instance. Component-specific secrets override the default secret.",
+      "properties": {
+        "default": {
+          "type": "object",
+          "description": "Default secret configuration with rotation support (fallback for all components)",
+          "properties": {
+            "current": {
+              "type": "string",
+              "description": "Current default secret for all components without specific overrides",
+              "minLength": 32
+            },
+            "retired": {
+              "type": "array",
+              "description": "Retired default secrets that remain valid for verification during rotation",
+              "items": {
+                "type": "string",
+                "minLength": 32
+              },
+              "default": []
+            }
+          },
+          "required": ["current"],
+          "additionalProperties": false
+        },
+        "pagination": {
+          "type": "object",
+          "description": "Override secret for pagination token encryption (hyrum tokens). If not set, uses secrets.default. Must be at least 32 characters.",
+          "properties": {
+            "current": {
+              "type": "string",
+              "description": "Secret used to sign and encrypt pagination tokens. Must be at least 32 characters.",
+              "minLength": 32
+            },
+            "retired": {
+              "type": "array",
+              "description": "List of retired pagination secrets that should remain valid for decoding legacy page tokens during secret rotation.",
+              "items": {
+                "type": "string",
+                "minLength": 32
+              },
+              "default": []
+            }
+          },
+          "additionalProperties": false
+        },
+        "hmac": {
+          "type": "object",
+          "description": "HMAC secret configuration with rotation support",
+          "properties": {
+            "current": {
+              "type": "string",
+              "description": "Current HMAC secret for new key generation and checksum verification",
+              "minLength": 32
+            },
+            "retired": {
+              "type": "array",
+              "description": "Retired HMAC secrets that remain valid for verification during rotation",
+              "items": {
+                "type": "string",
+                "minLength": 32
+              },
+              "default": []
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["default"]
+    },
+    "multitenancy": {
+      "type": "object",
+      "description": "Multi-tenancy configuration. Immutable: routing infrastructure is configured at startup and requires server restart to change. Requires Enterprise license.",
+      "x-license-required": true,
+      "x-immutable": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable multi-tenancy support. Immutable: requires server restart to change. When disabled, all requests use the root network configuration. When enabled, the system resolves per-tenant networks based on request hostname.",
+          "default": false,
+          "x-immutable": true
+        },
+        "networks": {
+          "type": "array",
+          "description": "Network routing configuration. Immutable: requires server restart to change. Each entry maps a hostname to a network ID and config path.",
+          "x-immutable": true,
+          "items": {
+            "type": "object",
+            "description": "Network entry mapping a hostname to a tenant network",
+            "properties": {
+              "hostname": {
+                "type": "string",
+                "description": "Hostname that routes to this network (port is ignored if present)",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "UUID of the network/tenant",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "config_path": {
+                "type": "string",
+                "description": "Path to the network-specific configuration file (absolute or relative to working directory)",
+                "minLength": 1
+              }
+            },
+            "required": ["hostname", "id", "config_path"],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["credentials", "secrets"],
+  "additionalProperties": false
+}

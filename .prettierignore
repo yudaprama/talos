@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build artifacts
+.bin/
+build/
+.docusaurus/
+.cache/
+*.out
+*.html
+dist/
+coverage*.out
+coverage*.html
+
+# Generated files
+pkg/api/
+api/**/*.pb.go
+api/**/*.pb.gw.go
+api/**/*.swagger.json
+internal/client/generated/
+internal/persistence/sqlc/generated/
+mocks/
+
+# Vendor
+vendor/
+
+# Documentation build
+website/build/
+website/.docusaurus/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git
+.git/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+.db/
+
+# Test files
+test/fixtures/
+
+# CI/CD
+.github/
+
+# Commercial directory
+commercial/

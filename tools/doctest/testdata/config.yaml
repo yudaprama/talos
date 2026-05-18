@@ -1,0 +1,48 @@
+# Doctest configuration for Talos
+# Used by documentation tests (make docs-new-test)
+# DOCTEST_JWKS_PATH is replaced at runtime by the setup block
+
+serve:
+  http:
+    host: "127.0.0.1"
+    port: 14420
+    request_log:
+      exclude_health_endpoints: true
+
+  metrics:
+    host: "127.0.0.1"
+    port: 14422
+
+credentials:
+  issuer: "talos-doctest"
+  api_keys:
+    default_ttl: "720h"
+    max_ttl: "87600h"
+
+  derived_tokens:
+    default_ttl: "1h"
+    jwt:
+      signing_keys:
+        urls:
+          - "base64://DOCTEST_JWKS_PATH"
+
+db:
+  dsn: "sqlite:///tmp/doctest-talos.db"
+
+log:
+  level: "error"
+  format: "json"
+
+secrets:
+  default:
+    current: "doctest-hmac-secret-for-api-key-hashing-minimum-32-chars"
+  pagination:
+    current: "doctest-pagination-secret-must-be-at-least-32-characters-long"
+  hmac:
+    current: "doctest-hmac-secret-for-api-key-checksum-validation-32chars"
+
+tracing:
+  enabled: false
+
+cache:
+  type: "noop"

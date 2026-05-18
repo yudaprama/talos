@@ -1,0 +1,96 @@
+# Ory Talos OSS Edition Configuration
+# Used by docker-compose.oss.yaml for local development/testing
+
+# Server configuration
+serve:
+  http:
+    host: "0.0.0.0"
+    port: 8080
+    request_log:
+      exclude_health_endpoints: true
+    cors:
+      enabled: true
+      allowed_origins:
+        - "http://localhost:3001"
+
+      allowed_methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "PATCH"
+      allowed_headers:
+        - "Content-Type"
+        - "Authorization"
+      exposed_headers:
+        - "Content-Type"
+      allow_credentials: true
+      max_age: 86400
+      debug: false
+
+  metrics:
+    host: "0.0.0.0"
+    port: 4422
+
+# Credential configuration
+credentials:
+  issuer: "https://api.talos.local"
+  api_keys:
+    default_ttl: "720h"  # 30 days
+    max_ttl: "8760h"  # 365 days
+    prefix:
+      current: "talos"
+      retired: []
+
+  derived_tokens:
+    default_ttl: "1h"
+    jwt:
+      signing_keys:
+        urls:
+          - "base64://eyAgImtleXMiOiBbICAgIHsgICAgICAiYWxnIjogIkVkRFNBIiwgICAgICAiY3J2IjogIkVkMjU1MTkiLCAgICAgICJkIjogIjl3VTNfV3p0dmx3TXg0SGlfN2dsSVduY09XNlVIR2I5amxDdDZEZkVGa2MiLCAgICAgICJraWQiOiAiZG9ja2VyLWRldi0wMDEiLCAgICAgICJrdHkiOiAiT0tQIiwgICAgICAidXNlIjogInNpZyIsICAgICAgIngiOiAiNGtTQTdtNU5jYnFDUC1mZk9fNGhQM2tsNHB0NGctLTNRQ21zQmwzb05lVSIgICAgfSAgXX0="
+
+    macaroon:
+      prefix:
+        current: "mc"
+        retired: []
+
+# Token issuer (required)
+# Database configuration
+db:
+  dsn: "sqlite3:///var/lib/talos/talos.db?_journal_mode=WAL"
+
+# Logging
+log:
+  level: "info"
+  format: "json"
+
+# Secrets (CHANGE THESE IN PRODUCTION!)
+secrets:
+  default:
+    current: "docker-compose-dev-secret-minimum-32-chars-long"
+    retired: []
+  hmac:
+    current: "docker-compose-hmac-secret-minimum-32-chars-long"
+    retired: []
+  pagination:
+    current: "docker-compose-pagination-secret-32-chars"
+    retired: []
+
+# Tracing - exports spans to local Jaeger from docker-compose.oss.yaml
+tracing:
+  enabled: true
+  service_name: "ory-talos-oss"
+  service_version: "dev"
+  environment: "development"
+  exporter: "otlp"
+  endpoint: "jaeger:4317"
+  sample_rate: 1.0
+
+# Cache configuration
+cache:
+  type: "noop"
+  ttl: "5m"
+
+# Multi-tenancy disabled for OSS
+multitenancy:
+  enabled: false

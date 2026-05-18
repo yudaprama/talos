@@ -1,0 +1,46 @@
+---
+id: admin-delete-imported-api-key
+title: "Delete Imported API Key"
+description: "Permanently deletes an imported key (hard delete). The key is removed from"
+sidebar_label: "Delete Imported API Key"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVUtv4zYQ/iuDOcUF18663R50qtEEqLst6mYT9JAE9UQcWdxQpJakvBEM/fdiKHvjPFA0154kPub1zTcfd6g5lsG0yXiHBa44NOTYJduDZsuJI5AD07Q+JNZwzz2c1BT0/nQyhcua87aJELjxW9ZQBd/cuFQzaEp0R5GncBUZLnjr73mxWn7kHiofIPoqjZ6Md3ASuPRNw06znkxv3I1br9d1Su2NOzv/7fzyHGbbOdm2pvcz0o1xs0Nei9Z85D7Odvfc/230kC1RoW85kPheaixwITZnOe/lwTDnggpbCtRw4hCxuN49Q+XTL4sP7+ez+YcfoaZYg69AinuKysX5n1fLi/OzCSo0YtVSqlGho4axwDEzVBj4S2cCayxS6FhhLGtuCIsdpr6VmzEF4zY4DLdyObbeRY5yPj89lU/pXWKX5Jfa1poyVzj7HCXX3Ut//u4zlwmHYVDP6lpA7MqSY6w6C4dQUxwUzk9/eEuoV3wvj8EZyaKPwtk+x9FcUWfTm8pqg7Q1mRGU0muWb+VDQwkLNC59P0d1qN64xBsOY7BExmYrk7jJP6S1kThkV8duB/UszE+ju5dNUs9gVphMsrKxcD0+HlMIlNcNx0ibN/r6lCh18dUeOugcP7RcCsAcgg/HrRSftBFS48j1iLeSQ6q9jMTYmMz/VGOB/3XAMscrL0U8TeeP0MMlWR9FDwhqs6nftRxyd1zJsFgtMyMacrThhl2CyGFrSp7CMkFNTluOebyEJd/uW1Nx2ZeWCzAxdsZtZDsq2HIwVS/rVHMDlMD6r2ApsSt7BZqD2cpprH1I76wRfUr+nl2Ek1//ugRyGn6nkoL3bqLyMohMiQ1lto5KlMXju/W7NnBlHljDxepnUbw8zJDRAupSzS7tqTtK4x0FhvWx8q3FNMPzeJ013PXQBu8rUZfWx8gxZlEUKAJ9hTKwlttkIXIZOE2mRwR5xH2xWqLCLYc4duTQUeFe62NqKM/TXpZGOYRv0yp4j4r4pK9H4/l/eyP2I5f4Ic1aS8YJUF2wWWryVFw/YqgwOxX6P3WLCou9xN8qrH1MYrfbSWFXwQ6DbH/pOPRYXN8q3FIwdCetk9fGRPnXWFRkI/8L9icX+9djAm9+lF4t9KBOTlq+JdvJCpU8V4+P1nA7KKyZNIec73i4KEtu05HZC9kejqVmbA8Owz81ovCk
+sidebar_class_name: "delete api-method"
+info_path: reference/api/ory-talos-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading as={"h1"} className={"openapi__heading"} children={"Delete Imported API Key"}></Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/v2alpha1/admin/importedApiKeys/{key_id}"}
+  context={"endpoint"}
+></MethodEndpoint>
+
+Permanently deletes an imported key (hard delete). The key is removed from the database. Use
+RevokeAPIKey for soft deletion (recommended).
+
+```http
+DELETE /v2alpha1/admin/importedApiKeys/{key_id}
+```
+
+<Heading id={"request"} as={"h2"} className={"openapi-tabs__heading"}>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails {...require("./admin-delete-imported-api-key.ParamsDetails.json")}></ParamsDetails>
+
+<RequestSchema {...require("./admin-delete-imported-api-key.RequestSchema.json")}></RequestSchema>
+
+<StatusCodes {...require("./admin-delete-imported-api-key.StatusCodes.json")}></StatusCodes>

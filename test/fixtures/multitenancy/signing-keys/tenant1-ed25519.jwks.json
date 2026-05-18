@@ -1,0 +1,13 @@
+{
+  "keys": [
+    {
+      "alg": "EdDSA",
+      "crv": "Ed25519",
+      "d": "ofbxpY_z6upahlJrn7Ex2Fjk3Ju9kmBUHjCYnVxTB1o",
+      "kid": "tenant1-eddsa-test-key",
+      "kty": "OKP",
+      "use": "sig",
+      "x": "YgyAUlpI_u-KeQp79NK_qnHBJygX9dWwwInzhLkqiv4"
+    }
+  ]
+}

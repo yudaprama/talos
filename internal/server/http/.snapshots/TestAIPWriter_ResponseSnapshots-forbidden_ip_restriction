@@ -1,0 +1,14 @@
+{
+  "error": {
+    "code": 403,
+    "message": "192.168.1.1 is not in the allowed CIDR list",
+    "status": "PERMISSION_DENIED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "IP_NOT_ALLOWED",
+        "domain": "talos.ory.com"
+      }
+    ]
+  }
+}

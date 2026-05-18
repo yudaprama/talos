@@ -1,0 +1,14 @@
+{
+  "error": {
+    "code": 500,
+    "message": "an internal error occurred",
+    "status": "INTERNAL",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "INTERNAL_SERVER_ERROR",
+        "domain": "talos.ory.com"
+      }
+    ]
+  }
+}

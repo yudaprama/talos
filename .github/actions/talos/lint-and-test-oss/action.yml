@@ -1,0 +1,53 @@
+name: Lint and test (OSS)
+description: Run golangci-lint and make coverage for the OSS edition.
+inputs:
+  go-version-file:
+    description: Path to go.mod for version detection
+    default: "talos/talos/go.mod"
+  golangci-lint-version:
+    description: golangci-lint version
+    default: "v2.10.1"
+  cache-version:
+    description: Cache version; bump to invalidate all caches
+    default: "v5"
+runs:
+  using: composite
+  steps:
+    - name: Setup Go environment
+      uses: ./.github/actions/talos/setup-go
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+        golangci-lint-version: ${{ inputs.golangci-lint-version }}
+        cache-version: ${{ inputs.cache-version }}
+
+    - name: Check formatting drift
+      shell: bash
+      working-directory: talos/talos
+      run: make fmt-check
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: ${{ inputs.golangci-lint-version }}
+        install-mode: "none"
+        working-directory: talos/talos
+        args: --timeout=5m
+        skip-cache: false
+
+    - name: Build OSS binary
+      shell: bash
+      working-directory: talos/talos
+      run: make build
+
+    - name: Run OSS tests with coverage
+      shell: bash
+      working-directory: talos/talos
+      run: make coverage
+
+    - name: Upload OSS coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: ./talos/talos/coverage.out
+        flags: oss
+        fail_ci_if_error: false
+        verbose: true

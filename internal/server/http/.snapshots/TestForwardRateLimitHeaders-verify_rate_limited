@@ -1,0 +1,2 @@
+Ratelimit-Policy: "default";q=10;w=60
+Ratelimit: "default";r=0
