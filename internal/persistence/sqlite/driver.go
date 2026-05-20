@@ -395,7 +395,8 @@ func (d *Driver) GetExpiredIssuedAPIKeys(ctx context.Context, limit int32) (resu
 // Used for quota enforcement; the query is bounded so it never scans more
 // than 2*limit rows. The result is min(actual_count, limit).
 func (d *Driver) CountActiveAPIKeysUpTo(ctx context.Context, limit int64) (count int64, err error) {
-	ctx, span := tracing.Start(ctx, "persistence.CountActiveAPIKeysUpTo",
+	ctx, span := tracing.Start(
+		ctx, "persistence.CountActiveAPIKeysUpTo",
 		attribute.Int64("limit", limit),
 	)
 	defer otelx.End(span, &err)
