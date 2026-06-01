@@ -19,8 +19,8 @@ Compose. You need Docker. Examples use the Talos CLI (with curl as an alternativ
 docker compose -f docker-compose.oss.yaml up --build -d
 ```
 
-This starts Talos with SQLite, Jaeger for tracing, and the Admin UI (available at
-http://localhost:3001). Migrations run automatically.
+This starts Talos with SQLite and Jaeger for tracing (UI at http://localhost:16686). Migrations run
+automatically.
 
 Wait for the server to become healthy:
 
@@ -87,7 +87,7 @@ echo "$RESPONSE" | jq .
 
 # Save the secret and key ID for later steps
 API_SECRET=$(echo "$RESPONSE" | jq -r '.secret')
-KEY_ID=$(echo "$RESPONSE" | jq -r '.key_id')
+KEY_ID=$(echo "$RESPONSE" | jq -r '.issued_api_key.key_id')
 
 echo "export API_SECRET=$API_SECRET" >> "$DOCTEST_ENV_FILE"
 echo "export KEY_ID=$KEY_ID" >> "$DOCTEST_ENV_FILE"

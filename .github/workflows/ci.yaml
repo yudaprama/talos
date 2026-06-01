@@ -41,27 +41,15 @@ jobs:
       - uses: ./.github/actions/talos/docs
 
   release:
-    name: Release
+    name: Generate release
     runs-on: ubuntu-latest
     needs: [lint-and-test-oss, e2e-oss, docker-compose-oss, demo, docs]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: ${{ github.ref_type == 'tag' }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: ory/ci/releaser@master
         with:
-          fetch-depth: 0
-
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26'
-          cache: true
-
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.ORY_BOT_PAT }}
+          goreleaser_key: ${{ secrets.GORELEASER_KEY }}
+          cosign_pwd: ${{ secrets.COSIGN_PWD }}
+          docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker_password: ${{ secrets.DOCKERHUB_PASSWORD }}

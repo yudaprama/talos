@@ -98,7 +98,7 @@ services:
   # talos:
   #   build:
   #     context: ../..
-  #     dockerfile: deployments/docker/Dockerfile
+  #     dockerfile: talos/talos/.docker/Dockerfile-local-build
   #   container_name: ory-talos-server
   #   environment:
   #     DB_DSN: "postgres://talos:talos123@postgres:5432/talos?sslmode=disable"

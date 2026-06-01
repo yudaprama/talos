@@ -27,7 +27,7 @@ services:
   backend:
     build:
       context: ../..
-      dockerfile: talos/talos/deployments/docker/Dockerfile
+      dockerfile: talos/talos/.docker/Dockerfile-local-build
     container_name: ory-talos-backend-oss
     depends_on:
       db-init:

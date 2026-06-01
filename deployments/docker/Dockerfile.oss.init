@@ -11,8 +11,9 @@
 # =============================================================================
 FROM golang:1.26-alpine AS builder
 
-# Install build dependencies (gcc/musl-dev required for CGO/sqlite3)
-RUN apk add --no-cache git make ca-certificates gcc musl-dev
+# Install build dependencies. Talos uses the pure-Go modernc.org/sqlite driver,
+# so CGO (and gcc/musl-dev) are not required.
+RUN apk add --no-cache git ca-certificates
 
 WORKDIR /build
 
@@ -27,8 +28,8 @@ WORKDIR /build/talos/talos
 
 RUN go mod download
 
-# Build the OSS binary (no commercial tag, CGO required for sqlite3)
-RUN CGO_ENABLED=1 go build \
+# Build the OSS binary (no commercial tag, pure-Go SQLite so CGO is disabled).
+RUN CGO_ENABLED=0 go build \
     -ldflags="-w -s" \
     -o talos .
 
@@ -50,5 +51,7 @@ COPY --from=builder /build/talos/talos/internal/persistence/migrations /migratio
 COPY talos/talos/deployments/docker/scripts/init-db-oss.sh /init-db.sh
 RUN chmod +x /init-db.sh
 
-# Run init script
+# Run init script. This one-shot container runs as root so it can create and
+# chown the SQLite data directory to the nonroot runtime user (UID 65532) used
+# by the server images.
 ENTRYPOINT ["/init-db.sh"]
