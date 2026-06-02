@@ -124,8 +124,12 @@ generate: ## Generate code (proto, sqlc, client, docs, cli docs, ts client)
 	@$(MAKE) generate-sdk
 	@echo "Generating SQL queries (SQLite - OSS)..."
 	@$(SQLC) generate -f internal/persistence/sqlc/sqlc.yaml
-	@echo "Generating SQL queries (PostgreSQL + MySQL - Commercial)..."
-	@$(SQLC) generate -f commercial/persistence/sqlc/sqlc.yaml
+	@if [ -f commercial/persistence/sqlc/sqlc.yaml ]; then \
+		echo "Generating SQL queries (PostgreSQL + MySQL - Commercial)..."; \
+		$(SQLC) generate -f commercial/persistence/sqlc/sqlc.yaml; \
+	else \
+		echo "Skipping commercial SQL queries (commercial/ not present - OSS build)"; \
+	fi
 	@echo "Generating CLI documentation..."
 	@go run ./cmd/clidoc ./docs/reference/cli
 	@echo "Building documentation test tool..."
