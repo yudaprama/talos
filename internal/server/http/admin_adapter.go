@@ -35,8 +35,12 @@ func (a *adminAdapter) AdminRotateIssuedAPIKey(ctx context.Context, req *talosv2
 	return a.svc.RotateIssuedAPIKey(ctx, req)
 }
 
-func (a *adminAdapter) AdminRevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKeyRequest) (*emptypb.Empty, error) {
-	return a.svc.RevokeAPIKey(ctx, req)
+func (a *adminAdapter) AdminRevokeIssuedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeIssuedAPIKeyRequest) (*emptypb.Empty, error) {
+	return a.svc.RevokeIssuedAPIKey(ctx, req)
+}
+
+func (a *adminAdapter) AdminRevokeImportedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeImportedAPIKeyRequest) (*emptypb.Empty, error) {
+	return a.svc.RevokeImportedAPIKey(ctx, req)
 }
 
 func (a *adminAdapter) AdminListIssuedAPIKeys(ctx context.Context, req *talosv2alpha1.ListIssuedAPIKeysRequest) (*talosv2alpha1.ListIssuedAPIKeysResponse, error) {
@@ -122,8 +126,12 @@ func (a *adminOnlyAdapter) AdminRotateIssuedAPIKey(ctx context.Context, req *tal
 	return a.svc.RotateIssuedAPIKey(ctx, req)
 }
 
-func (a *adminOnlyAdapter) AdminRevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKeyRequest) (*emptypb.Empty, error) {
-	return a.svc.RevokeAPIKey(ctx, req)
+func (a *adminOnlyAdapter) AdminRevokeIssuedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeIssuedAPIKeyRequest) (*emptypb.Empty, error) {
+	return a.svc.RevokeIssuedAPIKey(ctx, req)
+}
+
+func (a *adminOnlyAdapter) AdminRevokeImportedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeImportedAPIKeyRequest) (*emptypb.Empty, error) {
+	return a.svc.RevokeImportedAPIKey(ctx, req)
 }
 
 func (a *adminOnlyAdapter) AdminListIssuedAPIKeys(ctx context.Context, req *talosv2alpha1.ListIssuedAPIKeysRequest) (*talosv2alpha1.ListIssuedAPIKeysResponse, error) {

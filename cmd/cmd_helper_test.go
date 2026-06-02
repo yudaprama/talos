@@ -159,7 +159,7 @@ func (tc *testContext) createAPIKey(t *testing.T, name string) (keyID, secret st
 // revokeAPIKey revokes an API key via the CLI.
 func (tc *testContext) revokeAPIKey(t *testing.T, keyID string) {
 	t.Helper()
-	tc.execNoErr(t, "keys", "revoke", keyID, "--reason", "superseded")
+	tc.execNoErr(t, "keys", "issued", "revoke", keyID, "--reason", "superseded")
 }
 
 // assertAPIKeyRevoked checks that an API key has been revoked by attempting

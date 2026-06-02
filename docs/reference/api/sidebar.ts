@@ -12,12 +12,6 @@ const sidebar: SidebarsConfig = {
       items: [
         {
           type: "doc",
-          id: "reference/api/admin-revoke-api-key",
-          label: "Revoke API Key",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
           id: "reference/api/admin-batch-verify-api-keys",
           label: "Batch Verify API Keys",
           className: "api-method post",
@@ -66,6 +60,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "reference/api/admin-revoke-imported-api-key",
+          label: "Revoke Imported API Key",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "reference/api/admin-batch-import-api-keys",
           label: "Batch Import API Keys",
           className: "api-method post",
@@ -93,6 +93,12 @@ const sidebar: SidebarsConfig = {
           id: "reference/api/admin-get-issued-api-key",
           label: "Get Issued API Key",
           className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "reference/api/admin-revoke-issued-api-key",
+          label: "Revoke Issued API Key",
+          className: "api-method post",
         },
         {
           type: "doc",

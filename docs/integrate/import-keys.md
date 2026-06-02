@@ -174,7 +174,7 @@ curl -s "$TALOS_URL/v2alpha1/admin/importedApiKeys?actor_id=payment-service&page
 
 ## Revoke an imported key
 
-Imported keys are revoked through the same unified endpoint as issued keys:
+Imported keys have their own revocation endpoint, separate from issued keys:
 
 <!-- doctest:exec -->
 
@@ -182,14 +182,14 @@ Imported keys are revoked through the same unified endpoint as issued keys:
 <TabItem value="cli" label="CLI">
 
 ```bash
-talos keys revoke "$IMPORTED_KEY_ID" --reason superseded -e "$TALOS_URL"
+talos keys imported revoke "$IMPORTED_KEY_ID" --reason superseded -e "$TALOS_URL"
 ```
 
 </TabItem>
 <TabItem value="curl" label="curl">
 
 ```bash
-curl -s -X POST "$TALOS_URL/v2alpha1/admin/apiKeys/$IMPORTED_KEY_ID:revoke" \
+curl -s -X POST "$TALOS_URL/v2alpha1/admin/importedApiKeys/$IMPORTED_KEY_ID:revoke" \
   -H "Content-Type: application/json" \
   -d '{"reason": "REVOCATION_REASON_SUPERSEDED"}'
 echo ""

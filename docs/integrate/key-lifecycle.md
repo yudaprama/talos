@@ -157,7 +157,7 @@ The `:rotate` endpoint revokes the old key immediately. For zero-downtime rotati
 1. Issue a new key with `POST /v2alpha1/admin/issuedApiKeys`
 2. Deploy the new secret to all services
 3. Verify the new secret works everywhere
-4. Revoke the old key with `POST /v2alpha1/admin/apiKeys/{old_key_id}:revoke`
+4. Revoke the old key with `POST /v2alpha1/admin/issuedApiKeys/{old_key_id}:revoke`
 
 ## Revoke a key
 
@@ -170,14 +170,14 @@ TTL):
 <TabItem value="cli" label="CLI">
 
 ```bash
-talos keys revoke "$KEY_ID" --reason superseded -e "$TALOS_URL"
+talos keys issued revoke "$KEY_ID" --reason superseded -e "$TALOS_URL"
 ```
 
 </TabItem>
 <TabItem value="curl" label="curl">
 
 ```bash
-curl -s -X POST "$TALOS_URL/v2alpha1/admin/apiKeys/${KEY_ID}:revoke" \
+curl -s -X POST "$TALOS_URL/v2alpha1/admin/issuedApiKeys/${KEY_ID}:revoke" \
   -H "Content-Type: application/json" \
   -d '{"reason": "REVOCATION_REASON_SUPERSEDED"}'
 echo ""
@@ -192,7 +192,7 @@ echo "Key revoked"
 Standard reasons include `REVOCATION_REASON_KEY_COMPROMISE`, `REVOCATION_REASON_SUPERSEDED`,
 `REVOCATION_REASON_AFFILIATION_CHANGED`, and `REVOCATION_REASON_PRIVILEGE_WITHDRAWN` (admin only).
 For the complete list, see the
-[RevokeAPIKey API reference](../reference/api/admin-revoke-api-key.api.mdx).
+[RevokeIssuedAPIKey API reference](../reference/api/admin-revoke-issued-api-key.api.mdx).
 
 When using `PRIVILEGE_WITHDRAWN`, you can include a `reason_text` field with a human-readable
 explanation.

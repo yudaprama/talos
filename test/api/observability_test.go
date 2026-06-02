@@ -140,7 +140,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 		s.testServer.Emitter.Reset()
 		beforeRevoked := snapVec(m.APIKeysRevoked, "REVOCATION_REASON_KEY_COMPROMISE")
 
-		s.sdkRevokeAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		event := s.assertEvent(events.EventIssuedAPIKeyRevoked)
 		s.Equal(keyID, event.KeyID)
@@ -219,7 +219,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 		s.testServer.Emitter.Reset()
 		beforeRevoked := snapVec(m.APIKeysRevoked, "REVOCATION_REASON_KEY_COMPROMISE")
 
-		s.sdkRevokeAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		event := s.assertEvent(events.EventImportedAPIKeyRevoked)
 		s.Equal(keyID, event.KeyID)

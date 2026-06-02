@@ -4,6 +4,7 @@ package persistencetest
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -217,6 +218,14 @@ func (s *DriverTestSuite) TestAPIKeyOperations(t *testing.T) {
 
 		_, err := s.driver.GetIssuedAPIKey(s.ctx(), nonExistentID)
 		assert.Error(t, err)
+	})
+
+	t.Run("GetAPIKey returns ErrNoRows for malformed key ID", func(t *testing.T) {
+		// A non-UUID key_id can never identify an issued key. Every backend must
+		// surface this as sql.ErrNoRows so the service layer maps it to 404,
+		// instead of leaking a driver-specific parse error as a 500.
+		_, err := s.driver.GetIssuedAPIKey(s.ctx(), "not-a-valid-uuid")
+		assert.ErrorIs(t, err, sql.ErrNoRows)
 	})
 
 	t.Run("GetActiveAPIKey returns active key", func(t *testing.T) {

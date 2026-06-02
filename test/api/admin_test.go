@@ -69,7 +69,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyRevocation() {
 	apiKey, secret := s.testServer.CreateTestAPIKey(s.T(), "Key to Revoke")
 
 	s.Run("revoke key", func() {
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 		getResp := s.sdkGetIssuedAPIKey(ctx, apiKey.GetKeyId())
 		s.Equal(client.KEYSTATUS_KEY_STATUS_REVOKED, getResp.GetStatus())
 	})
@@ -81,7 +81,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyRevocation() {
 	})
 
 	s.Run("double revocation returns conflict", func() {
-		httpResp, err := s.sdkRevokeAPIKeyExpectError(ctx, apiKey.GetKeyId(), client.AdminRevokeAPIKeyBody{
+		httpResp, err := s.sdkRevokeIssuedAPIKeyExpectError(ctx, apiKey.GetKeyId(), client.AdminRevokeIssuedAPIKeyBody{
 			Reason: client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE.Ptr(),
 		})
 		defer func() { _ = httpResp.Body.Close() }()
@@ -95,7 +95,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyRevocation() {
 		s.sdkVerify(ctx, secret2)
 
 		// Revoke
-		s.sdkRevokeAPIKeyWithReason(ctx, key2.GetKeyId(),
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, key2.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Cache bypass shows revocation immediately
@@ -256,7 +256,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_ErrorConditions() {
 	})
 
 	s.Run("revoke non-existent key", func() {
-		_, err := s.sdkRevokeAPIKeyExpectError(ctx, "non-existent-key-id-12345", client.AdminRevokeAPIKeyBody{})
+		_, err := s.sdkRevokeIssuedAPIKeyExpectError(ctx, "non-existent-key-id-12345", client.AdminRevokeIssuedAPIKeyBody{})
 		s.Require().Error(err)
 	})
 }
@@ -324,11 +324,11 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 					return errDerivedTokenEmpty
 				}
 
-				revokeBody := client.NewAdminRevokeAPIKeyBody()
+				revokeBody := client.NewAdminRevokeIssuedAPIKeyBody()
 				revokeBody.SetReason(client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 				_, httpResp, err = apiClient.APIKeysAPI.
-					AdminRevokeAPIKey(ctx, keyID).
-					AdminRevokeAPIKeyBody(*revokeBody).
+					AdminRevokeIssuedAPIKey(ctx, keyID).
+					AdminRevokeIssuedAPIKeyBody(*revokeBody).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()

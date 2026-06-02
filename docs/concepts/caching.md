@@ -22,7 +22,8 @@ requests within the cache TTL are served from cache without a database lookup.
 
 Caching introduces eventual consistency for revocation:
 
-1. Admin revokes a key via `POST /v2alpha1/admin/apiKeys/{id}:revoke`
+1. Admin revokes a key via `POST /v2alpha1/admin/issuedApiKeys/{id}:revoke` (or
+   `POST /v2alpha1/admin/importedApiKeys/{id}:revoke` for imported keys)
 2. The revocation takes effect in the database immediately
 3. Cached verification results for that key remain valid until the cache entry expires
 4. After TTL expiry, the next verification hits the database and returns `active: false`

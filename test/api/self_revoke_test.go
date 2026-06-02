@@ -118,7 +118,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_AdminRevokeWithReasons() {
 			s.Run(string(reason), func() {
 				apiKey, _ := s.testServer.CreateTestAPIKey(s.T(), "Reason-"+string(reason))
 
-				s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), reason)
+				s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), reason)
 
 				getResp := s.sdkGetIssuedAPIKey(ctx, apiKey.GetKeyId())
 				s.Equal(client.KEYSTATUS_KEY_STATUS_REVOKED, getResp.GetStatus())
@@ -130,7 +130,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_AdminRevokeWithReasons() {
 	s.Run("admin revoke with PRIVILEGE_WITHDRAWN and reason_text", func() {
 		apiKey, _ := s.testServer.CreateTestAPIKey(s.T(), "Privilege Withdrawn E2E")
 
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(),
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_PRIVILEGE_WITHDRAWN, "Employee terminated")
 
 		getResp := s.sdkGetIssuedAPIKey(ctx, apiKey.GetKeyId())
@@ -141,7 +141,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_AdminRevokeWithReasons() {
 	s.Run("admin revoke with reason_text on wrong reason returns error", func() {
 		apiKey, _ := s.testServer.CreateTestAPIKey(s.T(), "Wrong Reason Text E2E")
 
-		httpResp, err := s.sdkRevokeAPIKeyWithReasonAndTextExpectError(ctx, apiKey.GetKeyId(),
+		httpResp, err := s.sdkRevokeIssuedAPIKeyWithReasonAndTextExpectError(ctx, apiKey.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE, "This should be rejected")
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
@@ -152,7 +152,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_AdminRevokeWithReasons() {
 		verifyResp := s.sdkVerify(ctx, secret)
 		s.True(verifyResp.GetIsValid())
 
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		verifyAfter := s.sdkVerifyNoCache(ctx, secret)
 		s.False(verifyAfter.GetIsValid())
@@ -171,7 +171,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_AdminRevokeWithReasons() {
 		verifyResp := s.sdkVerify(ctx, rawKey)
 		s.True(verifyResp.GetIsValid())
 
-		s.sdkRevokeAPIKeyWithReason(ctx, imported.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_PRIVILEGE_WITHDRAWN)
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, imported.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_PRIVILEGE_WITHDRAWN)
 
 		verifyAfter := s.sdkVerifyNoCache(ctx, rawKey)
 		s.False(verifyAfter.GetIsValid())

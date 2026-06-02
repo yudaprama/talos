@@ -1,0 +1,49 @@
+---
+id: admin-revoke-imported-api-key
+title: "Revoke Imported API Key"
+description: "Immediately revokes an imported API key. Once revoked, the key can no longer"
+sidebar_label: "Revoke Imported API Key"
+hide_title: true
+hide_table_of_contents: true
+api: eJyVV21T2zgQ/is7+nJw4wRIj16b+3I5CK2vLckl0M5N3SGKvY5VZMknyQkuk/9+s1ISAoQyfIrtrPfl2dXzrG9ZhjY1onJCK9ZlcVliJrhD2YDBub5GC1yBKCttHGbQG8ZwjU0bBirFlUUWgSuQHkPKFSgNUqsZmkRNEWqLGeTaAK9dgcqJlFOoNlwUwoKu0Ph7EBaEMThHY8VUYhtGwTe5tYnihqI5LtTGXSYcVLWptEXbTlSiJpNJ4VyVqOFgfAEH8w6XVcGPDnhWCnWwLqFXiQ/Y2IO3/FV+eHw07aS/45vst/yIv56+TQ/xOO9kb/iraTcUl6jbRAEkzCC3WiWsCwkb9T8PTnoX8eD8atTvjQfnVx/6/16dDD4NR4NP8bifsEQtfUIsYpsa44x1WY+SCbXF64yG8QdsWMQqbniJDo1l3a+3Dzozft9rHR91DjrHr6HgtgCde9g3rSH890b9fy7jUf90n0VM0GsVdwWLmOIlsi67xuZKZCxiBv+rhcGMdZ2pMWI2LbDkrHvLXFORpXVGqBlbLr8FY7TuL501ZJFq5VA5uuRVJVcdPfhuKc/bLVf3C9hV9Ch4/tmowbQB4SyE1NsEkyFInUD7KMjDmAN/wSXkBrHl8MYB3lSSq9UQDpRsgEupF5jBokAFoc00jsNR/Dn+2H/Xv/oSX7w/HfW+nFP0B/hEq8EIsXNeS0e1PhqQy/PxsH8Sn8X9UxbtQCaAOArRK6PnIkML1pk6dbXBzEMUjFY5WhDKVtREgmh0dgLHnTeH7URd0pETCqbaFeCHH7jKwKLMW1tecqkX4eBAC36acBdOQ2XwA42GOZc1tuHSInCwFaYiF+kqqT9g6z1C0eB3TJ3PMVFPJ4Mqq7RQjhLamc79A9aFixXjLLgFiZyYQhuYohQ4xwychikSCHRECq4yS+eFK6gVEZE24gdmiaq4cc1TIXtnZ/HHODw6ed87f0dIUFy9UELNgKdOm1+oROmLsIWoYCFcEc6ltTUaSAuuZpjBHrZn7QiMlpio8DCCDCmB2uD+UzmML4f90bh/SqF7oHDhiy44Ra0kT6lUT6QKgVsgd75QMNqFGX/C8Y7p7oInp5ZWsmn7QtcVVkbMhcQZEq61xRBzDT+VnBm+UKHHasXq2rRh/KDNKyaxUFtC0LtZnbjA8GFYEuVhjNWcS5H1zKwuUbk2DLkwAeHJ1gmagA59DuMVuGQTKlFOg8FUm8wbrZNr2ZrICzP4XltHIxzwYhFDVZes+/XZU/zclO402TFVO+3uOr/z7x39Y98eslPEnHASd1AMWy43xnpKqG8ZP6lRXgGWy+Vj/bhpaSNmQnE5JBE7D3Iz9fZkbSutbCDszuHhi1TkfpY++n367IGt0xStzWsJ61Btits5/O0loXb5XonQatPZiiQbH2LD+S+o6L6ApTpD+s21KTmJh1DuVedOaYRyOEMTgjkupH9LOCz9Bc8yEURuuO12+VAn/wzuHgv8T+ZA+e6t/ubGcH9forV89kJfY8ddbXe2j0gZb6ogE2iMNttdJJ98RhsRC0Noac5LdIWmfarS1vnVyRWsy55b+m7DFrFcLXcsYtSd0d1+07/hZSXx8SaxOVFruX+GHZa0f+V6x0piGrjgUltSRw6FmBWtCo3vPu3U64krueIzJN4Di2YuUmxD7LyWSbSeymgKN/ZS5Jg2qcSulx6iV1qdI5ijEXkT6BZL4A6kXoDkDlXakAYRuasZ2EIb15IiyOc1Kgt7f3+58HL9iafcaK32I3/r0QsSSKchbN+eNX6dtCqDubjBDEbDEwsroljvIY8+AhCmxPyTQDehwxN61cNzZx62nMponZPAVdpatJY0ZY+gMHwBqcGMrLkEi6lBt9/eGsA73HvDmEXMf2n4jqxnhi2X/wPYMISf
+sidebar_class_name: "post api-method"
+info_path: reference/api/ory-talos-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading as={"h1"} className={"openapi__heading"} children={"Revoke Imported API Key"}></Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v2alpha1/admin/importedApiKeys/{key_id}:revoke"}
+  context={"endpoint"}
+></MethodEndpoint>
+
+Immediately revokes an imported API key. Once revoked, the key can no longer be used for
+authentication. This operation is irreversible. Revoked keys are retained for audit purposes.
+
+```http
+POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
+{
+  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+}
+```
+
+<Heading id={"request"} as={"h2"} className={"openapi-tabs__heading"}>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails {...require("./admin-revoke-imported-api-key.ParamsDetails.json")}></ParamsDetails>
+
+<RequestSchema {...require("./admin-revoke-imported-api-key.RequestSchema.json")}></RequestSchema>
+
+<StatusCodes {...require("./admin-revoke-imported-api-key.StatusCodes.json")}></StatusCodes>

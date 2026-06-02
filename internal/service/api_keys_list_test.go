@@ -30,7 +30,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 		require.NoError(t, err)
 		// Revoke the first user-a key so we have a mix of statuses.
 		if i == 0 {
-			_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{KeyId: resp.IssuedApiKey.KeyId})
+			_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{KeyId: resp.IssuedApiKey.KeyId})
 			require.NoError(t, err)
 		}
 	}
@@ -230,7 +230,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 		require.NoError(t, err)
 		importedKeys = append(importedKeys, importedInfo{keyID: resp.KeyId})
 		if i == 0 {
-			_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{KeyId: resp.KeyId})
+			_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{KeyId: resp.KeyId})
 			require.NoError(t, err)
 		}
 	}
@@ -341,7 +341,7 @@ func TestListIssuedAPIKeys_RevokedKeyCursorStability(t *testing.T) {
 	firstKeyID := page1.IssuedApiKeys[0].KeyId
 
 	// Revoke the key that the cursor references.
-	_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{KeyId: firstKeyID})
+	_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{KeyId: firstKeyID})
 	require.NoError(t, err)
 
 	// Continue pagination with the same cursor — should still work.

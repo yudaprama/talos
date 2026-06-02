@@ -141,14 +141,14 @@ Revoke the key through the admin surface using its ID:
 <TabItem value="cli" label="CLI">
 
 ```bash
-talos keys revoke "$KEY_ID" --reason superseded -e "$TALOS_URL"
+talos keys issued revoke "$KEY_ID" --reason superseded -e "$TALOS_URL"
 ```
 
 </TabItem>
 <TabItem value="curl" label="curl">
 
 ```bash
-curl -s -X POST "$TALOS_URL/v2alpha1/admin/apiKeys/${KEY_ID}:revoke" \
+curl -s -X POST "$TALOS_URL/v2alpha1/admin/issuedApiKeys/${KEY_ID}:revoke" \
   -H "Content-Type: application/json" \
   -d '{"reason": "Quickstart cleanup"}'
 echo ""

@@ -43,7 +43,6 @@ Create, list, get, revoke, and rotate API keys.
 - [talos keys imported](talos-keys-imported) - Manage imported API keys
 - [talos keys issue](talos-keys-issue) - Issue a new API key
 - [talos keys issued](talos-keys-issued) - Manage issued API keys
-- [talos keys revoke](talos-keys-revoke) - Revoke an API key
 - [talos keys self-revoke](talos-keys-self-revoke) - Revoke an API key using the credential itself
   as proof
 - [talos keys verify](talos-keys-verify) - Verify a credential (API key or token)

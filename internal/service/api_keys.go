@@ -17,7 +17,6 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/cockroachdb/errors"
-	"github.com/gofrs/uuid"
 	"github.com/lestrrat-go/jwx/v3/jwk"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -564,8 +563,8 @@ func mergeRotationParams(req *talosv2alpha1.RotateIssuedAPIKeyRequest, newKeyID,
 	return p, nil
 }
 
-// RevokeAPIKey revokes an existing API key
-func (s *Admin) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKeyRequest) (resp *emptypb.Empty, err error) {
+// RevokeIssuedAPIKey revokes an existing issued API key.
+func (s *Admin) RevokeIssuedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeIssuedAPIKeyRequest) (resp *emptypb.Empty, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -582,47 +581,56 @@ func (s *Admin) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKe
 		return nil, errdef.BadRequest("description is only allowed when reason is PRIVILEGE_WITHDRAWN")
 	}
 
-	reason := int32(req.Reason)
-	description := req.Description
-
-	// Route by key ID format: UUID = issued key, non-UUID (64-hex SHA-512/256 hash) = imported key.
-	// This avoids Postgres parse failures when a SHA-512/256 hash is passed to GetAPIKey,
-	// which calls parseUUID before querying and returns a non-sql.ErrNoRows error.
-	if _, uuidErr := uuid.FromString(req.KeyId); uuidErr == nil {
-		// Issued key path
-		currentKey, err := s.driver.GetIssuedAPIKey(ctx, req.KeyId)
-		if err != nil {
-			return nil, handleDBError(err, apiKeyKindIssued, "get key for revocation")
-		}
-
-		if currentKey.Status == int32(talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED) {
-			return nil, errdef.Conflict("key is already revoked")
-		}
-
-		now := sqlutil.UTCNow()
-		newExpiresAt := sqlutil.CalculateRevocationExpiry(now, currentKey.ExpiresAt)
-
-		err = s.driver.RevokeIssuedAPIKey(ctx, persistencetypes.RevokeIssuedAPIKeyParams{
-			KeyID:       req.KeyId,
-			Reason:      reason,
-			Description: description,
-			ExpiresAt:   newExpiresAt,
-		})
-		if err != nil {
-			return nil, handleDBError(err, apiKeyKindIssued, "revoke API key")
-		}
-
-		s.emitRevocationEvent(ctx, req.KeyId, req.Reason, revocationEventContext{
-			eventType:  events.EventIssuedAPIKeyRevoked,
-			actorID:    sqlutil.Deref(currentKey.ActorID),
-			expiresAt:  currentKey.ExpiresAt,
-			visibility: visibilityLabel(talosv2alpha1.KeyVisibility(currentKey.Visibility)),
-		})
-
-		return &emptypb.Empty{}, nil
+	currentKey, err := s.driver.GetIssuedAPIKey(ctx, req.KeyId)
+	if err != nil {
+		return nil, handleDBError(err, apiKeyKindIssued, "get key for revocation")
 	}
 
-	// Imported key path (non-UUID = SHA-512/256 hash)
+	if currentKey.Status == int32(talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED) {
+		return nil, errdef.Conflict("key is already revoked")
+	}
+
+	now := sqlutil.UTCNow()
+	newExpiresAt := sqlutil.CalculateRevocationExpiry(now, currentKey.ExpiresAt)
+
+	err = s.driver.RevokeIssuedAPIKey(ctx, persistencetypes.RevokeIssuedAPIKeyParams{
+		KeyID:       req.KeyId,
+		Reason:      int32(req.Reason),
+		Description: req.Description,
+		ExpiresAt:   newExpiresAt,
+	})
+	if err != nil {
+		return nil, handleDBError(err, apiKeyKindIssued, "revoke API key")
+	}
+
+	s.emitRevocationEvent(ctx, req.KeyId, req.Reason, revocationEventContext{
+		eventType:  events.EventIssuedAPIKeyRevoked,
+		actorID:    sqlutil.Deref(currentKey.ActorID),
+		expiresAt:  currentKey.ExpiresAt,
+		visibility: visibilityLabel(talosv2alpha1.KeyVisibility(currentKey.Visibility)),
+	})
+
+	return &emptypb.Empty{}, nil
+}
+
+// RevokeImportedAPIKey revokes an existing imported API key.
+func (s *Admin) RevokeImportedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeImportedAPIKeyRequest) (resp *emptypb.Empty, err error) {
+	if err := s.protoValidator.Validate(req); err != nil {
+		return nil, errdef.BadRequest(err.Error())
+	}
+
+	ctx, span := tracing.Start(
+		ctx, "service.RevokeImportedAPIKey",
+		attribute.String("key_id", req.KeyId),
+		attribute.Int("revocation_reason", int(req.Reason)),
+	)
+	defer otelx.End(span, &err)
+
+	// Description is only permitted with PRIVILEGE_WITHDRAWN to document the justification.
+	if req.Description != "" && req.Reason != talosv2alpha1.RevocationReason_REVOCATION_REASON_PRIVILEGE_WITHDRAWN {
+		return nil, errdef.BadRequest("description is only allowed when reason is PRIVILEGE_WITHDRAWN")
+	}
+
 	importedKey, err := s.driver.GetImportedAPIKeyByHash(ctx, req.KeyId)
 	if err != nil {
 		return nil, handleDBError(err, apiKeyKindImported, "get key for revocation")
@@ -637,8 +645,8 @@ func (s *Admin) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKe
 
 	_, err = s.driver.RevokeImportedAPIKey(ctx, persistencetypes.RevokeImportedKeyParams{
 		KeyID:       req.KeyId,
-		Reason:      reason,
-		Description: description,
+		Reason:      int32(req.Reason),
+		Description: req.Description,
 		ExpiresAt:   newExpiresAt,
 	})
 	if err != nil {

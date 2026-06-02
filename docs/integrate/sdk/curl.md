@@ -234,7 +234,7 @@ curl -s -X POST "$TALOS_URL/v2alpha1/admin/apiKeys:batchVerify" \
 <!-- doctest:exec -->
 
 ```bash
-curl -s -X POST "$TALOS_URL/v2alpha1/admin/apiKeys/${KEY_ID}:revoke" \
+curl -s -X POST "$TALOS_URL/v2alpha1/admin/issuedApiKeys/${KEY_ID}:revoke" \
   -H "Content-Type: application/json" \
   -d '{"reason": "REVOCATION_REASON_KEY_COMPROMISE"}' | jq .
 ```

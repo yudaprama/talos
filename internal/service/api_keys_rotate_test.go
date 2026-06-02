@@ -29,7 +29,7 @@ func TestRotateIssuedAPIKey_RejectsRevokedKey(t *testing.T) {
 	require.NoError(t, err)
 	keyID := issueResp.IssuedApiKey.KeyId
 
-	_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+	_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
 		KeyId:  keyID,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})

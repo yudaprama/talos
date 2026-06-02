@@ -402,7 +402,7 @@ func (s *APIKeyE2ETestSuite) TestKeyRotationWorkflow() {
 		s.True(verifyOriginal.GetIsValid(), "Original key should still work during coexistence")
 
 		// Step 4: Revoke old key
-		s.sdkRevokeAPIKeyWithReason(ctx, originalKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_SUPERSEDED)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, originalKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_SUPERSEDED)
 
 		// Step 5: Verify old key fails (use cache bypass for immediate verification)
 		verifyRevoked := s.sdkVerifyNoCache(ctx, originalSecret)
@@ -478,7 +478,7 @@ func (s *APIKeyE2ETestSuite) TestKeyRotationWorkflow() {
 		s.True(s.sdkVerify(ctx, newSecret).GetIsValid(), "new key should work")
 
 		// Step 4: Customer deploys new key, admin revokes old one
-		s.sdkRevokeAPIKeyWithReason(ctx, origKey.GetKeyId(),
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, origKey.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_SUPERSEDED)
 
 		// Step 5: Old key fails, new key continues

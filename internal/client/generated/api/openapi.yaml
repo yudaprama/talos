@@ -14,56 +14,6 @@ tags:
     \ (from external systems), and key verification."
   name: APIKeys
 paths:
-  /v2alpha1/admin/apiKeys/{key_id}:revoke:
-    post:
-      description: |-
-        Immediately revokes an API key (issued or imported). Once revoked, the key
-        can no longer be used for authentication. This operation is irreversible.
-        Revoked keys are retained for audit purposes.
-
-        ```http
-        POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
-        {
-          "reason": "REVOCATION_REASON_KEY_COMPROMISE"
-        }
-        ```
-      operationId: AdminRevokeAPIKey
-      parameters:
-      - explode: false
-        in: path
-        name: key_id
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AdminRevokeAPIKeyBody"
-        required: true
-        x-originalParamName: body
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                type: object
-          description: A successful response.
-        "204":
-          content:
-            application/json:
-              schema: {}
-          description: API key revoked successfully.
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-          description: An unexpected error response.
-      summary: Revoke API Key
-      tags:
-      - APIKeys
   /v2alpha1/admin/apiKeys:batchVerify:
     post:
       description: |-
@@ -409,7 +359,7 @@ paths:
     delete:
       description: |-
         Permanently deletes an imported key (hard delete). The key is removed from
-        the database. Use RevokeAPIKey for soft deletion (recommended).
+        the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
 
         ```http
         DELETE /v2alpha1/admin/importedApiKeys/{key_id}
@@ -477,6 +427,57 @@ paths:
                 $ref: "#/components/schemas/Status"
           description: An unexpected error response.
       summary: Get Imported API Key
+      tags:
+      - APIKeys
+  /v2alpha1/admin/importedApiKeys/{key_id}:revoke:
+    post:
+      description: |-
+        Immediately revokes an imported API key. Once revoked, the key can no longer
+        be used for authentication. This operation is irreversible. Revoked keys
+        are retained for audit purposes.
+
+        ```http
+        POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
+        {
+          "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+        }
+        ```
+      operationId: AdminRevokeImportedAPIKey
+      parameters:
+      - description: SHA-512/256 hash of the imported key (REQUIRED)
+        explode: false
+        in: path
+        name: key_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminRevokeImportedAPIKeyBody"
+        required: true
+        x-originalParamName: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: A successful response.
+        "204":
+          content:
+            application/json:
+              schema: {}
+          description: API key revoked successfully.
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+          description: An unexpected error response.
+      summary: Revoke Imported API Key
       tags:
       - APIKeys
   /v2alpha1/admin/importedApiKeys:batchImport:
@@ -721,6 +722,57 @@ paths:
       summary: Get Issued API Key
       tags:
       - APIKeys
+  /v2alpha1/admin/issuedApiKeys/{key_id}:revoke:
+    post:
+      description: |-
+        Immediately revokes an issued API key. Once revoked, the key can no longer
+        be used for authentication. This operation is irreversible. Revoked keys
+        are retained for audit purposes.
+
+        ```http
+        POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+        {
+          "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+        }
+        ```
+      operationId: AdminRevokeIssuedAPIKey
+      parameters:
+      - description: UUID of the issued key (REQUIRED)
+        explode: false
+        in: path
+        name: key_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminRevokeIssuedAPIKeyBody"
+        required: true
+        x-originalParamName: body
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: A successful response.
+        "204":
+          content:
+            application/json:
+              schema: {}
+          description: API key revoked successfully.
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+          description: An unexpected error response.
+      summary: Revoke Issued API Key
+      tags:
+      - APIKeys
   /v2alpha1/admin/issuedApiKeys/{key_id}:rotate:
     post:
       description: |-
@@ -732,7 +784,7 @@ paths:
           1. IssueAPIKey with new credentials
           2. Deploy new secret to all services
           3. Verify new secret works everywhere
-          4. RevokeAPIKey to remove the old key
+          4. AdminRevokeIssuedAPIKey to remove the old key
 
         ```http
         POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -781,9 +833,9 @@ paths:
   /v2alpha1/apiKeys:selfRevoke:
     post:
       description: |-
-        Proof-of-possession variant of revocation. Lives alongside `AdminRevokeAPIKey`
-        in this service; the `Self*` prefix on the request/response messages
-        disambiguates from the admin variant's `RevokeAPIKeyRequest`.
+        Proof-of-possession variant of revocation. The `Self*` prefix on the
+        request/response messages disambiguates from the admin variants
+        (`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
 
         Allows an API key holder to revoke their own key. The caller must provide
         the full API key secret as proof of possession. Supports issued API keys
@@ -857,7 +909,22 @@ paths:
       - APIKeys
 components:
   schemas:
-    AdminRevokeAPIKeyBody:
+    AdminRevokeImportedAPIKeyBody:
+      description: RevokeImportedAPIKeyRequest revokes an imported API key by its
+        key_id.
+      example:
+        reason: REVOCATION_REASON_UNSPECIFIED
+        description: description
+      properties:
+        description:
+          description: Optional free-text explanation. Only allowed when reason is
+            PRIVILEGE_WITHDRAWN.
+          type: string
+        reason:
+          $ref: "#/components/schemas/RevocationReason"
+      type: object
+    AdminRevokeIssuedAPIKeyBody:
+      description: RevokeIssuedAPIKeyRequest revokes an issued API key by its key_id.
       example:
         reason: REVOCATION_REASON_UNSPECIFIED
         description: description
@@ -1784,7 +1851,7 @@ components:
          - REVOCATION_REASON_SUPERSEDED: A new key has replaced this one as part of a rotation.
          - REVOCATION_REASON_PRIVILEGE_WITHDRAWN: Admin-only. The actor's privilege to use this key was withdrawn by
         an operator. Self-revocation requests using this reason are rejected
-        with InvalidArgument. Pair with `description` on RevokeAPIKeyRequest
+        with InvalidArgument. Pair with `description` on the admin revoke requests
         to record the operator-supplied justification.
       enum:
       - REVOCATION_REASON_UNSPECIFIED

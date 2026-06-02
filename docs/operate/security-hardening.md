@@ -28,7 +28,8 @@ title: Security hardening
 ## API keys
 
 - **Set TTL on all keys** to limit exposure from leaked credentials.
-- **Revoke compromised keys immediately** using `POST /v2alpha1/admin/apiKeys/{id}:revoke`.
+- **Revoke compromised keys immediately** using `POST /v2alpha1/admin/issuedApiKeys/{id}:revoke` (or
+  `POST /v2alpha1/admin/importedApiKeys/{id}:revoke` for imported keys).
 - **Use scopes** to limit key permissions to the minimum required.
 
 ## Caching

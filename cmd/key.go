@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -124,6 +125,101 @@ func newSDKClient(serverURL string) *client.APIClient {
 	return client.NewAPIClient(cfg)
 }
 
+type revokeAPIKeyCmdConfig struct {
+	short          string
+	successMessage string
+	revokeError    string
+	getError       string
+	revoke         func(context.Context, client.APIKeysAPI, string, client.RevocationReason, string) revokeAPIKeyRequest
+	get            func(context.Context, client.APIKeysAPI, string) (any, apiKeyLike, error)
+}
+
+type revokeAPIKeyRequest interface {
+	Execute() (map[string]any, *http.Response, error)
+}
+
+type revocationBodySetter interface {
+	SetReason(reason client.RevocationReason)
+	SetDescription(description string)
+}
+
+func setRevocationBody(body revocationBodySetter, reason client.RevocationReason, reasonText string) {
+	body.SetReason(reason)
+	if reasonText != "" {
+		body.SetDescription(reasonText)
+	}
+}
+
+func closeAPIResponse(resp *http.Response) {
+	if resp != nil {
+		_ = resp.Body.Close()
+	}
+}
+
+func executeRevokeAPIKey(req revokeAPIKeyRequest) error {
+	_, resp, err := req.Execute()
+	closeAPIResponse(resp)
+	return err
+}
+
+func executeGetAPIKey[T apiKeyLike, R interface {
+	Execute() (T, *http.Response, error)
+}](req R) (any, apiKeyLike, error) {
+	apiKey, resp, err := req.Execute()
+	closeAPIResponse(resp)
+	return apiKey, apiKey, err
+}
+
+func newRevokeAPIKeyCmd(cfg revokeAPIKeyCmdConfig) *cobra.Command {
+	var (
+		reason     string
+		reasonText string
+	)
+
+	cmd := &cobra.Command{
+		Use:          "revoke [key-id]",
+		Short:        cfg.short,
+		Args:         cobra.ExactArgs(1),
+		SilenceUsage: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			keyID := args[0]
+			serverAddr, err := cmdEndpoint(cmd)
+			if err != nil {
+				return err
+			}
+
+			reasonEnum, err := parseRevocationReason(reason)
+			if err != nil {
+				return err
+			}
+
+			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
+			defer cancel()
+
+			sdkClient := newSDKClient(serverAddr)
+			if err := executeRevokeAPIKey(cfg.revoke(ctx, sdkClient.APIKeysAPI, keyID, reasonEnum, reasonText)); err != nil {
+				return failAPIError(cmd, err, cfg.revokeError)
+			}
+
+			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), cfg.successMessage)
+
+			raw, apiKey, err := cfg.get(ctx, sdkClient.APIKeysAPI, keyID)
+			if err != nil {
+				return failAPIError(cmd, err, cfg.getError)
+			}
+
+			cmdx.PrintRow(cmd, apiKeyRow(raw, apiKey))
+			return nil
+		},
+	}
+
+	cmdx.RegisterFormatFlags(cmd.Flags())
+	cmd.Flags().StringVar(&reason, "reason", "", "Reason for revocation (key_compromise, affiliation_changed, superseded, privilege_withdrawn)")
+	cmd.Flags().StringVar(&reasonText, "reason-text", "", "Human-readable reason text")
+
+	return cmd
+}
+
 // apiKeyLike is the common getter interface shared by IssuedAPIKey and ImportedAPIKey.
 type apiKeyLike interface {
 	GetKeyId() string
@@ -190,7 +286,6 @@ func newKeysCmd() *cobra.Command {
 	cmdx.RegisterFormatFlags(cmd.PersistentFlags())
 
 	cmd.AddCommand(newIssueAPIKeyCmd())
-	cmd.AddCommand(newRevokeAPIKeyCmd())
 	cmd.AddCommand(newDeriveTokenCmd())
 	cmd.AddCommand(newVerifyAPIKeyCmd())
 	cmd.AddCommand(newSelfRevokeAPIKeyCmd())
@@ -329,81 +424,6 @@ func newIssueAPIKeyCmd() *cobra.Command {
 	cmd.Flags().Int64Var(&rateLimitQuota, "rate-limit-quota", 0, "Maximum requests allowed per window (0 = no limit)")
 	cmd.Flags().StringVar(&rateLimitWindow, "rate-limit-window", "", "Rate limit window duration (e.g., 60s, 5m)")
 	_ = cmd.MarkFlagRequired("actor")
-
-	return cmd
-}
-
-func newRevokeAPIKeyCmd() *cobra.Command {
-	var reason string
-
-	cmd := &cobra.Command{
-		Use:          "revoke [key-id]",
-		Short:        "Revoke an API key",
-		Args:         cobra.ExactArgs(1),
-		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			keyID := args[0]
-			serverAddr, err := cmdEndpoint(cmd)
-			if err != nil {
-				return err
-			}
-
-			reasonEnum, err := parseRevocationReason(reason)
-			if err != nil {
-				return err
-			}
-
-			body := client.AdminRevokeAPIKeyBody{}
-			body.SetReason(reasonEnum)
-
-			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
-			defer cancel()
-
-			sdkClient := newSDKClient(serverAddr)
-			_, httpResp, err := sdkClient.APIKeysAPI.
-				AdminRevokeAPIKey(ctx, keyID).
-				AdminRevokeAPIKeyBody(body).
-				Execute()
-			if httpResp != nil {
-				defer httpResp.Body.Close()
-			}
-			if err != nil {
-				return failAPIError(cmd, err, "revoke API key")
-			}
-
-			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "API key revoked.")
-
-			// Fetch the updated key to show its current state.
-			// Try issued key first; fall back to imported key if not found.
-			apiKey, httpResp2, getErr := sdkClient.APIKeysAPI.
-				AdminGetIssuedAPIKey(ctx, keyID).
-				Execute()
-			if httpResp2 != nil {
-				defer httpResp2.Body.Close()
-			}
-			if getErr == nil {
-				cmdx.PrintRow(cmd, apiKeyRow(apiKey, apiKey))
-				return nil
-			}
-
-			// Fall back to imported key
-			importedKey, httpResp3, err := sdkClient.APIKeysAPI.
-				AdminGetImportedAPIKey(ctx, keyID).
-				Execute()
-			if httpResp3 != nil {
-				defer httpResp3.Body.Close()
-			}
-			if err != nil {
-				return failAPIError(cmd, err, "get API key after revoke")
-			}
-
-			cmdx.PrintRow(cmd, apiKeyRow(importedKey, importedKey))
-			return nil
-		},
-	}
-
-	cmdx.RegisterFormatFlags(cmd.Flags())
-	cmd.Flags().StringVar(&reason, "reason", "", "Reason for revocation")
 
 	return cmd
 }

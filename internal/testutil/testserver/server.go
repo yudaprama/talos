@@ -318,19 +318,19 @@ func (ts *TestServer) DeriveTestToken(t *testing.T, apiKeyToken string) string {
 	return resp.Token.GetToken()
 }
 
-// RevokeTestAPIKey revokes an API key via HTTP SDK
+// RevokeTestAPIKey revokes an issued API key via HTTP SDK
 func (ts *TestServer) RevokeTestAPIKey(t *testing.T, keyID string) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	body := client.NewAdminRevokeAPIKeyBody()
+	body := client.NewAdminRevokeIssuedAPIKeyBody()
 	body.SetReason(client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeAPIKey(ctx, keyID).
-		AdminRevokeAPIKeyBody(*body).
+		AdminRevokeIssuedAPIKey(ctx, keyID).
+		AdminRevokeIssuedAPIKeyBody(*body).
 		Execute()
 	require.NoError(t, err, "revoke test API key")
 	if httpResp != nil && httpResp.Body != nil {

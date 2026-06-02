@@ -152,7 +152,7 @@ service APIKeys {
   //   1. IssueAPIKey with new credentials
   //   2. Deploy new secret to all services
   //   3. Verify new secret works everywhere
-  //   4. RevokeAPIKey to remove the old key
+  //   4. AdminRevokeIssuedAPIKey to remove the old key
   //
   // ```http
   // POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -170,6 +170,32 @@ service APIKeys {
       responses: {
         key: "201"
         value: { description: "API key rotated successfully. New key issued, old key revoked." }
+      }
+    };
+  }
+
+  // Revoke Issued API Key
+  //
+  // Immediately revokes an issued API key. Once revoked, the key can no longer
+  // be used for authentication. This operation is irreversible. Revoked keys
+  // are retained for audit purposes.
+  //
+  // ```http
+  // POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+  // {
+  //   "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+  // }
+  // ```
+  rpc AdminRevokeIssuedAPIKey(RevokeIssuedAPIKeyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v2alpha1/admin/issuedApiKeys/{key_id}:revoke"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "AdminRevokeIssuedAPIKey"
+      responses: {
+        key: "204"
+        value: { description: "API key revoked successfully." }
       }
     };
   }
@@ -300,7 +326,7 @@ service APIKeys {
   // Delete Imported API Key
   //
   // Permanently deletes an imported key (hard delete). The key is removed from
-  // the database. Use RevokeAPIKey for soft deletion (recommended).
+  // the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
   //
   // ```http
   // DELETE /v2alpha1/admin/importedApiKeys/{key_id}
@@ -318,29 +344,25 @@ service APIKeys {
     };
   }
 
-  // ============================================================================
-  // Unified Operations (work with both issued and imported keys)
-  // ============================================================================
-
-  // Revoke API Key
+  // Revoke Imported API Key
   //
-  // Immediately revokes an API key (issued or imported). Once revoked, the key
-  // can no longer be used for authentication. This operation is irreversible.
-  // Revoked keys are retained for audit purposes.
+  // Immediately revokes an imported API key. Once revoked, the key can no longer
+  // be used for authentication. This operation is irreversible. Revoked keys
+  // are retained for audit purposes.
   //
   // ```http
-  // POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+  // POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
   // {
   //   "reason": "REVOCATION_REASON_KEY_COMPROMISE"
   // }
   // ```
-  rpc AdminRevokeAPIKey(RevokeAPIKeyRequest) returns (google.protobuf.Empty) {
+  rpc AdminRevokeImportedAPIKey(RevokeImportedAPIKeyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v2alpha1/admin/apiKeys/{key_id}:revoke"
+      post: "/v2alpha1/admin/importedApiKeys/{key_id}:revoke"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      operation_id: "AdminRevokeAPIKey"
+      operation_id: "AdminRevokeImportedAPIKey"
       responses: {
         key: "204"
         value: { description: "API key revoked successfully." }
@@ -348,11 +370,15 @@ service APIKeys {
     };
   }
 
+  // ============================================================================
+  // Unified Operations (work with both issued and imported keys)
+  // ============================================================================
+
   // Revoke API Key (self-service)
   //
-  // Proof-of-possession variant of revocation. Lives alongside `AdminRevokeAPIKey`
-  // in this service; the `Self*` prefix on the request/response messages
-  // disambiguates from the admin variant's `RevokeAPIKeyRequest`.
+  // Proof-of-possession variant of revocation. The `Self*` prefix on the
+  // request/response messages disambiguates from the admin variants
+  // (`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
   //
   // Allows an API key holder to revoke their own key. The caller must provide
   // the full API key secret as proof of possession. Supports issued API keys
@@ -567,7 +593,7 @@ enum RevocationReason {
   REVOCATION_REASON_SUPERSEDED = 3;
   // Admin-only. The actor's privilege to use this key was withdrawn by
   // an operator. Self-revocation requests using this reason are rejected
-  // with InvalidArgument. Pair with `description` on RevokeAPIKeyRequest
+  // with InvalidArgument. Pair with `description` on the admin revoke requests
   // to record the operator-supplied justification.
   REVOCATION_REASON_PRIVILEGE_WITHDRAWN = 4;
 }
@@ -974,8 +1000,16 @@ message UpdateImportedAPIKeyRequest {
 // Unified Operations (work with both issued and imported keys)
 // ============================================================================
 
-message RevokeAPIKeyRequest {
-  string key_id = 1 [(buf.validate.field).string.min_len = 1];
+// RevokeIssuedAPIKeyRequest revokes an issued API key by its key_id.
+message RevokeIssuedAPIKeyRequest {
+  string key_id = 1 [(buf.validate.field).string.min_len = 1]; // UUID of the issued key (REQUIRED)
+  RevocationReason reason = 2;
+  string description = 3; // Optional free-text explanation. Only allowed when reason is PRIVILEGE_WITHDRAWN.
+}
+
+// RevokeImportedAPIKeyRequest revokes an imported API key by its key_id.
+message RevokeImportedAPIKeyRequest {
+  string key_id = 1 [(buf.validate.field).string.min_len = 1]; // SHA-512/256 hash of the imported key (REQUIRED)
   RevocationReason reason = 2;
   string description = 3; // Optional free-text explanation. Only allowed when reason is PRIVILEGE_WITHDRAWN.
 }

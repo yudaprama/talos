@@ -84,7 +84,7 @@ type APIKeysAPI interface {
 			AdminDeleteImportedAPIKey Delete Imported API Key
 
 			Permanently deletes an imported key (hard delete). The key is removed from
-		the database. Use RevokeAPIKey for soft deletion (recommended).
+		the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
 
 		```http
 		DELETE /v2alpha1/admin/importedApiKeys/{key_id}
@@ -256,28 +256,52 @@ type APIKeysAPI interface {
 	AdminListIssuedAPIKeysExecute(r APIKeysAPIAdminListIssuedAPIKeysRequest) (*ListIssuedAPIKeysResponse, *http.Response, error)
 
 	/*
-			AdminRevokeAPIKey Revoke API Key
+			AdminRevokeImportedAPIKey Revoke Imported API Key
 
-			Immediately revokes an API key (issued or imported). Once revoked, the key
-		can no longer be used for authentication. This operation is irreversible.
-		Revoked keys are retained for audit purposes.
+			Immediately revokes an imported API key. Once revoked, the key can no longer
+		be used for authentication. This operation is irreversible. Revoked keys
+		are retained for audit purposes.
 
 		```http
-		POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+		POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
 		{
 		  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
 		}
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@param keyId
-			@return APIKeysAPIAdminRevokeAPIKeyRequest
+			@param keyId SHA-512/256 hash of the imported key (REQUIRED)
+			@return APIKeysAPIAdminRevokeImportedAPIKeyRequest
 	*/
-	AdminRevokeAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeAPIKeyRequest
+	AdminRevokeImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeImportedAPIKeyRequest
 
-	// AdminRevokeAPIKeyExecute executes the request
+	// AdminRevokeImportedAPIKeyExecute executes the request
 	//  @return map[string]interface{}
-	AdminRevokeAPIKeyExecute(r APIKeysAPIAdminRevokeAPIKeyRequest) (map[string]interface{}, *http.Response, error)
+	AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRevokeImportedAPIKeyRequest) (map[string]interface{}, *http.Response, error)
+
+	/*
+			AdminRevokeIssuedAPIKey Revoke Issued API Key
+
+			Immediately revokes an issued API key. Once revoked, the key can no longer
+		be used for authentication. This operation is irreversible. Revoked keys
+		are retained for audit purposes.
+
+		```http
+		POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+		{
+		  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+		}
+		```
+
+			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+			@param keyId UUID of the issued key (REQUIRED)
+			@return APIKeysAPIAdminRevokeIssuedAPIKeyRequest
+	*/
+	AdminRevokeIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeIssuedAPIKeyRequest
+
+	// AdminRevokeIssuedAPIKeyExecute executes the request
+	//  @return map[string]interface{}
+	AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) (map[string]interface{}, *http.Response, error)
 
 	/*
 			AdminRotateIssuedAPIKey Rotate Issued API Key
@@ -290,7 +314,7 @@ type APIKeysAPI interface {
 		  1. IssueAPIKey with new credentials
 		  2. Deploy new secret to all services
 		  3. Verify new secret works everywhere
-		  4. RevokeAPIKey to remove the old key
+		  4. AdminRevokeIssuedAPIKey to remove the old key
 
 		```http
 		POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -423,9 +447,9 @@ type APIKeysAPI interface {
 	/*
 			RevokeAPIKey Revoke API Key (self-service)
 
-			Proof-of-possession variant of revocation. Lives alongside `AdminRevokeAPIKey`
-		in this service; the `Self*` prefix on the request/response messages
-		disambiguates from the admin variant's `RevokeAPIKeyRequest`.
+			Proof-of-possession variant of revocation. The `Self*` prefix on the
+		request/response messages disambiguates from the admin variants
+		(`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
 
 		Allows an API key holder to revoke their own key. The caller must provide
 		the full API key secret as proof of possession. Supports issued API keys
@@ -764,7 +788,7 @@ func (r APIKeysAPIAdminDeleteImportedAPIKeyRequest) Execute() (map[string]interf
 AdminDeleteImportedAPIKey Delete Imported API Key
 
 Permanently deletes an imported key (hard delete). The key is removed from
-the database. Use RevokeAPIKey for soft deletion (recommended).
+the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
 
 ```http
 DELETE /v2alpha1/admin/importedApiKeys/{key_id}
@@ -1786,31 +1810,31 @@ func (a *APIKeysAPIService) AdminListIssuedAPIKeysExecute(r APIKeysAPIAdminListI
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminRevokeAPIKeyRequest struct {
-	ctx                   context.Context
-	ApiService            APIKeysAPI
-	keyId                 string
-	adminRevokeAPIKeyBody *AdminRevokeAPIKeyBody
+type APIKeysAPIAdminRevokeImportedAPIKeyRequest struct {
+	ctx                           context.Context
+	ApiService                    APIKeysAPI
+	keyId                         string
+	adminRevokeImportedAPIKeyBody *AdminRevokeImportedAPIKeyBody
 }
 
-func (r APIKeysAPIAdminRevokeAPIKeyRequest) AdminRevokeAPIKeyBody(adminRevokeAPIKeyBody AdminRevokeAPIKeyBody) APIKeysAPIAdminRevokeAPIKeyRequest {
-	r.adminRevokeAPIKeyBody = &adminRevokeAPIKeyBody
+func (r APIKeysAPIAdminRevokeImportedAPIKeyRequest) AdminRevokeImportedAPIKeyBody(adminRevokeImportedAPIKeyBody AdminRevokeImportedAPIKeyBody) APIKeysAPIAdminRevokeImportedAPIKeyRequest {
+	r.adminRevokeImportedAPIKeyBody = &adminRevokeImportedAPIKeyBody
 	return r
 }
 
-func (r APIKeysAPIAdminRevokeAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
-	return r.ApiService.AdminRevokeAPIKeyExecute(r)
+func (r APIKeysAPIAdminRevokeImportedAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
+	return r.ApiService.AdminRevokeImportedAPIKeyExecute(r)
 }
 
 /*
-AdminRevokeAPIKey Revoke API Key
+AdminRevokeImportedAPIKey Revoke Imported API Key
 
-Immediately revokes an API key (issued or imported). Once revoked, the key
-can no longer be used for authentication. This operation is irreversible.
-Revoked keys are retained for audit purposes.
+Immediately revokes an imported API key. Once revoked, the key can no longer
+be used for authentication. This operation is irreversible. Revoked keys
+are retained for audit purposes.
 
 ```http
-POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
 
 	{
 	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
@@ -1819,11 +1843,11 @@ POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param keyId
-	@return APIKeysAPIAdminRevokeAPIKeyRequest
+	@param keyId SHA-512/256 hash of the imported key (REQUIRED)
+	@return APIKeysAPIAdminRevokeImportedAPIKeyRequest
 */
-func (a *APIKeysAPIService) AdminRevokeAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeAPIKeyRequest {
-	return APIKeysAPIAdminRevokeAPIKeyRequest{
+func (a *APIKeysAPIService) AdminRevokeImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeImportedAPIKeyRequest {
+	return APIKeysAPIAdminRevokeImportedAPIKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -1833,7 +1857,7 @@ func (a *APIKeysAPIService) AdminRevokeAPIKey(ctx context.Context, keyId string)
 // Execute executes the request
 //
 //	@return map[string]interface{}
-func (a *APIKeysAPIService) AdminRevokeAPIKeyExecute(r APIKeysAPIAdminRevokeAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
+func (a *APIKeysAPIService) AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRevokeImportedAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -1841,19 +1865,19 @@ func (a *APIKeysAPIService) AdminRevokeAPIKeyExecute(r APIKeysAPIAdminRevokeAPIK
 		localVarReturnValue map[string]interface{}
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminRevokeAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminRevokeImportedAPIKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2alpha1/admin/apiKeys/{key_id}:revoke"
+	localVarPath := localBasePath + "/v2alpha1/admin/importedApiKeys/{key_id}:revoke"
 	localVarPath = strings.Replace(localVarPath, "{"+"key_id"+"}", url.PathEscape(parameterValueToString(r.keyId, "keyId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.adminRevokeAPIKeyBody == nil {
-		return localVarReturnValue, nil, reportError("adminRevokeAPIKeyBody is required and must be specified")
+	if r.adminRevokeImportedAPIKeyBody == nil {
+		return localVarReturnValue, nil, reportError("adminRevokeImportedAPIKeyBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1874,7 +1898,141 @@ func (a *APIKeysAPIService) AdminRevokeAPIKeyExecute(r APIKeysAPIAdminRevokeAPIK
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.adminRevokeAPIKeyBody
+	localVarPostBody = r.adminRevokeImportedAPIKeyBody
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		var v Status
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+		newErr.model = v
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type APIKeysAPIAdminRevokeIssuedAPIKeyRequest struct {
+	ctx                         context.Context
+	ApiService                  APIKeysAPI
+	keyId                       string
+	adminRevokeIssuedAPIKeyBody *AdminRevokeIssuedAPIKeyBody
+}
+
+func (r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) AdminRevokeIssuedAPIKeyBody(adminRevokeIssuedAPIKeyBody AdminRevokeIssuedAPIKeyBody) APIKeysAPIAdminRevokeIssuedAPIKeyRequest {
+	r.adminRevokeIssuedAPIKeyBody = &adminRevokeIssuedAPIKeyBody
+	return r
+}
+
+func (r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
+	return r.ApiService.AdminRevokeIssuedAPIKeyExecute(r)
+}
+
+/*
+AdminRevokeIssuedAPIKey Revoke Issued API Key
+
+Immediately revokes an issued API key. Once revoked, the key can no longer
+be used for authentication. This operation is irreversible. Revoked keys
+are retained for audit purposes.
+
+```http
+POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+
+	{
+	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+	}
+
+```
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param keyId UUID of the issued key (REQUIRED)
+	@return APIKeysAPIAdminRevokeIssuedAPIKeyRequest
+*/
+func (a *APIKeysAPIService) AdminRevokeIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeIssuedAPIKeyRequest {
+	return APIKeysAPIAdminRevokeIssuedAPIKeyRequest{
+		ApiService: a,
+		ctx:        ctx,
+		keyId:      keyId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return map[string]interface{}
+func (a *APIKeysAPIService) AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]interface{}
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminRevokeIssuedAPIKey")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/v2alpha1/admin/issuedApiKeys/{key_id}:revoke"
+	localVarPath = strings.Replace(localVarPath, "{"+"key_id"+"}", url.PathEscape(parameterValueToString(r.keyId, "keyId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.adminRevokeIssuedAPIKeyBody == nil {
+		return localVarReturnValue, nil, reportError("adminRevokeIssuedAPIKeyBody is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.adminRevokeIssuedAPIKeyBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1947,7 +2105,7 @@ For zero-downtime rotation, use this workflow instead:
  1. IssueAPIKey with new credentials
  2. Deploy new secret to all services
  3. Verify new secret works everywhere
- 4. RevokeAPIKey to remove the old key
+ 4. AdminRevokeIssuedAPIKey to remove the old key
 
 ```http
 POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -2651,9 +2809,9 @@ func (r APIKeysAPIRevokeAPIKeyRequest) Execute() (map[string]interface{}, *http.
 /*
 RevokeAPIKey Revoke API Key (self-service)
 
-Proof-of-possession variant of revocation. Lives alongside `AdminRevokeAPIKey`
-in this service; the `Self*` prefix on the request/response messages
-disambiguates from the admin variant's `RevokeAPIKeyRequest`.
+Proof-of-possession variant of revocation. The `Self*` prefix on the
+request/response messages disambiguates from the admin variants
+(`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
 
 Allows an API key holder to revoke their own key. The caller must provide
 the full API key secret as proof of possession. Supports issued API keys

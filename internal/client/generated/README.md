@@ -90,7 +90,8 @@ Class | Method | HTTP request | Description
 *APIKeysAPI* | [**AdminIssueAPIKey**](docs/APIKeysAPI.md#adminissueapikey) | **Post** /v2alpha1/admin/issuedApiKeys | Issue API Key
 *APIKeysAPI* | [**AdminListImportedAPIKeys**](docs/APIKeysAPI.md#adminlistimportedapikeys) | **Get** /v2alpha1/admin/importedApiKeys | List Imported API Keys
 *APIKeysAPI* | [**AdminListIssuedAPIKeys**](docs/APIKeysAPI.md#adminlistissuedapikeys) | **Get** /v2alpha1/admin/issuedApiKeys | List Issued API Keys
-*APIKeysAPI* | [**AdminRevokeAPIKey**](docs/APIKeysAPI.md#adminrevokeapikey) | **Post** /v2alpha1/admin/apiKeys/{key_id}:revoke | Revoke API Key
+*APIKeysAPI* | [**AdminRevokeImportedAPIKey**](docs/APIKeysAPI.md#adminrevokeimportedapikey) | **Post** /v2alpha1/admin/importedApiKeys/{key_id}:revoke | Revoke Imported API Key
+*APIKeysAPI* | [**AdminRevokeIssuedAPIKey**](docs/APIKeysAPI.md#adminrevokeissuedapikey) | **Post** /v2alpha1/admin/issuedApiKeys/{key_id}:revoke | Revoke Issued API Key
 *APIKeysAPI* | [**AdminRotateIssuedAPIKey**](docs/APIKeysAPI.md#adminrotateissuedapikey) | **Post** /v2alpha1/admin/issuedApiKeys/{key_id}:rotate | Rotate Issued API Key
 *APIKeysAPI* | [**AdminUpdateImportedAPIKey**](docs/APIKeysAPI.md#adminupdateimportedapikey) | **Patch** /v2alpha1/admin/importedApiKeys/{imported_api_key.key_id} | Update Imported API Key
 *APIKeysAPI* | [**AdminUpdateIssuedAPIKey**](docs/APIKeysAPI.md#adminupdateissuedapikey) | **Patch** /v2alpha1/admin/issuedApiKeys/{issued_api_key.key_id} | Update Issued API Key
@@ -101,7 +102,8 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
- - [AdminRevokeAPIKeyBody](docs/AdminRevokeAPIKeyBody.md)
+ - [AdminRevokeImportedAPIKeyBody](docs/AdminRevokeImportedAPIKeyBody.md)
+ - [AdminRevokeIssuedAPIKeyBody](docs/AdminRevokeIssuedAPIKeyBody.md)
  - [AdminRotateIssuedAPIKeyBody](docs/AdminRotateIssuedAPIKeyBody.md)
  - [AdminUpdateImportedAPIKeyRequest](docs/AdminUpdateImportedAPIKeyRequest.md)
  - [AdminUpdateIssuedAPIKeyRequest](docs/AdminUpdateIssuedAPIKeyRequest.md)

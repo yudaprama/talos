@@ -511,72 +511,24 @@ func newUpdateImportedAPIKeyCmd() *cobra.Command {
 }
 
 func newRevokeImportedAPIKeyCmd() *cobra.Command {
-	var (
-		reason     string
-		reasonText string
-	)
+	return newRevokeAPIKeyCmd(revokeAPIKeyCmdConfig{
+		short:          "Revoke an imported API key",
+		successMessage: "Imported API key revoked.",
+		revokeError:    "revoke imported API key",
+		getError:       "get imported API key after revoke",
+		revoke:         newRevokeImportedAPIKeyRequest,
+		get:            getImportedAPIKeyAfterRevoke,
+	})
+}
 
-	cmd := &cobra.Command{
-		Use:          "revoke [key-id]",
-		Short:        "Revoke an imported API key",
-		Args:         cobra.ExactArgs(1),
-		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			keyID := args[0]
-			serverAddr, err := cmdEndpoint(cmd)
-			if err != nil {
-				return err
-			}
+func newRevokeImportedAPIKeyRequest(ctx context.Context, api client.APIKeysAPI, keyID string, reason client.RevocationReason, reasonText string) revokeAPIKeyRequest {
+	body := client.AdminRevokeImportedAPIKeyBody{}
+	setRevocationBody(&body, reason, reasonText)
+	return api.AdminRevokeImportedAPIKey(ctx, keyID).AdminRevokeImportedAPIKeyBody(body)
+}
 
-			reasonEnum, err := parseRevocationReason(reason)
-			if err != nil {
-				return err
-			}
-
-			body := client.AdminRevokeAPIKeyBody{}
-			body.SetReason(reasonEnum)
-			if reasonText != "" {
-				body.SetDescription(reasonText)
-			}
-
-			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
-			defer cancel()
-
-			sdkClient := newSDKClient(serverAddr)
-			_, httpResp, err := sdkClient.APIKeysAPI.
-				AdminRevokeAPIKey(ctx, keyID).
-				AdminRevokeAPIKeyBody(body).
-				Execute()
-			if httpResp != nil {
-				defer httpResp.Body.Close()
-			}
-			if err != nil {
-				return failAPIError(cmd, err, "revoke imported API key")
-			}
-
-			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "Imported API key revoked.")
-
-			// Fetch the updated key to show its current state
-			importedKey, httpResp2, err := sdkClient.APIKeysAPI.
-				AdminGetImportedAPIKey(ctx, keyID).
-				Execute()
-			if httpResp2 != nil {
-				defer httpResp2.Body.Close()
-			}
-			if err != nil {
-				return failAPIError(cmd, err, "get imported API key after revoke")
-			}
-
-			cmdx.PrintRow(cmd, apiKeyRow(importedKey, importedKey))
-			return nil
-		},
-	}
-
-	cmdx.RegisterFormatFlags(cmd.Flags())
-	cmd.Flags().StringVar(&reason, "reason", "", "Reason for revocation (key_compromise, affiliation_changed, superseded, privilege_withdrawn)")
-	cmd.Flags().StringVar(&reasonText, "reason-text", "", "Human-readable reason text")
-
-	return cmd
+func getImportedAPIKeyAfterRevoke(ctx context.Context, api client.APIKeysAPI, keyID string) (any, apiKeyLike, error) {
+	return executeGetAPIKey(api.AdminGetImportedAPIKey(ctx, keyID))
 }
 
 func newDeleteImportedAPIKeyCmd() *cobra.Command {

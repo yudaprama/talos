@@ -14,42 +14,42 @@ import (
 	"encoding/json"
 )
 
-// checks if the AdminRevokeAPIKeyBody type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &AdminRevokeAPIKeyBody{}
+// checks if the AdminRevokeIssuedAPIKeyBody type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AdminRevokeIssuedAPIKeyBody{}
 
-// AdminRevokeAPIKeyBody struct for AdminRevokeAPIKeyBody
-type AdminRevokeAPIKeyBody struct {
+// AdminRevokeIssuedAPIKeyBody RevokeIssuedAPIKeyRequest revokes an issued API key by its key_id.
+type AdminRevokeIssuedAPIKeyBody struct {
 	// Optional free-text explanation. Only allowed when reason is PRIVILEGE_WITHDRAWN.
 	Description          *string           `json:"description,omitempty"`
 	Reason               *RevocationReason `json:"reason,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _AdminRevokeAPIKeyBody AdminRevokeAPIKeyBody
+type _AdminRevokeIssuedAPIKeyBody AdminRevokeIssuedAPIKeyBody
 
-// NewAdminRevokeAPIKeyBody instantiates a new AdminRevokeAPIKeyBody object
+// NewAdminRevokeIssuedAPIKeyBody instantiates a new AdminRevokeIssuedAPIKeyBody object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAdminRevokeAPIKeyBody() *AdminRevokeAPIKeyBody {
-	this := AdminRevokeAPIKeyBody{}
+func NewAdminRevokeIssuedAPIKeyBody() *AdminRevokeIssuedAPIKeyBody {
+	this := AdminRevokeIssuedAPIKeyBody{}
 	var reason RevocationReason = REVOCATIONREASON_REVOCATION_REASON_UNSPECIFIED
 	this.Reason = &reason
 	return &this
 }
 
-// NewAdminRevokeAPIKeyBodyWithDefaults instantiates a new AdminRevokeAPIKeyBody object
+// NewAdminRevokeIssuedAPIKeyBodyWithDefaults instantiates a new AdminRevokeIssuedAPIKeyBody object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewAdminRevokeAPIKeyBodyWithDefaults() *AdminRevokeAPIKeyBody {
-	this := AdminRevokeAPIKeyBody{}
+func NewAdminRevokeIssuedAPIKeyBodyWithDefaults() *AdminRevokeIssuedAPIKeyBody {
+	this := AdminRevokeIssuedAPIKeyBody{}
 	var reason RevocationReason = REVOCATIONREASON_REVOCATION_REASON_UNSPECIFIED
 	this.Reason = &reason
 	return &this
 }
 
 // GetDescription returns the Description field value if set, zero value otherwise.
-func (o *AdminRevokeAPIKeyBody) GetDescription() string {
+func (o *AdminRevokeIssuedAPIKeyBody) GetDescription() string {
 	if o == nil || IsNil(o.Description) {
 		var ret string
 		return ret
@@ -59,7 +59,7 @@ func (o *AdminRevokeAPIKeyBody) GetDescription() string {
 
 // GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AdminRevokeAPIKeyBody) GetDescriptionOk() (*string, bool) {
+func (o *AdminRevokeIssuedAPIKeyBody) GetDescriptionOk() (*string, bool) {
 	if o == nil || IsNil(o.Description) {
 		return nil, false
 	}
@@ -67,7 +67,7 @@ func (o *AdminRevokeAPIKeyBody) GetDescriptionOk() (*string, bool) {
 }
 
 // HasDescription returns a boolean if a field has been set.
-func (o *AdminRevokeAPIKeyBody) HasDescription() bool {
+func (o *AdminRevokeIssuedAPIKeyBody) HasDescription() bool {
 	if o != nil && !IsNil(o.Description) {
 		return true
 	}
@@ -76,12 +76,12 @@ func (o *AdminRevokeAPIKeyBody) HasDescription() bool {
 }
 
 // SetDescription gets a reference to the given string and assigns it to the Description field.
-func (o *AdminRevokeAPIKeyBody) SetDescription(v string) {
+func (o *AdminRevokeIssuedAPIKeyBody) SetDescription(v string) {
 	o.Description = &v
 }
 
 // GetReason returns the Reason field value if set, zero value otherwise.
-func (o *AdminRevokeAPIKeyBody) GetReason() RevocationReason {
+func (o *AdminRevokeIssuedAPIKeyBody) GetReason() RevocationReason {
 	if o == nil || IsNil(o.Reason) {
 		var ret RevocationReason
 		return ret
@@ -91,7 +91,7 @@ func (o *AdminRevokeAPIKeyBody) GetReason() RevocationReason {
 
 // GetReasonOk returns a tuple with the Reason field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AdminRevokeAPIKeyBody) GetReasonOk() (*RevocationReason, bool) {
+func (o *AdminRevokeIssuedAPIKeyBody) GetReasonOk() (*RevocationReason, bool) {
 	if o == nil || IsNil(o.Reason) {
 		return nil, false
 	}
@@ -99,7 +99,7 @@ func (o *AdminRevokeAPIKeyBody) GetReasonOk() (*RevocationReason, bool) {
 }
 
 // HasReason returns a boolean if a field has been set.
-func (o *AdminRevokeAPIKeyBody) HasReason() bool {
+func (o *AdminRevokeIssuedAPIKeyBody) HasReason() bool {
 	if o != nil && !IsNil(o.Reason) {
 		return true
 	}
@@ -108,11 +108,11 @@ func (o *AdminRevokeAPIKeyBody) HasReason() bool {
 }
 
 // SetReason gets a reference to the given RevocationReason and assigns it to the Reason field.
-func (o *AdminRevokeAPIKeyBody) SetReason(v RevocationReason) {
+func (o *AdminRevokeIssuedAPIKeyBody) SetReason(v RevocationReason) {
 	o.Reason = &v
 }
 
-func (o AdminRevokeAPIKeyBody) MarshalJSON() ([]byte, error) {
+func (o AdminRevokeIssuedAPIKeyBody) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -120,7 +120,7 @@ func (o AdminRevokeAPIKeyBody) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o AdminRevokeAPIKeyBody) ToMap() (map[string]interface{}, error) {
+func (o AdminRevokeIssuedAPIKeyBody) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Description) {
 		toSerialize["description"] = o.Description
@@ -136,16 +136,16 @@ func (o AdminRevokeAPIKeyBody) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *AdminRevokeAPIKeyBody) UnmarshalJSON(data []byte) (err error) {
-	varAdminRevokeAPIKeyBody := _AdminRevokeAPIKeyBody{}
+func (o *AdminRevokeIssuedAPIKeyBody) UnmarshalJSON(data []byte) (err error) {
+	varAdminRevokeIssuedAPIKeyBody := _AdminRevokeIssuedAPIKeyBody{}
 
-	err = json.Unmarshal(data, &varAdminRevokeAPIKeyBody)
+	err = json.Unmarshal(data, &varAdminRevokeIssuedAPIKeyBody)
 
 	if err != nil {
 		return err
 	}
 
-	*o = AdminRevokeAPIKeyBody(varAdminRevokeAPIKeyBody)
+	*o = AdminRevokeIssuedAPIKeyBody(varAdminRevokeIssuedAPIKeyBody)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -158,38 +158,38 @@ func (o *AdminRevokeAPIKeyBody) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableAdminRevokeAPIKeyBody struct {
-	value *AdminRevokeAPIKeyBody
+type NullableAdminRevokeIssuedAPIKeyBody struct {
+	value *AdminRevokeIssuedAPIKeyBody
 	isSet bool
 }
 
-func (v NullableAdminRevokeAPIKeyBody) Get() *AdminRevokeAPIKeyBody {
+func (v NullableAdminRevokeIssuedAPIKeyBody) Get() *AdminRevokeIssuedAPIKeyBody {
 	return v.value
 }
 
-func (v *NullableAdminRevokeAPIKeyBody) Set(val *AdminRevokeAPIKeyBody) {
+func (v *NullableAdminRevokeIssuedAPIKeyBody) Set(val *AdminRevokeIssuedAPIKeyBody) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableAdminRevokeAPIKeyBody) IsSet() bool {
+func (v NullableAdminRevokeIssuedAPIKeyBody) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableAdminRevokeAPIKeyBody) Unset() {
+func (v *NullableAdminRevokeIssuedAPIKeyBody) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableAdminRevokeAPIKeyBody(val *AdminRevokeAPIKeyBody) *NullableAdminRevokeAPIKeyBody {
-	return &NullableAdminRevokeAPIKeyBody{value: val, isSet: true}
+func NewNullableAdminRevokeIssuedAPIKeyBody(val *AdminRevokeIssuedAPIKeyBody) *NullableAdminRevokeIssuedAPIKeyBody {
+	return &NullableAdminRevokeIssuedAPIKeyBody{value: val, isSet: true}
 }
 
-func (v NullableAdminRevokeAPIKeyBody) MarshalJSON() ([]byte, error) {
+func (v NullableAdminRevokeIssuedAPIKeyBody) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableAdminRevokeAPIKeyBody) UnmarshalJSON(src []byte) error {
+func (v *NullableAdminRevokeIssuedAPIKeyBody) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

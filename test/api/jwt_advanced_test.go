@@ -235,7 +235,7 @@ func (s *APIKeyE2ETestSuite) TestStatelessTokenVerification() {
 		s.True(verifyBefore.GetIsValid(), "Derived JWT should be valid before parent revocation")
 
 		// Revoke parent API key
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Verify parent key is revoked (use cache bypass for immediate verification)
 		verifyParent := s.sdkVerifyNoCache(ctx, secret)
@@ -264,7 +264,7 @@ func (s *APIKeyE2ETestSuite) TestStatelessTokenVerification() {
 		s.True(verifyBefore.GetIsValid(), "Derived Macaroon should be valid before parent revocation")
 
 		// Revoke parent key
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Derived Macaroon remains valid (stateless capability model)
 		verifyAfter := s.sdkVerify(ctx, derivedMacaroon)
@@ -293,7 +293,7 @@ func (s *APIKeyE2ETestSuite) TestStatelessTokenVerification() {
 		apiKey, secret := s.testServer.CreateTestAPIKey(s.T(), "Revoked Derivation Parent")
 
 		// Revoke the parent key
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Attempt to derive token from revoked parent should fail
 		req := client.NewDeriveTokenRequest()
@@ -334,7 +334,7 @@ func (s *APIKeyE2ETestSuite) TestStatelessTokenVerification() {
 		}
 
 		// Revoke parent key
-		s.sdkRevokeAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
+		s.sdkRevokeIssuedAPIKeyWithReason(ctx, apiKey.GetKeyId(), client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// All derived tokens remain valid (stateless capability model)
 		for i, token := range derivedTokens {

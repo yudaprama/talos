@@ -180,7 +180,7 @@ func (s *APIKeyE2ETestSuite) TestListImportedAPIKeys() {
 		importResp := s.sdkImportAPIKey(ctx, importReq)
 
 		// Revoke it
-		s.sdkRevokeAPIKeyWithReason(ctx, importResp.GetKeyId(),
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, importResp.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Import an active key
@@ -221,7 +221,7 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKey() {
 		s.True(verifyBefore.GetIsValid())
 
 		// Revoke the key
-		s.sdkRevokeAPIKeyWithReason(ctx, keyID,
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, keyID,
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 		revokedKey := s.sdkGetImportedAPIKey(ctx, keyID)
 		s.Equal(client.KEYSTATUS_KEY_STATUS_REVOKED, revokedKey.GetStatus())
@@ -247,7 +247,7 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKey() {
 		importResp := s.sdkImportAPIKey(ctx, req)
 
 		// First revocation succeeds
-		s.sdkRevokeAPIKeyWithReason(ctx, importResp.GetKeyId(),
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, importResp.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Second revocation returns conflict
@@ -332,7 +332,7 @@ func (s *APIKeyE2ETestSuite) TestMigrationCoexistence() {
 		s.GreaterOrEqual(len(importedListResp.ImportedApiKeys), 1, "Should have at least the imported key")
 
 		// Phase 5: Complete migration by revoking imported key
-		s.sdkRevokeAPIKeyWithReason(ctx, importResp.GetKeyId(),
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, importResp.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_SUPERSEDED)
 
 		// Phase 6: Verify imported key no longer works (use cache bypass for immediate verification)
@@ -489,7 +489,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateImportedAPIKey() {
 	// TODO test more complex update masks here, and also for issued api keys.
 }
 
-func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKeyViaUnifiedEndpoint() {
+func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKeyLifecycle() {
 	ctx := s.T().Context()
 
 	// Import a key
@@ -501,8 +501,8 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKeyViaUnifiedEndpoint() {
 	imported := s.sdkImportAPIKey(ctx, req)
 	keyID := imported.GetKeyId()
 
-	s.Run("revoke via unified endpoint returns 204", func() {
-		s.sdkRevokeAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_UNSPECIFIED)
+	s.Run("revoke imported key returns 204", func() {
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_UNSPECIFIED)
 	})
 
 	s.Run("get after revoke shows revoked status", func() {
@@ -518,8 +518,8 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKeyViaUnifiedEndpoint() {
 	s.Run("404 for non-existent hash - not 500", func() {
 		apiClient := s.setupSDKClient()
 		_, httpResp, err := apiClient.APIKeysAPI.
-			AdminRevokeAPIKey(ctx, "nonexistenthash00000000000000000").
-			AdminRevokeAPIKeyBody(client.AdminRevokeAPIKeyBody{}).
+			AdminRevokeImportedAPIKey(ctx, "nonexistenthash00000000000000000").
+			AdminRevokeImportedAPIKeyBody(client.AdminRevokeImportedAPIKeyBody{}).
 			Execute()
 		s.requireHTTPError(err, httpResp, http.StatusNotFound)
 	})
@@ -601,7 +601,7 @@ func (s *APIKeyE2ETestSuite) TestDeriveTokenFromImportedKey() {
 		s.True(verifyBefore.GetIsValid())
 
 		// Revoke the imported parent key
-		s.sdkRevokeAPIKeyWithReason(ctx, importResp.GetKeyId(),
+		s.sdkRevokeImportedAPIKeyWithReason(ctx, importResp.GetKeyId(),
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Derived token remains valid (stateless capability model)

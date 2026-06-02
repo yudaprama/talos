@@ -138,13 +138,17 @@ immediately revoked.
 
 ## Admin vs self-revocation
 
-|                       | Admin revocation                               | Self-revocation                     |
-| --------------------- | ---------------------------------------------- | ----------------------------------- |
-| Endpoint              | `POST /v2alpha1/admin/apiKeys/{key_id}:revoke` | `POST /v2alpha1/apiKeys:selfRevoke` |
-| Surface               | Admin                                          | Self-service                        |
-| Authentication        | Requires admin access                          | Proof of possession (key secret)    |
-| Identifier            | Key ID                                         | Key secret                          |
-| `PRIVILEGE_WITHDRAWN` | Allowed                                        | Not allowed                         |
+|                       | Admin revocation                                     | Self-revocation                     |
+| --------------------- | ---------------------------------------------------- | ----------------------------------- |
+| Endpoint              | `POST /v2alpha1/admin/issuedApiKeys/{key_id}:revoke` | `POST /v2alpha1/apiKeys:selfRevoke` |
+| Surface               | Admin                                                | Self-service                        |
+| Authentication        | Requires admin access                                | Proof of possession (key secret)    |
+| Identifier            | Key ID                                               | Key secret                          |
+| `PRIVILEGE_WITHDRAWN` | Allowed                                              | Not allowed                         |
+
+Admin revocation has a separate endpoint per key type: use
+`POST /v2alpha1/admin/issuedApiKeys/{key_id}:revoke` for issued keys and
+`POST /v2alpha1/admin/importedApiKeys/{key_id}:revoke` for imported keys.
 
 ## Next steps
 

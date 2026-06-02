@@ -240,6 +240,51 @@ func local_request_APIKeys_AdminRotateIssuedAPIKey_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
+func request_APIKeys_AdminRevokeIssuedAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, client APIKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq RevokeIssuedAPIKeyRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["key_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "key_id")
+	}
+	protoReq.KeyId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "key_id", err)
+	}
+	msg, err := client.AdminRevokeIssuedAPIKey(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIKeys_AdminRevokeIssuedAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, server APIKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq RevokeIssuedAPIKeyRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["key_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "key_id")
+	}
+	protoReq.KeyId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "key_id", err)
+	}
+	msg, err := server.AdminRevokeIssuedAPIKey(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_APIKeys_AdminImportAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, client APIKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ImportAPIKeyRequest
@@ -466,9 +511,9 @@ func local_request_APIKeys_AdminDeleteImportedAPIKey_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func request_APIKeys_AdminRevokeAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, client APIKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIKeys_AdminRevokeImportedAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, client APIKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq RevokeAPIKeyRequest
+		protoReq RevokeImportedAPIKeyRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -486,13 +531,13 @@ func request_APIKeys_AdminRevokeAPIKey_0(ctx context.Context, marshaler runtime.
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "key_id", err)
 	}
-	msg, err := client.AdminRevokeAPIKey(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.AdminRevokeImportedAPIKey(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_APIKeys_AdminRevokeAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, server APIKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIKeys_AdminRevokeImportedAPIKey_0(ctx context.Context, marshaler runtime.Marshaler, server APIKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq RevokeAPIKeyRequest
+		protoReq RevokeImportedAPIKeyRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -507,7 +552,7 @@ func local_request_APIKeys_AdminRevokeAPIKey_0(ctx context.Context, marshaler ru
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "key_id", err)
 	}
-	msg, err := server.AdminRevokeAPIKey(ctx, &protoReq)
+	msg, err := server.AdminRevokeImportedAPIKey(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -746,6 +791,26 @@ func RegisterAPIKeysHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 		forward_APIKeys_AdminRotateIssuedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_APIKeys_AdminRevokeIssuedAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.APIKeys/AdminRevokeIssuedAPIKey", runtime.WithHTTPPathPattern("/v2alpha1/admin/issuedApiKeys/{key_id}:revoke"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIKeys_AdminRevokeIssuedAPIKey_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIKeys_AdminRevokeIssuedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_APIKeys_AdminImportAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -866,25 +931,25 @@ func RegisterAPIKeysHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 		forward_APIKeys_AdminDeleteImportedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_APIKeys_AdminRevokeAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIKeys_AdminRevokeImportedAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.APIKeys/AdminRevokeAPIKey", runtime.WithHTTPPathPattern("/v2alpha1/admin/apiKeys/{key_id}:revoke"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.APIKeys/AdminRevokeImportedAPIKey", runtime.WithHTTPPathPattern("/v2alpha1/admin/importedApiKeys/{key_id}:revoke"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_APIKeys_AdminRevokeAPIKey_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIKeys_AdminRevokeImportedAPIKey_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_APIKeys_AdminRevokeAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIKeys_AdminRevokeImportedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_APIKeys_RevokeAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1111,6 +1176,23 @@ func RegisterAPIKeysHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 		forward_APIKeys_AdminRotateIssuedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_APIKeys_AdminRevokeIssuedAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.APIKeys/AdminRevokeIssuedAPIKey", runtime.WithHTTPPathPattern("/v2alpha1/admin/issuedApiKeys/{key_id}:revoke"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIKeys_AdminRevokeIssuedAPIKey_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIKeys_AdminRevokeIssuedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_APIKeys_AdminImportAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1213,22 +1295,22 @@ func RegisterAPIKeysHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 		forward_APIKeys_AdminDeleteImportedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_APIKeys_AdminRevokeAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIKeys_AdminRevokeImportedAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.APIKeys/AdminRevokeAPIKey", runtime.WithHTTPPathPattern("/v2alpha1/admin/apiKeys/{key_id}:revoke"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.APIKeys/AdminRevokeImportedAPIKey", runtime.WithHTTPPathPattern("/v2alpha1/admin/importedApiKeys/{key_id}:revoke"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_APIKeys_AdminRevokeAPIKey_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIKeys_AdminRevokeImportedAPIKey_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_APIKeys_AdminRevokeAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIKeys_AdminRevokeImportedAPIKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_APIKeys_RevokeAPIKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1324,13 +1406,14 @@ var (
 	pattern_APIKeys_AdminListIssuedAPIKeys_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "issuedApiKeys"}, ""))
 	pattern_APIKeys_AdminUpdateIssuedAPIKey_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "issuedApiKeys", "issued_api_key.key_id"}, ""))
 	pattern_APIKeys_AdminRotateIssuedAPIKey_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "issuedApiKeys", "key_id"}, "rotate"))
+	pattern_APIKeys_AdminRevokeIssuedAPIKey_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "issuedApiKeys", "key_id"}, "revoke"))
 	pattern_APIKeys_AdminImportAPIKey_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "importedApiKeys"}, ""))
 	pattern_APIKeys_AdminBatchImportAPIKeys_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "importedApiKeys"}, "batchImport"))
 	pattern_APIKeys_AdminUpdateImportedAPIKey_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "importedApiKeys", "imported_api_key.key_id"}, ""))
 	pattern_APIKeys_AdminGetImportedAPIKey_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "importedApiKeys", "key_id"}, ""))
 	pattern_APIKeys_AdminListImportedAPIKeys_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "importedApiKeys"}, ""))
 	pattern_APIKeys_AdminDeleteImportedAPIKey_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "importedApiKeys", "key_id"}, ""))
-	pattern_APIKeys_AdminRevokeAPIKey_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "apiKeys", "key_id"}, "revoke"))
+	pattern_APIKeys_AdminRevokeImportedAPIKey_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "importedApiKeys", "key_id"}, "revoke"))
 	pattern_APIKeys_RevokeAPIKey_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v2alpha1", "apiKeys"}, "selfRevoke"))
 	pattern_APIKeys_AdminDeriveToken_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "apiKeys"}, "derive"))
 	pattern_APIKeys_GetJWKS_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "derivedKeys", "jwks.json"}, ""))
@@ -1344,13 +1427,14 @@ var (
 	forward_APIKeys_AdminListIssuedAPIKeys_0    = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminUpdateIssuedAPIKey_0   = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminRotateIssuedAPIKey_0   = runtime.ForwardResponseMessage
+	forward_APIKeys_AdminRevokeIssuedAPIKey_0   = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminImportAPIKey_0         = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminBatchImportAPIKeys_0   = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminUpdateImportedAPIKey_0 = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminGetImportedAPIKey_0    = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminListImportedAPIKeys_0  = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminDeleteImportedAPIKey_0 = runtime.ForwardResponseMessage
-	forward_APIKeys_AdminRevokeAPIKey_0         = runtime.ForwardResponseMessage
+	forward_APIKeys_AdminRevokeImportedAPIKey_0 = runtime.ForwardResponseMessage
 	forward_APIKeys_RevokeAPIKey_0              = runtime.ForwardResponseMessage
 	forward_APIKeys_AdminDeriveToken_0          = runtime.ForwardResponseMessage
 	forward_APIKeys_GetJWKS_0                   = runtime.ForwardResponseMessage

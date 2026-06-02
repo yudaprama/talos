@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 	"github.com/lestrrat-go/jwx/v3/jwt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -347,8 +348,8 @@ func TestListIssuedAPIKeys(t *testing.T) {
 	})
 }
 
-// TestRevokeAPIKey tests the RevokeAPIKey service method
-func TestRevokeAPIKey(t *testing.T) {
+// TestRevokeIssuedAPIKey tests the RevokeIssuedAPIKey service method
+func TestRevokeIssuedAPIKey(t *testing.T) {
 	t.Parallel()
 
 	svc, verifier, ctx := setupTestService(t)
@@ -377,10 +378,17 @@ func TestRevokeAPIKey(t *testing.T) {
 		},
 		{
 			name:        "error - revoke non-existent key",
-			keyID:       "non-existent-key-id",
+			keyID:       uuid.Must(uuid.NewV4()).String(),
 			reason:      talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 			wantErr:     true,
-			errContains: "imported key not found",
+			errContains: "API key not found",
+		},
+		{
+			name:        "error - malformed key ID",
+			keyID:       "not-a-valid-uuid",
+			reason:      talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
+			wantErr:     true,
+			errContains: "API key not found",
 		},
 		{
 			name:        "error - empty key ID",
@@ -393,7 +401,7 @@ func TestRevokeAPIKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+			resp, err := svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
 				KeyId:  tt.keyID,
 				Reason: tt.reason,
 			})
@@ -431,7 +439,7 @@ func TestRevokeAPIKey(t *testing.T) {
 	// Test double revocation returns conflict
 	t.Run("double revocation returns conflict", func(t *testing.T) {
 		// Try to revoke again
-		_, err := svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+		_, err := svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
 			KeyId:  keyID,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
@@ -583,7 +591,7 @@ func TestVerifyAPIKey_DerivedTokens(t *testing.T) {
 		derivedToken := deriveResp.Token.Token
 
 		// Revoke the parent key
-		_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+		_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
 			KeyId:  createResp.IssuedApiKey.KeyId,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
@@ -807,8 +815,8 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		_, _, err = verifier.VerifyAPIKey(ctx, derivedToken)
 		require.NoError(t, err)
 
-		// Revoke the imported parent key (using unified RevokeAPIKey)
-		_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+		// Revoke the imported parent key
+		_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
 			KeyId:  imported.KeyId,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
@@ -1501,7 +1509,7 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("update revoked key succeeds", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "Revoked", []string{})
-		_, err := svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+		_, err := svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
 			KeyId:  key.KeyId,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})

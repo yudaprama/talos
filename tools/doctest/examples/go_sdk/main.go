@@ -139,8 +139,8 @@ func run() error {
 	// region: revoke-key
 	reason := client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE
 	_, _, err = c.APIKeysAPI.
-		AdminRevokeAPIKey(ctx, keyID).
-		AdminRevokeAPIKeyBody(client.AdminRevokeAPIKeyBody{
+		AdminRevokeIssuedAPIKey(ctx, keyID).
+		AdminRevokeIssuedAPIKeyBody(client.AdminRevokeIssuedAPIKeyBody{
 			Reason: &reason,
 		}).
 		Execute()

@@ -448,7 +448,7 @@ func TestRevokeImportedAPIKey(t *testing.T) {
 	})
 	require.NoError(t, err)
 	preRevokedID := preRevokedResp.KeyId
-	_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
 		KeyId:  preRevokedID,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
@@ -486,7 +486,7 @@ func TestRevokeImportedAPIKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			resp, err := svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+			resp, err := svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
 				KeyId:  tt.keyID,
 				Reason: tt.reason,
 			})
@@ -676,7 +676,7 @@ func TestVerifyAPIKey_RevokedImportedAPIKey(t *testing.T) {
 	require.NotNil(t, imported)
 
 	// Revoke the key
-	_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
 		KeyId:  imported.KeyId,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
@@ -1224,7 +1224,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	require.NoError(t, err)
 
 	// 6. Revoke via unified endpoint (regression test for Postgres bug)
-	_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
 		KeyId:  imported.KeyId,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
@@ -1241,7 +1241,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	assert.Contains(t, err.Error(), "revoked")
 
 	// 9. Re-revocation returns conflict
-	_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
 		KeyId:  imported.KeyId,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})

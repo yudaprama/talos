@@ -26,13 +26,14 @@ const (
 	APIKeys_AdminListIssuedAPIKeys_FullMethodName    = "/talos.v2alpha1.APIKeys/AdminListIssuedAPIKeys"
 	APIKeys_AdminUpdateIssuedAPIKey_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminUpdateIssuedAPIKey"
 	APIKeys_AdminRotateIssuedAPIKey_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminRotateIssuedAPIKey"
+	APIKeys_AdminRevokeIssuedAPIKey_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminRevokeIssuedAPIKey"
 	APIKeys_AdminImportAPIKey_FullMethodName         = "/talos.v2alpha1.APIKeys/AdminImportAPIKey"
 	APIKeys_AdminBatchImportAPIKeys_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminBatchImportAPIKeys"
 	APIKeys_AdminUpdateImportedAPIKey_FullMethodName = "/talos.v2alpha1.APIKeys/AdminUpdateImportedAPIKey"
 	APIKeys_AdminGetImportedAPIKey_FullMethodName    = "/talos.v2alpha1.APIKeys/AdminGetImportedAPIKey"
 	APIKeys_AdminListImportedAPIKeys_FullMethodName  = "/talos.v2alpha1.APIKeys/AdminListImportedAPIKeys"
 	APIKeys_AdminDeleteImportedAPIKey_FullMethodName = "/talos.v2alpha1.APIKeys/AdminDeleteImportedAPIKey"
-	APIKeys_AdminRevokeAPIKey_FullMethodName         = "/talos.v2alpha1.APIKeys/AdminRevokeAPIKey"
+	APIKeys_AdminRevokeImportedAPIKey_FullMethodName = "/talos.v2alpha1.APIKeys/AdminRevokeImportedAPIKey"
 	APIKeys_RevokeAPIKey_FullMethodName              = "/talos.v2alpha1.APIKeys/RevokeAPIKey"
 	APIKeys_AdminDeriveToken_FullMethodName          = "/talos.v2alpha1.APIKeys/AdminDeriveToken"
 	APIKeys_GetJWKS_FullMethodName                   = "/talos.v2alpha1.APIKeys/GetJWKS"
@@ -127,7 +128,7 @@ type APIKeysClient interface {
 	//  1. IssueAPIKey with new credentials
 	//  2. Deploy new secret to all services
 	//  3. Verify new secret works everywhere
-	//  4. RevokeAPIKey to remove the old key
+	//  4. AdminRevokeIssuedAPIKey to remove the old key
 	//
 	// ```http
 	// POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -138,6 +139,21 @@ type APIKeysClient interface {
 	//
 	// ```
 	AdminRotateIssuedAPIKey(ctx context.Context, in *RotateIssuedAPIKeyRequest, opts ...grpc.CallOption) (*RotateIssuedAPIKeyResponse, error)
+	// Revoke Issued API Key
+	//
+	// Immediately revokes an issued API key. Once revoked, the key can no longer
+	// be used for authentication. This operation is irreversible. Revoked keys
+	// are retained for audit purposes.
+	//
+	// ```http
+	// POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+	//
+	//	{
+	//	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+	//	}
+	//
+	// ```
+	AdminRevokeIssuedAPIKey(ctx context.Context, in *RevokeIssuedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Import API Key
 	//
 	// Imports an external API key into the system. Allows importing keys from
@@ -215,32 +231,32 @@ type APIKeysClient interface {
 	// Delete Imported API Key
 	//
 	// Permanently deletes an imported key (hard delete). The key is removed from
-	// the database. Use RevokeAPIKey for soft deletion (recommended).
+	// the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
 	//
 	// ```http
 	// DELETE /v2alpha1/admin/importedApiKeys/{key_id}
 	// ```
 	AdminDeleteImportedAPIKey(ctx context.Context, in *DeleteImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Revoke API Key
+	// Revoke Imported API Key
 	//
-	// Immediately revokes an API key (issued or imported). Once revoked, the key
-	// can no longer be used for authentication. This operation is irreversible.
-	// Revoked keys are retained for audit purposes.
+	// Immediately revokes an imported API key. Once revoked, the key can no longer
+	// be used for authentication. This operation is irreversible. Revoked keys
+	// are retained for audit purposes.
 	//
 	// ```http
-	// POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+	// POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
 	//
 	//	{
 	//	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
 	//	}
 	//
 	// ```
-	AdminRevokeAPIKey(ctx context.Context, in *RevokeAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AdminRevokeImportedAPIKey(ctx context.Context, in *RevokeImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Revoke API Key (self-service)
 	//
-	// Proof-of-possession variant of revocation. Lives alongside `AdminRevokeAPIKey`
-	// in this service; the `Self*` prefix on the request/response messages
-	// disambiguates from the admin variant's `RevokeAPIKeyRequest`.
+	// Proof-of-possession variant of revocation. The `Self*` prefix on the
+	// request/response messages disambiguates from the admin variants
+	// (`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
 	//
 	// Allows an API key holder to revoke their own key. The caller must provide
 	// the full API key secret as proof of possession. Supports issued API keys
@@ -393,6 +409,16 @@ func (c *aPIKeysClient) AdminRotateIssuedAPIKey(ctx context.Context, in *RotateI
 	return out, nil
 }
 
+func (c *aPIKeysClient) AdminRevokeIssuedAPIKey(ctx context.Context, in *RevokeIssuedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, APIKeys_AdminRevokeIssuedAPIKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aPIKeysClient) AdminImportAPIKey(ctx context.Context, in *ImportAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ImportedAPIKey)
@@ -453,10 +479,10 @@ func (c *aPIKeysClient) AdminDeleteImportedAPIKey(ctx context.Context, in *Delet
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminRevokeAPIKey(ctx context.Context, in *RevokeAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *aPIKeysClient) AdminRevokeImportedAPIKey(ctx context.Context, in *RevokeImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, APIKeys_AdminRevokeAPIKey_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, APIKeys_AdminRevokeImportedAPIKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -600,7 +626,7 @@ type APIKeysServer interface {
 	//  1. IssueAPIKey with new credentials
 	//  2. Deploy new secret to all services
 	//  3. Verify new secret works everywhere
-	//  4. RevokeAPIKey to remove the old key
+	//  4. AdminRevokeIssuedAPIKey to remove the old key
 	//
 	// ```http
 	// POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -611,6 +637,21 @@ type APIKeysServer interface {
 	//
 	// ```
 	AdminRotateIssuedAPIKey(context.Context, *RotateIssuedAPIKeyRequest) (*RotateIssuedAPIKeyResponse, error)
+	// Revoke Issued API Key
+	//
+	// Immediately revokes an issued API key. Once revoked, the key can no longer
+	// be used for authentication. This operation is irreversible. Revoked keys
+	// are retained for audit purposes.
+	//
+	// ```http
+	// POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+	//
+	//	{
+	//	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+	//	}
+	//
+	// ```
+	AdminRevokeIssuedAPIKey(context.Context, *RevokeIssuedAPIKeyRequest) (*emptypb.Empty, error)
 	// Import API Key
 	//
 	// Imports an external API key into the system. Allows importing keys from
@@ -688,32 +729,32 @@ type APIKeysServer interface {
 	// Delete Imported API Key
 	//
 	// Permanently deletes an imported key (hard delete). The key is removed from
-	// the database. Use RevokeAPIKey for soft deletion (recommended).
+	// the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
 	//
 	// ```http
 	// DELETE /v2alpha1/admin/importedApiKeys/{key_id}
 	// ```
 	AdminDeleteImportedAPIKey(context.Context, *DeleteImportedAPIKeyRequest) (*emptypb.Empty, error)
-	// Revoke API Key
+	// Revoke Imported API Key
 	//
-	// Immediately revokes an API key (issued or imported). Once revoked, the key
-	// can no longer be used for authentication. This operation is irreversible.
-	// Revoked keys are retained for audit purposes.
+	// Immediately revokes an imported API key. Once revoked, the key can no longer
+	// be used for authentication. This operation is irreversible. Revoked keys
+	// are retained for audit purposes.
 	//
 	// ```http
-	// POST /v2alpha1/admin/apiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+	// POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
 	//
 	//	{
 	//	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
 	//	}
 	//
 	// ```
-	AdminRevokeAPIKey(context.Context, *RevokeAPIKeyRequest) (*emptypb.Empty, error)
+	AdminRevokeImportedAPIKey(context.Context, *RevokeImportedAPIKeyRequest) (*emptypb.Empty, error)
 	// Revoke API Key (self-service)
 	//
-	// Proof-of-possession variant of revocation. Lives alongside `AdminRevokeAPIKey`
-	// in this service; the `Self*` prefix on the request/response messages
-	// disambiguates from the admin variant's `RevokeAPIKeyRequest`.
+	// Proof-of-possession variant of revocation. The `Self*` prefix on the
+	// request/response messages disambiguates from the admin variants
+	// (`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
 	//
 	// Allows an API key holder to revoke their own key. The caller must provide
 	// the full API key secret as proof of possession. Supports issued API keys
@@ -830,6 +871,9 @@ func (UnimplementedAPIKeysServer) AdminUpdateIssuedAPIKey(context.Context, *Upda
 func (UnimplementedAPIKeysServer) AdminRotateIssuedAPIKey(context.Context, *RotateIssuedAPIKeyRequest) (*RotateIssuedAPIKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminRotateIssuedAPIKey not implemented")
 }
+func (UnimplementedAPIKeysServer) AdminRevokeIssuedAPIKey(context.Context, *RevokeIssuedAPIKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeIssuedAPIKey not implemented")
+}
 func (UnimplementedAPIKeysServer) AdminImportAPIKey(context.Context, *ImportAPIKeyRequest) (*ImportedAPIKey, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminImportAPIKey not implemented")
 }
@@ -848,8 +892,8 @@ func (UnimplementedAPIKeysServer) AdminListImportedAPIKeys(context.Context, *Lis
 func (UnimplementedAPIKeysServer) AdminDeleteImportedAPIKey(context.Context, *DeleteImportedAPIKeyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDeleteImportedAPIKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminRevokeAPIKey(context.Context, *RevokeAPIKeyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeAPIKey not implemented")
+func (UnimplementedAPIKeysServer) AdminRevokeImportedAPIKey(context.Context, *RevokeImportedAPIKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeImportedAPIKey not implemented")
 }
 func (UnimplementedAPIKeysServer) RevokeAPIKey(context.Context, *SelfRevokeAPIKeyRequest) (*SelfRevokeAPIKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RevokeAPIKey not implemented")
@@ -976,6 +1020,24 @@ func _APIKeys_AdminRotateIssuedAPIKey_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APIKeys_AdminRevokeIssuedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeIssuedAPIKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIKeysServer).AdminRevokeIssuedAPIKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIKeys_AdminRevokeIssuedAPIKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIKeysServer).AdminRevokeIssuedAPIKey(ctx, req.(*RevokeIssuedAPIKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _APIKeys_AdminImportAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ImportAPIKeyRequest)
 	if err := dec(in); err != nil {
@@ -1084,20 +1146,20 @@ func _APIKeys_AdminDeleteImportedAPIKey_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminRevokeAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RevokeAPIKeyRequest)
+func _APIKeys_AdminRevokeImportedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeImportedAPIKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminRevokeAPIKey(ctx, in)
+		return srv.(APIKeysServer).AdminRevokeImportedAPIKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminRevokeAPIKey_FullMethodName,
+		FullMethod: APIKeys_AdminRevokeImportedAPIKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminRevokeAPIKey(ctx, req.(*RevokeAPIKeyRequest))
+		return srv.(APIKeysServer).AdminRevokeImportedAPIKey(ctx, req.(*RevokeImportedAPIKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1220,6 +1282,10 @@ var APIKeys_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _APIKeys_AdminRotateIssuedAPIKey_Handler,
 		},
 		{
+			MethodName: "AdminRevokeIssuedAPIKey",
+			Handler:    _APIKeys_AdminRevokeIssuedAPIKey_Handler,
+		},
+		{
 			MethodName: "AdminImportAPIKey",
 			Handler:    _APIKeys_AdminImportAPIKey_Handler,
 		},
@@ -1244,8 +1310,8 @@ var APIKeys_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _APIKeys_AdminDeleteImportedAPIKey_Handler,
 		},
 		{
-			MethodName: "AdminRevokeAPIKey",
-			Handler:    _APIKeys_AdminRevokeAPIKey_Handler,
+			MethodName: "AdminRevokeImportedAPIKey",
+			Handler:    _APIKeys_AdminRevokeImportedAPIKey_Handler,
 		},
 		{
 			MethodName: "RevokeAPIKey",

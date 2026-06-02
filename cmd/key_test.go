@@ -257,11 +257,11 @@ func TestRevokeAPIKeyCmd(t *testing.T) {
 	keyID, _ := tc.createAPIKey(t, "test-key")
 
 	stdout, stderr := tc.execNoErr(
-		t, "keys", "revoke", keyID,
+		t, "keys", "issued", "revoke", keyID,
 		"--reason", "key_compromise",
 	)
 
-	assert.Contains(t, stderr, "API key revoked.")
+	assert.Contains(t, stderr, "Issued API key revoked.")
 	assert.Contains(t, stdout, keyID)
 
 	// Verify key was actually revoked
@@ -269,7 +269,7 @@ func TestRevokeAPIKeyCmd(t *testing.T) {
 
 	// Double revoke returns conflict
 	_, _, err := tc.exec(
-		t, "keys", "revoke", keyID,
+		t, "keys", "issued", "revoke", keyID,
 		"--reason", "key_compromise",
 	)
 	require.Error(t, err)
@@ -408,10 +408,10 @@ func TestAPIKeyLifecycle(t *testing.T) {
 
 	// Step 4: Revoke the key
 	_, stderr = tc.execNoErr(
-		t, "keys", "revoke", keyID,
+		t, "keys", "issued", "revoke", keyID,
 		"--reason", "superseded",
 	)
-	assert.Contains(t, stderr, "API key revoked.")
+	assert.Contains(t, stderr, "Issued API key revoked.")
 
 	// Step 5: Verify the key is now invalid
 	_, stderr, err = tc.exec(t, "keys", "verify", apiKeySecret)

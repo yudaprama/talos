@@ -103,8 +103,9 @@ All endpoints use v2alpha1 API paths:
 - `GET /v2alpha1/admin/issuedApiKeys` — list keys
 - `PATCH /v2alpha1/admin/issuedApiKeys/{id}` — update key
 - `POST /v2alpha1/admin/issuedApiKeys/{id}:rotate` — rotate key
-- `POST /v2alpha1/admin/apiKeys/{id}:revoke` — revoke key
+- `POST /v2alpha1/admin/issuedApiKeys/{id}:revoke` — revoke issued key
 - `POST /v2alpha1/admin/importedApiKeys` — import key
+- `POST /v2alpha1/admin/importedApiKeys/{id}:revoke` — revoke imported key
 - `POST /v2alpha1/admin/importedApiKeys:batchImport` — batch import
 - `POST /v2alpha1/admin/apiKeys:verify` — verify key
 - `POST /v2alpha1/admin/apiKeys:batchVerify` — batch verify

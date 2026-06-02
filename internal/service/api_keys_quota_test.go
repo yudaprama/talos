@@ -149,7 +149,7 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = svc.RevokeAPIKey(ctx, &talosv2alpha1.RevokeAPIKeyRequest{
+		_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
 			KeyId: first.IssuedApiKey.KeyId,
 		})
 		require.NoError(t, err)

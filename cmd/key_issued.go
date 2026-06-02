@@ -48,8 +48,30 @@ func newIssuedKeysCmd() *cobra.Command {
 	cmd.AddCommand(newListIssuedAPIKeysCmd())
 	cmd.AddCommand(newUpdateIssuedAPIKeyCmd())
 	cmd.AddCommand(newRotateIssuedAPIKeyCmd())
+	cmd.AddCommand(newRevokeIssuedAPIKeyCmd())
 
 	return cmd
+}
+
+func newRevokeIssuedAPIKeyCmd() *cobra.Command {
+	return newRevokeAPIKeyCmd(revokeAPIKeyCmdConfig{
+		short:          "Revoke an issued API key",
+		successMessage: "Issued API key revoked.",
+		revokeError:    "revoke issued API key",
+		getError:       "get issued API key after revoke",
+		revoke:         newRevokeIssuedAPIKeyRequest,
+		get:            getIssuedAPIKeyAfterRevoke,
+	})
+}
+
+func newRevokeIssuedAPIKeyRequest(ctx context.Context, api client.APIKeysAPI, keyID string, reason client.RevocationReason, reasonText string) revokeAPIKeyRequest {
+	body := client.AdminRevokeIssuedAPIKeyBody{}
+	setRevocationBody(&body, reason, reasonText)
+	return api.AdminRevokeIssuedAPIKey(ctx, keyID).AdminRevokeIssuedAPIKeyBody(body)
+}
+
+func getIssuedAPIKeyAfterRevoke(ctx context.Context, api client.APIKeysAPI, keyID string) (any, apiKeyLike, error) {
+	return executeGetAPIKey(api.AdminGetIssuedAPIKey(ctx, keyID))
 }
 
 //nolint:dupl // issued/imported get commands share structure but call different SDK methods.

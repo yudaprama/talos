@@ -362,12 +362,12 @@ func (s *APIKeyE2ETestSuite) sdkIssueAPIKeyExpectError(ctx context.Context, req 
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkRevokeAPIKeyExpectError(ctx context.Context, keyID string, body client.AdminRevokeAPIKeyBody) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyExpectError(ctx context.Context, keyID string, body client.AdminRevokeIssuedAPIKeyBody) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
 	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeAPIKey(ctx, keyID).
-		AdminRevokeAPIKeyBody(body).
+		AdminRevokeIssuedAPIKey(ctx, keyID).
+		AdminRevokeIssuedAPIKeyBody(body).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -472,8 +472,8 @@ func (s *APIKeyE2ETestSuite) sdkRevokeImportedAPIKeyExpectError(ctx context.Cont
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
 	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeAPIKey(ctx, keyID).
-		AdminRevokeAPIKeyBody(client.AdminRevokeAPIKeyBody{}).
+		AdminRevokeImportedAPIKey(ctx, keyID).
+		AdminRevokeImportedAPIKeyBody(client.AdminRevokeImportedAPIKeyBody{}).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -526,33 +526,51 @@ func (s *APIKeyE2ETestSuite) requireHTTPErrorContains(err error, httpResp *http.
 	s.Contains(errorBody.Error.Reason, reasonSubstring, "error reason should contain %q, got %q", reasonSubstring, errorBody.Error.Reason)
 }
 
-// sdkRevokeAPIKeyWithReason revokes any API key (issued or imported) with a reason.
+// sdkRevokeIssuedAPIKeyWithReason revokes an issued API key with a reason.
 // An optional reasonText can be provided (only valid with PRIVILEGE_WITHDRAWN).
-func (s *APIKeyE2ETestSuite) sdkRevokeAPIKeyWithReason(ctx context.Context, keyID string, reason client.RevocationReason, reasonText ...string) {
+func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyWithReason(ctx context.Context, keyID string, reason client.RevocationReason, reasonText ...string) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	body := client.NewAdminRevokeAPIKeyBody()
+	body := client.NewAdminRevokeIssuedAPIKeyBody()
 	body.SetReason(reason)
 	if len(reasonText) > 0 {
 		body.SetDescription(reasonText[0])
 	}
 	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeAPIKey(ctx, keyID).
-		AdminRevokeAPIKeyBody(*body).
+		AdminRevokeIssuedAPIKey(ctx, keyID).
+		AdminRevokeIssuedAPIKeyBody(*body).
 		Execute()
 	s.closeBody(httpResp)
-	s.Require().NoError(err, "revoke API key")
+	s.Require().NoError(err, "revoke issued API key")
 }
 
-func (s *APIKeyE2ETestSuite) sdkRevokeAPIKeyWithReasonAndTextExpectError(ctx context.Context, keyID string, reason client.RevocationReason, reasonText string) (*http.Response, error) {
+// sdkRevokeImportedAPIKeyWithReason revokes an imported API key with a reason.
+// An optional reasonText can be provided (only valid with PRIVILEGE_WITHDRAWN).
+func (s *APIKeyE2ETestSuite) sdkRevokeImportedAPIKeyWithReason(ctx context.Context, keyID string, reason client.RevocationReason, reasonText ...string) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	body := client.NewAdminRevokeAPIKeyBody()
+	body := client.NewAdminRevokeImportedAPIKeyBody()
+	body.SetReason(reason)
+	if len(reasonText) > 0 {
+		body.SetDescription(reasonText[0])
+	}
+	_, httpResp, err := apiClient.APIKeysAPI.
+		AdminRevokeImportedAPIKey(ctx, keyID).
+		AdminRevokeImportedAPIKeyBody(*body).
+		Execute()
+	s.closeBody(httpResp)
+	s.Require().NoError(err, "revoke imported API key")
+}
+
+func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyWithReasonAndTextExpectError(ctx context.Context, keyID string, reason client.RevocationReason, reasonText string) (*http.Response, error) {
+	s.T().Helper()
+	apiClient := s.setupSDKClient()
+	body := client.NewAdminRevokeIssuedAPIKeyBody()
 	body.SetReason(reason)
 	body.SetDescription(reasonText)
 	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeAPIKey(ctx, keyID).
-		AdminRevokeAPIKeyBody(*body).
+		AdminRevokeIssuedAPIKey(ctx, keyID).
+		AdminRevokeIssuedAPIKeyBody(*body).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
