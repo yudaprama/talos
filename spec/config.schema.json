@@ -418,16 +418,18 @@
             },
             "pool_size": {
               "type": "integer",
-              "description": "Connection pool size",
+              "description": "Connection pool size. Immutable: requires server restart to change.",
               "minimum": 1,
               "maximum": 1000,
-              "default": 100
+              "default": 100,
+              "x-immutable": true
             },
             "timeout": {
               "type": "string",
-              "description": "Redis operation timeout (duration string)",
+              "description": "Redis operation timeout (duration string). Immutable: requires server restart to change.",
               "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
-              "default": "3s"
+              "default": "3s",
+              "x-immutable": true
             },
             "min_idle_conns": {
               "type": "integer",

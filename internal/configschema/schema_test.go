@@ -124,4 +124,38 @@ func TestOSSFeaturesNotMarkedAsLicenseRequired(t *testing.T) {
 		"serve.metrics must have x-license-required: true")
 }
 
+func TestCacheRedisFieldsAreImmutable(t *testing.T) {
+	t.Parallel()
+
+	var schema map[string]any
+
+	err := json.Unmarshal(configschema.SchemaJSON, &schema)
+	require.NoError(t, err, "Schema should be valid JSON")
+
+	properties, ok := schema["properties"].(map[string]any)
+	require.True(t, ok, "Schema should have properties")
+
+	cache, ok := properties["cache"].(map[string]any)
+	require.True(t, ok, "Schema should have 'cache' property")
+	cacheProps, ok := cache["properties"].(map[string]any)
+	require.True(t, ok, "cache should have properties")
+	redis, ok := cacheProps["redis"].(map[string]any)
+	require.True(t, ok, "cache should have 'redis' property")
+	redisProps, ok := redis["properties"].(map[string]any)
+	require.True(t, ok, "cache.redis should have properties")
+
+	// The Redis cache client is built exactly once via sync.Once (see
+	// internal/registry/factory.go) and is never rebuilt on config reload.
+	// Every cache.redis.* field is therefore immutable and must be marked so,
+	// otherwise the generated docs and tooling advertise hot-reload behavior
+	// the runtime cannot deliver.
+	require.NotEmpty(t, redisProps, "cache.redis should have at least one field")
+	for name, prop := range redisProps {
+		propObj, ok := prop.(map[string]any)
+		require.True(t, ok, "cache.redis.%s should be an object", name)
+		assert.Equal(t, true, propObj["x-immutable"],
+			"cache.redis.%s must have x-immutable: true (cache is sync.Once-built)", name)
+	}
+}
+
 // reviewed - @aeneasr - 2026-03-25
