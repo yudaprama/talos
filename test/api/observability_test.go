@@ -58,8 +58,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 		keyID = resp.IssuedApiKey.GetKeyId()
 		secret = resp.GetSecret()
 
-		event := s.assertEvent(events.EventAPIKeyCreated)
-		s.Equal("issued", event.KeyType)
+		event := s.assertEvent(events.EventIssuedAPIKeyCreated)
 		s.Equal(keyID, event.KeyID)
 		s.Equal("obs-owner-1", event.ActorID)
 		s.NotEmpty(event.Prefix, "prefix should be set")
@@ -91,7 +90,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 		req.SetCredential(deriveSecret)
 		s.sdkDeriveToken(ctx, req)
 
-		event := s.assertEvent(events.EventTokenDerived)
+		event := s.assertEvent(events.EventAPIKeyDerivedToken)
 		s.Equal(deriveKey.GetKeyId(), event.KeyID)
 		s.NotEmpty(event.Metadata["algorithm"], "algorithm metadata should be set")
 		s.NotEmpty(event.Metadata["ttl"], "ttl metadata should be set")
@@ -106,8 +105,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 		body.SetName("obs-issued-updated")
 		s.sdkUpdateIssuedAPIKey(ctx, keyID, *body)
 
-		event := s.assertEvent(events.EventAPIKeyUpdated)
-		s.Equal("issued", event.KeyType)
+		event := s.assertEvent(events.EventIssuedAPIKeyUpdated)
 		s.Equal(keyID, event.KeyID)
 		s.Equal("obs-owner-1", event.ActorID)
 	})
@@ -122,8 +120,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 		newKeyID := resp.IssuedApiKey.GetKeyId()
 		secret = resp.GetSecret()
 
-		event := s.assertEvent(events.EventAPIKeyRotated)
-		s.Equal("issued", event.KeyType)
+		event := s.assertEvent(events.EventIssuedAPIKeyRotated)
 		s.Equal(newKeyID, event.KeyID)
 		s.Equal("obs-owner-1", event.ActorID)
 		s.Equal(keyID, event.Metadata["old_key_id"])
@@ -145,7 +142,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 
 		s.sdkRevokeAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
-		event := s.assertEvent(events.EventAPIKeyRevoked)
+		event := s.assertEvent(events.EventIssuedAPIKeyRevoked)
 		s.Equal(keyID, event.KeyID)
 		s.Equal("REVOCATION_REASON_KEY_COMPROMISE", event.Reason)
 
@@ -188,8 +185,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 		resp := s.sdkImportAPIKey(ctx, req)
 		keyID = resp.GetKeyId()
 
-		event := s.assertEvent(events.EventAPIKeyCreated)
-		s.Equal("imported", event.KeyType)
+		event := s.assertEvent(events.EventImportedAPIKeyCreated)
 		s.Equal(keyID, event.KeyID)
 		s.Equal("obs-import-owner", event.ActorID)
 
@@ -214,8 +210,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 		body.SetName("obs-imported-updated")
 		s.sdkUpdateImportedAPIKey(ctx, keyID, *body)
 
-		event := s.assertEvent(events.EventAPIKeyUpdated)
-		s.Equal("imported", event.KeyType)
+		event := s.assertEvent(events.EventImportedAPIKeyUpdated)
 		s.Equal(keyID, event.KeyID)
 		s.Equal("obs-import-owner", event.ActorID)
 	})
@@ -226,7 +221,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 
 		s.sdkRevokeAPIKeyWithReason(ctx, keyID, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
-		event := s.assertEvent(events.EventAPIKeyRevoked)
+		event := s.assertEvent(events.EventImportedAPIKeyRevoked)
 		s.Equal(keyID, event.KeyID)
 		s.Equal("REVOCATION_REASON_KEY_COMPROMISE", event.Reason)
 
@@ -247,8 +242,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 		s.testServer.Emitter.Reset()
 		s.sdkDeleteImportedAPIKey(ctx, deleteKeyID)
 
-		event := s.assertEvent(events.EventAPIKeyDeleted)
-		s.Equal("imported", event.KeyType)
+		event := s.assertEvent(events.EventImportedAPIKeyDeleted)
 		s.Equal(deleteKeyID, event.KeyID)
 	})
 }
@@ -285,10 +279,9 @@ func (s *APIKeyE2ETestSuite) TestObservability_BatchImport() {
 		s.Equal(int32(1), resp.GetFailureCount())
 
 		// Event assertions
-		successEvents := s.testServer.Emitter.EventsOfType(events.EventAPIKeyCreated)
+		successEvents := s.testServer.Emitter.EventsOfType(events.EventImportedAPIKeyCreated)
 		s.Len(successEvents, 2, "expected 2 success events")
 		for _, evt := range successEvents {
-			s.Equal("imported", evt.KeyType)
 			s.NotEmpty(evt.KeyID)
 			s.Equal("obs-batch-owner", evt.ActorID)
 		}
@@ -323,7 +316,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_SelfRevocation() {
 
 		s.sdkSelfRevoke(ctx, secret, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
-		event := s.assertEvent(events.EventAPIKeyRevoked)
+		event := s.assertEvent(events.EventIssuedAPIKeyRevoked)
 		s.NotEmpty(event.KeyID)
 		s.Equal("self", event.Metadata["initiated_by"])
 
@@ -343,7 +336,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_SelfRevocation() {
 
 		s.sdkSelfRevoke(ctx, rawKey, client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
-		event := s.assertEvent(events.EventAPIKeyRevoked)
+		event := s.assertEvent(events.EventImportedAPIKeyRevoked)
 		s.NotEmpty(event.KeyID)
 		s.Equal("self", event.Metadata["initiated_by"])
 
@@ -442,7 +435,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_DerivedTokenVerification() {
 		deriveReq.SetAlgorithm(client.TOKENALGORITHM_TOKEN_ALGORITHM_MACAROON)
 		s.sdkDeriveToken(ctx, deriveReq)
 
-		event := s.assertEvent(events.EventTokenDerived)
+		event := s.assertEvent(events.EventAPIKeyDerivedToken)
 		s.NotEmpty(event.KeyID)
 		s.Equal("macaroon", event.Metadata["algorithm"])
 
@@ -486,7 +479,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_FailedCreateNoEvent() {
 		// Missing required Name field → validation error
 		_, _ = s.sdkIssueAPIKeyExpectError(ctx, req)
 
-		s.Empty(s.testServer.Emitter.EventsOfType(events.EventAPIKeyCreated), "rejected create should not emit event")
+		s.Empty(s.testServer.Emitter.EventsOfType(events.EventIssuedAPIKeyCreated), "rejected create should not emit event")
 		s.Equal(0, counterDelta(m.APIKeysCreated, before), "rejected create should not increment metric")
 	})
 }

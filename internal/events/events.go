@@ -7,12 +7,11 @@
 // Example usage:
 //
 //	emitter := events.NewOTELEmitter()
-//	events.New(events.EventAPIKeyCreated).
+//	events.New(events.EventIssuedAPIKeyCreated).
 //	    WithNetworkID(networkID). // uuid.UUID
 //	    WithKeyID(keyID).
 //	    WithPrefix("talos").
 //	    WithActor(actorID).
-//	    WithKeyType("issued").
 //	    Emit(ctx, emitter)
 package events
 
@@ -35,16 +34,18 @@ type EventType = orysemconv.Event
 // Audit event types emitted by Talos. These alias the shared semantic
 // convention constants so call sites can reference them via this package.
 const (
-	EventAPIKeyCreated            = semconv.EventAPIKeyCreated
-	EventAPIKeyUpdated            = semconv.EventAPIKeyUpdated
-	EventAPIKeyRevoked            = semconv.EventAPIKeyRevoked
-	EventAPIKeyRotated            = semconv.EventAPIKeyRotated
+	EventIssuedAPIKeyCreated      = semconv.EventIssuedAPIKeyCreated
+	EventImportedAPIKeyCreated    = semconv.EventImportedAPIKeyCreated
+	EventIssuedAPIKeyUpdated      = semconv.EventIssuedAPIKeyUpdated
+	EventImportedAPIKeyUpdated    = semconv.EventImportedAPIKeyUpdated
+	EventIssuedAPIKeyRevoked      = semconv.EventIssuedAPIKeyRevoked
+	EventImportedAPIKeyRevoked    = semconv.EventImportedAPIKeyRevoked
+	EventIssuedAPIKeyRotated      = semconv.EventIssuedAPIKeyRotated
 	EventAPIKeyVerified           = semconv.EventAPIKeyVerified
 	EventAPIKeyVerificationFailed = semconv.EventAPIKeyVerificationFailed
 	EventAPIKeyImportFailed       = semconv.EventAPIKeyImportFailed
-	EventAPIKeyDeleted            = semconv.EventAPIKeyDeleted
+	EventAPIKeyDerivedToken       = semconv.EventAPIKeyDerivedToken
 	EventImportedAPIKeyDeleted    = semconv.EventImportedAPIKeyDeleted
-	EventTokenDerived             = semconv.EventTokenDerived
 )
 
 // AuditEvent is the base structure for all audit events.
@@ -194,7 +195,7 @@ func (b *EventBuilder) WithPrefix(prefix string) *EventBuilder {
 }
 
 // WithKeyType sets the key origin type ("issued" or "imported").
-// Used with EventAPIKeyCreated and EventAPIKeyRotated to distinguish the two origins.
+// Used with EventAPIKeyImportFailed to record the origin of a failed import.
 func (b *EventBuilder) WithKeyType(keyType string) *EventBuilder {
 	b.event.KeyType = keyType
 

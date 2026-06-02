@@ -9,7 +9,7 @@ inputs:
     default: "24"
   cache-version:
     description: Cache version; bump to invalidate all caches
-    default: "v5"
+    default: "v6"
 runs:
   using: composite
   steps:

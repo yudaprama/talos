@@ -13,7 +13,7 @@ func TestEventToAttributes_MinimalEvent(t *testing.T) {
 	t.Parallel()
 
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 	}
 
@@ -30,7 +30,7 @@ func TestEventToAttributes_FullEvent(t *testing.T) {
 	expiry := time.Date(2026, 6, 15, 12, 0, 0, 0, time.UTC)
 
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 
 		KeyID:      "01H...",
@@ -97,7 +97,7 @@ func TestEventToAttributes_WithMetadataOnly(t *testing.T) {
 	t.Parallel()
 
 	event := &AuditEvent{
-		EventType: EventTokenDerived,
+		EventType: EventAPIKeyDerivedToken,
 		NetworkID: uuid.Nil,
 
 		Metadata: map[string]string{
@@ -119,7 +119,7 @@ func TestEventToAttributes_WithMetadataOnly(t *testing.T) {
 // Benchmark attribute conversion
 func BenchmarkEventToAttributes_Minimal(b *testing.B) {
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 	}
 
@@ -132,7 +132,7 @@ func BenchmarkEventToAttributes_Minimal(b *testing.B) {
 
 func BenchmarkEventToAttributes_Full(b *testing.B) {
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 
 		KeyID:     "01HQZX9VYQKJB8XQZQXQZQXQXQ",

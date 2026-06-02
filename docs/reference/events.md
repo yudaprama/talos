@@ -17,19 +17,20 @@ actor, and the affected resource.
 
 ## Event types
 
-| Constant                                                          | Event Name                 | Description                                                                            |
-| ----------------------------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------- |
-| `EventAPIKeyCreated`                                              | `APIKeyCreated`            | EventAPIKeyCreated is emitted when an API key is created (issued or imported).         |
-| Use the KeyType attribute to distinguish between the two origins. |
-| `EventAPIKeyUpdated`                                              | `APIKeyUpdated`            | EventAPIKeyUpdated is emitted when an API key's metadata is updated.                   |
-| `EventAPIKeyRevoked`                                              | `APIKeyRevoked`            | EventAPIKeyRevoked is emitted when an API key is revoked.                              |
-| `EventAPIKeyRotated`                                              | `APIKeyRotated`            | EventAPIKeyRotated is emitted when an API key is rotated.                              |
-| `EventAPIKeyVerified`                                             | `APIKeyVerified`           | EventAPIKeyVerified is emitted when an API key is successfully verified.               |
-| `EventAPIKeyVerificationFailed`                                   | `APIKeyVerificationFailed` | EventAPIKeyVerificationFailed is emitted when an API key verification fails.           |
-| `EventAPIKeyImportFailed`                                         | `APIKeyImportFailed`       | EventAPIKeyImportFailed is emitted when an API key import fails.                       |
-| `EventTokenDerived`                                               | `TokenDerived`             | EventTokenDerived is emitted when a session token is derived from an API key.          |
-| `EventAPIKeyDeleted`                                              | `APIKeyDeleted`            | EventAPIKeyDeleted is emitted when an issued API key is permanently deleted.           |
-| `EventImportedAPIKeyDeleted`                                      | `ImportedAPIKeyDeleted`    | EventImportedAPIKeyDeleted is emitted when an imported API key is permanently deleted. |
+| Constant                        | Event Name                 | Description                                                                                      |
+| ------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
+| `EventIssuedAPIKeyCreated`      | `IssuedAPIKeyCreated`      | EventIssuedAPIKeyCreated is emitted when Talos issues a new API key.                             |
+| `EventImportedAPIKeyCreated`    | `ImportedAPIKeyCreated`    | EventImportedAPIKeyCreated is emitted when an externally created API key is imported into Talos. |
+| `EventIssuedAPIKeyUpdated`      | `IssuedAPIKeyUpdated`      | EventIssuedAPIKeyUpdated is emitted when an issued API key's metadata is updated.                |
+| `EventImportedAPIKeyUpdated`    | `ImportedAPIKeyUpdated`    | EventImportedAPIKeyUpdated is emitted when an imported API key's metadata is updated.            |
+| `EventIssuedAPIKeyRevoked`      | `IssuedAPIKeyRevoked`      | EventIssuedAPIKeyRevoked is emitted when an issued API key is revoked.                           |
+| `EventImportedAPIKeyRevoked`    | `ImportedAPIKeyRevoked`    | EventImportedAPIKeyRevoked is emitted when an imported API key is revoked.                       |
+| `EventIssuedAPIKeyRotated`      | `IssuedAPIKeyRotated`      | EventIssuedAPIKeyRotated is emitted when an issued API key is rotated.                           |
+| `EventAPIKeyVerified`           | `APIKeyVerified`           | EventAPIKeyVerified is emitted when an API key is successfully verified.                         |
+| `EventAPIKeyVerificationFailed` | `APIKeyVerificationFailed` | EventAPIKeyVerificationFailed is emitted when an API key verification fails.                     |
+| `EventAPIKeyImportFailed`       | `APIKeyImportFailed`       | EventAPIKeyImportFailed is emitted when an API key import fails.                                 |
+| `EventAPIKeyDerivedToken`       | `APIKeyDerivedToken`       | EventAPIKeyDerivedToken is emitted when a session token is derived from an API key.              |
+| `EventImportedAPIKeyDeleted`    | `ImportedAPIKeyDeleted`    | EventImportedAPIKeyDeleted is emitted when an imported API key is permanently deleted.           |
 
 ## Event attributes
 
@@ -66,9 +67,8 @@ Events are constructed using the fluent builder pattern:
 
 ```go
 emitter := events.NewOTELEmitter()
-events.New(events.EventAPIKeyCreated).
+events.New(events.EventIssuedAPIKeyCreated).
     WithNetworkID(networkID).
-    WithKeyType("issued").
     WithKeyID(keyID).
     WithPrefix("talos").
     WithActor(actorID).

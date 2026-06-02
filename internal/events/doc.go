@@ -10,18 +10,17 @@ pipelines and never persisted locally.
 # Event Types
 
 Admin Events:
-  - APIKeyCreated (key_type: "issued" or "imported")
-  - APIKeyUpdated, APIKeyRevoked, APIKeyRotated, APIKeyDeleted
+  - IssuedAPIKeyCreated, ImportedAPIKeyCreated
+  - APIKeyUpdated, APIKeyRevoked, APIKeyRotated, ImportedAPIKeyDeleted
   - APIKeyImportFailed
   - APIKeyVerified, APIKeyVerificationFailed
-  - TokenDerived
+  - APIKeyTokenDerived
 
 # Usage
 
 Context-aware event building (recommended):
 
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyCreated).
-	    WithKeyType("issued").
+	eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyCreated).
 	    WithKeyID(keyID).
 	    WithPrefix(prefix).
 	    WithActor(actorID).

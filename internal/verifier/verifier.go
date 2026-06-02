@@ -771,9 +771,10 @@ func (v *Verifier) SelfRevokeAPIKey(ctx context.Context, credential string, reas
 
 // completeSelfRevocation performs post-revocation housekeeping: cache invalidation,
 // metrics recording, and audit event emission. The cacheKey is the raw credential
-// used as cache key, keyID is the key identifier, eventPrefix is "" for native
-// keys or "imported" for imported keys.
-func (v *Verifier) completeSelfRevocation(ctx context.Context, span trace.Span, cacheKey, keyID, eventPrefix string, reason int32) {
+// used as cache key, keyID is the key identifier, eventType is the revocation event
+// to emit (issued vs. imported), and eventPrefix is "" for native keys or "imported"
+// for imported keys.
+func (v *Verifier) completeSelfRevocation(ctx context.Context, span trace.Span, cacheKey, keyID string, eventType events.EventType, eventPrefix string, reason int32) {
 	// Invalidate cache (cache is keyed by full credential, not key ID)
 	if cacheErr := v.cache.Delete(ctx, cacheKey); cacheErr != nil {
 		span.SetAttributes(attribute.Bool("cache_delete_error", true))
@@ -787,7 +788,7 @@ func (v *Verifier) completeSelfRevocation(ctx context.Context, span trace.Span, 
 	v.metrics.APIKeysRevoked.WithLabelValues(metricReason).Inc()
 
 	// Emit audit event
-	builder := eventcontext.NewFromContext(ctx, events.EventAPIKeyRevoked).
+	builder := eventcontext.NewFromContext(ctx, eventType).
 		WithKeyID(keyID).
 		WithMetadata("initiated_by", "self")
 	if eventPrefix != "" {
@@ -831,7 +832,7 @@ func (v *Verifier) selfRevokeIssuedKey(ctx context.Context, fullKey, keyID strin
 		return errdef.InternalError("revoke key").WithWrap(errors.WithStack(err))
 	}
 
-	v.completeSelfRevocation(ctx, span, fullKey, keyID, "", reason)
+	v.completeSelfRevocation(ctx, span, fullKey, keyID, events.EventIssuedAPIKeyRevoked, "", reason)
 	return nil
 }
 
@@ -868,7 +869,7 @@ func (v *Verifier) selfRevokeImportedKey(ctx context.Context, credential string,
 		return errdef.InternalError("revoke imported key").WithWrap(errors.WithStack(err))
 	}
 
-	v.completeSelfRevocation(ctx, span, credential, importedKey.KeyID, "imported", reason)
+	v.completeSelfRevocation(ctx, span, credential, importedKey.KeyID, events.EventImportedAPIKeyRevoked, "imported", reason)
 	return nil
 }
 

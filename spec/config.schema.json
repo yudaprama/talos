@@ -207,12 +207,12 @@
             "default_ttl": {
               "type": "string",
               "description": "Default API key TTL (duration string). When not set, keys have no expiry by default.",
-              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$"
+              "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$"
             },
             "max_ttl": {
               "type": "string",
               "description": "Maximum age for API keys with timestamps. Keys older than this are rejected. Format: Go duration (e.g., '24h', '168h', '8760h')",
-              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
               "default": "8760h",
               "examples": ["24h", "168h", "720h", "8760h"]
             },
@@ -262,7 +262,7 @@
             "default_ttl": {
               "type": "string",
               "description": "Default derived token TTL applied to both JWT and macaroon tokens when no explicit TTL is provided in the request (duration string)",
-              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
               "default": "1h"
             },
             "jwt": {
@@ -359,7 +359,7 @@
         "ttl": {
           "type": "string",
           "description": "Default cache TTL (duration string). Hot-reloadable and tenant-configurable: changes take effect on new cache writes without restart.",
-          "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+          "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
           "default": "5m"
         },
         "memory": {
@@ -427,7 +427,7 @@
             "timeout": {
               "type": "string",
               "description": "Redis operation timeout (duration string). Immutable: requires server restart to change.",
-              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
               "default": "3s",
               "x-immutable": true
             },
@@ -441,14 +441,14 @@
             "conn_max_idle_time": {
               "type": "string",
               "description": "Maximum duration a connection may be idle before being closed. Defaults to 5m.",
-              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
               "default": "5m",
               "x-immutable": true
             },
             "conn_max_lifetime": {
               "type": "string",
               "description": "Maximum duration a connection may be reused. Defaults to 30m.",
-              "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$",
+              "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
               "default": "30m",
               "x-immutable": true
             },

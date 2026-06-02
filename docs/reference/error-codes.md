@@ -92,6 +92,7 @@ The `BatchImportAPIKeys` response includes per-item error codes:
 | `BATCH_IMPORT_ERROR_ALREADY_EXISTS`      | A key with this identifier already exists            |
 | `BATCH_IMPORT_ERROR_FAILED_PRECONDITION` | State conflict prevents the import                   |
 | `BATCH_IMPORT_ERROR_INTERNAL`            | Server error during import                           |
+| `BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED`  | Per-tenant quota cap reached                         |
 
 ## Error handling recommendations
 

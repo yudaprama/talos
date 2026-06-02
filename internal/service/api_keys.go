@@ -317,8 +317,7 @@ func (s *Admin) IssueAPIKey(ctx context.Context, req *talosv2alpha1.IssueAPIKeyR
 	s.metrics.APIKeysCreated.Inc()
 
 	// Emit audit event
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyCreated).
-		WithKeyType("issued").
+	eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyCreated).
 		WithKeyID(keyID).
 		WithPrefix(prefix).
 		WithActor(normalized.ActorID).
@@ -433,8 +432,7 @@ func (s *Admin) RotateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Rotat
 	rotateResult.OldKey.Status = int32(talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED)
 
 	// Emit audit events — use the new key returned from the transaction as the source of truth.
-	rotateEvent := eventcontext.NewFromContext(ctx, events.EventAPIKeyRotated).
-		WithKeyType("issued").
+	rotateEvent := eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyRotated).
 		WithKeyID(newKeyID).
 		WithPrefix(prefix).
 		WithOperation("rotate").
@@ -615,7 +613,7 @@ func (s *Admin) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKe
 		}
 
 		s.emitRevocationEvent(ctx, req.KeyId, req.Reason, revocationEventContext{
-			keyType:    "issued",
+			eventType:  events.EventIssuedAPIKeyRevoked,
 			actorID:    sqlutil.Deref(currentKey.ActorID),
 			expiresAt:  currentKey.ExpiresAt,
 			visibility: visibilityLabel(talosv2alpha1.KeyVisibility(currentKey.Visibility)),
@@ -648,7 +646,7 @@ func (s *Admin) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKe
 	}
 
 	s.emitRevocationEvent(ctx, req.KeyId, req.Reason, revocationEventContext{
-		keyType:    "imported",
+		eventType:  events.EventImportedAPIKeyRevoked,
 		actorID:    sqlutil.Deref(importedKey.ActorID),
 		expiresAt:  importedKey.ExpiresAt,
 		visibility: visibilityLabel(talosv2alpha1.KeyVisibility(importedKey.Visibility)),
@@ -659,7 +657,7 @@ func (s *Admin) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.RevokeAPIKe
 
 // revocationEventContext holds the key details needed to enrich a revocation audit event.
 type revocationEventContext struct {
-	keyType    string
+	eventType  events.EventType
 	actorID    string
 	expiresAt  *time.Time
 	visibility string
@@ -669,9 +667,8 @@ func (s *Admin) emitRevocationEvent(ctx context.Context, keyID string, reason ta
 	reasonLabel := reason.String()
 	s.metrics.APIKeysRevoked.WithLabelValues(reasonLabel).Inc()
 
-	builder := eventcontext.NewFromContext(ctx, events.EventAPIKeyRevoked).
+	builder := eventcontext.NewFromContext(ctx, keyCtx.eventType).
 		WithKeyID(keyID).
-		WithKeyType(keyCtx.keyType).
 		WithActor(keyCtx.actorID).
 		WithExpiry(keyCtx.expiresAt).
 		WithVisibility(keyCtx.visibility)
@@ -804,8 +801,7 @@ func (s *Admin) UpdateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Updat
 		return nil, handleDBError(err, apiKeyKindIssued, "update issued API key")
 	}
 
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyUpdated).
-		WithKeyType("issued").
+	eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyUpdated).
 		WithKeyID(keyID).
 		WithActor(sqlutil.Deref(updatedKey.ActorID)).
 		WithExpiry(updatedKey.ExpiresAt).
@@ -1095,7 +1091,7 @@ func (s *Admin) DeriveToken(ctx context.Context, req *talosv2alpha1.DeriveTokenR
 	s.metrics.TokensMinted.Inc()
 
 	// Emit audit event
-	eventcontext.NewFromContext(ctx, events.EventTokenDerived).
+	eventcontext.NewFromContext(ctx, events.EventAPIKeyDerivedToken).
 		WithKeyID(key.KeyID).
 		WithMetadata("algorithm", algorithm).
 		WithMetadata("ttl", fmt.Sprint(ttl)).
@@ -1200,8 +1196,7 @@ func (s *Admin) ImportAPIKey(ctx context.Context, req *talosv2alpha1.ImportAPIKe
 	s.metrics.APIKeysCreated.Inc()
 
 	// Emit audit event
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyCreated).
-		WithKeyType("imported").
+	eventcontext.NewFromContext(ctx, events.EventImportedAPIKeyCreated).
 		WithKeyID(importedAPIKey.GetKeyId()).
 		WithActor(importedAPIKey.GetActorId()).
 		WithExpiry(normalized.ExpiresAt).
@@ -1400,8 +1395,7 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 				t := et.AsTime()
 				expiry = &t
 			}
-			eventcontext.NewFromContext(ctx, events.EventAPIKeyCreated).
-				WithKeyType("imported").
+			eventcontext.NewFromContext(ctx, events.EventImportedAPIKeyCreated).
 				WithKeyID(result.GetImportedApiKey().GetKeyId()).
 				WithActor(result.GetImportedApiKey().GetActorId()).
 				WithExpiry(expiry).
@@ -1662,8 +1656,7 @@ func (s *Admin) UpdateImportedAPIKey(ctx context.Context, req *talosv2alpha1.Upd
 		return nil, handleDBError(err, apiKeyKindImported, "update imported API key")
 	}
 
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyUpdated).
-		WithKeyType("imported").
+	eventcontext.NewFromContext(ctx, events.EventImportedAPIKeyUpdated).
 		WithKeyID(keyID).
 		WithActor(sqlutil.Deref(updatedKey.ActorID)).
 		WithExpiry(updatedKey.ExpiresAt).
@@ -1701,8 +1694,7 @@ func (s *Admin) DeleteImportedAPIKey(ctx context.Context, req *talosv2alpha1.Del
 		return nil, handleDBError(err, apiKeyKindImported, "delete imported key")
 	}
 
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyDeleted).
-		WithKeyType("imported").
+	eventcontext.NewFromContext(ctx, events.EventImportedAPIKeyDeleted).
 		WithKeyID(req.KeyId).
 		WithActor(sqlutil.Deref(importedKey.ActorID)).
 		WithExpiry(importedKey.ExpiresAt).

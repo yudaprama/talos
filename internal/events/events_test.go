@@ -29,7 +29,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 		{
 			name: "basic fields",
 			build: func() *EventBuilder {
-				return New(EventAPIKeyCreated).
+				return New(EventIssuedAPIKeyCreated).
 					WithNetworkID(uuid.Nil).
 					WithKeyID("01H...").
 					WithPrefix("talos").
@@ -37,7 +37,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 			},
 			check: func(t *testing.T, e *AuditEvent) {
 				t.Helper()
-				assert.Equal(t, EventAPIKeyCreated, e.EventType)
+				assert.Equal(t, EventIssuedAPIKeyCreated, e.EventType)
 				assert.Equal(t, uuid.Nil, e.NetworkID)
 				assert.Equal(t, "01H...", e.KeyID)
 				assert.Equal(t, "talos", e.Prefix)
@@ -47,7 +47,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 		{
 			name: "WithActor",
 			build: func() *EventBuilder {
-				return New(EventAPIKeyCreated).WithNetworkID(uuid.Nil).WithActor("user-123")
+				return New(EventIssuedAPIKeyCreated).WithNetworkID(uuid.Nil).WithActor("user-123")
 			},
 			check: func(t *testing.T, e *AuditEvent) {
 				t.Helper()
@@ -67,7 +67,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 		{
 			name: "WithOperation",
 			build: func() *EventBuilder {
-				return New(EventAPIKeyUpdated).WithNetworkID(uuid.Nil).WithOperation("update_metadata")
+				return New(EventIssuedAPIKeyUpdated).WithNetworkID(uuid.Nil).WithOperation("update_metadata")
 			},
 			check: func(t *testing.T, e *AuditEvent) {
 				t.Helper()
@@ -77,7 +77,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 		{
 			name: "WithKeyType/issued",
 			build: func() *EventBuilder {
-				return New(EventAPIKeyCreated).WithNetworkID(uuid.Nil).WithKeyType("issued")
+				return New(EventIssuedAPIKeyCreated).WithNetworkID(uuid.Nil).WithKeyType("issued")
 			},
 			check: func(t *testing.T, e *AuditEvent) {
 				t.Helper()
@@ -87,7 +87,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 		{
 			name: "WithKeyType/imported",
 			build: func() *EventBuilder {
-				return New(EventAPIKeyCreated).WithNetworkID(uuid.Nil).WithKeyType("imported")
+				return New(EventIssuedAPIKeyCreated).WithNetworkID(uuid.Nil).WithKeyType("imported")
 			},
 			check: func(t *testing.T, e *AuditEvent) {
 				t.Helper()
@@ -107,7 +107,7 @@ func TestEventBuilder_Fields(t *testing.T) {
 func TestEventBuilder_WithMetadata(t *testing.T) {
 	t.Parallel()
 
-	event := New(EventTokenDerived).
+	event := New(EventAPIKeyDerivedToken).
 		WithNetworkID(uuid.Nil).
 		WithMetadata("algorithm", "jwt").
 		WithMetadata("ttl", "3600").
@@ -125,7 +125,7 @@ func TestOTELEmitter_Emit(t *testing.T) {
 
 	emitter := NewOTELEmitter()
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 		KeyID:     "01HQZX9VYQKJB8XQZQXQZQXQXQ",
 		Prefix:    "talos",
@@ -141,7 +141,7 @@ func TestOTELEmitter_Emit(t *testing.T) {
 	require.Len(t, spans[0].Events, 1)
 
 	spanEvent := spans[0].Events[0]
-	assert.Equal(t, "APIKeyCreated", spanEvent.Name)
+	assert.Equal(t, "IssuedAPIKeyCreated", spanEvent.Name)
 
 	attrs := spanEvent.Attributes
 	assertAttribute(t, attrs, AttrNetworkID.String(), uuid.Nil.String())
@@ -164,7 +164,7 @@ func TestOTELEmitter_EmitWithSpan(t *testing.T) {
 
 	emitter := NewOTELEmitter()
 	event := &AuditEvent{
-		EventType: EventAPIKeyRevoked,
+		EventType: EventIssuedAPIKeyRevoked,
 		NetworkID: uuid.Nil,
 		KeyID:     "01H...",
 		Reason:    "user_requested",
@@ -181,7 +181,7 @@ func TestOTELEmitter_EmitWithSpan(t *testing.T) {
 	require.Len(t, spans[0].Events, 1)
 
 	spanEvent := spans[0].Events[0]
-	assert.Equal(t, "APIKeyRevoked", spanEvent.Name)
+	assert.Equal(t, "IssuedAPIKeyRevoked", spanEvent.Name)
 
 	attrs := spanEvent.Attributes
 	assertAttribute(t, attrs, AttrNetworkID.String(), uuid.Nil.String())
@@ -206,7 +206,7 @@ func TestOTELEmitter_EdgeCases(t *testing.T) {
 	t.Run("non-recording span does not panic", func(t *testing.T) {
 		t.Parallel()
 		event := &AuditEvent{
-			EventType: EventAPIKeyCreated,
+			EventType: EventIssuedAPIKeyCreated,
 			NetworkID: uuid.Nil,
 			Metadata:  map[string]string{},
 		}
@@ -228,7 +228,7 @@ func TestOTELEmitter_EmitWithMetadata(t *testing.T) {
 
 	emitter := NewOTELEmitter()
 	event := &AuditEvent{
-		EventType: EventTokenDerived,
+		EventType: EventAPIKeyDerivedToken,
 		NetworkID: uuid.Nil,
 		KeyID:     "01H...",
 		Metadata:  map[string]string{"algorithm": "jwt", "ttl": "3600"},
@@ -241,7 +241,7 @@ func TestOTELEmitter_EmitWithMetadata(t *testing.T) {
 	require.Len(t, spans[0].Events, 1)
 
 	spanEvent := spans[0].Events[0]
-	assert.Equal(t, "TokenDerived", spanEvent.Name)
+	assert.Equal(t, "APIKeyDerivedToken", spanEvent.Name)
 
 	attrs := spanEvent.Attributes
 	assertAttribute(t, attrs, "metadata.algorithm", "jwt")
@@ -255,7 +255,7 @@ func TestNoopEmitter(t *testing.T) {
 
 	emitter := NewNoopEmitter()
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 		Metadata:  map[string]string{},
 	}
@@ -290,7 +290,7 @@ func TestEventBuilder_EmitVariants(t *testing.T) {
 					spans := env.flushAndGetEvents(t, span)
 					require.Len(t, spans, 1)
 					require.Len(t, spans[0].Events, 1)
-					assert.Equal(t, "APIKeyCreated", spans[0].Events[0].Name)
+					assert.Equal(t, "IssuedAPIKeyCreated", spans[0].Events[0].Name)
 				}
 			},
 		},
@@ -309,7 +309,7 @@ func TestEventBuilder_EmitVariants(t *testing.T) {
 			t.Parallel()
 			ctx, verify := tt.setup(t)
 			assert.NotPanics(t, func() {
-				New(EventAPIKeyCreated).
+				New(EventIssuedAPIKeyCreated).
 					WithNetworkID(uuid.Nil).
 					WithKeyID("01H...").
 					Emit(ctx, tt.emitter)
@@ -323,7 +323,7 @@ func TestEventBuilder_EmitWithNilEmitter(t *testing.T) {
 	t.Parallel()
 
 	assert.Panics(t, func() {
-		New(EventAPIKeyCreated).
+		New(EventIssuedAPIKeyCreated).
 			WithNetworkID(uuid.Nil).
 			Emit(t.Context(), nil)
 	})
@@ -402,7 +402,7 @@ func BenchmarkEventBuilder(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 	for b.Loop() {
-		New(EventAPIKeyCreated).
+		New(EventIssuedAPIKeyCreated).
 			WithNetworkID(uuid.Nil).
 			WithKeyID("01HQZX9VYQKJB8XQZQXQZQXQXQ").
 			WithPrefix("talos").
@@ -426,7 +426,7 @@ func BenchmarkOTELEmitter_Emit(b *testing.B) {
 
 	emitter := NewOTELEmitter()
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 		KeyID:     "01H...",
 		Metadata:  map[string]string{},
@@ -442,7 +442,7 @@ func BenchmarkOTELEmitter_Emit(b *testing.B) {
 func BenchmarkNoopEmitter_Emit(b *testing.B) {
 	emitter := NewNoopEmitter()
 	event := &AuditEvent{
-		EventType: EventAPIKeyCreated,
+		EventType: EventIssuedAPIKeyCreated,
 		NetworkID: uuid.Nil,
 		KeyID:     "01H...",
 		Metadata:  map[string]string{},
@@ -464,16 +464,18 @@ func TestEventLifecycle_AllEventTypes(t *testing.T) {
 		eventType    EventType
 		expectedName string
 	}{
-		{EventAPIKeyCreated, "APIKeyCreated"},
-		{EventAPIKeyUpdated, "APIKeyUpdated"},
-		{EventAPIKeyRevoked, "APIKeyRevoked"},
-		{EventAPIKeyRotated, "APIKeyRotated"},
+		{EventIssuedAPIKeyCreated, "IssuedAPIKeyCreated"},
+		{EventImportedAPIKeyCreated, "ImportedAPIKeyCreated"},
+		{EventIssuedAPIKeyUpdated, "IssuedAPIKeyUpdated"},
+		{EventImportedAPIKeyUpdated, "ImportedAPIKeyUpdated"},
+		{EventIssuedAPIKeyRevoked, "IssuedAPIKeyRevoked"},
+		{EventImportedAPIKeyRevoked, "ImportedAPIKeyRevoked"},
+		{EventIssuedAPIKeyRotated, "IssuedAPIKeyRotated"},
 		{EventAPIKeyVerified, "APIKeyVerified"},
 		{EventAPIKeyVerificationFailed, "APIKeyVerificationFailed"},
 		{EventAPIKeyImportFailed, "APIKeyImportFailed"},
-		{EventAPIKeyDeleted, "APIKeyDeleted"},
 		{EventImportedAPIKeyDeleted, "ImportedAPIKeyDeleted"},
-		{EventTokenDerived, "TokenDerived"},
+		{EventAPIKeyDerivedToken, "APIKeyDerivedToken"},
 	}
 
 	for _, tt := range eventTypes {

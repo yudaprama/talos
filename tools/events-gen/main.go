@@ -516,9 +516,8 @@ Events are constructed using the fluent builder pattern:
 
 ` + "```go" + `
 emitter := events.NewOTELEmitter()
-events.New(events.EventAPIKeyCreated).
+events.New(events.EventIssuedAPIKeyCreated).
     WithNetworkID(networkID).
-    WithKeyType("issued").
     WithKeyID(keyID).
     WithPrefix("talos").
     WithActor(actorID).

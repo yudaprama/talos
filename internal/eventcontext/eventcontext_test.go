@@ -29,7 +29,7 @@ func TestNewFromContext(t *testing.T) {
 
 	exporter, tp, ctx, span := setupOTEL(t, ctx)
 	emitter := events.NewOTELEmitter()
-	eventcontext.NewFromContext(ctx, events.EventAPIKeyCreated).Emit(ctx, emitter)
+	eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyCreated).Emit(ctx, emitter)
 
 	otelx.End(span, nil)
 	_ = tp.ForceFlush(t.Context())
@@ -37,7 +37,7 @@ func TestNewFromContext(t *testing.T) {
 
 	require.Len(t, spans, 1)
 	require.Len(t, spans[0].Events, 1)
-	assert.Equal(t, "APIKeyCreated", spans[0].Events[0].Name)
+	assert.Equal(t, "IssuedAPIKeyCreated", spans[0].Events[0].Name)
 	assertAttr(t, spans[0].Events[0].Attributes, orysemconv.AttributeKeyNID.String(), nid.String())
 }
 
@@ -47,7 +47,7 @@ func TestNewFromContext_NilNetworkID(t *testing.T) {
 	ctx := context.Background()
 	exporter, tp, ctx, span := setupOTEL(t, ctx)
 	emitter := events.NewOTELEmitter()
-	eventcontext.NewFromContext(ctx, events.EventTokenDerived).Emit(ctx, emitter)
+	eventcontext.NewFromContext(ctx, events.EventAPIKeyDerivedToken).Emit(ctx, emitter)
 
 	otelx.End(span, nil)
 	_ = tp.ForceFlush(t.Context())
@@ -55,7 +55,7 @@ func TestNewFromContext_NilNetworkID(t *testing.T) {
 
 	require.Len(t, spans, 1)
 	require.Len(t, spans[0].Events, 1)
-	assert.Equal(t, "TokenDerived", spans[0].Events[0].Name)
+	assert.Equal(t, "APIKeyDerivedToken", spans[0].Events[0].Name)
 	assertAttr(t, spans[0].Events[0].Attributes, orysemconv.AttributeKeyNID.String(), uuid.Nil.String())
 }
 
