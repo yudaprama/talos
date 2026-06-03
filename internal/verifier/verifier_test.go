@@ -27,6 +27,7 @@ import (
 	"github.com/ory/talos/internal/crypto/token"
 
 	"github.com/prometheus/client_golang/prometheus"
+	promtestutil "github.com/prometheus/client_golang/prometheus/testutil"
 
 	"github.com/ory/talos/internal/errdef"
 	"github.com/ory/talos/internal/lastused"
@@ -1340,6 +1341,58 @@ func TestValidateIPRestriction_NoRequestInfo(t *testing.T) {
 	err := v.validateIPRestriction(ctx, key)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, errdef.ErrIPNotAllowed()), "expected ErrIPNotAllowed, got %v", err)
+}
+
+// TestVerifyAPIKey_IPRejected_RecordedAsFailure asserts that a key which
+// authenticates against the database but is then rejected by its IP restriction
+// is counted as a failed verification, not a success. The DB path previously
+// recorded the metric before the IP check, inflating the success counter.
+func TestVerifyAPIKey_IPRejected_RecordedAsFailure(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	keyService, _, _ := newDeterministicEdDSAKeyService(t)
+
+	driver, err := testutil.InitDriver(t, "")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = driver.Close() })
+
+	const hmacSecret = "test-hmac-secret-for-ip-fail-metric-3"
+	provider := newVerifierTestProvider(t, hmacSecret)
+
+	tracker := lastused.New(ctx, driver, lastused.Config{
+		QueueSize: 100, FlushSize: 100, FlushInterval: time.Hour, NumWorkers: 1,
+	})
+	t.Cleanup(tracker.Close)
+
+	m := metrics.New(prometheus.NewRegistry())
+	v := NewFromProvider(driver, provider, newNoopCache(), testutil.NewMockEmitter(), keyService, m, tracker)
+
+	fullKey, keyID, err := crypto.GenerateAPIKey(ctx, "talos", []byte(hmacSecret))
+	require.NoError(t, err)
+	_, err = driver.CreateIssuedAPIKey(ctx, persistencetypes.CreateIssuedAPIKeyParams{
+		KeyID:        keyID,
+		Name:         "ip-fail-metric",
+		TokenPrefix:  "talos",
+		ActorID:      "owner-ip",
+		Scopes:       scopesToJSON([]string{"read"}),
+		Metadata:     json.RawMessage(`{}`),
+		AllowedCIDRs: json.RawMessage(`["192.168.1.0/24"]`),
+	})
+	require.NoError(t, err)
+
+	// The key authenticates against the DB, but the caller IP is outside the
+	// allowed CIDR — so verification must fail and be recorded as a failure.
+	reqCtx := ctxWithRemoteAddr(ctx, "10.0.0.1")
+	_, _, err = v.VerifyAPIKey(reqCtx, fullKey)
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, errdef.ErrIPNotAllowed()), "got: %v", err)
+
+	label := string(crypto.CredentialTypeIssued)
+	assert.Equal(t, 0, int(promtestutil.ToFloat64(m.VerificationAttempts.WithLabelValues(label, "success"))),
+		"IP-rejected verification must not count as success")
+	assert.Equal(t, 1, int(promtestutil.ToFloat64(m.VerificationAttempts.WithLabelValues(label, "failure"))),
+		"IP-rejected verification must count as failure")
 }
 
 // TestVerifyAPIKey_AdversarialCredentialInputs tests that malformed, oversized, and

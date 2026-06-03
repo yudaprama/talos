@@ -151,8 +151,8 @@ The response includes a `results` array with per-item outcomes, plus `success_co
 `failure_count` and individual `error_code` fields to detect partial failures.
 
 For the complete field reference, see the
-[BatchCreateImportedApiKeys API reference](../reference/api/admin-batch-create-imported-api-keys.api.mdx). For batch
-import error codes, see the
+[BatchCreateImportedApiKeys API reference](../reference/api/admin-batch-create-imported-api-keys.api.mdx).
+For batch import error codes, see the
 [error codes reference](../reference/error-codes.md#batch-import-error-codes).
 
 ### Limits

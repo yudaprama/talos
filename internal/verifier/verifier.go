@@ -470,6 +470,16 @@ func (v *Verifier) VerifyAPIKey(ctx context.Context, credential string) (_ *db.I
 		err = errdef.ErrUnknownCredential()
 	}
 
+	// Enforce IP restrictions after successful DB authentication. Fold the
+	// rejection into err before recording metrics so an IP-rejected key counts
+	// as a failed verification, not a success.
+	if err == nil && dbKey != nil {
+		if ipErr := v.validateIPRestriction(ctx, dbKey); ipErr != nil {
+			span.SetAttributes(attribute.Bool("ip_rejected", true))
+			err = ipErr
+		}
+	}
+
 	v.metrics.RecordVerification(string(route.Type), err == nil, false, time.Since(startTime).Seconds())
 
 	if err != nil {
@@ -478,13 +488,6 @@ func (v *Verifier) VerifyAPIKey(ctx context.Context, credential string) (_ *db.I
 	}
 	if dbKey == nil {
 		return nil, dbCacheStatus, errors.WithStack(errdef.InternalError("verification succeeded but dbKey is nil"))
-	}
-
-	// Enforce IP restrictions after successful DB authentication
-	if ipErr := v.validateIPRestriction(ctx, dbKey); ipErr != nil {
-		span.SetAttributes(attribute.Bool("ip_rejected", true))
-		v.emitVerificationFailureEvent(ctx, string(route.Type), ipErr)
-		return nil, dbCacheStatus, ipErr
 	}
 
 	if !isDerived {
