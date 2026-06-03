@@ -92,9 +92,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	batchImportCodes, err := parseProtoEnum("api/talos/v2alpha1/talos.proto", "BatchImportErrorCode")
+	batchImportCodes, err := parseProtoEnum("api/talos/v2alpha1/talos.proto", "BatchCreateImportedApiKeysErrorCode")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing BatchImportErrorCode: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error parsing BatchCreateImportedApiKeysErrorCode: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -319,7 +319,7 @@ func parseProtoEnum(path, enumName string) ([]EnumValue, error) {
 }
 
 // enumNameToDescription converts an enum value name to a readable fallback description.
-// e.g., "BATCH_IMPORT_ERROR_ALREADY_EXISTS" -> "Already exists".
+// e.g., "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS" -> "Already exists".
 func enumNameToDescription(name string) string {
 	// Strip known prefixes.
 	for _, prefix := range []string{"VERIFICATION_ERROR_", "BATCH_IMPORT_ERROR_"} {

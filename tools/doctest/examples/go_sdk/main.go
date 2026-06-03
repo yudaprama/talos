@@ -34,9 +34,9 @@ func run() error {
 
 	fmt.Println("=== Issue API Key ===")
 	// region: issue-key
-	issueResp, _, err := c.APIKeysAPI.
-		AdminIssueAPIKey(ctx).
-		IssueAPIKeyRequest(client.IssueAPIKeyRequest{
+	issueResp, _, err := c.ApiKeysAPI.
+		AdminIssueApiKey(ctx).
+		IssueApiKeyRequest(client.IssueApiKeyRequest{
 			Name:    new("my-service"),
 			ActorId: new("user_123"),
 			Scopes:  []string{"read", "write"},
@@ -58,9 +58,9 @@ func run() error {
 
 	fmt.Println("\n=== Verify Key ===")
 	// region: verify-key
-	verifyResp, _, err := c.APIKeysAPI.
-		AdminVerifyAPIKey(ctx).
-		VerifyAPIKeyRequest(client.VerifyAPIKeyRequest{
+	verifyResp, _, err := c.ApiKeysAPI.
+		AdminVerifyApiKey(ctx).
+		VerifyApiKeyRequest(client.VerifyApiKeyRequest{
 			Credential: new(secret),
 		}).
 		Execute()
@@ -77,10 +77,10 @@ func run() error {
 
 	fmt.Println("\n=== Batch Verify ===")
 	// region: batch-verify
-	batchResp, _, err := c.APIKeysAPI.
-		AdminBatchVerifyAPIKeys(ctx).
-		BatchVerifyAPIKeysRequest(client.BatchVerifyAPIKeysRequest{
-			Requests: []client.VerifyAPIKeyRequest{
+	batchResp, _, err := c.ApiKeysAPI.
+		AdminBatchVerifyApiKeys(ctx).
+		BatchVerifyApiKeysRequest(client.BatchVerifyApiKeysRequest{
+			Requests: []client.VerifyApiKeyRequest{
 				{Credential: new(secret)},
 				{Credential: new("invalid-key-for-testing")},
 			},
@@ -98,7 +98,7 @@ func run() error {
 	fmt.Println("\n=== Derive JWT ===")
 	// region: derive-jwt
 	algorithm := client.TOKENALGORITHM_TOKEN_ALGORITHM_JWT
-	deriveResp, _, err := c.APIKeysAPI.
+	deriveResp, _, err := c.ApiKeysAPI.
 		AdminDeriveToken(ctx).
 		DeriveTokenRequest(client.DeriveTokenRequest{
 			Credential: new(secret),
@@ -119,9 +119,9 @@ func run() error {
 
 	// Verify the derived JWT (not shown in docs, just validates the flow)
 	fmt.Println("\n=== Verify JWT ===")
-	jwtVerifyResp, _, err := c.APIKeysAPI.
-		AdminVerifyAPIKey(ctx).
-		VerifyAPIKeyRequest(client.VerifyAPIKeyRequest{
+	jwtVerifyResp, _, err := c.ApiKeysAPI.
+		AdminVerifyApiKey(ctx).
+		VerifyApiKeyRequest(client.VerifyApiKeyRequest{
 			Credential: new(jwt),
 		}).
 		Execute()
@@ -138,9 +138,9 @@ func run() error {
 	fmt.Println("\n=== Revoke Key ===")
 	// region: revoke-key
 	reason := client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE
-	_, _, err = c.APIKeysAPI.
-		AdminRevokeIssuedAPIKey(ctx, keyID).
-		AdminRevokeIssuedAPIKeyBody(client.AdminRevokeIssuedAPIKeyBody{
+	_, _, err = c.ApiKeysAPI.
+		AdminRevokeIssuedApiKey(ctx, keyID).
+		AdminRevokeIssuedApiKeyBody(client.AdminRevokeIssuedApiKeyBody{
 			Reason: &reason,
 		}).
 		Execute()
@@ -152,8 +152,8 @@ func run() error {
 
 	fmt.Println("\n=== Error Handling ===")
 	// region: error-handling
-	_, httpResp, err := c.APIKeysAPI.
-		AdminGetIssuedAPIKey(ctx, "nonexistent-id").
+	_, httpResp, err := c.ApiKeysAPI.
+		AdminGetIssuedApiKey(ctx, "nonexistent-id").
 		Execute()
 	if err != nil {
 		if httpResp != nil {

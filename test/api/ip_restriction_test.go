@@ -11,7 +11,7 @@ func (s *APIKeyE2ETestSuite) TestIPRestrictionOnImportedAPIKeys() {
 
 	s.Run("import key with IP allowlist - storage round-trip", func() {
 		rawKey := fmt.Sprintf("imported-ip-test-key-%s", s.T().Name())
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Imported IP Restricted Key")
 		req.SetActorId("enterprise_imported_ip_001")
@@ -34,7 +34,7 @@ func (s *APIKeyE2ETestSuite) TestIPRestrictionOnImportedAPIKeys() {
 
 	s.Run("verification from non-allowed IP returns IP_NOT_ALLOWED", func() {
 		rawKey := fmt.Sprintf("imported-ip-blocked-key-%s", s.T().Name())
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Imported IP Blocked Key")
 		req.SetActorId("enterprise_imported_ip_002")
@@ -57,7 +57,7 @@ func (s *APIKeyE2ETestSuite) TestIPRestrictionOnAPIKeys() {
 	ctx := s.T().Context()
 
 	s.Run("create key with IP allowlist", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("IP Restricted Key")
 		req.SetActorId("enterprise_ip_001")
 		req.SetScopes([]string{"api:read"})
@@ -80,7 +80,7 @@ func (s *APIKeyE2ETestSuite) TestIPRestrictionOnAPIKeys() {
 	})
 
 	s.Run("verification from non-allowed IP returns IP_NOT_ALLOWED", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("IP Blocked Key")
 		req.SetActorId("enterprise_ip_002")
 		ipRestriction := client.NewIPRestriction()

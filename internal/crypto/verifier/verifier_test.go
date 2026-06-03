@@ -89,7 +89,7 @@ func TestVerifyJWT(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify
-		claims, err := v.VerifyJWT(ctx, string(signed), []string{"talos"})
+		claims, err := v.VerifyJWT(ctx, string(signed), []string{"talos"}, 0)
 		require.NoError(t, err)
 		sub, _ := claims.Subject()
 		require.Equal(t, "user123", sub)
@@ -108,7 +108,7 @@ func TestVerifyJWT(t *testing.T) {
 		signed, err := jwt.Sign(tok, jwt.WithKey(jwa.RS256(), key))
 		require.NoError(t, err)
 
-		_, err = v.VerifyJWT(ctx, string(signed), []string{"talos"})
+		_, err = v.VerifyJWT(ctx, string(signed), []string{"talos"}, 0)
 		require.Error(t, err)
 		require.Contains(t, err.Error(), `"exp" not satisfied`)
 	})
@@ -122,7 +122,7 @@ func TestVerifyJWT(t *testing.T) {
 		emptyService := newKeyServiceFromURL(t, emptyURL)
 		emptyVerifier := NewVerifier(emptyService)
 
-		_, err := emptyVerifier.VerifyJWT(ctx, "some.token.here", []string{"talos"})
+		_, err := emptyVerifier.VerifyJWT(ctx, "some.token.here", []string{"talos"}, 0)
 		require.Error(t, err)
 		herodotErr, ok := stderrors.AsType[*herodot.DefaultError](err)
 		require.True(t, ok)

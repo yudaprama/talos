@@ -31,7 +31,7 @@ func (s *APIKeyE2ETestSuite) TestPublic_SelfRevoke() {
 
 	s.Run("self-revoke imported key", func() {
 		importSecret := "self-revoke-imported-secret-e2e-test"
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(importSecret)
 		req.SetName("Self-Revoke Imported")
 		req.SetActorId("owner-import-e2e")
@@ -62,7 +62,7 @@ func (s *APIKeyE2ETestSuite) TestPublic_SelfRevoke() {
 	s.Run("self-revoke rejects PRIVILEGE_WITHDRAWN", func() {
 		_, secret := s.testServer.CreateTestAPIKey(s.T(), "Self-Revoke Privilege Test")
 
-		req := client.NewSelfRevokeAPIKeyRequest()
+		req := client.NewSelfRevokeApiKeyRequest()
 		req.SetCredential(secret)
 		req.SetReason(client.REVOCATIONREASON_REVOCATION_REASON_PRIVILEGE_WITHDRAWN)
 		httpResp, err := s.sdkSelfRevokeExpectError(ctx, req)
@@ -70,14 +70,14 @@ func (s *APIKeyE2ETestSuite) TestPublic_SelfRevoke() {
 	})
 
 	s.Run("self-revoke rejects empty credential", func() {
-		req := client.NewSelfRevokeAPIKeyRequest()
+		req := client.NewSelfRevokeApiKeyRequest()
 		req.SetCredential("")
 		httpResp, err := s.sdkSelfRevokeExpectError(ctx, req)
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
 
 	s.Run("self-revoke invalid credential returns error", func() {
-		req := client.NewSelfRevokeAPIKeyRequest()
+		req := client.NewSelfRevokeApiKeyRequest()
 		req.SetCredential("totally-invalid-credential-xyz")
 		_, err := s.sdkSelfRevokeExpectError(ctx, req)
 		s.Require().Error(err)
@@ -162,7 +162,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_AdminRevokeWithReasons() {
 
 	s.Run("verification fails with REVOKED error code after admin revocation of imported key", func() {
 		rawKey := "admin-revoke-verify-imported-e2e-test"
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Admin Revoke Verify Imported")
 		req.SetActorId("admin-revoke-verify-owner")

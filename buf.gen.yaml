@@ -48,5 +48,21 @@ plugins:
       # the URL path (/v2alpha1/...) and proto package (talos.v2alpha1) per
       # AIP-181; the prefix on every type name was redundant and made SDK
       # callers verbose for no benefit.
+      #
+      # HTTP body naming (AIP-136). protoc-gen-openapiv2 uses the proto
+      # message name as the schema name for HTTP request bodies. When the
+      # proto message has a path-parameter field that grpc-gateway lifts
+      # out of `body: "*"` (e.g. `RevokeAPIKeyRequest.key_id` is bound to
+      # the URL), the synthesised body is anonymous and named
+      # `{MethodName}Body` automatically (`AdminRevokeAPIKeyBody`,
+      # `AdminRotateIssuedAPIKeyBody`). When the proto message has no
+      # URL-bound field, the body schema inherits the proto message name
+      # verbatim — there is no automatic `*Request` -> `*Body` rename
+      # downstream. To keep HTTP/SDK schemas consistent with AIP-136, name
+      # such proto messages `*Body` directly (`IssueAPIKeyBody`,
+      # `DeriveTokenBody`, ...). gRPC clients see the same `*Body` names
+      # as HTTP clients — slightly off-convention for gRPC, but the spec
+      # is the source of truth here and we trade a small gRPC oddity for
+      # a uniform spec.
       - openapi_naming_strategy=simple
 

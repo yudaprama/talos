@@ -29,7 +29,7 @@ func newTestGatewayServer(t *testing.T) *GatewayServer {
 	writer := herodot.NewJSONWriter(nil)
 	provider := testutil.NewTestProvider(t)
 	healthChecker := health.NewChecker(writer)
-	return NewGatewayServer(healthChecker, &talosv2alpha1.UnimplementedAPIKeysServer{}, writer, provider)
+	return NewGatewayServer(healthChecker, &talosv2alpha1.UnimplementedApiKeysServer{}, writer, provider)
 }
 
 func TestHandleVersion_ResponseStructure(t *testing.T) {
@@ -139,7 +139,7 @@ func TestHandleVersion_XForwardedHostTrustedWhenConfigured(t *testing.T) {
 		"serve.http.trust_forwarded_host": true,
 	}))
 	healthChecker := health.NewChecker(writer)
-	srv := NewGatewayServer(healthChecker, &talosv2alpha1.UnimplementedAPIKeysServer{}, writer, provider)
+	srv := NewGatewayServer(healthChecker, &talosv2alpha1.UnimplementedApiKeysServer{}, writer, provider)
 
 	getHash := func(host, forwardedHost string) string {
 		t.Helper()

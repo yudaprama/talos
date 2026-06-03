@@ -56,9 +56,9 @@ c := client.NewAPIClient(cfg)
 <!-- doctest:source tools/doctest/examples/go_sdk/main.go#issue-key -->
 
 ```go
-issueResp, _, err := c.APIKeysAPI.
-	AdminIssueAPIKey(ctx).
-	IssueAPIKeyRequest(client.IssueAPIKeyRequest{
+issueResp, _, err := c.ApiKeysAPI.
+	AdminIssueApiKey(ctx).
+	IssueApiKeyRequest(client.IssueApiKeyRequest{
 		Name:    new("my-service"),
 		ActorId: new("user_123"),
 		Scopes:  []string{"read", "write"},
@@ -80,9 +80,9 @@ fmt.Println("Secret:", issueResp.GetSecret())
 <!-- doctest:source tools/doctest/examples/go_sdk/main.go#verify-key -->
 
 ```go
-verifyResp, _, err := c.APIKeysAPI.
-	AdminVerifyAPIKey(ctx).
-	VerifyAPIKeyRequest(client.VerifyAPIKeyRequest{
+verifyResp, _, err := c.ApiKeysAPI.
+	AdminVerifyApiKey(ctx).
+	VerifyApiKeyRequest(client.VerifyApiKeyRequest{
 		Credential: new(secret),
 	}).
 	Execute()
@@ -102,10 +102,10 @@ if verifyResp.GetIsValid() {
 <!-- doctest:source tools/doctest/examples/go_sdk/main.go#batch-verify -->
 
 ```go
-batchResp, _, err := c.APIKeysAPI.
-	AdminBatchVerifyAPIKeys(ctx).
-	BatchVerifyAPIKeysRequest(client.BatchVerifyAPIKeysRequest{
-		Requests: []client.VerifyAPIKeyRequest{
+batchResp, _, err := c.ApiKeysAPI.
+	AdminBatchVerifyApiKeys(ctx).
+	BatchVerifyApiKeysRequest(client.BatchVerifyApiKeysRequest{
+		Requests: []client.VerifyApiKeyRequest{
 			{Credential: new(secret)},
 			{Credential: new("invalid-key-for-testing")},
 		},
@@ -128,9 +128,9 @@ Enum fields use typed constants, not raw strings:
 
 ```go
 reason := client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE
-_, _, err = c.APIKeysAPI.
-	AdminRevokeIssuedAPIKey(ctx, keyID).
-	AdminRevokeIssuedAPIKeyBody(client.AdminRevokeIssuedAPIKeyBody{
+_, _, err = c.ApiKeysAPI.
+	AdminRevokeIssuedApiKey(ctx, keyID).
+	AdminRevokeIssuedApiKeyBody(client.AdminRevokeIssuedApiKeyBody{
 		Reason: &reason,
 	}).
 	Execute()
@@ -146,7 +146,7 @@ fmt.Println("Key revoked successfully")
 
 ```go
 algorithm := client.TOKENALGORITHM_TOKEN_ALGORITHM_JWT
-deriveResp, _, err := c.APIKeysAPI.
+deriveResp, _, err := c.ApiKeysAPI.
 	AdminDeriveToken(ctx).
 	DeriveTokenRequest(client.DeriveTokenRequest{
 		Credential: new(secret),
@@ -170,8 +170,8 @@ The SDK returns errors for non-2xx responses. Use the HTTP response to inspect e
 <!-- doctest:source tools/doctest/examples/go_sdk/main.go#error-handling -->
 
 ```go
-_, httpResp, err := c.APIKeysAPI.
-	AdminGetIssuedAPIKey(ctx, "nonexistent-id").
+_, httpResp, err := c.ApiKeysAPI.
+	AdminGetIssuedApiKey(ctx, "nonexistent-id").
 	Execute()
 if err != nil {
 	if httpResp != nil {

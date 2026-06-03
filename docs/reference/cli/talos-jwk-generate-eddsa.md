@@ -43,7 +43,7 @@ talos jwk generate eddsa [flags]
 ```
   -h, --help            help for eddsa
       --jwks            Output as JWKS (JSON Web Key Set)
-      --kid string      Key ID (JWK Thumbprint used if not provided)
+      --kid string      Key ID (RFC 7638 JWK thumbprint used if not provided)
   -o, --output string   Output file (writes to stdout if not specified)
       --public-only     Output public key only
       --use string      Key usage: 'sig' for signing, 'enc' for encryption (default: sig)

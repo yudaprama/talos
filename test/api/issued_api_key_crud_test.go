@@ -163,7 +163,7 @@ func (s *APIKeyE2ETestSuite) TestRotateIssuedAPIKey() {
 	})
 
 	s.Run("rotate non-existent key returns error", func() {
-		httpResp, err := s.sdkRotateIssuedAPIKeyExpectError(ctx, "non-existent-key-12345", client.AdminRotateIssuedAPIKeyBody{})
+		httpResp, err := s.sdkRotateIssuedAPIKeyExpectError(ctx, "non-existent-key-12345", client.AdminRotateIssuedApiKeyBody{})
 		s.requireHTTPError(err, httpResp, http.StatusNotFound)
 	})
 }
@@ -418,7 +418,7 @@ func (s *APIKeyE2ETestSuite) TestKeyRotationWorkflow() {
 		listResp := s.sdkListIssuedAPIKeys(ctx, &pageSize, nil, &actorID, nil)
 
 		// Find the new key and verify rotation metadata
-		var foundNewKey *client.IssuedAPIKey
+		var foundNewKey *client.IssuedApiKey
 		for i := range listResp.IssuedApiKeys {
 			if listResp.IssuedApiKeys[i].GetKeyId() == newKey.GetKeyId() {
 				foundNewKey = &listResp.IssuedApiKeys[i]
@@ -465,7 +465,7 @@ func (s *APIKeyE2ETestSuite) TestKeyRotationWorkflow() {
 			[]string{"chat:read", "chat:write"}, nil, nil)
 
 		// Step 2: Issue replacement key while original is still active
-		newReq := client.NewIssueAPIKeyRequest()
+		newReq := client.NewIssueApiKeyRequest()
 		newReq.SetName("Production Key (rotated)")
 		newReq.SetActorId(actorID)
 		newReq.SetScopes([]string{"chat:read", "chat:write"})
@@ -492,7 +492,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateIssuedAPIKey() {
 	ctx := s.T().Context()
 
 	// Create key with initial "free" plan metadata
-	createReq := client.NewIssueAPIKeyRequest()
+	createReq := client.NewIssueApiKeyRequest()
 	createReq.SetName("Upgradeable Key")
 	createReq.SetActorId("customer_upgrade_001")
 	createReq.SetScopes([]string{"chat:read"})
@@ -502,13 +502,13 @@ func (s *APIKeyE2ETestSuite) TestUpdateIssuedAPIKey() {
 
 	s.Run("update metadata and scopes via PATCH", func() {
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateIssuedAPIKeyRequest()
+		body := client.NewAdminUpdateIssuedApiKeyRequest()
 		body.SetScopes([]string{"chat:read", "chat:write", "models:list"})
 		body.SetMetadata(map[string]any{"plan": "pro", "max_tokens": float64(4000)})
 
-		updatedKey, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateIssuedAPIKey(ctx, keyID).
-			AdminUpdateIssuedAPIKeyRequest(*body).
+		updatedKey, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateIssuedApiKey(ctx, keyID).
+			AdminUpdateIssuedApiKeyRequest(*body).
 			Execute()
 		s.closeBody(httpResp)
 
@@ -559,7 +559,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 	ctx := s.T().Context()
 
 	s.Run("single field update", func() {
-		createReq := client.NewIssueAPIKeyRequest()
+		createReq := client.NewIssueApiKeyRequest()
 		createReq.SetName("Original Name")
 		createReq.SetActorId("update-mask-test")
 		createReq.SetScopes([]string{"read", "write"})
@@ -568,12 +568,12 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 		keyID := createResp.IssuedApiKey.GetKeyId()
 
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateIssuedAPIKeyRequest()
+		body := client.NewAdminUpdateIssuedApiKeyRequest()
 		body.SetName("Updated Name")
 
-		updated, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateIssuedAPIKey(ctx, keyID).
-			AdminUpdateIssuedAPIKeyRequest(*body).
+		updated, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateIssuedApiKey(ctx, keyID).
+			AdminUpdateIssuedApiKeyRequest(*body).
 			Execute()
 		s.closeBody(httpResp)
 		s.Require().NoError(err)
@@ -584,7 +584,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 	})
 
 	s.Run("multiple field update", func() {
-		createReq := client.NewIssueAPIKeyRequest()
+		createReq := client.NewIssueApiKeyRequest()
 		createReq.SetName("Multi Field Key")
 		createReq.SetActorId("multi-field-test")
 		createReq.SetScopes([]string{"read"})
@@ -592,13 +592,13 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 		keyID := createResp.IssuedApiKey.GetKeyId()
 
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateIssuedAPIKeyRequest()
+		body := client.NewAdminUpdateIssuedApiKeyRequest()
 		body.SetName("Multi Updated")
 		body.SetScopes([]string{"read", "write", "admin"})
 
-		updated, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateIssuedAPIKey(ctx, keyID).
-			AdminUpdateIssuedAPIKeyRequest(*body).
+		updated, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateIssuedApiKey(ctx, keyID).
+			AdminUpdateIssuedApiKeyRequest(*body).
 			Execute()
 		s.closeBody(httpResp)
 		s.Require().NoError(err)
@@ -608,7 +608,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 	})
 
 	s.Run("fields not in mask are preserved", func() {
-		createReq := client.NewIssueAPIKeyRequest()
+		createReq := client.NewIssueApiKeyRequest()
 		createReq.SetName("Preserve Fields Key")
 		createReq.SetActorId("preserve-test")
 		createReq.SetScopes([]string{"alpha", "beta"})
@@ -617,12 +617,12 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 		keyID := createResp.IssuedApiKey.GetKeyId()
 
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateIssuedAPIKeyRequest()
+		body := client.NewAdminUpdateIssuedApiKeyRequest()
 		body.SetName("Only Name Changed")
 
-		updated, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateIssuedAPIKey(ctx, keyID).
-			AdminUpdateIssuedAPIKeyRequest(*body).
+		updated, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateIssuedApiKey(ctx, keyID).
+			AdminUpdateIssuedApiKeyRequest(*body).
 			Execute()
 		s.closeBody(httpResp)
 		s.Require().NoError(err)
@@ -633,7 +633,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateMask() {
 	})
 
 	s.Run("unknown field in update_mask query returns error", func() {
-		createReq := client.NewIssueAPIKeyRequest()
+		createReq := client.NewIssueApiKeyRequest()
 		createReq.SetName("Unknown Mask Key")
 		createReq.SetActorId("unknown-mask-test")
 		createResp := s.sdkIssueAPIKey(ctx, createReq)

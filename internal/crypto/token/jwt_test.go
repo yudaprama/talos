@@ -34,7 +34,7 @@ func verifyJWTWithSigner(t *testing.T, ctx context.Context, signer *JWTSigner, t
 	}
 	keySet := jwk.NewSet()
 	require.NoError(t, keySet.AddKey(k))
-	return verifyJWTWithKeySet(ctx, tokenString, keySet)
+	return verifyJWTWithKeySet(ctx, tokenString, keySet, 0)
 }
 
 func generateEd25519Key(t *testing.T) ed25519.PrivateKey {
@@ -353,15 +353,121 @@ func TestVerifyJWTWithKeySet_MultiKey(t *testing.T) {
 	// Verifies that a key set containing multiple signing keys correctly validates
 	// tokens signed by any of the keys in the set (key rotation scenario).
 	// Verify both tokens with the key set
-	verified1, err := verifyJWTWithKeySet(ctx, token1, keySet)
+	verified1, err := verifyJWTWithKeySet(ctx, token1, keySet, 0)
 	require.NoError(t, err)
 	assert.Equal(t, claims1.tokenID, verified1.tokenID)
 	assert.Equal(t, claims1.subject, verified1.subject)
 
-	verified2, err := verifyJWTWithKeySet(ctx, token2, keySet)
+	verified2, err := verifyJWTWithKeySet(ctx, token2, keySet, 0)
 	require.NoError(t, err)
 	assert.Equal(t, claims2.tokenID, verified2.tokenID)
 	assert.Equal(t, claims2.subject, verified2.subject)
+}
+
+func TestVerifyJWTWithKeySet_ClockSkew(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+
+	priv := generateEd25519Key(t)
+	signer, err := NewJWTSigner(priv, "skew-key")
+	require.NoError(t, err)
+
+	pub, err := signer.PublicKey()
+	require.NoError(t, err)
+	k, err := jwk.Import(pub)
+	require.NoError(t, err)
+	require.NoError(t, k.Set(jwk.KeyIDKey, signer.KeyID()))
+	require.NoError(t, k.Set(jwk.AlgorithmKey, jwa.EdDSA()))
+	keySet := jwk.NewSet()
+	require.NoError(t, keySet.AddKey(k))
+
+	const skew = 5 * time.Minute
+
+	// A token whose nbf is slightly in the future (clock drift between the
+	// issuing node and the verifying node) must be rejected without skew but
+	// accepted within the configured skew. This is the multi-node false-reject
+	// the clock_skew config exists to prevent.
+	t.Run("nbf in near future", func(t *testing.T) {
+		t.Parallel()
+
+		claims := &Claims{
+			tokenID:   "tok_nbf",
+			subject:   "user",
+			issuer:    "talos-service",
+			issuedAt:  time.Now(),
+			expiresAt: time.Now().Add(1 * time.Hour),
+			notBefore: time.Now().Add(2 * time.Minute),
+			tokenType: TokenTypeIssued,
+		}
+		tok, err := signer.Sign(ctx, claims)
+		require.NoError(t, err)
+
+		_, err = verifyJWTWithKeySet(ctx, tok, keySet, 0)
+		require.Error(t, err, "without skew, a future nbf must be rejected")
+
+		verified, err := verifyJWTWithKeySet(ctx, tok, keySet, skew)
+		require.NoError(t, err, "within skew, a near-future nbf must be accepted")
+		assert.Equal(t, "tok_nbf", verified.tokenID)
+	})
+
+	// nbf beyond the skew window stays rejected — skew widens tolerance, it does
+	// not disable the nbf check.
+	t.Run("nbf beyond skew", func(t *testing.T) {
+		t.Parallel()
+
+		claims := &Claims{
+			tokenID:   "tok_nbf_far",
+			issuer:    "talos-service",
+			issuedAt:  time.Now(),
+			expiresAt: time.Now().Add(1 * time.Hour),
+			notBefore: time.Now().Add(30 * time.Minute),
+			tokenType: TokenTypeIssued,
+		}
+		tok, err := signer.Sign(ctx, claims)
+		require.NoError(t, err)
+
+		_, err = verifyJWTWithKeySet(ctx, tok, keySet, skew)
+		require.Error(t, err, "nbf far beyond the skew window must still be rejected")
+	})
+
+	// A token expired well beyond the skew window stays rejected.
+	t.Run("expired beyond skew", func(t *testing.T) {
+		t.Parallel()
+
+		claims := &Claims{
+			tokenID:   "tok_exp",
+			issuer:    "talos-service",
+			issuedAt:  time.Now().Add(-2 * time.Hour),
+			expiresAt: time.Now().Add(-1 * time.Hour),
+			tokenType: TokenTypeIssued,
+		}
+		tok, err := signer.Sign(ctx, claims)
+		require.NoError(t, err)
+
+		_, err = verifyJWTWithKeySet(ctx, tok, keySet, skew)
+		require.Error(t, err, "a token expired beyond the skew window must be rejected")
+	})
+
+	// Expiry must stay strict: a token expired by less than the skew window must
+	// still be rejected. Extending exp by the skew would keep short-lived tokens
+	// valid past their TTL, which the public verification E2E tests forbid.
+	t.Run("expired within skew still rejected", func(t *testing.T) {
+		t.Parallel()
+
+		claims := &Claims{
+			tokenID:   "tok_exp_recent",
+			issuer:    "talos-service",
+			issuedAt:  time.Now().Add(-10 * time.Minute),
+			expiresAt: time.Now().Add(-1 * time.Minute),
+			tokenType: TokenTypeIssued,
+		}
+		tok, err := signer.Sign(ctx, claims)
+		require.NoError(t, err)
+
+		_, err = verifyJWTWithKeySet(ctx, tok, keySet, skew)
+		require.Error(t, err, "skew must not extend expiry: a recently expired token must be rejected")
+	})
 }
 
 func TestVerifyJWTWithKeySet_UnknownKey(t *testing.T) {
@@ -386,7 +492,7 @@ func TestVerifyJWTWithKeySet_UnknownKey(t *testing.T) {
 
 	// Verify with an empty key set - should fail
 	emptyKeySet := jwk.NewSet()
-	_, err = verifyJWTWithKeySet(ctx, token, emptyKeySet)
+	_, err = verifyJWTWithKeySet(ctx, token, emptyKeySet, 0)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "find key")
 }
@@ -475,7 +581,7 @@ func TestJWTVerify_ValidatesIssuer(t *testing.T) {
 	require.NoError(t, keySet.AddKey(k))
 
 	// Verify with correct expected issuer - should succeed
-	verifiedClaims, err := VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://trusted.issuer.com"})
+	verifiedClaims, err := VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://trusted.issuer.com"}, 0)
 	require.NoError(t, err)
 	require.NotNil(t, verifiedClaims)
 
@@ -484,12 +590,12 @@ func TestJWTVerify_ValidatesIssuer(t *testing.T) {
 	require.Equal(t, "https://trusted.issuer.com", issuer)
 
 	// Verify with wrong expected issuer - should fail
-	_, err = VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://wrong.issuer.com"})
+	_, err = VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://wrong.issuer.com"}, 0)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "issuer")
 
 	// Verify with retired issuer in allowed list - should succeed
-	verifiedClaims2, err := VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://new.issuer.com", "https://trusted.issuer.com"})
+	verifiedClaims2, err := VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://new.issuer.com", "https://trusted.issuer.com"}, 0)
 	require.NoError(t, err)
 	issuer2, ok := verifiedClaims2.Issuer()
 	require.True(t, ok)
@@ -529,7 +635,7 @@ func TestJWTVerify_RejectsTokenWithoutIssuer(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify should fail due to missing issuer
-	_, err = VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://any.issuer.com"})
+	_, err = VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, []string{"https://any.issuer.com"}, 0)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "issuer")
 }
@@ -764,7 +870,7 @@ func TestVerifyJWTWithKeySet_RetiredKeyNotInSet(t *testing.T) {
 	newOnlySet := jwk.NewSet()
 	require.NoError(t, newOnlySet.AddKey(k))
 
-	_, err = verifyJWTWithKeySet(ctx, tokenOld, newOnlySet)
+	_, err = verifyJWTWithKeySet(ctx, tokenOld, newOnlySet, 0)
 	require.Error(t, err, "token signed by retired key must not verify against new-only key set")
 }
 

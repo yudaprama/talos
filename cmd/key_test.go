@@ -46,7 +46,7 @@ func TestRawTableHeaderRowsMatch(t *testing.T) {
 func TestApiKeyRow(t *testing.T) {
 	t.Parallel()
 
-	key := client.NewIssuedAPIKey()
+	key := client.NewIssuedApiKey()
 	key.SetKeyId("key_abc123")
 	key.SetName("production-api-key")
 	key.SetActorId("user_xyz789")
@@ -66,8 +66,8 @@ func TestApiKeyRow(t *testing.T) {
 func TestSecretKeyRow(t *testing.T) {
 	t.Parallel()
 
-	resp := client.NewIssueAPIKeyResponse()
-	apiKey := client.NewIssuedAPIKey()
+	resp := client.NewIssueApiKeyResponse()
+	apiKey := client.NewIssuedApiKey()
 	apiKey.SetKeyId("key_new")
 	apiKey.SetName("new-key")
 	apiKey.SetActorId("user_789")
@@ -85,7 +85,7 @@ func TestSecretKeyRow(t *testing.T) {
 func TestVerifyRow(t *testing.T) {
 	t.Parallel()
 
-	resp := client.NewVerifyAPIKeyResponse()
+	resp := client.NewVerifyApiKeyResponse()
 	resp.SetKeyId("key_valid123")
 	resp.SetIsValid(true)
 	resp.SetActorId("user_abc")
@@ -116,18 +116,18 @@ func TestTokenRow(t *testing.T) {
 func TestBatchVerifyTable(t *testing.T) {
 	t.Parallel()
 
-	r1 := client.NewVerifyAPIKeyResponse()
+	r1 := client.NewVerifyApiKeyResponse()
 	r1.SetKeyId("key_1")
 	r1.SetIsValid(true)
 	r1.SetActorId("user_1")
 
-	r2 := client.NewVerifyAPIKeyResponse()
+	r2 := client.NewVerifyApiKeyResponse()
 	r2.SetKeyId("key_2")
 	r2.SetIsValid(false)
 	r2.SetErrorMessage("revoked")
 
-	resp := client.NewBatchVerifyAPIKeysResponse()
-	resp.SetResults([]client.VerifyAPIKeyResponse{*r1, *r2})
+	resp := client.NewBatchVerifyApiKeysResponse()
+	resp.SetResults([]client.VerifyApiKeyResponse{*r1, *r2})
 
 	tbl := batchVerifyTable(resp)
 
@@ -159,8 +159,8 @@ func TestIssueAPIKeyCmd(t *testing.T) {
 		// Verify data is in stdout
 		assert.Contains(t, stdout, "test-key")
 
-		resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-			AdminListIssuedAPIKeys(t.Context()).
+		resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+			AdminListIssuedApiKeys(t.Context()).
 			PageSize(10).
 			Execute()
 		if httpResp != nil {
@@ -231,13 +231,13 @@ func TestIssueAPIKeyCmd(t *testing.T) {
 			"--allowed-cidrs", "127.0.0.1/32",
 			"--format", "json",
 		)
-		var output client.IssueAPIKeyResponse
+		var output client.IssueApiKeyResponse
 		require.NoError(t, json.Unmarshal([]byte(jsonOut), &output))
 		apiKey := output.GetIssuedApiKey()
 		require.NotEmpty(t, apiKey.GetKeyId())
 
-		resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-			AdminGetIssuedAPIKey(t.Context(), apiKey.GetKeyId()).
+		resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+			AdminGetIssuedApiKey(t.Context(), apiKey.GetKeyId()).
 			Execute()
 		if httpResp != nil {
 			defer httpResp.Body.Close()
@@ -432,8 +432,8 @@ func TestListAPIKeysCmd(t *testing.T) {
 	tc.createAPIKey(t, "key-3")
 
 	// List them via SDK (we don't have a list command yet, but we can verify the server persisted them)
-	resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-		AdminListIssuedAPIKeys(t.Context()).
+	resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+		AdminListIssuedApiKeys(t.Context()).
 		PageSize(10).
 		Execute()
 	if httpResp != nil && httpResp.Body != nil {
@@ -577,7 +577,7 @@ func TestBatchVerifyAPIKeysCmd(t *testing.T) {
 			"--format", "json",
 		)
 
-		var resp client.BatchVerifyAPIKeysResponse
+		var resp client.BatchVerifyApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp))
 		results := resp.GetResults()
 		assert.Len(t, results, 2)
@@ -592,7 +592,7 @@ func TestBatchVerifyAPIKeysCmd(t *testing.T) {
 			"--format", "json",
 		)
 
-		var resp client.BatchVerifyAPIKeysResponse
+		var resp client.BatchVerifyApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp))
 		results := resp.GetResults()
 		assert.Len(t, results, 2)
@@ -607,7 +607,7 @@ func TestBatchVerifyAPIKeysCmd(t *testing.T) {
 			"--format", "json",
 		)
 
-		var resp client.BatchVerifyAPIKeysResponse
+		var resp client.BatchVerifyApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp))
 		results := resp.GetResults()
 		assert.Len(t, results, 2)

@@ -19,10 +19,10 @@ type CreateKeyRequest struct {
 	ExpiresAt *time.Time
 }
 
-// ValidateAndNormalizeIssueRequest validates and normalizes an IssueAPIKeyRequest.
+// ValidateAndNormalizeIssueRequest validates and normalizes an IssueApiKeyRequest.
 // Returns a CreateKeyRequest ready for service layer processing.
 func ValidateAndNormalizeIssueRequest(
-	req *talosv2alpha1.IssueAPIKeyRequest,
+	req *talosv2alpha1.IssueApiKeyRequest,
 	defaultTTL time.Duration,
 	maxTTL time.Duration,
 ) (CreateKeyRequest, error) {
@@ -37,8 +37,8 @@ func ValidateAndNormalizeIssueRequest(
 		return CreateKeyRequest{}, err
 	}
 
-	// IssueAPIKey does not require name or actor_id because the service generates
-	// the key secret automatically — these are optional labels. ImportAPIKey
+	// IssueApiKey does not require name or actor_id because the service generates
+	// the key secret automatically — these are optional labels. ImportApiKey
 	// requires both because the caller registers an existing external credential
 	// and must explicitly declare its identity.
 
@@ -74,11 +74,11 @@ type ImportKeyRequest struct {
 	ExpiresAt *time.Time
 }
 
-// ValidateAndNormalizeImportRequest validates and normalizes an ImportAPIKeyRequest.
+// ValidateAndNormalizeImportRequest validates and normalizes an ImportApiKeyRequest.
 // defaultTTL is applied when the caller provides no TTL; maxTTL caps the final TTL
 // (0 means no cap). These follow the same semantics as ValidateAndNormalizeIssueRequest.
 func ValidateAndNormalizeImportRequest(
-	req *talosv2alpha1.ImportAPIKeyRequest,
+	req *talosv2alpha1.ImportApiKeyRequest,
 	defaultTTL time.Duration,
 	maxTTL time.Duration,
 ) (ImportKeyRequest, error) {

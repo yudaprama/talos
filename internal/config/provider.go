@@ -60,7 +60,7 @@ func NewProviderWithOptions(ctx context.Context, opts ...configx.OptionModifier)
 	p, err := configx.New(ctx, configschema.SchemaJSON, append(
 		[]configx.OptionModifier{
 			configx.WithContext(ctx),
-			configx.WithImmutables("db.dsn", "tls.key", "redis.password"),
+			configx.WithImmutables(KeyDBDSN.String(), KeyCacheRedisPassword.String()),
 			configx.WithStderrValidationReporter(),
 		},
 		opts...,

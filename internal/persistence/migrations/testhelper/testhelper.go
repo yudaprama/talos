@@ -9,6 +9,7 @@
 package testhelper
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"text/template"
 
 	"github.com/bradleyjkemp/cupaloy/v2"
 	"github.com/cockroachdb/errors"
@@ -66,9 +68,13 @@ func CompareWithFixture(t *testing.T, testdataRoot string, actual any, version, 
 	)
 }
 
-// LoadFixtures reads the SQL fixture file for the given migration version and dialect,
-// substitutes the {{.NID}} placeholder, and executes each statement against db.
-// Falls back to the generic (no dialect suffix) file when a dialect-specific one is absent.
+// LoadFixtures reads the SQL fixture file for the given migration version and
+// dialect, renders it as a text/template with the {{.NID}} field, and executes
+// each statement against db.
+//
+// Lookup order:
+//  1. {testdataRoot}/{version}_testdata.{dialect}.sql — dialect-specific override.
+//  2. {testdataRoot}/{version}_testdata.sql           — canonical shared file.
 func LoadFixtures(t *testing.T, db *sql.DB, testdataRoot, version, dialect, nid string) {
 	t.Helper()
 
@@ -77,19 +83,28 @@ func LoadFixtures(t *testing.T, db *sql.DB, testdataRoot, version, dialect, nid 
 		filepath.Join(testdataRoot, fmt.Sprintf("%s_testdata.sql", version)),
 	}
 
-	var content []byte
+	var (
+		content []byte
+		source  string
+	)
 	for _, path := range candidates {
 		b, err := os.ReadFile(path) //nolint:gosec // test helper reads migration fixtures from a fixed testdata root
 
 		if err == nil {
 			content = b
+			source = path
 			break
 		}
 	}
 	require.NotNil(t, content, "no fixture file found for version %s dialect %s", version, dialect)
 
-	sqlStr := strings.ReplaceAll(string(content), "{{.NID}}", nid)
-	sqlStr = strings.ReplaceAll(sqlStr, "\r\n", "\n")
+	tmpl, err := template.New(filepath.Base(source)).Parse(string(content))
+	require.NoError(t, err, "parse fixture template %s", source)
+
+	var rendered bytes.Buffer
+	require.NoError(t, tmpl.Execute(&rendered, map[string]string{"NID": nid}), "render fixture template %s", source)
+
+	sqlStr := strings.ReplaceAll(rendered.String(), "\r\n", "\n")
 
 	for stmt := range strings.SplitSeq(strings.TrimRight(sqlStr, "\n\r "), ";\n") {
 		stmt = strings.TrimSpace(stmt)

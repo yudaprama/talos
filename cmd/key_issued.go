@@ -64,14 +64,14 @@ func newRevokeIssuedAPIKeyCmd() *cobra.Command {
 	})
 }
 
-func newRevokeIssuedAPIKeyRequest(ctx context.Context, api client.APIKeysAPI, keyID string, reason client.RevocationReason, reasonText string) revokeAPIKeyRequest {
-	body := client.AdminRevokeIssuedAPIKeyBody{}
+func newRevokeIssuedAPIKeyRequest(ctx context.Context, api client.ApiKeysAPI, keyID string, reason client.RevocationReason, reasonText string) revokeAPIKeyRequest {
+	body := client.AdminRevokeIssuedApiKeyBody{}
 	setRevocationBody(&body, reason, reasonText)
-	return api.AdminRevokeIssuedAPIKey(ctx, keyID).AdminRevokeIssuedAPIKeyBody(body)
+	return api.AdminRevokeIssuedApiKey(ctx, keyID).AdminRevokeIssuedApiKeyBody(body)
 }
 
-func getIssuedAPIKeyAfterRevoke(ctx context.Context, api client.APIKeysAPI, keyID string) (any, apiKeyLike, error) {
-	return executeGetAPIKey(api.AdminGetIssuedAPIKey(ctx, keyID))
+func getIssuedAPIKeyAfterRevoke(ctx context.Context, api client.ApiKeysAPI, keyID string) (any, apiKeyLike, error) {
+	return executeGetAPIKey(api.AdminGetIssuedApiKey(ctx, keyID))
 }
 
 //nolint:dupl // issued/imported get commands share structure but call different SDK methods.
@@ -91,8 +91,8 @@ func newGetIssuedAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminGetIssuedAPIKey(ctx, keyID).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminGetIssuedApiKey(ctx, keyID).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -134,8 +134,8 @@ func newListIssuedAPIKeysCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			req := newSDKClient(serverAddr).APIKeysAPI.
-				AdminListIssuedAPIKeys(ctx)
+			req := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminListIssuedApiKeys(ctx)
 
 			if f := buildListFilter(actorID, status); f != "" {
 				req = req.Filter(f)
@@ -196,7 +196,7 @@ func newUpdateIssuedAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			body := client.AdminUpdateIssuedAPIKeyRequest{}
+			body := client.AdminUpdateIssuedApiKeyRequest{}
 
 			anyChanged := false
 
@@ -248,9 +248,9 @@ func newUpdateIssuedAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			req := newSDKClient(serverAddr).APIKeysAPI.
-				AdminUpdateIssuedAPIKey(ctx, keyID).
-				AdminUpdateIssuedAPIKeyRequest(body)
+			req := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminUpdateIssuedApiKey(ctx, keyID).
+				AdminUpdateIssuedApiKeyRequest(body)
 			if useMask {
 				req = req.UpdateMask(updateMask)
 			}
@@ -303,7 +303,7 @@ func newRotateIssuedAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			body := client.AdminRotateIssuedAPIKeyBody{}
+			body := client.AdminRotateIssuedApiKeyBody{}
 
 			if cmd.Flags().Changed("name") {
 				body.SetName(name)
@@ -324,9 +324,9 @@ func newRotateIssuedAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminRotateIssuedAPIKey(ctx, keyID).
-				AdminRotateIssuedAPIKeyBody(body).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminRotateIssuedApiKey(ctx, keyID).
+				AdminRotateIssuedApiKeyBody(body).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()

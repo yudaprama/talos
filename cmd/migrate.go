@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"cmp"
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -18,8 +17,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ory/talos/commercial/config"
-	talosconfig "github.com/ory/talos/internal/config"
 	"github.com/ory/x/cmdx"
 )
 
@@ -66,8 +63,7 @@ The database connection string can be provided via:
   {{ .CommandPath }} --database "cockroach://user:pass@localhost:5432/talos?sslmode=disable"`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			configFile, _ := cmd.Root().PersistentFlags().GetString("config")
-			dbDSN, err := getDatabaseDSN(cmd.Context(), database, configFile)
+			dbDSN, err := getDatabaseDSN(database)
 			if err != nil {
 				return err
 			}
@@ -135,8 +131,15 @@ In production, use this carefully and ensure you have backups.`,
   {{ .CommandPath }} --steps 3`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			configFile, _ := cmd.Root().PersistentFlags().GetString("config")
-			dbDSN, err := getDatabaseDSN(cmd.Context(), database, configFile)
+			// Guard against non-positive steps. --steps is a signed int, and the
+			// rollback below calls m.Steps(-steps); a negative value would
+			// double-negate into a positive count and silently apply UP
+			// migrations instead of rolling back.
+			if steps <= 0 {
+				return errors.Errorf("--steps must be a positive number, got %d", steps)
+			}
+
+			dbDSN, err := getDatabaseDSN(database)
 			if err != nil {
 				return err
 			}
@@ -208,9 +211,8 @@ Shows:
   - Whether the database is in a dirty state
   - Database connection info`,
 		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			configFile, _ := cmd.Root().PersistentFlags().GetString("config")
-			dbDSN, err := getDatabaseDSN(cmd.Context(), database, configFile)
+		RunE: func(_ *cobra.Command, _ []string) error {
+			dbDSN, err := getDatabaseDSN(database)
 			if err != nil {
 				return err
 			}
@@ -275,14 +277,13 @@ inconsistent database state if used incorrectly.`,
   {{ .CommandPath }} 5`,
 		Args:         cobra.ExactArgs(1),
 		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			var targetVersion int
 			if _, err := fmt.Sscanf(args[0], "%d", &targetVersion); err != nil {
 				return errors.Errorf("invalid version: %s (must be an integer)", args[0])
 			}
 
-			configFile, _ := cmd.Root().PersistentFlags().GetString("config")
-			dbDSN, err := getDatabaseDSN(cmd.Context(), database, configFile)
+			dbDSN, err := getDatabaseDSN(database)
 			if err != nil {
 				return err
 			}
@@ -363,8 +364,8 @@ func newMigrate(dbDSN string) (*migrate.Migrate, error) {
 	return m, nil
 }
 
-// getDatabaseDSN gets the database DSN from flag, environment variable, or config file.
-func getDatabaseDSN(ctx context.Context, flagValue, configFile string) (string, error) {
+// getDatabaseDSN gets the database DSN from the flag or environment variable.
+func getDatabaseDSN(flagValue string) (string, error) {
 	if flagValue != "" {
 		return flagValue, nil
 	}
@@ -373,17 +374,7 @@ func getDatabaseDSN(ctx context.Context, flagValue, configFile string) (string, 
 		return dsn, nil
 	}
 
-	if configFile != "" {
-		provider, err := config.NewProvider(ctx, configFile)
-		if err != nil {
-			return "", errors.Wrap(err, "load config file")
-		}
-		if dsn := provider.String(ctx, talosconfig.KeyDBDSN); dsn != "" {
-			return dsn, nil
-		}
-	}
-
-	return "", errors.New("database DSN not provided (use --database flag, DB_DSN environment variable, or --config file)")
+	return "", errors.New("database DSN not provided (use --database flag or DB_DSN environment variable)")
 }
 
 // reviewed - @aeneasr - 2026-03-25

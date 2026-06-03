@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -14,36 +14,36 @@ import (
 	"encoding/json"
 )
 
-// checks if the VerifyAPIKeyRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &VerifyAPIKeyRequest{}
+// checks if the VerifyApiKeyRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &VerifyApiKeyRequest{}
 
-// VerifyAPIKeyRequest struct for VerifyAPIKeyRequest
-type VerifyAPIKeyRequest struct {
+// VerifyApiKeyRequest struct for VerifyApiKeyRequest
+type VerifyApiKeyRequest struct {
 	Credential           *string `json:"credential,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _VerifyAPIKeyRequest VerifyAPIKeyRequest
+type _VerifyApiKeyRequest VerifyApiKeyRequest
 
-// NewVerifyAPIKeyRequest instantiates a new VerifyAPIKeyRequest object
+// NewVerifyApiKeyRequest instantiates a new VerifyApiKeyRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewVerifyAPIKeyRequest() *VerifyAPIKeyRequest {
-	this := VerifyAPIKeyRequest{}
+func NewVerifyApiKeyRequest() *VerifyApiKeyRequest {
+	this := VerifyApiKeyRequest{}
 	return &this
 }
 
-// NewVerifyAPIKeyRequestWithDefaults instantiates a new VerifyAPIKeyRequest object
+// NewVerifyApiKeyRequestWithDefaults instantiates a new VerifyApiKeyRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewVerifyAPIKeyRequestWithDefaults() *VerifyAPIKeyRequest {
-	this := VerifyAPIKeyRequest{}
+func NewVerifyApiKeyRequestWithDefaults() *VerifyApiKeyRequest {
+	this := VerifyApiKeyRequest{}
 	return &this
 }
 
 // GetCredential returns the Credential field value if set, zero value otherwise.
-func (o *VerifyAPIKeyRequest) GetCredential() string {
+func (o *VerifyApiKeyRequest) GetCredential() string {
 	if o == nil || IsNil(o.Credential) {
 		var ret string
 		return ret
@@ -53,7 +53,7 @@ func (o *VerifyAPIKeyRequest) GetCredential() string {
 
 // GetCredentialOk returns a tuple with the Credential field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyRequest) GetCredentialOk() (*string, bool) {
+func (o *VerifyApiKeyRequest) GetCredentialOk() (*string, bool) {
 	if o == nil || IsNil(o.Credential) {
 		return nil, false
 	}
@@ -61,7 +61,7 @@ func (o *VerifyAPIKeyRequest) GetCredentialOk() (*string, bool) {
 }
 
 // HasCredential returns a boolean if a field has been set.
-func (o *VerifyAPIKeyRequest) HasCredential() bool {
+func (o *VerifyApiKeyRequest) HasCredential() bool {
 	if o != nil && !IsNil(o.Credential) {
 		return true
 	}
@@ -70,11 +70,11 @@ func (o *VerifyAPIKeyRequest) HasCredential() bool {
 }
 
 // SetCredential gets a reference to the given string and assigns it to the Credential field.
-func (o *VerifyAPIKeyRequest) SetCredential(v string) {
+func (o *VerifyApiKeyRequest) SetCredential(v string) {
 	o.Credential = &v
 }
 
-func (o VerifyAPIKeyRequest) MarshalJSON() ([]byte, error) {
+func (o VerifyApiKeyRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -82,7 +82,7 @@ func (o VerifyAPIKeyRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o VerifyAPIKeyRequest) ToMap() (map[string]interface{}, error) {
+func (o VerifyApiKeyRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Credential) {
 		toSerialize["credential"] = o.Credential
@@ -95,16 +95,16 @@ func (o VerifyAPIKeyRequest) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *VerifyAPIKeyRequest) UnmarshalJSON(data []byte) (err error) {
-	varVerifyAPIKeyRequest := _VerifyAPIKeyRequest{}
+func (o *VerifyApiKeyRequest) UnmarshalJSON(data []byte) (err error) {
+	varVerifyApiKeyRequest := _VerifyApiKeyRequest{}
 
-	err = json.Unmarshal(data, &varVerifyAPIKeyRequest)
+	err = json.Unmarshal(data, &varVerifyApiKeyRequest)
 
 	if err != nil {
 		return err
 	}
 
-	*o = VerifyAPIKeyRequest(varVerifyAPIKeyRequest)
+	*o = VerifyApiKeyRequest(varVerifyApiKeyRequest)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -116,38 +116,38 @@ func (o *VerifyAPIKeyRequest) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableVerifyAPIKeyRequest struct {
-	value *VerifyAPIKeyRequest
+type NullableVerifyApiKeyRequest struct {
+	value *VerifyApiKeyRequest
 	isSet bool
 }
 
-func (v NullableVerifyAPIKeyRequest) Get() *VerifyAPIKeyRequest {
+func (v NullableVerifyApiKeyRequest) Get() *VerifyApiKeyRequest {
 	return v.value
 }
 
-func (v *NullableVerifyAPIKeyRequest) Set(val *VerifyAPIKeyRequest) {
+func (v *NullableVerifyApiKeyRequest) Set(val *VerifyApiKeyRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableVerifyAPIKeyRequest) IsSet() bool {
+func (v NullableVerifyApiKeyRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableVerifyAPIKeyRequest) Unset() {
+func (v *NullableVerifyApiKeyRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableVerifyAPIKeyRequest(val *VerifyAPIKeyRequest) *NullableVerifyAPIKeyRequest {
-	return &NullableVerifyAPIKeyRequest{value: val, isSet: true}
+func NewNullableVerifyApiKeyRequest(val *VerifyApiKeyRequest) *NullableVerifyApiKeyRequest {
+	return &NullableVerifyApiKeyRequest{value: val, isSet: true}
 }
 
-func (v NullableVerifyAPIKeyRequest) MarshalJSON() ([]byte, error) {
+func (v NullableVerifyApiKeyRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableVerifyAPIKeyRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableVerifyApiKeyRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

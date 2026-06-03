@@ -8,7 +8,7 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "APIKeys",
+      label: "ApiKeys",
       items: [
         {
           type: "doc",
@@ -66,7 +66,7 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
-          id: "reference/api/admin-batch-import-api-keys",
+          id: "reference/api/admin-batch-create-imported-api-keys",
           label: "Batch Import API Keys",
           className: "api-method post",
         },

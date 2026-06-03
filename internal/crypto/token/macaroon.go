@@ -246,7 +246,8 @@ func macaroonToClaims(m *macaroon.Macaroon) (*Claims, error) {
 // allowedIssuers is the list of accepted issuer URLs (current + retired).
 // clockSkew is the tolerance applied to nbf checks only. exp is checked strictly
 // because adding clock skew to expiry would extend short-lived tokens by minutes,
-// defeating their purpose (consistent with how the JWT library handles exp).
+// defeating their purpose. The JWT path (verifyJWTWithKeySet) applies the same
+// skew semantics: leeway on nbf, strict exp.
 func verifyCaveat(_ context.Context, caveat string, allowedIssuers []string, clockSkew time.Duration) error {
 	if len(allowedIssuers) == 0 {
 		return errors.New("allowed issuers must not be empty")

@@ -1,8 +1,8 @@
 {
   "components": {
     "schemas": {
-      "AdminRevokeImportedAPIKeyBody": {
-        "description": "RevokeImportedAPIKeyRequest revokes an imported API key by its key_id.",
+      "AdminRevokeImportedApiKeyBody": {
+        "description": "RevokeImportedApiKeyRequest revokes an imported API key by its key_id.",
         "properties": {
           "description": {
             "description": "Optional free-text explanation. Only allowed when reason is PRIVILEGE_WITHDRAWN.",
@@ -14,8 +14,8 @@
         },
         "type": "object"
       },
-      "AdminRevokeIssuedAPIKeyBody": {
-        "description": "RevokeIssuedAPIKeyRequest revokes an issued API key by its key_id.",
+      "AdminRevokeIssuedApiKeyBody": {
+        "description": "RevokeIssuedApiKeyRequest revokes an issued API key by its key_id.",
         "properties": {
           "description": {
             "description": "Optional free-text explanation. Only allowed when reason is PRIVILEGE_WITHDRAWN.",
@@ -27,8 +27,8 @@
         },
         "type": "object"
       },
-      "AdminRotateIssuedAPIKeyBody": {
-        "description": "RotateIssuedAPIKeyRequest is the request for AdminRotateIssuedAPIKey.\n\nRotation is a custom method (AIP-136) that swaps an active key for a new\none with a fresh secret and key_id, then revokes the old key. It is not a\npartial update, so it does not carry an update_mask. Mutable fields use\npresence-based semantics: an absent field inherits from the old key, while\na present field (including an explicitly empty value) overrides.",
+      "AdminRotateIssuedApiKeyBody": {
+        "description": "RotateIssuedApiKeyRequest is the request for AdminRotateIssuedApiKey.\n\nRotation is a custom method (AIP-136) that swaps an active key for a new\none with a fresh secret and key_id, then revokes the old key. It is not a\npartial update, so it does not carry an update_mask. Mutable fields use\npresence-based semantics: an absent field inherits from the old key, while\na present field (including an explicitly empty value) overrides.",
         "properties": {
           "ip_restriction": {
             "$ref": "#/components/schemas/IPRestriction"
@@ -66,12 +66,25 @@
         },
         "type": "object"
       },
-      "BatchImportAPIKeysRequest": {
-        "description": "BatchImportAPIKeysRequest imports multiple external API keys in one request.\nThe maximum batch size is 1000 keys.",
+      "BatchCreateImportedApiKeysErrorCode": {
+        "default": "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED",
+        "description": "BatchCreateImportedApiKeysErrorCode classifies per-item batch import failures.\n\n - BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED: No error (import succeeded)\n - BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT: The key data is malformed or missing required fields\n - BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS: A key with this identifier already exists\n - BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION: State conflict prevents the import\n - BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL: Server error during import\n - BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED: Per-tenant quota cap reached",
+        "enum": [
+          "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED",
+          "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT",
+          "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS",
+          "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION",
+          "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL",
+          "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED"
+        ],
+        "type": "string"
+      },
+      "BatchCreateImportedApiKeysRequest": {
+        "description": "BatchCreateImportedApiKeysRequest imports multiple external API keys in one request.\nThe maximum batch size is 1000 keys.",
         "properties": {
           "requests": {
             "items": {
-              "$ref": "#/components/schemas/ImportAPIKeyRequest"
+              "$ref": "#/components/schemas/ImportApiKeyRequest"
             },
             "title": "Keys to import",
             "type": "array"
@@ -79,8 +92,8 @@
         },
         "type": "object"
       },
-      "BatchImportAPIKeysResponse": {
-        "description": "BatchImportAPIKeysResponse returns per-item results and summary counters.",
+      "BatchCreateImportedApiKeysResponse": {
+        "description": "BatchCreateImportedApiKeysResponse returns per-item results and summary counters.",
         "properties": {
           "failure_count": {
             "format": "int32",
@@ -88,7 +101,7 @@
           },
           "results": {
             "items": {
-              "$ref": "#/components/schemas/BatchImportResult"
+              "$ref": "#/components/schemas/BatchCreateImportedApiKeysResult"
             },
             "type": "array"
           },
@@ -99,31 +112,18 @@
         },
         "type": "object"
       },
-      "BatchImportErrorCode": {
-        "default": "BATCH_IMPORT_ERROR_UNSPECIFIED",
-        "description": "BatchImportErrorCode classifies per-item batch import failures.\n\n - BATCH_IMPORT_ERROR_UNSPECIFIED: No error (import succeeded)\n - BATCH_IMPORT_ERROR_INVALID_ARGUMENT: The key data is malformed or missing required fields\n - BATCH_IMPORT_ERROR_ALREADY_EXISTS: A key with this identifier already exists\n - BATCH_IMPORT_ERROR_FAILED_PRECONDITION: State conflict prevents the import\n - BATCH_IMPORT_ERROR_INTERNAL: Server error during import\n - BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED: Per-tenant quota cap reached",
-        "enum": [
-          "BATCH_IMPORT_ERROR_UNSPECIFIED",
-          "BATCH_IMPORT_ERROR_INVALID_ARGUMENT",
-          "BATCH_IMPORT_ERROR_ALREADY_EXISTS",
-          "BATCH_IMPORT_ERROR_FAILED_PRECONDITION",
-          "BATCH_IMPORT_ERROR_INTERNAL",
-          "BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED"
-        ],
-        "type": "string"
-      },
-      "BatchImportResult": {
-        "description": "BatchImportResult contains the result for one key in a batch import request.",
+      "BatchCreateImportedApiKeysResult": {
+        "description": "BatchCreateImportedApiKeysResult contains the result for one key in a batch import request.",
         "properties": {
           "error_code": {
-            "$ref": "#/components/schemas/BatchImportErrorCode"
+            "$ref": "#/components/schemas/BatchCreateImportedApiKeysErrorCode"
           },
           "error_message": {
             "title": "Human-readable failure reason",
             "type": "string"
           },
           "imported_api_key": {
-            "$ref": "#/components/schemas/ImportedAPIKey"
+            "$ref": "#/components/schemas/ImportedApiKey"
           },
           "index": {
             "format": "int32",
@@ -133,22 +133,22 @@
         },
         "type": "object"
       },
-      "BatchVerifyAPIKeysRequest": {
+      "BatchVerifyApiKeysRequest": {
         "properties": {
           "requests": {
             "items": {
-              "$ref": "#/components/schemas/VerifyAPIKeyRequest"
+              "$ref": "#/components/schemas/VerifyApiKeyRequest"
             },
             "type": "array"
           }
         },
         "type": "object"
       },
-      "BatchVerifyAPIKeysResponse": {
+      "BatchVerifyApiKeysResponse": {
         "properties": {
           "results": {
             "items": {
-              "$ref": "#/components/schemas/VerifyAPIKeyResponse"
+              "$ref": "#/components/schemas/VerifyApiKeyResponse"
             },
             "type": "array"
           }
@@ -212,7 +212,7 @@
         },
         "type": "object"
       },
-      "ImportAPIKeyRequest": {
+      "ImportApiKeyRequest": {
         "description": "Example:\n  {\n    \"raw_key\": \"sk_live_abc123xyz789\",\n    \"name\": \"Stripe Production Key\",\n    \"actor_id\": \"payment-processor\",\n    \"scopes\": [\"read\", \"write\"],\n    \"ttl\": \"8760h\",  // 1 year (also accepts: 31536000s)\n    \"metadata\": {\"source\": \"stripe\", \"environment\": \"production\"}\n  }",
         "properties": {
           "actor_id": {
@@ -256,11 +256,11 @@
             "$ref": "#/components/schemas/KeyVisibility"
           }
         },
-        "title": "ImportAPIKeyRequest imports an external HMAC-based API key",
+        "title": "ImportApiKeyRequest imports an external HMAC-based API key",
         "type": "object"
       },
-      "ImportedAPIKey": {
-        "description": "ImportedAPIKey represents an API key imported from an external system.\nThe raw key is hashed (SHA-512/256) and stored. The original key is never retained.",
+      "ImportedApiKey": {
+        "description": "ImportedApiKey represents an API key imported from an external system.\nThe raw key is hashed (SHA-512/256) and stored. The original key is never retained.",
         "properties": {
           "actor_id": {
             "type": "string"
@@ -320,7 +320,7 @@
         },
         "type": "object"
       },
-      "IssueAPIKeyRequest": {
+      "IssueApiKeyRequest": {
         "properties": {
           "actor_id": {
             "type": "string"
@@ -358,10 +358,10 @@
         },
         "type": "object"
       },
-      "IssueAPIKeyResponse": {
+      "IssueApiKeyResponse": {
         "properties": {
           "issued_api_key": {
-            "$ref": "#/components/schemas/IssuedAPIKey"
+            "$ref": "#/components/schemas/IssuedApiKey"
           },
           "secret": {
             "title": "Only returned on creation",
@@ -370,8 +370,8 @@
         },
         "type": "object"
       },
-      "IssuedAPIKey": {
-        "description": "IssuedAPIKey represents an API key issued (generated) by Talos.\nRoot keys are opaque v1 format tokens stored in the database.\nDerived tokens (JWT/Macaroon) are created via DeriveToken and are stateless (not stored).",
+      "IssuedApiKey": {
+        "description": "IssuedApiKey represents an API key issued (generated) by Talos.\nRoot keys are opaque v1 format tokens stored in the database.\nDerived tokens (JWT/Macaroon) are created via DeriveToken and are stateless (not stored).",
         "properties": {
           "actor_id": {
             "type": "string"
@@ -451,11 +451,11 @@
         ],
         "type": "string"
       },
-      "ListImportedAPIKeysResponse": {
+      "ListImportedApiKeysResponse": {
         "properties": {
           "imported_api_keys": {
             "items": {
-              "$ref": "#/components/schemas/ImportedAPIKey"
+              "$ref": "#/components/schemas/ImportedApiKey"
             },
             "title": "List of imported keys",
             "type": "array"
@@ -465,14 +465,14 @@
             "type": "string"
           }
         },
-        "title": "ListImportedAPIKeysResponse returns paginated list of imported keys",
+        "title": "ListImportedApiKeysResponse returns paginated list of imported keys",
         "type": "object"
       },
-      "ListIssuedAPIKeysResponse": {
+      "ListIssuedApiKeysResponse": {
         "properties": {
           "issued_api_keys": {
             "items": {
-              "$ref": "#/components/schemas/IssuedAPIKey"
+              "$ref": "#/components/schemas/IssuedApiKey"
             },
             "type": "array"
           },
@@ -521,13 +521,13 @@
         ],
         "type": "string"
       },
-      "RotateIssuedAPIKeyResponse": {
+      "RotateIssuedApiKeyResponse": {
         "properties": {
           "issued_api_key": {
-            "$ref": "#/components/schemas/IssuedAPIKey"
+            "$ref": "#/components/schemas/IssuedApiKey"
           },
           "old_issued_api_key": {
-            "$ref": "#/components/schemas/IssuedAPIKey"
+            "$ref": "#/components/schemas/IssuedApiKey"
           },
           "secret": {
             "title": "secret is the new API key secret (only returned once, never retrievable again)",
@@ -536,8 +536,8 @@
         },
         "type": "object"
       },
-      "SelfRevokeAPIKeyRequest": {
-        "description": "SelfRevokeAPIKeyRequest allows an API key holder to revoke their own key\nby providing the full key secret as proof of possession.",
+      "SelfRevokeApiKeyRequest": {
+        "description": "SelfRevokeApiKeyRequest allows an API key holder to revoke their own key\nby providing the full key secret as proof of possession.",
         "properties": {
           "credential": {
             "title": "Full API key secret or imported key (REQUIRED)",
@@ -549,8 +549,8 @@
         },
         "type": "object"
       },
-      "SelfRevokeAPIKeyResponse": {
-        "description": "SelfRevokeAPIKeyResponse is returned on successful self-revocation.\n\nEmpty on success",
+      "SelfRevokeApiKeyResponse": {
+        "description": "SelfRevokeApiKeyResponse is returned on successful self-revocation.\n\nEmpty on success",
         "type": "object"
       },
       "Status": {
@@ -623,7 +623,7 @@
         "title": "VerificationErrorCode provides type-safe error codes for verification failures",
         "type": "string"
       },
-      "VerifyAPIKeyRequest": {
+      "VerifyApiKeyRequest": {
         "properties": {
           "credential": {
             "title": "API key or derived token (any format: sk_*, JWT, macaroon)",
@@ -632,7 +632,7 @@
         },
         "type": "object"
       },
-      "VerifyAPIKeyResponse": {
+      "VerifyApiKeyResponse": {
         "properties": {
           "actor_id": {
             "type": "string"
@@ -694,7 +694,7 @@
     }
   },
   "info": {
-    "description": "Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n\n`Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).",
+    "description": "Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n\n`Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).",
     "title": "Ory Talos API",
     "version": "v2alpha1"
   },
@@ -703,7 +703,7 @@
     "/v2alpha1/admin/apiKeys:batchVerify": {
       "post": {
         "description": "Verifies multiple credentials in a single request. Efficiently verifies up\nto 100 credentials in parallel. Each credential is verified independently;\npartial failures are returned. Admin access only.\n\nCache Control (HTTP Headers):\n  - Cache-Control: no-cache  - Bypasses cache read, forces fresh DB lookup\n  - Cache-Control: no-store  - Bypasses cache read AND write (never cached)\n  - Pragma: no-cache         - Same as Cache-Control: no-cache (HTTP/1.0)\n\nThe cache directive applies to every credential in the batch.\n\n```http\nPOST /v2alpha1/admin/apiKeys:batchVerify\n{\n  \"requests\": [\n    {\"credential\": \"sk_live_abc123...\"},\n    {\"credential\": \"eyJhbGciOiJFZERTQSI...\"}\n  ]\n}\n```",
-        "operationId": "AdminBatchVerifyAPIKeys",
+        "operationId": "adminBatchVerifyApiKeys",
         "parameters": [
           {
             "description": "Cache-directive controlling the verifier cache. `no-cache` forces a fresh database lookup (cache read is bypassed). `no-store` additionally prevents the result from being written to the cache. Any other value is ignored.",
@@ -726,7 +726,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BatchVerifyAPIKeysRequest"
+                "$ref": "#/components/schemas/BatchVerifyApiKeysRequest"
               }
             }
           },
@@ -738,7 +738,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BatchVerifyAPIKeysResponse"
+                  "$ref": "#/components/schemas/BatchVerifyApiKeysResponse"
                 }
               }
             },
@@ -757,14 +757,14 @@
         },
         "summary": "Batch Verify API Keys",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/apiKeys:derive": {
       "post": {
         "description": "Mints a short-lived JWT or Macaroon token from an API key. Works with both\nissued and imported keys. The derived token inherits the permissions of the\nparent API key.\n\n```http\nPOST /v2alpha1/admin/apiKeys:derive\n{\n  \"credential\": \"eyJhbGciOiJFZERTQSI...\",\n  \"ttl\": \"1h\"\n}\n```",
-        "operationId": "AdminDeriveToken",
+        "operationId": "adminDeriveToken",
         "requestBody": {
           "content": {
             "application/json": {
@@ -800,14 +800,14 @@
         },
         "summary": "Derive Token",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/apiKeys:verify": {
       "post": {
         "description": "Verifies a single API key or derived token. Validates the credential's\nsignature, expiration, and revocation status. Works with any credential\ntype (issued keys, imported keys, JWT, macaroon). The verification result\nincludes decoded claims and metadata — admin access only.\n\nCache Control (HTTP Headers):\n  - Cache-Control: no-cache  - Bypasses cache read, forces fresh DB lookup\n  - Cache-Control: no-store  - Bypasses cache read AND write (never cached)\n  - Pragma: no-cache         - Same as Cache-Control: no-cache (HTTP/1.0)\n\n```http\nPOST /v2alpha1/admin/apiKeys:verify\n{\n  \"credential\": \"sk_live_abc123...\"\n}\n```",
-        "operationId": "AdminVerifyAPIKey",
+        "operationId": "adminVerifyApiKey",
         "parameters": [
           {
             "description": "Cache-directive controlling the verifier cache. `no-cache` forces a fresh database lookup (cache read is bypassed). `no-store` additionally prevents the result from being written to the cache. Any other value is ignored.",
@@ -830,7 +830,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VerifyAPIKeyRequest"
+                "$ref": "#/components/schemas/VerifyApiKeyRequest"
               }
             }
           },
@@ -842,7 +842,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VerifyAPIKeyResponse"
+                  "$ref": "#/components/schemas/VerifyApiKeyResponse"
                 }
               }
             },
@@ -861,14 +861,14 @@
         },
         "summary": "Verify API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/importedApiKeys": {
       "get": {
         "description": "Lists all imported keys with filtering. Returns imported keys only (not\nissued keys). Supports pagination and AIP-160 filter expressions.\n\n```http\nGET /v2alpha1/admin/importedApiKeys?page_size=50\u0026filter=status%3DKEY_STATUS_ACTIVE\n```",
-        "operationId": "AdminListImportedAPIKeys",
+        "operationId": "adminListImportedApiKeys",
         "parameters": [
           {
             "description": "Number of items per page (default: 50, max: 1000)",
@@ -901,7 +901,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListImportedAPIKeysResponse"
+                  "$ref": "#/components/schemas/ListImportedApiKeysResponse"
                 }
               }
             },
@@ -920,17 +920,17 @@
         },
         "summary": "List Imported API Keys",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       },
       "post": {
         "description": "Imports an external API key into the system. Allows importing keys from\nlegacy systems or external providers. The raw key is hashed and stored\nsecurely (HMAC). Imported keys support token derivation (JWT/Macaroon)\nlike issued keys.\n\n```http\nPOST /v2alpha1/admin/importedApiKeys\n{\n  \"raw_key\": \"sk_live_abc123xyz\",\n  \"name\": \"Imported Stripe Key\",\n  \"actor_id\": \"user_123\"\n}\n```",
-        "operationId": "AdminImportAPIKey",
+        "operationId": "adminImportApiKey",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ImportAPIKeyRequest"
+                "$ref": "#/components/schemas/ImportApiKeyRequest"
               }
             }
           },
@@ -943,7 +943,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImportedAPIKey"
+                  "$ref": "#/components/schemas/ImportedApiKey"
                 }
               }
             },
@@ -970,14 +970,14 @@
         },
         "summary": "Import API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/importedApiKeys/{imported_api_key.key_id}": {
       "patch": {
         "description": "Updates metadata, scopes, or rate limits of an imported key. Supports\npartial updates via the update_mask query parameter (AIP-134). Omitting\nupdate_mask is equivalent to a mask of every populated field in the body.\nTo clear a field to its zero value, list it explicitly in update_mask and\nleave it unset (or empty) in the body.\n\n```http\nPATCH /v2alpha1/admin/importedApiKeys/{key_id}?update_mask=name\n{\n  \"imported_api_key\": {\n    \"key_id\": \"{key_id}\",\n    \"name\": \"New name\"\n  }\n}\n```",
-        "operationId": "AdminUpdateImportedAPIKey",
+        "operationId": "adminUpdateImportedApiKey",
         "parameters": [
           {
             "description": "SHA-512/256 hash of credential",
@@ -1001,7 +1001,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "ImportedAPIKey represents an API key imported from an external system.\nThe raw key is hashed (SHA-512/256) and stored. The original key is never retained.",
+                "description": "ImportedApiKey represents an API key imported from an external system.\nThe raw key is hashed (SHA-512/256) and stored. The original key is never retained.",
                 "properties": {
                   "actor_id": {
                     "type": "string"
@@ -1067,7 +1067,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImportedAPIKey"
+                  "$ref": "#/components/schemas/ImportedApiKey"
                 }
               }
             },
@@ -1086,14 +1086,14 @@
         },
         "summary": "Update Imported API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/importedApiKeys/{key_id}": {
       "delete": {
-        "description": "Permanently deletes an imported key (hard delete). The key is removed from\nthe database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).\n\n```http\nDELETE /v2alpha1/admin/importedApiKeys/{key_id}\n```",
-        "operationId": "AdminDeleteImportedAPIKey",
+        "description": "Permanently deletes an imported key (hard delete). The key is removed from\nthe database. Use AdminRevokeImportedApiKey for soft deletion (recommended).\n\n```http\nDELETE /v2alpha1/admin/importedApiKeys/{key_id}\n```",
+        "operationId": "adminDeleteImportedApiKey",
         "parameters": [
           {
             "description": "SHA512/256 hash of the imported key (REQUIRED)",
@@ -1137,12 +1137,12 @@
         },
         "summary": "Delete Imported API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       },
       "get": {
         "description": "Retrieves details about a specific imported key. Returns metadata about\nthe imported key. The original raw key is never returned.\n\n```http\nGET /v2alpha1/admin/importedApiKeys/{key_id}\n```",
-        "operationId": "AdminGetImportedAPIKey",
+        "operationId": "adminGetImportedApiKey",
         "parameters": [
           {
             "description": "SHA512/256 hash of the imported key (REQUIRED)",
@@ -1159,7 +1159,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImportedAPIKey"
+                  "$ref": "#/components/schemas/ImportedApiKey"
                 }
               }
             },
@@ -1178,14 +1178,14 @@
         },
         "summary": "Get Imported API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/importedApiKeys/{key_id}:revoke": {
       "post": {
         "description": "Immediately revokes an imported API key. Once revoked, the key can no longer\nbe used for authentication. This operation is irreversible. Revoked keys\nare retained for audit purposes.\n\n```http\nPOST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke\n{\n  \"reason\": \"REVOCATION_REASON_KEY_COMPROMISE\"\n}\n```",
-        "operationId": "AdminRevokeImportedAPIKey",
+        "operationId": "adminRevokeImportedApiKey",
         "parameters": [
           {
             "description": "SHA-512/256 hash of the imported key (REQUIRED)",
@@ -1201,7 +1201,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminRevokeImportedAPIKeyBody"
+                "$ref": "#/components/schemas/AdminRevokeImportedApiKeyBody"
               }
             }
           },
@@ -1240,23 +1240,23 @@
         },
         "summary": "Revoke Imported API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
-    "/v2alpha1/admin/importedApiKeys:batchImport": {
+    "/v2alpha1/admin/importedApiKeys:batchCreate": {
       "post": {
-        "description": "Imports up to 1000 external API keys in one request. Returns per-item\nresults. If at least one item succeeds, response is 200 OK. If all items\nfail, the endpoint returns a non-200 error.\n\n```http\nPOST /v2alpha1/admin/importedApiKeys:batchImport\n{\n  \"requests\": [\n    {\"raw_key\": \"sk_live_abc\", \"name\": \"Stripe key\", \"actor_id\": \"user_1\"},\n    {\"raw_key\": \"ghp_xyz\", \"name\": \"GitHub PAT\", \"actor_id\": \"user_2\"}\n  ]\n}\n```",
-        "operationId": "AdminBatchImportAPIKeys",
+        "description": "Imports up to 1000 external API keys in one request. Returns per-item\nresults. If at least one item succeeds, response is 200 OK. If all items\nfail, the endpoint returns a non-200 error.\n\n```http\nPOST /v2alpha1/admin/importedApiKeys:batchCreate\n{\n  \"requests\": [\n    {\"raw_key\": \"sk_live_abc\", \"name\": \"Stripe key\", \"actor_id\": \"user_1\"},\n    {\"raw_key\": \"ghp_xyz\", \"name\": \"GitHub PAT\", \"actor_id\": \"user_2\"}\n  ]\n}\n```",
+        "operationId": "adminBatchCreateImportedApiKeys",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BatchImportAPIKeysRequest"
+                "$ref": "#/components/schemas/BatchCreateImportedApiKeysRequest"
               }
             }
           },
-          "description": "BatchImportAPIKeysRequest imports multiple external API keys in one request.\nThe maximum batch size is 1000 keys.",
+          "description": "BatchCreateImportedApiKeysRequest imports multiple external API keys in one request.\nThe maximum batch size is 1000 keys.",
           "required": true,
           "x-originalParamName": "body"
         },
@@ -1265,7 +1265,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BatchImportAPIKeysResponse"
+                  "$ref": "#/components/schemas/BatchCreateImportedApiKeysResponse"
                 }
               }
             },
@@ -1284,14 +1284,14 @@
         },
         "summary": "Batch Import API Keys",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/issuedApiKeys": {
       "get": {
-        "description": "Lists issued API keys with optional filtering. Supports cursor-based\npagination and AIP-160 filter expressions. Returns only issued\n(generated) API keys; use ListImportedAPIKeys for imported keys.\n\n```http\nGET /v2alpha1/admin/issuedApiKeys?page_size=50\u0026filter=actor_id%3D%22user_123%22\n```",
-        "operationId": "AdminListIssuedAPIKeys",
+        "description": "Lists issued API keys with optional filtering. Supports cursor-based\npagination and AIP-160 filter expressions. Returns only issued\n(generated) API keys; use ListImportedApiKeys for imported keys.\n\n```http\nGET /v2alpha1/admin/issuedApiKeys?page_size=50\u0026filter=actor_id%3D%22user_123%22\n```",
+        "operationId": "adminListIssuedApiKeys",
         "parameters": [
           {
             "description": "Number of items per page (default: 50, max: 1000)",
@@ -1324,7 +1324,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListIssuedAPIKeysResponse"
+                  "$ref": "#/components/schemas/ListIssuedApiKeysResponse"
                 }
               }
             },
@@ -1343,17 +1343,17 @@
         },
         "summary": "List Issued API Keys",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       },
       "post": {
         "description": "Creates a new API key for a given actor. The secret is returned only once\nin the response and cannot be retrieved later. Keys can be scoped with\nspecific permissions and have optional expiration.\n\n```http\nPOST /v2alpha1/admin/issuedApiKeys\n{\n  \"name\": \"production-service\",\n  \"actor_id\": \"user_123\",\n  \"scopes\": [\"read\", \"write\"],\n  \"ttl\": \"8760h\"\n}\n```",
-        "operationId": "AdminIssueAPIKey",
+        "operationId": "adminIssueApiKey",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IssueAPIKeyRequest"
+                "$ref": "#/components/schemas/IssueApiKeyRequest"
               }
             }
           },
@@ -1365,7 +1365,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IssueAPIKeyResponse"
+                  "$ref": "#/components/schemas/IssueApiKeyResponse"
                 }
               }
             },
@@ -1392,14 +1392,14 @@
         },
         "summary": "Issue API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/issuedApiKeys/{issued_api_key.key_id}": {
       "patch": {
-        "description": "Updates metadata, scopes, or rate limits of an issued key without rotating\nthe secret. Use RotateIssuedAPIKey to change the secret.\n\nFollows AIP-134: the request body is the IssuedAPIKey resource itself,\nand the update_mask query parameter names the subset of fields to apply.\nOmitting update_mask is equivalent to a mask of every populated field\nin the body. To clear a field to its zero value, list it explicitly in\nupdate_mask and leave it unset (or empty) in the body.\n\n```http\nPATCH /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ?update_mask=scopes\n{\n  \"issued_api_key\": {\n    \"key_id\": \"01HQZX9VYQKJB8XQZQXQZQXQXQ\",\n    \"scopes\": [\"read\"]\n  }\n}\n```",
-        "operationId": "AdminUpdateIssuedAPIKey",
+        "description": "Updates metadata, scopes, or rate limits of an issued key without rotating\nthe secret. Use RotateIssuedApiKey to change the secret.\n\nFollows AIP-134: the request body is the IssuedApiKey resource itself,\nand the update_mask query parameter names the subset of fields to apply.\nOmitting update_mask is equivalent to a mask of every populated field\nin the body. To clear a field to its zero value, list it explicitly in\nupdate_mask and leave it unset (or empty) in the body.\n\n```http\nPATCH /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ?update_mask=scopes\n{\n  \"issued_api_key\": {\n    \"key_id\": \"01HQZX9VYQKJB8XQZQXQZQXQXQ\",\n    \"scopes\": [\"read\"]\n  }\n}\n```",
+        "operationId": "adminUpdateIssuedApiKey",
         "parameters": [
           {
             "in": "path",
@@ -1422,7 +1422,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "IssuedAPIKey represents an API key issued (generated) by Talos.\nRoot keys are opaque v1 format tokens stored in the database.\nDerived tokens (JWT/Macaroon) are created via DeriveToken and are stateless (not stored).",
+                "description": "IssuedApiKey represents an API key issued (generated) by Talos.\nRoot keys are opaque v1 format tokens stored in the database.\nDerived tokens (JWT/Macaroon) are created via DeriveToken and are stateless (not stored).",
                 "properties": {
                   "actor_id": {
                     "type": "string"
@@ -1488,7 +1488,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IssuedAPIKey"
+                  "$ref": "#/components/schemas/IssuedApiKey"
                 }
               }
             },
@@ -1507,14 +1507,14 @@
         },
         "summary": "Update Issued API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/issuedApiKeys/{key_id}": {
       "get": {
         "description": "Retrieves details about a specific issued API key including its status,\nscopes, expiration, and usage statistics. The secret is never returned.\n\n```http\nGET /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ\n```",
-        "operationId": "AdminGetIssuedAPIKey",
+        "operationId": "adminGetIssuedApiKey",
         "parameters": [
           {
             "in": "path",
@@ -1530,7 +1530,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IssuedAPIKey"
+                  "$ref": "#/components/schemas/IssuedApiKey"
                 }
               }
             },
@@ -1549,14 +1549,14 @@
         },
         "summary": "Get Issued API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/issuedApiKeys/{key_id}:revoke": {
       "post": {
         "description": "Immediately revokes an issued API key. Once revoked, the key can no longer\nbe used for authentication. This operation is irreversible. Revoked keys\nare retained for audit purposes.\n\n```http\nPOST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke\n{\n  \"reason\": \"REVOCATION_REASON_KEY_COMPROMISE\"\n}\n```",
-        "operationId": "AdminRevokeIssuedAPIKey",
+        "operationId": "adminRevokeIssuedApiKey",
         "parameters": [
           {
             "description": "UUID of the issued key (REQUIRED)",
@@ -1572,7 +1572,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminRevokeIssuedAPIKeyBody"
+                "$ref": "#/components/schemas/AdminRevokeIssuedApiKeyBody"
               }
             }
           },
@@ -1611,14 +1611,14 @@
         },
         "summary": "Revoke Issued API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/admin/issuedApiKeys/{key_id}:rotate": {
       "post": {
-        "description": "Generates a new secret for an issued API key. Creates a new API key with a\nnew key_id and secret, and immediately revokes the old key. This is the\nrecommended way to update scopes, metadata, or rotate credentials.\n\nFor zero-downtime rotation, use this workflow instead:\n  1. IssueAPIKey with new credentials\n  2. Deploy new secret to all services\n  3. Verify new secret works everywhere\n  4. AdminRevokeIssuedAPIKey to remove the old key\n\n```http\nPOST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate\n{\n  \"scopes\": [\"read\"]\n}\n```",
-        "operationId": "AdminRotateIssuedAPIKey",
+        "description": "Generates a new secret for an issued API key. Creates a new API key with a\nnew key_id and secret, and immediately revokes the old key. This is the\nrecommended way to update scopes, metadata, or rotate credentials.\n\nFor zero-downtime rotation, use this workflow instead:\n  1. IssueApiKey with new credentials\n  2. Deploy new secret to all services\n  3. Verify new secret works everywhere\n  4. AdminRevokeIssuedApiKey to remove the old key\n\n```http\nPOST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate\n{\n  \"scopes\": [\"read\"]\n}\n```",
+        "operationId": "adminRotateIssuedApiKey",
         "parameters": [
           {
             "description": "key_id is the ID of the existing API key to rotate",
@@ -1634,7 +1634,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminRotateIssuedAPIKeyBody"
+                "$ref": "#/components/schemas/AdminRotateIssuedApiKeyBody"
               }
             }
           },
@@ -1646,7 +1646,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RotateIssuedAPIKeyResponse"
+                  "$ref": "#/components/schemas/RotateIssuedApiKeyResponse"
                 }
               }
             },
@@ -1673,23 +1673,23 @@
         },
         "summary": "Rotate Issued API Key",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/apiKeys:selfRevoke": {
       "post": {
-        "description": "Proof-of-possession variant of revocation. The `Self*` prefix on the\nrequest/response messages disambiguates from the admin variants\n(`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).\n\nAllows an API key holder to revoke their own key. The caller must provide\nthe full API key secret as proof of possession. Supports issued API keys\nand imported keys. JWT and macaroon tokens cannot be self-revoked (they\nare stateless).\n\nThe PRIVILEGE_WITHDRAWN reason is not allowed for self-revocation\n(admin-only).\n\n```http\nPOST /v2alpha1/apiKeys:selfRevoke\n{\n  \"credential\": \"sk_live_abc123...\",\n  \"reason\": \"REVOCATION_REASON_KEY_COMPROMISE\"\n}\n```",
-        "operationId": "RevokeAPIKey",
+        "description": "Proof-of-possession variant of revocation. The `Self*` prefix on the\nrequest/response messages disambiguates from the admin variants\n(`AdminRevokeIssuedApiKey` / `AdminRevokeImportedApiKey`).\n\nAllows an API key holder to revoke their own key. The caller must provide\nthe full API key secret as proof of possession. Supports issued API keys\nand imported keys. JWT and macaroon tokens cannot be self-revoked (they\nare stateless).\n\nThe PRIVILEGE_WITHDRAWN reason is not allowed for self-revocation\n(admin-only).\n\n```http\nPOST /v2alpha1/apiKeys:selfRevoke\n{\n  \"credential\": \"sk_live_abc123...\",\n  \"reason\": \"REVOCATION_REASON_KEY_COMPROMISE\"\n}\n```",
+        "operationId": "revokeApiKey",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SelfRevokeAPIKeyRequest"
+                "$ref": "#/components/schemas/SelfRevokeApiKeyRequest"
               }
             }
           },
-          "description": "SelfRevokeAPIKeyRequest allows an API key holder to revoke their own key\nby providing the full key secret as proof of possession.",
+          "description": "SelfRevokeApiKeyRequest allows an API key holder to revoke their own key\nby providing the full key secret as proof of possession.",
           "required": true,
           "x-originalParamName": "body"
         },
@@ -1698,7 +1698,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SelfRevokeAPIKeyResponse"
+                  "$ref": "#/components/schemas/SelfRevokeApiKeyResponse"
                 }
               }
             },
@@ -1717,14 +1717,14 @@
         },
         "summary": "Revoke API Key (self-service)",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     },
     "/v2alpha1/derivedKeys/jwks.json": {
       "get": {
         "description": "Returns the JSON Web Key Set for token verification. Provides the public\nkeys needed to verify JWT tokens issued by this service. Keys are loaded\nfrom configuration (file://, https://, or base64:// URIs). Follows the\nJWKS standard (RFC 7517).\n\n```http\nGET /v2alpha1/derivedKeys/jwks.json\n```",
-        "operationId": "GetJWKS",
+        "operationId": "getJwks",
         "responses": {
           "200": {
             "content": {
@@ -1749,7 +1749,7 @@
         },
         "summary": "Get JWKS",
         "tags": [
-          "APIKeys"
+          "ApiKeys"
         ]
       }
     }
@@ -1757,7 +1757,7 @@
   "tags": [
     {
       "description": "Administrative operations for managing API keys. Deploy behind authentication and authorization. Supports issued keys (generated by Talos), imported keys (from external systems), and key verification.",
-      "name": "APIKeys"
+      "name": "ApiKeys"
     }
   ]
 }

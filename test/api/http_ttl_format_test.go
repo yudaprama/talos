@@ -23,7 +23,7 @@ func (s *APIKeyE2ETestSuite) TestHTTP_TTLFormats() {
 			ctx := s.T().Context()
 			before := time.Now()
 
-			req := client.NewIssueAPIKeyRequest()
+			req := client.NewIssueApiKeyRequest()
 			req.SetName("TTL Format Test - " + tc.name)
 			req.SetActorId("ttl-test-user")
 			req.SetScopes([]string{"read"})
@@ -81,7 +81,7 @@ func (s *APIKeyE2ETestSuite) TestHTTP_TTLFormats() {
 		ctx := s.T().Context()
 		before := time.Now()
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("sk_test_ttlformat_" + time.Now().Format("20060102150405"))
 		req.SetName("TTL Format Import Test")
 		req.SetActorId("ttl-test-user")

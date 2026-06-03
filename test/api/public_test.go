@@ -144,7 +144,7 @@ func (s *APIKeyE2ETestSuite) TestHTTP_Public_RateLimitHeaders() {
 	ctx := s.T().Context()
 
 	s.Run("verify key with rate limit policy headers", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("rate-limit-header-test")
 		req.SetActorId("test-user")
 		quota := "100"
@@ -209,12 +209,12 @@ func (s *APIKeyE2ETestSuite) TestHTTP_Public_ConcurrentRequests() {
 				}()
 
 				apiClient := s.setupSDKClient()
-				req := client.NewVerifyAPIKeyRequest()
+				req := client.NewVerifyApiKeyRequest()
 				req.SetCredential(secret)
 
-				resp, httpResp, err := apiClient.APIKeysAPI.
-					AdminVerifyAPIKey(s.T().Context()).
-					VerifyAPIKeyRequest(*req).
+				resp, httpResp, err := apiClient.ApiKeysAPI.
+					AdminVerifyApiKey(s.T().Context()).
+					VerifyApiKeyRequest(*req).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()
@@ -250,14 +250,14 @@ func (s *APIKeyE2ETestSuite) TestHTTP_Public_ConcurrentRequests() {
 				}()
 
 				apiClient := s.setupSDKClient()
-				req := client.NewIssueAPIKeyRequest()
+				req := client.NewIssueApiKeyRequest()
 				req.SetName(fmt.Sprintf("Concurrent Key %d", idx))
 				req.SetActorId(fmt.Sprintf("user-%d", idx))
 				req.SetScopes([]string{"read"})
 
-				resp, httpResp, err := apiClient.APIKeysAPI.
-					AdminIssueAPIKey(s.T().Context()).
-					IssueAPIKeyRequest(*req).
+				resp, httpResp, err := apiClient.ApiKeysAPI.
+					AdminIssueApiKey(s.T().Context()).
+					IssueApiKeyRequest(*req).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()

@@ -23,7 +23,7 @@ func TestDeriveToken_ScopeRestriction(t *testing.T) {
 	svc, verifier, ctx := setupTestService(t)
 
 	// Create a master API key with multiple scopes
-	createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "master-key",
 		ActorId: "test-org",
 		Scopes:  []string{"models:read", "models:write", "completions:create", "embeddings:create"},
@@ -104,7 +104,7 @@ func TestDeriveToken_ScopeValidation(t *testing.T) {
 	svc, _, ctx := setupTestService(t)
 
 	// Create a parent key with limited scopes
-	createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "limited-key",
 		ActorId: "test-user",
 		Scopes:  []string{"read", "write"},

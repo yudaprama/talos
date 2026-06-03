@@ -164,7 +164,7 @@ func TestHTTPHandlerFromDependencies_ModeIsolation(t *testing.T) {
 
 			// Admin endpoint: POST /v2alpha1/admin/issuedApiKeys.
 			// Active adapter: request reaches service logic (201 or 4xx validation).
-			// Inactive adapter (UnimplementedAPIKeysServer): returns
+			// Inactive adapter (UnimplementedApiKeysServer): returns
 			// codes.Unimplemented → HTTP 404 via customErrorHandler.
 			adminResp := post(t, ts, adminPath, adminBody)
 			if tc.wantAdminActive {
@@ -177,7 +177,7 @@ func TestHTTPHandlerFromDependencies_ModeIsolation(t *testing.T) {
 
 			// Public endpoint: POST /v2alpha1/apiKeys:selfRevoke.
 			// Active adapter: request reaches service logic (4xx for invalid credential).
-			// Inactive adapter (UnimplementedAPIKeysServer): returns
+			// Inactive adapter (UnimplementedApiKeysServer): returns
 			// codes.Unimplemented → HTTP 404 via customErrorHandler.
 			selfResp := post(t, ts, selfPath, selfBody)
 			if tc.wantSelfActive {

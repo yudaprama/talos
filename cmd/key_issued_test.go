@@ -22,7 +22,7 @@ func TestGetIssuedAPIKeyCmd(t *testing.T) {
 
 		stdout, _ := tc.execNoErr(t, "keys", "issued", "get", keyID, "--format", "json")
 
-		var output client.IssuedAPIKey
+		var output client.IssuedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse get output: %s", stdout)
 		assert.Equal(t, keyID, output.GetKeyId())
@@ -51,7 +51,7 @@ func TestListIssuedAPIKeysCmd(t *testing.T) {
 	t.Run("list all keys", func(t *testing.T) {
 		stdout, _ := tc.execNoErr(t, "keys", "issued", "list", "--format", "json")
 
-		var resp client.ListIssuedAPIKeysResponse
+		var resp client.ListIssuedApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp),
 			"parse list output: %s", stdout)
 		assert.GreaterOrEqual(t, len(resp.GetIssuedApiKeys()), 3, "should have at least 3 keys")
@@ -62,7 +62,7 @@ func TestListIssuedAPIKeysCmd(t *testing.T) {
 			"--page-size", "2",
 			"--format", "json")
 
-		var resp client.ListIssuedAPIKeysResponse
+		var resp client.ListIssuedApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp),
 			"parse list output: %s", stdout)
 		assert.LessOrEqual(t, len(resp.GetIssuedApiKeys()), 2, "should have at most 2 keys with page size 2")
@@ -73,7 +73,7 @@ func TestListIssuedAPIKeysCmd(t *testing.T) {
 			"--actor", "test-user",
 			"--format", "json")
 
-		var resp client.ListIssuedAPIKeysResponse
+		var resp client.ListIssuedApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp),
 			"parse list output: %s", stdout)
 		for _, k := range resp.GetIssuedApiKeys() {
@@ -97,7 +97,7 @@ func TestUpdateIssuedAPIKeyCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key updated.")
 
-		var output client.IssuedAPIKey
+		var output client.IssuedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse update output: %s", stdout)
 		assert.Equal(t, keyID, output.GetKeyId())
@@ -113,7 +113,7 @@ func TestUpdateIssuedAPIKeyCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key updated.")
 
-		var output client.IssuedAPIKey
+		var output client.IssuedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse update output: %s", stdout)
 		assert.Equal(t, keyID, output.GetKeyId())
@@ -129,14 +129,14 @@ func TestUpdateIssuedAPIKeyCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key updated.")
 
-		var output client.IssuedAPIKey
+		var output client.IssuedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse update output: %s", stdout)
 		assert.Equal(t, keyID, output.GetKeyId())
 
 		// Verify via SDK that IP restriction was set
-		resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-			AdminGetIssuedAPIKey(t.Context(), keyID).
+		resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+			AdminGetIssuedApiKey(t.Context(), keyID).
 			Execute()
 		if httpResp != nil {
 			defer httpResp.Body.Close()
@@ -169,7 +169,7 @@ func TestRotateIssuedAPIKeyCmd(t *testing.T) {
 		assert.Contains(t, stderr, "API key rotated.")
 		assert.Contains(t, stderr, "IMPORTANT")
 
-		var output client.RotateIssuedAPIKeyResponse
+		var output client.RotateIssuedApiKeyResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse rotate output: %s", stdout)
 		newKey := output.GetIssuedApiKey()
@@ -187,7 +187,7 @@ func TestRotateIssuedAPIKeyCmd(t *testing.T) {
 			"--name", "rotated-new-name",
 			"--format", "json")
 
-		var output client.RotateIssuedAPIKeyResponse
+		var output client.RotateIssuedApiKeyResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse rotate output: %s", stdout)
 		newKey := output.GetIssuedApiKey()
@@ -218,14 +218,14 @@ func TestUpdateIssuedAPIKeyCmd_UpdateMask(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key updated.")
 
-		var output client.IssuedAPIKey
+		var output client.IssuedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse update output: %s", stdout)
 		assert.Empty(t, output.GetName(), "name should be cleared")
 
 		// Confirm via a fresh GET.
-		resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-			AdminGetIssuedAPIKey(t.Context(), keyID).
+		resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+			AdminGetIssuedApiKey(t.Context(), keyID).
 			Execute()
 		if httpResp != nil {
 			defer httpResp.Body.Close()

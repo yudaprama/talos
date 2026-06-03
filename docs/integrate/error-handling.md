@@ -15,25 +15,36 @@ structure, common error codes, and retry strategies.
 
 ## Error response format
 
-Error responses use this structure:
+Error responses follow the [Google AIP-193](https://google.aip.dev/193) format:
 
 ```json
 {
   "error": {
     "code": 400,
-    "status": "Bad Request",
     "message": "The API key format is invalid.",
-    "reason": "invalid_api_key_format"
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "INVALID_API_KEY_FORMAT",
+        "domain": "talos.ory.com"
+      }
+    ]
   }
 }
 ```
 
-| Field           | Description                       |
-| --------------- | --------------------------------- |
-| `error.code`    | HTTP status code                  |
-| `error.status`  | HTTP status text                  |
-| `error.message` | Human-readable error description  |
-| `error.reason`  | Machine-readable error identifier |
+| Field                    | Description                                                                                             |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `error.code`             | HTTP status code                                                                                        |
+| `error.message`          | Human-readable error description                                                                        |
+| `error.status`           | Canonical status name from the gRPC status code (for example `INVALID_ARGUMENT`, `FAILED_PRECONDITION`) |
+| `error.details[].reason` | Machine-readable error identifier (`google.rpc.ErrorInfo`)                                              |
+| `error.details[].domain` | Service that produced the error                                                                         |
+
+The `status` reflects the canonical gRPC status, so two errors that share an HTTP code remain
+distinguishable — for example a state conflict returns `FAILED_PRECONDITION` while a duplicate
+resource returns `ALREADY_EXISTS`, even though both use HTTP `409`.
 
 ## Verification errors
 

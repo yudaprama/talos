@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -14,38 +14,38 @@ import (
 	"encoding/json"
 )
 
-// checks if the BatchVerifyAPIKeysResponse type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &BatchVerifyAPIKeysResponse{}
+// checks if the BatchVerifyApiKeysResponse type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &BatchVerifyApiKeysResponse{}
 
-// BatchVerifyAPIKeysResponse struct for BatchVerifyAPIKeysResponse
-type BatchVerifyAPIKeysResponse struct {
-	Results              []VerifyAPIKeyResponse `json:"results,omitempty"`
+// BatchVerifyApiKeysResponse struct for BatchVerifyApiKeysResponse
+type BatchVerifyApiKeysResponse struct {
+	Results              []VerifyApiKeyResponse `json:"results,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _BatchVerifyAPIKeysResponse BatchVerifyAPIKeysResponse
+type _BatchVerifyApiKeysResponse BatchVerifyApiKeysResponse
 
-// NewBatchVerifyAPIKeysResponse instantiates a new BatchVerifyAPIKeysResponse object
+// NewBatchVerifyApiKeysResponse instantiates a new BatchVerifyApiKeysResponse object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewBatchVerifyAPIKeysResponse() *BatchVerifyAPIKeysResponse {
-	this := BatchVerifyAPIKeysResponse{}
+func NewBatchVerifyApiKeysResponse() *BatchVerifyApiKeysResponse {
+	this := BatchVerifyApiKeysResponse{}
 	return &this
 }
 
-// NewBatchVerifyAPIKeysResponseWithDefaults instantiates a new BatchVerifyAPIKeysResponse object
+// NewBatchVerifyApiKeysResponseWithDefaults instantiates a new BatchVerifyApiKeysResponse object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewBatchVerifyAPIKeysResponseWithDefaults() *BatchVerifyAPIKeysResponse {
-	this := BatchVerifyAPIKeysResponse{}
+func NewBatchVerifyApiKeysResponseWithDefaults() *BatchVerifyApiKeysResponse {
+	this := BatchVerifyApiKeysResponse{}
 	return &this
 }
 
 // GetResults returns the Results field value if set, zero value otherwise.
-func (o *BatchVerifyAPIKeysResponse) GetResults() []VerifyAPIKeyResponse {
+func (o *BatchVerifyApiKeysResponse) GetResults() []VerifyApiKeyResponse {
 	if o == nil || IsNil(o.Results) {
-		var ret []VerifyAPIKeyResponse
+		var ret []VerifyApiKeyResponse
 		return ret
 	}
 	return o.Results
@@ -53,7 +53,7 @@ func (o *BatchVerifyAPIKeysResponse) GetResults() []VerifyAPIKeyResponse {
 
 // GetResultsOk returns a tuple with the Results field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *BatchVerifyAPIKeysResponse) GetResultsOk() ([]VerifyAPIKeyResponse, bool) {
+func (o *BatchVerifyApiKeysResponse) GetResultsOk() ([]VerifyApiKeyResponse, bool) {
 	if o == nil || IsNil(o.Results) {
 		return nil, false
 	}
@@ -61,7 +61,7 @@ func (o *BatchVerifyAPIKeysResponse) GetResultsOk() ([]VerifyAPIKeyResponse, boo
 }
 
 // HasResults returns a boolean if a field has been set.
-func (o *BatchVerifyAPIKeysResponse) HasResults() bool {
+func (o *BatchVerifyApiKeysResponse) HasResults() bool {
 	if o != nil && !IsNil(o.Results) {
 		return true
 	}
@@ -69,12 +69,12 @@ func (o *BatchVerifyAPIKeysResponse) HasResults() bool {
 	return false
 }
 
-// SetResults gets a reference to the given []VerifyAPIKeyResponse and assigns it to the Results field.
-func (o *BatchVerifyAPIKeysResponse) SetResults(v []VerifyAPIKeyResponse) {
+// SetResults gets a reference to the given []VerifyApiKeyResponse and assigns it to the Results field.
+func (o *BatchVerifyApiKeysResponse) SetResults(v []VerifyApiKeyResponse) {
 	o.Results = v
 }
 
-func (o BatchVerifyAPIKeysResponse) MarshalJSON() ([]byte, error) {
+func (o BatchVerifyApiKeysResponse) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -82,7 +82,7 @@ func (o BatchVerifyAPIKeysResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o BatchVerifyAPIKeysResponse) ToMap() (map[string]interface{}, error) {
+func (o BatchVerifyApiKeysResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Results) {
 		toSerialize["results"] = o.Results
@@ -95,16 +95,16 @@ func (o BatchVerifyAPIKeysResponse) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *BatchVerifyAPIKeysResponse) UnmarshalJSON(data []byte) (err error) {
-	varBatchVerifyAPIKeysResponse := _BatchVerifyAPIKeysResponse{}
+func (o *BatchVerifyApiKeysResponse) UnmarshalJSON(data []byte) (err error) {
+	varBatchVerifyApiKeysResponse := _BatchVerifyApiKeysResponse{}
 
-	err = json.Unmarshal(data, &varBatchVerifyAPIKeysResponse)
+	err = json.Unmarshal(data, &varBatchVerifyApiKeysResponse)
 
 	if err != nil {
 		return err
 	}
 
-	*o = BatchVerifyAPIKeysResponse(varBatchVerifyAPIKeysResponse)
+	*o = BatchVerifyApiKeysResponse(varBatchVerifyApiKeysResponse)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -116,38 +116,38 @@ func (o *BatchVerifyAPIKeysResponse) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableBatchVerifyAPIKeysResponse struct {
-	value *BatchVerifyAPIKeysResponse
+type NullableBatchVerifyApiKeysResponse struct {
+	value *BatchVerifyApiKeysResponse
 	isSet bool
 }
 
-func (v NullableBatchVerifyAPIKeysResponse) Get() *BatchVerifyAPIKeysResponse {
+func (v NullableBatchVerifyApiKeysResponse) Get() *BatchVerifyApiKeysResponse {
 	return v.value
 }
 
-func (v *NullableBatchVerifyAPIKeysResponse) Set(val *BatchVerifyAPIKeysResponse) {
+func (v *NullableBatchVerifyApiKeysResponse) Set(val *BatchVerifyApiKeysResponse) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableBatchVerifyAPIKeysResponse) IsSet() bool {
+func (v NullableBatchVerifyApiKeysResponse) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableBatchVerifyAPIKeysResponse) Unset() {
+func (v *NullableBatchVerifyApiKeysResponse) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableBatchVerifyAPIKeysResponse(val *BatchVerifyAPIKeysResponse) *NullableBatchVerifyAPIKeysResponse {
-	return &NullableBatchVerifyAPIKeysResponse{value: val, isSet: true}
+func NewNullableBatchVerifyApiKeysResponse(val *BatchVerifyApiKeysResponse) *NullableBatchVerifyApiKeysResponse {
+	return &NullableBatchVerifyApiKeysResponse{value: val, isSet: true}
 }
 
-func (v NullableBatchVerifyAPIKeysResponse) MarshalJSON() ([]byte, error) {
+func (v NullableBatchVerifyApiKeysResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableBatchVerifyAPIKeysResponse) UnmarshalJSON(src []byte) error {
+func (v *NullableBatchVerifyApiKeysResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

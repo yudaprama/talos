@@ -147,7 +147,7 @@ The response includes a `results` array with per-item outcomes (`imported_api_ke
 at least one key succeeds, the HTTP response is `200 OK`.
 
 For the complete response field reference, see the
-[BatchImportAPIKeys API reference](../reference/api/admin-batch-import-api-keys.api.mdx). For batch
+[BatchCreateImportedApiKeys API reference](../reference/api/admin-batch-create-imported-api-keys.api.mdx). For batch
 import error codes, see the
 [error codes reference](../reference/error-codes.md#batch-import-error-codes).
 

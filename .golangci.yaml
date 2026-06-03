@@ -282,6 +282,19 @@ linters:
         linters:
           - revive
 
+      # Talos API methods follow the proto/AIP naming convention (ApiKey, not
+      # APIKey), matching Google's own API Keys API. protoc generates the gRPC
+      # interface method names from the proto RPC names, so the handwritten
+      # service and adapter implementations must use the same casing to satisfy
+      # the interface. revive's var-naming initialism check does not apply here.
+      # Scoped to exactly the three files that implement the generated gRPC
+      # interface — do not broaden. Everywhere else, the APIKey initialism
+      # still applies (e.g. the persistence layer's ListImportedAPIKeys).
+      - text: "var-naming: method [A-Za-z]*Api(Key|Keys)[A-Za-z]* should be"
+        path: "(internal/service/(api_keys|public)|internal/server/http/admin_adapter)\\.go$"
+        linters:
+          - revive
+
       # Design decision: Version info set via ldflags at build time
       - text: "(Version|Commit|BuildTime) is a global variable"
         path: "main.go"

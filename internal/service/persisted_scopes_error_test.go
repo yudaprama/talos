@@ -119,7 +119,7 @@ func TestVerifyAPIKey_CorruptPersistedScopesReturnsInternalResponse(t *testing.T
 
 	driver, cp, server, ctx := setupPersistedScopesFailureEnv(t)
 
-	issueResp, err := cp.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := cp.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Corrupt Verify",
 		ActorId: "actor-verify",
 		Scopes:  []string{"read"},
@@ -128,7 +128,7 @@ func TestVerifyAPIKey_CorruptPersistedScopesReturnsInternalResponse(t *testing.T
 
 	driver.markIssuedKeyCorrupt(issueResp.GetIssuedApiKey().GetKeyId())
 
-	verifyResp, err := server.VerifyAPIKey(ctx, &talosv2alpha1.VerifyAPIKeyRequest{
+	verifyResp, err := server.VerifyAPIKey(ctx, &talosv2alpha1.VerifyApiKeyRequest{
 		Credential: issueResp.GetSecret(),
 	})
 	require.NoError(t, err)
@@ -143,14 +143,14 @@ func TestBatchVerifyAPIKeys_CorruptPersistedScopesOnlyFailsAffectedItem(t *testi
 
 	driver, cp, server, ctx := setupPersistedScopesFailureEnv(t)
 
-	validResp, err := cp.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	validResp, err := cp.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Valid Batch Key",
 		ActorId: "actor-valid",
 		Scopes:  []string{"read"},
 	})
 	require.NoError(t, err)
 
-	corruptResp, err := cp.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	corruptResp, err := cp.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Corrupt Batch Key",
 		ActorId: "actor-corrupt",
 		Scopes:  []string{"write"},
@@ -159,8 +159,8 @@ func TestBatchVerifyAPIKeys_CorruptPersistedScopesOnlyFailsAffectedItem(t *testi
 
 	driver.markIssuedKeyCorrupt(corruptResp.GetIssuedApiKey().GetKeyId())
 
-	batchResp, err := server.BatchVerifyAPIKeys(ctx, &talosv2alpha1.BatchVerifyAPIKeysRequest{
-		Requests: []*talosv2alpha1.VerifyAPIKeyRequest{
+	batchResp, err := server.BatchVerifyAPIKeys(ctx, &talosv2alpha1.BatchVerifyApiKeysRequest{
+		Requests: []*talosv2alpha1.VerifyApiKeyRequest{
 			{Credential: validResp.GetSecret()},
 			{Credential: corruptResp.GetSecret()},
 		},
@@ -181,14 +181,14 @@ func TestListIssuedAPIKeys_CorruptPersistedScopesFailsWholeRequest(t *testing.T)
 
 	driver, cp, _, ctx := setupPersistedScopesFailureEnv(t)
 
-	firstResp, err := cp.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	firstResp, err := cp.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "First Key",
 		ActorId: "actor-first",
 		Scopes:  []string{"read"},
 	})
 	require.NoError(t, err)
 
-	secondResp, err := cp.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	secondResp, err := cp.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Second Key",
 		ActorId: "actor-second",
 		Scopes:  []string{"write"},
@@ -197,7 +197,7 @@ func TestListIssuedAPIKeys_CorruptPersistedScopesFailsWholeRequest(t *testing.T)
 
 	driver.markIssuedKeyCorrupt(secondResp.GetIssuedApiKey().GetKeyId())
 
-	resp, err := cp.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+	resp, err := cp.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 		PageSize: 10,
 	})
 	require.Nil(t, resp)
@@ -208,7 +208,7 @@ func TestListIssuedAPIKeys_CorruptPersistedScopesFailsWholeRequest(t *testing.T)
 
 	// Sanity-check the valid row still exists; the failure is caused by aborting
 	// the list conversion on the corrupt sibling row, not by missing data.
-	getResp, getErr := cp.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedAPIKeyRequest{
+	getResp, getErr := cp.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{
 		KeyId: firstResp.GetIssuedApiKey().GetKeyId(),
 	})
 	require.NoError(t, getErr)

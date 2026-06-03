@@ -85,14 +85,14 @@ The `VerifyAPIKey` response includes an `error_code` enum when verification fail
 
 The `BatchImportAPIKeys` response includes per-item error codes:
 
-| Code                                     | Meaning                                              |
-| ---------------------------------------- | ---------------------------------------------------- |
-| `BATCH_IMPORT_ERROR_UNSPECIFIED`         | No error (import succeeded)                          |
-| `BATCH_IMPORT_ERROR_INVALID_ARGUMENT`    | The key data is malformed or missing required fields |
-| `BATCH_IMPORT_ERROR_ALREADY_EXISTS`      | A key with this identifier already exists            |
-| `BATCH_IMPORT_ERROR_FAILED_PRECONDITION` | State conflict prevents the import                   |
-| `BATCH_IMPORT_ERROR_INTERNAL`            | Server error during import                           |
-| `BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED`  | Per-tenant quota cap reached                         |
+| Code                                                       | Meaning                                              |
+| ---------------------------------------------------------- | ---------------------------------------------------- |
+| `BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED`         | No error (import succeeded)                          |
+| `BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT`    | The key data is malformed or missing required fields |
+| `BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS`      | A key with this identifier already exists            |
+| `BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION` | State conflict prevents the import                   |
+| `BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL`            | Server error during import                           |
+| `BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED`  | Per-tenant quota cap reached                         |
 
 ## Error handling recommendations
 

@@ -211,20 +211,20 @@ func (ts *TestServer) sdkClient() *client.APIClient {
 }
 
 // CreateTestAPIKey creates an API key for testing via HTTP SDK
-func (ts *TestServer) CreateTestAPIKey(t *testing.T, name string) (*client.IssuedAPIKey, string) {
+func (ts *TestServer) CreateTestAPIKey(t *testing.T, name string) (*client.IssuedApiKey, string) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	req := client.NewIssueAPIKeyRequest()
+	req := client.NewIssueApiKeyRequest()
 	req.SetName(name)
 	req.SetActorId("test-user")
 	req.SetScopes([]string{"read", "write"})
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminIssueAPIKey(ctx).
-		IssueAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminIssueApiKey(ctx).
+		IssueApiKeyRequest(*req).
 		Execute()
 	require.NoError(t, err, "create test API key")
 	require.NotNil(t, resp.IssuedApiKey)
@@ -239,13 +239,13 @@ func (ts *TestServer) CreateTestAPIKey(t *testing.T, name string) (*client.Issue
 // CreateTestAPIKeyWithOptions creates an API key with custom options via HTTP SDK.
 // Accepts the protobuf request type for backward compatibility with existing test setup code,
 // but sends the request through HTTP.
-func (ts *TestServer) CreateTestAPIKeyWithOptions(t *testing.T, name, actorID string, scopes []string, ttl *string, metadata map[string]any) (*client.IssuedAPIKey, string) {
+func (ts *TestServer) CreateTestAPIKeyWithOptions(t *testing.T, name, actorID string, scopes []string, ttl *string, metadata map[string]any) (*client.IssuedApiKey, string) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	req := client.NewIssueAPIKeyRequest()
+	req := client.NewIssueApiKeyRequest()
 	req.SetName(name)
 	req.SetActorId(actorID)
 	if scopes != nil {
@@ -258,9 +258,9 @@ func (ts *TestServer) CreateTestAPIKeyWithOptions(t *testing.T, name, actorID st
 		req.SetMetadata(metadata)
 	}
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminIssueAPIKey(ctx).
-		IssueAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminIssueApiKey(ctx).
+		IssueApiKeyRequest(*req).
 		Execute()
 	require.NoError(t, err, "create test API key")
 	require.NotNil(t, resp.IssuedApiKey)
@@ -273,18 +273,18 @@ func (ts *TestServer) CreateTestAPIKeyWithOptions(t *testing.T, name, actorID st
 }
 
 // VerifyTestToken verifies a credential via HTTP SDK
-func (ts *TestServer) VerifyTestToken(t *testing.T, credential string) *client.VerifyAPIKeyResponse {
+func (ts *TestServer) VerifyTestToken(t *testing.T, credential string) *client.VerifyApiKeyResponse {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	req := client.NewVerifyAPIKeyRequest()
+	req := client.NewVerifyApiKeyRequest()
 	req.SetCredential(credential)
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminVerifyAPIKey(ctx).
-		VerifyAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminVerifyApiKey(ctx).
+		VerifyApiKeyRequest(*req).
 		Execute()
 	require.NoError(t, err, "verify test credential")
 	if httpResp != nil && httpResp.Body != nil {
@@ -304,7 +304,7 @@ func (ts *TestServer) DeriveTestToken(t *testing.T, apiKeyToken string) string {
 	req := client.NewDeriveTokenRequest()
 	req.SetCredential(apiKeyToken)
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
+	resp, httpResp, err := apiClient.ApiKeysAPI.
 		AdminDeriveToken(ctx).
 		DeriveTokenRequest(*req).
 		Execute()
@@ -325,12 +325,12 @@ func (ts *TestServer) RevokeTestAPIKey(t *testing.T, keyID string) {
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	body := client.NewAdminRevokeIssuedAPIKeyBody()
+	body := client.NewAdminRevokeIssuedApiKeyBody()
 	body.SetReason(client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeIssuedAPIKey(ctx, keyID).
-		AdminRevokeIssuedAPIKeyBody(*body).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRevokeIssuedApiKey(ctx, keyID).
+		AdminRevokeIssuedApiKeyBody(*body).
 		Execute()
 	require.NoError(t, err, "revoke test API key")
 	if httpResp != nil && httpResp.Body != nil {
@@ -345,8 +345,8 @@ func (ts *TestServer) AssertAPIKeyExists(t *testing.T, keyID string) {
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminGetIssuedAPIKey(ctx, keyID).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminGetIssuedApiKey(ctx, keyID).
 		Execute()
 	require.NoError(t, err, "API key %s should exist", keyID)
 	require.NotNil(t, resp)
@@ -363,8 +363,8 @@ func (ts *TestServer) AssertAPIKeyRevoked(t *testing.T, keyID string) {
 	defer cancel()
 
 	apiClient := ts.sdkClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminGetIssuedAPIKey(ctx, keyID).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminGetIssuedApiKey(ctx, keyID).
 		Execute()
 	require.NoError(t, err, "API key %s should exist", keyID)
 	require.NotNil(t, resp)

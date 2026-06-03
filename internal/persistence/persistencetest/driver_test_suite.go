@@ -251,7 +251,7 @@ func (s *DriverTestSuite) TestAPIKeyOperations(t *testing.T) {
 		assert.Error(t, err, "GetActiveAPIKey should fail for revoked key")
 	})
 
-	t.Run("RevokeAPIKey marks key as revoked", func(t *testing.T) {
+	t.Run("RevokeApiKey marks key as revoked", func(t *testing.T) {
 		keyID := uuid.Must(uuid.NewV4()).String()
 		_, err := s.createAPIKey(newCreateParams(keyID, "Revoke Test", "owner-4", []string{}))
 		require.NoError(t, err)
@@ -264,7 +264,7 @@ func (s *DriverTestSuite) TestAPIKeyOperations(t *testing.T) {
 		assert.Equal(t, int32(talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED), apiKey.Status)
 	})
 
-	t.Run("RevokeAPIKey is idempotent", func(t *testing.T) {
+	t.Run("RevokeApiKey is idempotent", func(t *testing.T) {
 		keyID := uuid.Must(uuid.NewV4()).String()
 		_, err := s.createAPIKey(newCreateParams(keyID, "Idempotent Revoke", "owner-5", []string{}))
 		require.NoError(t, err)
@@ -838,7 +838,7 @@ func (s *DriverTestSuite) TestAPIKeyRevocation(t *testing.T) {
 		},
 	}
 
-	t.Run("RevokeAPIKey updates expires_at", func(t *testing.T) {
+	t.Run("RevokeApiKey updates expires_at", func(t *testing.T) {
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
 				// Create API key

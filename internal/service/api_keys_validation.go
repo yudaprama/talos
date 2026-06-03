@@ -50,7 +50,7 @@ func buildRateLimitPolicy(quota, window *int64) *talosv2alpha1.RateLimitPolicy {
 	}
 }
 
-// dbAPIKeyFields holds the common proto fields shared by IssuedAPIKey and ImportedAPIKey.
+// dbAPIKeyFields holds the common proto fields shared by IssuedApiKey and ImportedApiKey.
 // Both message types are structurally identical; this helper avoids duplicating the mapping logic.
 type dbAPIKeyFields struct {
 	keyID                 string
@@ -70,7 +70,7 @@ type dbAPIKeyFields struct {
 	ipRestriction         *talosv2alpha1.IPRestriction
 }
 
-// dbAPIKeyCommonFields extracts the fields that IssuedAPIKey and ImportedAPIKey share.
+// dbAPIKeyCommonFields extracts the fields that IssuedApiKey and ImportedApiKey share.
 // DB column names use _at suffix; proto uses _time suffix.
 func dbAPIKeyCommonFields(key db.IssuedApiKey) (dbAPIKeyFields, error) {
 	scopes, err := sqlutil.UnmarshalScopes(key.Scopes)
@@ -105,13 +105,13 @@ func dbAPIKeyCommonFields(key db.IssuedApiKey) (dbAPIKeyFields, error) {
 	return f, nil
 }
 
-// dbIssuedKeyToProto converts a db.IssuedApiKey to *talosv2alpha1.IssuedAPIKey
-func dbIssuedKeyToProto(key db.IssuedApiKey) (*talosv2alpha1.IssuedAPIKey, error) {
+// dbIssuedKeyToProto converts a db.IssuedApiKey to *talosv2alpha1.IssuedApiKey
+func dbIssuedKeyToProto(key db.IssuedApiKey) (*talosv2alpha1.IssuedApiKey, error) {
 	f, err := dbAPIKeyCommonFields(key)
 	if err != nil {
 		return nil, err
 	}
-	return &talosv2alpha1.IssuedAPIKey{
+	return &talosv2alpha1.IssuedApiKey{
 		KeyId:                 f.keyID,
 		Name:                  f.name,
 		ActorId:               f.actorID,
@@ -130,13 +130,13 @@ func dbIssuedKeyToProto(key db.IssuedApiKey) (*talosv2alpha1.IssuedAPIKey, error
 	}, nil
 }
 
-// dbImportedKeyToProto converts a db.IssuedApiKey (from imported_api_keys table) to *talosv2alpha1.ImportedAPIKey
-func dbImportedKeyToProto(key db.IssuedApiKey) (*talosv2alpha1.ImportedAPIKey, error) {
+// dbImportedKeyToProto converts a db.IssuedApiKey (from imported_api_keys table) to *talosv2alpha1.ImportedApiKey
+func dbImportedKeyToProto(key db.IssuedApiKey) (*talosv2alpha1.ImportedApiKey, error) {
 	f, err := dbAPIKeyCommonFields(key)
 	if err != nil {
 		return nil, err
 	}
-	return &talosv2alpha1.ImportedAPIKey{
+	return &talosv2alpha1.ImportedApiKey{
 		KeyId:                 f.keyID,
 		Name:                  f.name,
 		ActorId:               f.actorID,

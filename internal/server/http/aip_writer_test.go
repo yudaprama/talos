@@ -10,6 +10,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	"github.com/ory/herodot"
 
@@ -135,6 +136,34 @@ func TestAIPWriter_CustomErrors(t *testing.T) {
 			wantStatus:  "INVALID_ARGUMENT",
 			wantReason:  "INVALID_API_KEY_FORMAT",
 			wantMessage: "The API key format is invalid.",
+		},
+		{
+			// FailedPrecondition shares HTTP 409 with Conflict/AlreadyExists, so
+			// the status must come from the gRPC code, not the HTTP code.
+			name:        "failed_precondition",
+			err:         errdef.FailedPrecondition("key is not active"),
+			wantCode:    409,
+			wantStatus:  "FAILED_PRECONDITION",
+			wantReason:  "FAILED_PRECONDITION",
+			wantMessage: "key is not active",
+		},
+		{
+			// HTTP 402 has no canonical gRPC mapping; the status must come from
+			// the gRPC code (PermissionDenied) instead of falling back to UNKNOWN.
+			name:        "api_key_quota_exceeded",
+			err:         errdef.ErrAPIKeyQuotaExceeded(),
+			wantCode:    402,
+			wantStatus:  "PERMISSION_DENIED",
+			wantReason:  "API_KEY_QUOTA_EXCEEDED",
+			wantMessage: "The API key quota for the current plan has been reached.",
+		},
+		{
+			name:        "too_many_requests",
+			err:         errdef.ErrTooManyRequests(),
+			wantCode:    429,
+			wantStatus:  "RESOURCE_EXHAUSTED",
+			wantReason:  "TOO_MANY_REQUESTS",
+			wantMessage: "The request was throttled due to resource exhaustion.",
 		},
 	}
 
@@ -368,6 +397,52 @@ func TestHTTPToGRPCStatus(t *testing.T) {
 			assert.Equal(t, tt.want, httpToGRPCStatus(tt.httpCode))
 		})
 	}
+}
+
+func TestGRPCCodeToAIPStatus(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		code codes.Code
+		want string
+	}{
+		{codes.OK, "OK"},
+		{codes.InvalidArgument, "INVALID_ARGUMENT"},
+		{codes.NotFound, "NOT_FOUND"},
+		{codes.AlreadyExists, "ALREADY_EXISTS"},
+		{codes.FailedPrecondition, "FAILED_PRECONDITION"},
+		{codes.PermissionDenied, "PERMISSION_DENIED"},
+		{codes.Unauthenticated, "UNAUTHENTICATED"},
+		{codes.ResourceExhausted, "RESOURCE_EXHAUSTED"},
+		{codes.Unavailable, "UNAVAILABLE"},
+		{codes.DeadlineExceeded, "DEADLINE_EXCEEDED"},
+		{codes.Internal, "INTERNAL"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, grpcCodeToAIPStatus(tt.code))
+		})
+	}
+}
+
+// TestAIPWriter_StatusFallsBackToHTTPCode verifies that an error carrying no
+// gRPC code (zero value == codes.OK) still produces a coherent status derived
+// from the HTTP code, rather than reporting "OK" for an error response.
+func TestAIPWriter_StatusFallsBackToHTTPCode(t *testing.T) {
+	t.Parallel()
+	writer := newTestWriter()
+
+	err := &herodot.DefaultError{
+		CodeField:     http.StatusConflict,
+		GRPCCodeField: codes.OK, // unset
+		ErrorField:    "conflict without a gRPC code",
+	}
+	code, resp := writeAndParse(t, writer, err)
+
+	assert.Equal(t, 409, code)
+	assert.Equal(t, "ALREADY_EXISTS", resp.Error.Status)
 }
 
 // reviewed - @aeneasr - 2026-03-26

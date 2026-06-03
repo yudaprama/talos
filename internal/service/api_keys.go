@@ -97,7 +97,7 @@ const (
 )
 
 // allowedIssuedKeyMaskPaths is the set of update_mask paths accepted by
-// AdminUpdateIssuedAPIKey. Any path outside this set is rejected with
+// AdminUpdateIssuedApiKey. Any path outside this set is rejected with
 // InvalidArgument (AIP-134: unknown fields must not be silently ignored).
 var allowedIssuedKeyMaskPaths = []string{
 	"name",
@@ -108,7 +108,7 @@ var allowedIssuedKeyMaskPaths = []string{
 }
 
 // allowedImportedKeyMaskPaths is the set of update_mask paths accepted by
-// AdminUpdateImportedAPIKey. Mirrors allowedIssuedKeyMaskPaths because the
+// AdminUpdateImportedApiKey. Mirrors allowedIssuedKeyMaskPaths because the
 // two resources share the same mutable surface today.
 var allowedImportedKeyMaskPaths = []string{
 	"name",
@@ -221,7 +221,7 @@ func (s *Admin) enforceAPIKeyQuota(ctx context.Context, extra int64) error {
 	}
 	if count+extra > quotaCap {
 		return errdef.ErrAPIKeyQuotaExceeded().
-			WithReasonf("the current plan permits up to %d active API keys", quotaCap).
+			WithReasonf("the API key quota for this plan permits up to %d active API keys", quotaCap).
 			WithDetail("limit", quotaCap).
 			WithDetail("current_usage", count)
 	}
@@ -235,9 +235,9 @@ func visibilityLabel(v talosv2alpha1.KeyVisibility) string {
 	return "secret"
 }
 
-// IssueAPIKey creates a new API key
-func (s *Admin) IssueAPIKey(ctx context.Context, req *talosv2alpha1.IssueAPIKeyRequest) (_ *talosv2alpha1.IssueAPIKeyResponse, err error) {
-	ctx, span := tracing.Start(ctx, "service.IssueAPIKey")
+// IssueApiKey creates a new API key
+func (s *Admin) IssueApiKey(ctx context.Context, req *talosv2alpha1.IssueApiKeyRequest) (_ *talosv2alpha1.IssueApiKeyResponse, err error) {
+	ctx, span := tracing.Start(ctx, "service.IssueApiKey")
 	defer otelx.End(span, &err)
 
 	if err := s.protoValidator.Validate(req); err != nil {
@@ -300,7 +300,7 @@ func (s *Admin) IssueAPIKey(ctx context.Context, req *talosv2alpha1.IssueAPIKeyR
 			if convErr != nil {
 				return nil, wrapDecodePersistedScopesError(convErr)
 			}
-			return &talosv2alpha1.IssueAPIKeyResponse{
+			return &talosv2alpha1.IssueApiKeyResponse{
 				IssuedApiKey: issuedAPIKey,
 			}, nil
 		}
@@ -328,14 +328,14 @@ func (s *Admin) IssueAPIKey(ctx context.Context, req *talosv2alpha1.IssueAPIKeyR
 	if err != nil {
 		return nil, wrapDecodePersistedScopesError(err)
 	}
-	return &talosv2alpha1.IssueAPIKeyResponse{
+	return &talosv2alpha1.IssueApiKeyResponse{
 		IssuedApiKey: issuedAPIKey,
 		Secret:       apiKeyToken, // Only returned on creation
 	}, nil
 }
 
 // GetIssuedAPIKey retrieves an API key by ID
-func (s *Admin) GetIssuedAPIKey(ctx context.Context, req *talosv2alpha1.GetIssuedAPIKeyRequest) (resp *talosv2alpha1.IssuedAPIKey, err error) {
+func (s *Admin) GetIssuedAPIKey(ctx context.Context, req *talosv2alpha1.GetIssuedApiKeyRequest) (resp *talosv2alpha1.IssuedApiKey, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -359,18 +359,18 @@ func (s *Admin) GetIssuedAPIKey(ctx context.Context, req *talosv2alpha1.GetIssue
 	return issuedAPIKey, nil
 }
 
-// RotateIssuedAPIKey generates a new secret for an API key by creating a new key with a new key_id.
+// RotateIssuedApiKey generates a new secret for an API key by creating a new key with a new key_id.
 // The old key is always immediately revoked to prevent security issues from forgotten active keys.
 //
 // The old key is read and its status verified inside the same transaction that creates the
 // replacement key, eliminating TOCTOU race conditions between concurrent rotations.
-func (s *Admin) RotateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.RotateIssuedAPIKeyRequest) (_ *talosv2alpha1.RotateIssuedAPIKeyResponse, err error) {
+func (s *Admin) RotateIssuedApiKey(ctx context.Context, req *talosv2alpha1.RotateIssuedApiKeyRequest) (_ *talosv2alpha1.RotateIssuedApiKeyResponse, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
 
 	ctx, span := tracing.Start(
-		ctx, "service.RotateIssuedAPIKey",
+		ctx, "service.RotateIssuedApiKey",
 		attribute.String("old_key_id", req.GetKeyId()),
 	)
 	defer otelx.End(span, &err)
@@ -457,7 +457,7 @@ func (s *Admin) RotateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Rotat
 	if err != nil {
 		return nil, wrapDecodePersistedScopesError(err)
 	}
-	return &talosv2alpha1.RotateIssuedAPIKeyResponse{
+	return &talosv2alpha1.RotateIssuedApiKeyResponse{
 		IssuedApiKey:    newIssuedAPIKey,
 		Secret:          apiKeyToken,
 		OldIssuedApiKey: oldIssuedAPIKey,
@@ -467,7 +467,7 @@ func (s *Admin) RotateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Rotat
 // mergeRotationParams merges old key fields with request overrides to produce the
 // RotateIssuedAPIKeyParams for the transaction. It is called inside the transaction
 // with the just-read old key, so no TOCTOU gap exists.
-func mergeRotationParams(req *talosv2alpha1.RotateIssuedAPIKeyRequest, newKeyID, prefix string, oldKey db.IssuedApiKey) (persistencetypes.RotateIssuedAPIKeyParams, error) {
+func mergeRotationParams(req *talosv2alpha1.RotateIssuedApiKeyRequest, newKeyID, prefix string, oldKey db.IssuedApiKey) (persistencetypes.RotateIssuedAPIKeyParams, error) {
 	var p persistencetypes.RotateIssuedAPIKeyParams
 	p.OldKeyID = oldKey.KeyID
 	p.NewKeyID = newKeyID
@@ -563,8 +563,8 @@ func mergeRotationParams(req *talosv2alpha1.RotateIssuedAPIKeyRequest, newKeyID,
 	return p, nil
 }
 
-// RevokeIssuedAPIKey revokes an existing issued API key.
-func (s *Admin) RevokeIssuedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeIssuedAPIKeyRequest) (resp *emptypb.Empty, err error) {
+// RevokeIssuedApiKey revokes an existing issued API key.
+func (s *Admin) RevokeIssuedApiKey(ctx context.Context, req *talosv2alpha1.RevokeIssuedApiKeyRequest) (resp *emptypb.Empty, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -613,8 +613,8 @@ func (s *Admin) RevokeIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Revok
 	return &emptypb.Empty{}, nil
 }
 
-// RevokeImportedAPIKey revokes an existing imported API key.
-func (s *Admin) RevokeImportedAPIKey(ctx context.Context, req *talosv2alpha1.RevokeImportedAPIKeyRequest) (resp *emptypb.Empty, err error) {
+// RevokeImportedApiKey revokes an existing imported API key.
+func (s *Admin) RevokeImportedApiKey(ctx context.Context, req *talosv2alpha1.RevokeImportedApiKeyRequest) (resp *emptypb.Empty, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -744,7 +744,7 @@ func extractIPRestriction(restriction *talosv2alpha1.IPRestriction, useMask, inM
 }
 
 // UpdateIssuedAPIKey updates mutable fields of an issued API key (AIP-134)
-func (s *Admin) UpdateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.UpdateIssuedAPIKeyRequest) (_ *talosv2alpha1.IssuedAPIKey, err error) {
+func (s *Admin) UpdateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.UpdateIssuedApiKeyRequest) (_ *talosv2alpha1.IssuedApiKey, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -824,7 +824,7 @@ func (s *Admin) UpdateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Updat
 }
 
 // ListIssuedAPIKeys lists API keys for a network with cursor-based pagination
-func (s *Admin) ListIssuedAPIKeys(ctx context.Context, req *talosv2alpha1.ListIssuedAPIKeysRequest) (resp *talosv2alpha1.ListIssuedAPIKeysResponse, err error) {
+func (s *Admin) ListIssuedAPIKeys(ctx context.Context, req *talosv2alpha1.ListIssuedApiKeysRequest) (resp *talosv2alpha1.ListIssuedApiKeysResponse, err error) {
 	ctx, span := tracing.Start(
 		ctx, "service.ListIssuedAPIKeys",
 		attribute.Int("page_size", int(req.PageSize)),
@@ -859,7 +859,7 @@ func (s *Admin) ListIssuedAPIKeys(ctx context.Context, req *talosv2alpha1.ListIs
 	}
 
 	// Convert to protobuf
-	protoKeys := make([]*talosv2alpha1.IssuedAPIKey, 0, len(keys))
+	protoKeys := make([]*talosv2alpha1.IssuedApiKey, 0, len(keys))
 	for _, key := range keys {
 		protoKey, err := dbIssuedKeyToProto(key)
 		if err != nil {
@@ -868,7 +868,7 @@ func (s *Admin) ListIssuedAPIKeys(ctx context.Context, req *talosv2alpha1.ListIs
 		protoKeys = append(protoKeys, protoKey)
 	}
 
-	return &talosv2alpha1.ListIssuedAPIKeysResponse{
+	return &talosv2alpha1.ListIssuedApiKeysResponse{
 		IssuedApiKeys: protoKeys,
 		NextPageToken: nextPageToken,
 	}, nil
@@ -1119,7 +1119,7 @@ func (s *Admin) DeriveToken(ctx context.Context, req *talosv2alpha1.DeriveTokenR
 // Imported Key Management
 
 // ImportAPIKey imports an external HMAC-based API key
-func (s *Admin) ImportAPIKey(ctx context.Context, req *talosv2alpha1.ImportAPIKeyRequest) (_ *talosv2alpha1.ImportedAPIKey, err error) {
+func (s *Admin) ImportAPIKey(ctx context.Context, req *talosv2alpha1.ImportApiKeyRequest) (_ *talosv2alpha1.ImportedApiKey, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -1223,12 +1223,12 @@ type batchCandidate struct {
 // BatchImportAPIKeys imports multiple external API keys.
 //
 // The handler intentionally does not run protoValidator.Validate(req) because
-// the per-item ImportAPIKeyRequest rules would short-circuit the whole batch
+// the per-item ImportApiKeyRequest rules would short-circuit the whole batch
 // on a single bad item, contradicting AIP-231's per-item success/failure
 // contract. The min_items/max_items constraint on requests is enforced below
 // by the explicit length checks; per-item rules run inside the loop via
 // validation.ValidateAndNormalizeImportRequest.
-func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.BatchImportAPIKeysRequest) (_ *talosv2alpha1.BatchImportAPIKeysResponse, err error) {
+func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.BatchCreateImportedApiKeysRequest) (_ *talosv2alpha1.BatchCreateImportedApiKeysResponse, err error) {
 	nid := contextx.NetworkIDFromContext(ctx).String()
 	keys := req.GetRequests()
 	batchSize := len(keys)
@@ -1250,19 +1250,19 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 	s.metrics.BatchImportKeyCount.Observe(float64(batchSize))
 
 	// --- Phase 1: Validate each item and build candidates for DB insert ---
-	results := make([]*talosv2alpha1.BatchImportResult, batchSize)
+	results := make([]*talosv2alpha1.BatchCreateImportedApiKeysResult, batchSize)
 	candidates := make([]batchCandidate, 0, batchSize)
 	firstIndexByKeyID := make(map[string]int, batchSize)
 
 	for i, keyReq := range keys {
 		if keyReq == nil {
-			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT, "batch item is required")
+			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, "batch item is required")
 			continue
 		}
 
 		normalized, normErr := validation.ValidateAndNormalizeImportRequest(keyReq, s.provider.Duration(ctx, talosconfig.KeyCredentialsAPIKeysDefaultTTL), s.provider.Duration(ctx, talosconfig.KeyCredentialsAPIKeysMaxTTL))
 		if normErr != nil {
-			errorCode := talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL
+			errorCode := talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL
 			errorMessage := normErr.Error()
 			var herodotErr *herodot.DefaultError
 			if errors.As(normErr, &herodotErr) {
@@ -1286,13 +1286,13 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 					codes.Unavailable,
 					codes.DataLoss,
 					codes.Unauthenticated:
-					errorCode = talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL
+					errorCode = talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL
 				case codes.InvalidArgument:
-					errorCode = talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT
+					errorCode = talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT
 				case codes.AlreadyExists:
-					errorCode = talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS
+					errorCode = talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS
 				case codes.FailedPrecondition:
-					errorCode = talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION
+					errorCode = talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION
 				}
 			}
 			results[i] = batchImportErrorResult(i, errorCode, errorMessage)
@@ -1301,17 +1301,17 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 
 		route := crypto.RouteCredential(normalized.RawKey, s.getMacaroonPrefixes(ctx))
 		if route.Type == crypto.CredentialTypeIssued {
-			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, "cannot import key: format conflicts with issued api key pattern")
+			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION, "cannot import key: format conflicts with issued api key pattern")
 			continue
 		}
 		if route.Type == crypto.CredentialTypeDerivedJWT || route.Type == crypto.CredentialTypeDerivedMacaroon {
-			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, "cannot import key: format conflicts with derived token pattern")
+			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION, "cannot import key: format conflicts with derived token pattern")
 			continue
 		}
 
 		keyID := crypto.HashImportedAPIKey(normalized.RawKey, nid)
 		if firstIndex, exists := firstIndexByKeyID[keyID]; exists {
-			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS, fmt.Sprintf("key already imported (duplicate detected at index %d)", firstIndex))
+			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS, fmt.Sprintf("key already imported (duplicate detected at index %d)", firstIndex))
 			continue
 		}
 
@@ -1344,9 +1344,9 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 		headroom := max(quotaCap-current, 0)
 		if int64(len(candidates)) > headroom {
 			rejected := candidates[headroom:]
-			reason := fmt.Sprintf("the current plan permits up to %d active API keys", quotaCap)
+			reason := fmt.Sprintf("the API key quota for this plan permits up to %d active API keys", quotaCap)
 			for _, c := range rejected {
-				results[c.index] = batchImportErrorResult(c.index, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, reason)
+				results[c.index] = batchImportErrorResult(c.index, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED, reason)
 			}
 			candidates = candidates[:headroom]
 		}
@@ -1370,14 +1370,14 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 				if convErr != nil {
 					return nil, wrapDecodePersistedScopesError(convErr)
 				}
-				results[c.index] = &talosv2alpha1.BatchImportResult{
+				results[c.index] = &talosv2alpha1.BatchCreateImportedApiKeysResult{
 					Index:          safeBatchIndex(c.index),
 					ImportedApiKey: importedAPIKey,
 				}
 			} else if _, exists := batchResult.Existing[c.item.KeyID]; exists {
-				results[c.index] = batchImportErrorResult(c.index, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS, "key already imported (duplicate detected)")
+				results[c.index] = batchImportErrorResult(c.index, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS, "key already imported (duplicate detected)")
 			} else {
-				results[c.index] = batchImportErrorResult(c.index, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL, "batch insert returned no row for key")
+				results[c.index] = batchImportErrorResult(c.index, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL, "batch insert returned no row for key")
 			}
 		}
 	}
@@ -1386,9 +1386,9 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 	var successCount, failureCount int32
 	for i, result := range results {
 		if result == nil {
-			code := talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL
+			code := talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL
 			message := "batch item failed with no result"
-			results[i] = &talosv2alpha1.BatchImportResult{
+			results[i] = &talosv2alpha1.BatchCreateImportedApiKeysResult{
 				Index:        safeBatchIndex(i),
 				ErrorCode:    &code,
 				ErrorMessage: &message,
@@ -1441,49 +1441,49 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 	s.metrics.RecordBatchImportOutcome(int(successCount), failedByCode)
 
 	if successCount == 0 {
-		counts := make(map[talosv2alpha1.BatchImportErrorCode]int)
+		counts := make(map[talosv2alpha1.BatchCreateImportedApiKeysErrorCode]int)
 		for _, result := range results {
 			if result != nil && result.ErrorCode != nil {
 				counts[result.GetErrorCode()]++
 			}
 		}
-		dominantCode := talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL
-		for _, code := range []talosv2alpha1.BatchImportErrorCode{
-			talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS,
-			talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT,
-			talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION,
-			talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED,
+		dominantCode := talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL
+		for _, code := range []talosv2alpha1.BatchCreateImportedApiKeysErrorCode{
+			talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS,
+			talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT,
+			talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION,
+			talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED,
 		} {
 			if counts[code] > counts[dominantCode] {
 				dominantCode = code
 			}
 		}
 		switch dominantCode {
-		case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_UNSPECIFIED,
-			talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL:
+		case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED,
+			talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL:
 			return nil, errors.WithStack(errdef.InternalError("all keys in batch import failed"))
-		case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS:
+		case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS:
 			return nil, errors.WithStack(errdef.ErrAPIKeyExists().WithReasonf("all keys in batch already exist"))
-		case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT:
+		case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT:
 			return nil, errors.WithStack(errdef.BadRequest("all keys in batch failed validation"))
-		case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION:
+		case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION:
 			return nil, errors.WithStack(errdef.FailedPrecondition("all keys in batch failed precondition checks"))
-		case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED:
+		case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED:
 			return nil, errors.WithStack(errdef.ErrAPIKeyQuotaExceeded().WithReasonf("all keys in batch exceeded the tenant quota"))
 		}
 
 		return nil, errors.WithStack(errdef.InternalError("all keys in batch import failed"))
 	}
 
-	return &talosv2alpha1.BatchImportAPIKeysResponse{
+	return &talosv2alpha1.BatchCreateImportedApiKeysResponse{
 		Results:      results,
 		SuccessCount: successCount,
 		FailureCount: failureCount,
 	}, nil
 }
 
-func batchImportErrorResult(index int, code talosv2alpha1.BatchImportErrorCode, message string) *talosv2alpha1.BatchImportResult {
-	return &talosv2alpha1.BatchImportResult{
+func batchImportErrorResult(index int, code talosv2alpha1.BatchCreateImportedApiKeysErrorCode, message string) *talosv2alpha1.BatchCreateImportedApiKeysResult {
+	return &talosv2alpha1.BatchCreateImportedApiKeysResult{
 		Index:        safeBatchIndex(index),
 		ErrorCode:    &code,
 		ErrorMessage: &message,
@@ -1501,21 +1501,21 @@ func safeBatchIndex(index int) int32 {
 	return int32(index)
 }
 
-// batchImportErrorCodeLabel maps a BatchImportErrorCode to a short, bounded
+// batchImportErrorCodeLabel maps a BatchCreateImportedApiKeysErrorCode to a short, bounded
 // Prometheus label value. Using raw proto enum strings would risk unbounded
 // cardinality if the enum grows.
-func batchImportErrorCodeLabel(code talosv2alpha1.BatchImportErrorCode) string {
+func batchImportErrorCodeLabel(code talosv2alpha1.BatchCreateImportedApiKeysErrorCode) string {
 	switch code {
-	case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_UNSPECIFIED,
-		talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL:
+	case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED,
+		talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL:
 		return "INTERNAL"
-	case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS:
+	case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS:
 		return "ALREADY_EXISTS"
-	case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT:
+	case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT:
 		return "INVALID_ARGUMENT"
-	case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION:
+	case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION:
 		return "FAILED_PRECONDITION"
-	case talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED:
+	case talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED:
 		return "RESOURCE_EXHAUSTED"
 	}
 
@@ -1523,7 +1523,7 @@ func batchImportErrorCodeLabel(code talosv2alpha1.BatchImportErrorCode) string {
 }
 
 // ListImportedAPIKeys lists imported keys with cursor-based pagination
-func (s *Admin) ListImportedAPIKeys(ctx context.Context, req *talosv2alpha1.ListImportedAPIKeysRequest) (_ *talosv2alpha1.ListImportedAPIKeysResponse, err error) {
+func (s *Admin) ListImportedAPIKeys(ctx context.Context, req *talosv2alpha1.ListImportedApiKeysRequest) (_ *talosv2alpha1.ListImportedApiKeysResponse, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -1554,8 +1554,8 @@ func (s *Admin) ListImportedAPIKeys(ctx context.Context, req *talosv2alpha1.List
 		}
 	}
 
-	// Convert ImportedAPIKey slice to protobuf
-	protoKeys := make([]*talosv2alpha1.ImportedAPIKey, len(keys))
+	// Convert ImportedApiKey slice to protobuf
+	protoKeys := make([]*talosv2alpha1.ImportedApiKey, len(keys))
 	for i, key := range keys {
 		apiKey := persistencetypes.ImportedAPIKeyToIssuedAPIKey(ctx, key)
 		protoKey, err := dbImportedKeyToProto(apiKey)
@@ -1565,14 +1565,14 @@ func (s *Admin) ListImportedAPIKeys(ctx context.Context, req *talosv2alpha1.List
 		protoKeys[i] = protoKey
 	}
 
-	return &talosv2alpha1.ListImportedAPIKeysResponse{
+	return &talosv2alpha1.ListImportedApiKeysResponse{
 		ImportedApiKeys: protoKeys,
 		NextPageToken:   nextPageToken,
 	}, nil
 }
 
 // GetImportedAPIKey retrieves an imported key by its hash ID
-func (s *Admin) GetImportedAPIKey(ctx context.Context, req *talosv2alpha1.GetImportedAPIKeyRequest) (_ *talosv2alpha1.ImportedAPIKey, err error) {
+func (s *Admin) GetImportedAPIKey(ctx context.Context, req *talosv2alpha1.GetImportedApiKeyRequest) (_ *talosv2alpha1.ImportedApiKey, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -1588,7 +1588,7 @@ func (s *Admin) GetImportedAPIKey(ctx context.Context, req *talosv2alpha1.GetImp
 	if err != nil {
 		return nil, handleDBError(err, apiKeyKindImported, "get imported key")
 	}
-	// Convert ImportedAPIKey to protobuf
+	// Convert ImportedApiKey to protobuf
 	apiKey := persistencetypes.ImportedAPIKeyToIssuedAPIKey(ctx, key)
 
 	importedAPIKey, err := dbImportedKeyToProto(apiKey)
@@ -1599,7 +1599,7 @@ func (s *Admin) GetImportedAPIKey(ctx context.Context, req *talosv2alpha1.GetImp
 }
 
 // UpdateImportedAPIKey updates mutable fields of an imported API key (AIP-134)
-func (s *Admin) UpdateImportedAPIKey(ctx context.Context, req *talosv2alpha1.UpdateImportedAPIKeyRequest) (_ *talosv2alpha1.ImportedAPIKey, err error) {
+func (s *Admin) UpdateImportedAPIKey(ctx context.Context, req *talosv2alpha1.UpdateImportedApiKeyRequest) (_ *talosv2alpha1.ImportedApiKey, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}
@@ -1679,7 +1679,7 @@ func (s *Admin) UpdateImportedAPIKey(ctx context.Context, req *talosv2alpha1.Upd
 }
 
 // DeleteImportedAPIKey permanently deletes an imported key
-func (s *Admin) DeleteImportedAPIKey(ctx context.Context, req *talosv2alpha1.DeleteImportedAPIKeyRequest) (_ *emptypb.Empty, err error) {
+func (s *Admin) DeleteImportedAPIKey(ctx context.Context, req *talosv2alpha1.DeleteImportedApiKeyRequest) (_ *emptypb.Empty, err error) {
 	if err := s.protoValidator.Validate(req); err != nil {
 		return nil, errdef.BadRequest(err.Error())
 	}

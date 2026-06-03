@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"os"
-	"path/filepath"
+	"io"
 	"strings"
 	"testing"
 
@@ -261,7 +260,7 @@ func TestGetDatabaseDSN_FromFlag(t *testing.T) {
 	t.Setenv("DB_DSN", "")
 
 	flagValue := "sqlite3://test.db"
-	dsn, err := getDatabaseDSN(t.Context(), flagValue, "")
+	dsn, err := getDatabaseDSN(flagValue)
 
 	require.NoError(t, err)
 	assert.Equal(t, flagValue, dsn)
@@ -276,7 +275,7 @@ func TestGetDatabaseDSN_FromEnv(t *testing.T) {
 	t.Setenv("DB_DSN", envDSN)
 
 	// Pass empty flag value to test environment fallback
-	dsn, err := getDatabaseDSN(t.Context(), "", "")
+	dsn, err := getDatabaseDSN("")
 
 	require.NoError(t, err)
 	assert.Equal(t, envDSN, dsn)
@@ -290,7 +289,7 @@ func TestGetDatabaseDSN_MissingBoth(t *testing.T) {
 	// Clear environment
 	t.Setenv("DB_DSN", "")
 
-	dsn, err := getDatabaseDSN(t.Context(), "", "")
+	dsn, err := getDatabaseDSN("")
 
 	require.Error(t, err)
 	assert.Empty(t, dsn)
@@ -309,7 +308,7 @@ func TestGetDatabaseDSN_FlagOverridesEnv(t *testing.T) {
 
 	t.Setenv("DB_DSN", envValue)
 
-	dsn, err := getDatabaseDSN(t.Context(), flagValue, "")
+	dsn, err := getDatabaseDSN(flagValue)
 
 	require.NoError(t, err)
 	assert.Equal(t, flagValue, dsn, "flag should override environment variable")
@@ -361,7 +360,7 @@ func TestMigrateUpCmd_DSNSources(t *testing.T) {
 			t.Run(dsn, func(t *testing.T) {
 				t.Parallel()
 
-				result, err := getDatabaseDSN(t.Context(), dsn, "")
+				result, err := getDatabaseDSN(dsn)
 				require.NoError(t, err)
 				assert.Equal(t, dsn, result)
 			})
@@ -390,6 +389,29 @@ func TestMigrateDownCmd_StepsFlag(t *testing.T) {
 		require.NotNil(t, flag)
 		assert.Equal(t, "int", flag.Value.Type())
 	})
+}
+
+// TestMigrateDownCmd_RejectsNonPositiveSteps verifies the down command refuses
+// non-positive --steps values. Without the guard, m.Steps(-steps) would
+// double-negate a negative value and silently apply UP migrations. The guard
+// runs before any database connection, so no DSN is required.
+func TestMigrateDownCmd_RejectsNonPositiveSteps(t *testing.T) {
+	t.Parallel()
+
+	for _, steps := range []string{"-1", "0", "-5"} {
+		t.Run("steps="+steps, func(t *testing.T) {
+			t.Parallel()
+
+			cmd := newMigrateDownCmd()
+			cmd.SetArgs([]string{"--steps=" + steps})
+			cmd.SetOut(io.Discard)
+			cmd.SetErr(io.Discard)
+
+			err := cmd.Execute()
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "--steps must be a positive number")
+		})
+	}
 }
 
 // TestMigrateForceCmd_ArgumentValidation tests force command argument requirements
@@ -429,77 +451,6 @@ func TestMigrateCommands_DatabaseFlag(t *testing.T) {
 			assert.Equal(t, "string", flag.Value.Type(), "database flag should be string type")
 		})
 	}
-}
-
-// minimalConfigWithDSN is a valid config file with required fields and a db.dsn entry.
-// The secrets and credentials fields are required by the config schema.
-const minimalConfigWithDSN = `
-secrets:
-  hmac:
-    current: "test-hmac-secret-for-migrate-test-32chars"
-    retired: []
-credentials:
-  issuer: "https://test.talos.local"
-db:
-  dsn: "sqlite3://./test-config-file.db"
-`
-
-// minimalConfigWithoutDSN is a valid config file missing the db.dsn entry.
-const minimalConfigWithoutDSN = `
-secrets:
-  hmac:
-    current: "test-hmac-secret-for-migrate-test-32chars"
-    retired: []
-credentials:
-  issuer: "https://test.talos.local"
-`
-
-// TestGetDatabaseDSN_FromConfigFile tests DSN retrieval from a config file
-func TestGetDatabaseDSN_FromConfigFile(t *testing.T) {
-	// Do NOT call t.Parallel() - test unsets an environment variable which
-	// modifies the process environment and is incompatible with parallel execution
-
-	// Unset DB_DSN so we exercise the config-file branch. t.Setenv("DB_DSN", "")
-	// would set an empty value that fails schema validation (minLength: 1), so we
-	// register auto-restore via t.Setenv first (if present), then unset for the
-	// duration of the test. t.Setenv's cleanup restores the original value.
-	if prev, had := os.LookupEnv("DB_DSN"); had {
-		t.Setenv("DB_DSN", prev)
-	}
-	require.NoError(t, os.Unsetenv("DB_DSN"))
-
-	configFile := filepath.Join(t.TempDir(), "config.yaml")
-	err := os.WriteFile(configFile, []byte(minimalConfigWithDSN), 0o600)
-	require.NoError(t, err)
-
-	dsn, err := getDatabaseDSN(t.Context(), "", configFile)
-
-	require.NoError(t, err)
-	assert.Equal(t, "sqlite3://./test-config-file.db", dsn)
-}
-
-// TestGetDatabaseDSN_ConfigFileMissingDSNKey tests that an error is returned when
-// the config file exists but does not contain a db.dsn value.
-func TestGetDatabaseDSN_ConfigFileMissingDSNKey(t *testing.T) {
-	// Do NOT call t.Parallel() - test unsets an environment variable which
-	// modifies the process environment and is incompatible with parallel execution
-
-	// Unset DB_DSN so we exercise the config-file branch. See
-	// TestGetDatabaseDSN_FromConfigFile for why we unset rather than set to "".
-	if prev, had := os.LookupEnv("DB_DSN"); had {
-		t.Setenv("DB_DSN", prev)
-	}
-	require.NoError(t, os.Unsetenv("DB_DSN"))
-
-	configFile := filepath.Join(t.TempDir(), "config.yaml")
-	err := os.WriteFile(configFile, []byte(minimalConfigWithoutDSN), 0o600)
-	require.NoError(t, err)
-
-	dsn, err := getDatabaseDSN(t.Context(), "", configFile)
-
-	require.Error(t, err)
-	assert.Empty(t, dsn)
-	assert.Contains(t, err.Error(), "database DSN not provided")
 }
 
 // TestMigrateCommands_NoGlobalState tests that commands don't rely on global state

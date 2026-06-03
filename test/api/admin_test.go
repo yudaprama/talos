@@ -28,7 +28,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyCreation() {
 			"env": "staging",
 		}
 
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Test API Key 1")
 		req.SetActorId("user-123")
 		req.SetScopes([]string{"read:users", "write:users"})
@@ -47,7 +47,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyCreation() {
 	})
 
 	s.Run("create with minimal fields", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Minimal Key")
 		req.SetActorId("service-456")
 		resp := s.sdkIssueAPIKey(ctx, req)
@@ -56,7 +56,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyCreation() {
 		s.NotNil(resp.IssuedApiKey.ExpireTime) // Default TTL applied
 	})
 	s.Run("error - missing required fields", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Missing Owner")
 		httpResp, err := s.sdkIssueAPIKeyExpectError(ctx, req)
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
@@ -81,7 +81,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_APIKeyRevocation() {
 	})
 
 	s.Run("double revocation returns conflict", func() {
-		httpResp, err := s.sdkRevokeIssuedAPIKeyExpectError(ctx, apiKey.GetKeyId(), client.AdminRevokeIssuedAPIKeyBody{
+		httpResp, err := s.sdkRevokeIssuedAPIKeyExpectError(ctx, apiKey.GetKeyId(), client.AdminRevokeIssuedApiKeyBody{
 			Reason: client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE.Ptr(),
 		})
 		defer func() { _ = httpResp.Body.Close() }()
@@ -123,7 +123,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_TTLAndExpiration() {
 
 	s.Run("key with 24h TTL has correct expire_time", func() {
 		before := time.Now()
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("24h TTL Key")
 		req.SetActorId("user-ttl-24h")
 		req.SetTtl("86400s")
@@ -186,7 +186,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_ScopesAndPermissions() {
 	ctx := s.T().Context()
 
 	s.Run("create key with specific scopes", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Scoped Key")
 		req.SetActorId("user-scoped")
 		req.SetScopes([]string{"read:users", "read:posts", "write:posts"})
@@ -195,7 +195,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_ScopesAndPermissions() {
 	})
 
 	s.Run("create key with wildcard scope", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Admin Key")
 		req.SetActorId("admin-1")
 		req.SetScopes([]string{"*"})
@@ -204,7 +204,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_ScopesAndPermissions() {
 	})
 
 	s.Run("create key with no scopes", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("No Scope Key")
 		req.SetActorId("user-limited")
 		resp := s.sdkIssueAPIKey(ctx, req)
@@ -225,7 +225,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_MetadataHandling() {
 			},
 		}
 
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Metadata Test Key")
 		req.SetActorId("service-meta")
 		req.SetMetadata(metadata)
@@ -242,21 +242,21 @@ func (s *APIKeyE2ETestSuite) TestAdmin_ErrorConditions() {
 	ctx := s.T().Context()
 
 	s.Run("empty owner ID", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("No Owner ID Key")
 		httpResp, err := s.sdkIssueAPIKeyExpectError(ctx, req)
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
 
 	s.Run("empty name", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetActorId("user-123")
 		httpResp, err := s.sdkIssueAPIKeyExpectError(ctx, req)
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
 
 	s.Run("revoke non-existent key", func() {
-		_, err := s.sdkRevokeIssuedAPIKeyExpectError(ctx, "non-existent-key-id-12345", client.AdminRevokeIssuedAPIKeyBody{})
+		_, err := s.sdkRevokeIssuedAPIKeyExpectError(ctx, "non-existent-key-id-12345", client.AdminRevokeIssuedApiKeyBody{})
 		s.Require().Error(err)
 	})
 }
@@ -271,15 +271,15 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 		for i := range numConcurrent {
 			index := i
 			g.Go(func() error {
-				createReq := client.NewIssueAPIKeyRequest()
+				createReq := client.NewIssueApiKeyRequest()
 				createReq.SetName(fmt.Sprintf("Concurrent Key %d", index))
 				createReq.SetActorId(fmt.Sprintf("service-%d", index))
 				createReq.SetScopes([]string{"read", "write"})
 
 				apiClient := s.setupSDKClient()
-				createResp, httpResp, err := apiClient.APIKeysAPI.
-					AdminIssueAPIKey(ctx).
-					IssueAPIKeyRequest(*createReq).
+				createResp, httpResp, err := apiClient.ApiKeysAPI.
+					AdminIssueApiKey(ctx).
+					IssueApiKeyRequest(*createReq).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()
@@ -291,11 +291,11 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 				keyID := createResp.IssuedApiKey.GetKeyId()
 				secret := createResp.GetSecret()
 
-				verifyReq := client.NewVerifyAPIKeyRequest()
+				verifyReq := client.NewVerifyApiKeyRequest()
 				verifyReq.SetCredential(secret)
-				verifyResp, httpResp, err := apiClient.APIKeysAPI.
-					AdminVerifyAPIKey(ctx).
-					VerifyAPIKeyRequest(*verifyReq).
+				verifyResp, httpResp, err := apiClient.ApiKeysAPI.
+					AdminVerifyApiKey(ctx).
+					VerifyApiKeyRequest(*verifyReq).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()
@@ -310,7 +310,7 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 				deriveReq := client.NewDeriveTokenRequest()
 				deriveReq.SetCredential(secret)
 				deriveReq.SetTtl("600s") // 10 minutes
-				tokenResp, httpResp, err := apiClient.APIKeysAPI.
+				tokenResp, httpResp, err := apiClient.ApiKeysAPI.
 					AdminDeriveToken(ctx).
 					DeriveTokenRequest(*deriveReq).
 					Execute()
@@ -324,11 +324,11 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 					return errDerivedTokenEmpty
 				}
 
-				revokeBody := client.NewAdminRevokeIssuedAPIKeyBody()
+				revokeBody := client.NewAdminRevokeIssuedApiKeyBody()
 				revokeBody.SetReason(client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
-				_, httpResp, err = apiClient.APIKeysAPI.
-					AdminRevokeIssuedAPIKey(ctx, keyID).
-					AdminRevokeIssuedAPIKeyBody(*revokeBody).
+				_, httpResp, err = apiClient.ApiKeysAPI.
+					AdminRevokeIssuedApiKey(ctx, keyID).
+					AdminRevokeIssuedApiKeyBody(*revokeBody).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()
@@ -336,8 +336,8 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 				if err != nil {
 					return fmt.Errorf("revoke failed: %w", err)
 				}
-				getAfterRevoke, httpResp, err := apiClient.APIKeysAPI.
-					AdminGetIssuedAPIKey(ctx, keyID).
+				getAfterRevoke, httpResp, err := apiClient.ApiKeysAPI.
+					AdminGetIssuedApiKey(ctx, keyID).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()
@@ -352,11 +352,11 @@ func (s *APIKeyE2ETestSuite) TestConcurrentOperations() {
 				// Verify revoked key fails (use cache bypass for immediate verification)
 				apiClientNoCache := s.setupSDKClient()
 				apiClientNoCache.GetConfig().AddDefaultHeader("Cache-Control", "no-cache")
-				verifyReq2 := client.NewVerifyAPIKeyRequest()
+				verifyReq2 := client.NewVerifyApiKeyRequest()
 				verifyReq2.SetCredential(secret)
-				verifyResp2, httpResp, err := apiClientNoCache.APIKeysAPI.
-					AdminVerifyAPIKey(ctx).
-					VerifyAPIKeyRequest(*verifyReq2).
+				verifyResp2, httpResp, err := apiClientNoCache.ApiKeysAPI.
+					AdminVerifyApiKey(ctx).
+					VerifyApiKeyRequest(*verifyReq2).
 					Execute()
 				if httpResp != nil && httpResp.Body != nil {
 					_ = httpResp.Body.Close()
@@ -381,7 +381,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	ctx := s.T().Context()
 
 	s.Run("create key with rate limit policy", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Rate Limited Key")
 		req.SetActorId("user-rl-1")
 		rlPolicy := client.NewRateLimitPolicy()
@@ -396,7 +396,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	})
 
 	s.Run("create key without rate limit policy", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("No Rate Limit Key")
 		req.SetActorId("user-rl-2")
 
@@ -405,7 +405,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	})
 
 	s.Run("get key returns rate limit policy", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("RL Get Test Key")
 		req.SetActorId("user-rl-3")
 		rlPolicy := client.NewRateLimitPolicy()
@@ -423,7 +423,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 
 	s.Run("list keys returns rate limit policy", func() {
 		actorID := "user-rl-list-4"
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("RL List Test Key")
 		req.SetActorId(actorID)
 		rlPolicy := client.NewRateLimitPolicy()
@@ -442,7 +442,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	})
 
 	s.Run("rotate key preserves rate limit from original", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("RL Rotate Preserve Key")
 		req.SetActorId("user-rl-5")
 		rlPolicy := client.NewRateLimitPolicy()
@@ -459,7 +459,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	})
 
 	s.Run("rotate key with new rate limit overrides original", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("RL Rotate Override Key")
 		req.SetActorId("user-rl-6")
 		rlPolicy := client.NewRateLimitPolicy()
@@ -470,15 +470,15 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 		createResp := s.sdkIssueAPIKey(ctx, req)
 
 		apiClient := s.setupSDKClient()
-		rotateBody := client.NewAdminRotateIssuedAPIKeyBody()
+		rotateBody := client.NewAdminRotateIssuedApiKeyBody()
 		newRlPolicy := client.NewRateLimitPolicy()
 		newRlPolicy.SetQuota("500")
 		newRlPolicy.SetWindow("1800s")
 		rotateBody.SetRateLimitPolicy(*newRlPolicy)
 
-		rotateResp, httpResp, err := apiClient.APIKeysAPI.
-			AdminRotateIssuedAPIKey(ctx, createResp.IssuedApiKey.GetKeyId()).
-			AdminRotateIssuedAPIKeyBody(*rotateBody).
+		rotateResp, httpResp, err := apiClient.ApiKeysAPI.
+			AdminRotateIssuedApiKey(ctx, createResp.IssuedApiKey.GetKeyId()).
+			AdminRotateIssuedApiKeyBody(*rotateBody).
 			Execute()
 		s.Require().NoError(err)
 		if httpResp != nil && httpResp.Body != nil {
@@ -490,7 +490,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	})
 
 	s.Run("error - rate limit quota must be positive", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Zero Quota Key")
 		req.SetActorId("user-rl-7")
 		rlPolicy := client.NewRateLimitPolicy()
@@ -503,7 +503,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_RateLimitPolicy() {
 	})
 
 	s.Run("error - rate limit window must be positive", func() {
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Zero Window Key")
 		req.SetActorId("user-rl-8")
 		rlPolicy := client.NewRateLimitPolicy()
@@ -522,7 +522,7 @@ func (s *APIKeyE2ETestSuite) TestAdmin_IdempotentKeyCreation() {
 	s.Run("same request_id returns same key", func() {
 		requestID := "unique-request-" + time.Now().Format("20060102150405")
 
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("Idempotent Key")
 		req.SetActorId("customer_idempotent_001")
 		req.SetScopes([]string{"chat:read"})
@@ -540,12 +540,12 @@ func (s *APIKeyE2ETestSuite) TestAdmin_IdempotentKeyCreation() {
 	})
 
 	s.Run("different request_id creates different key", func() {
-		req1 := client.NewIssueAPIKeyRequest()
+		req1 := client.NewIssueApiKeyRequest()
 		req1.SetName("Idempotent Key A")
 		req1.SetActorId("customer_idempotent_002")
 		req1.SetRequestId("request-a-" + time.Now().Format("20060102150405"))
 
-		req2 := client.NewIssueAPIKeyRequest()
+		req2 := client.NewIssueApiKeyRequest()
 		req2.SetName("Idempotent Key B")
 		req2.SetActorId("customer_idempotent_002")
 		req2.SetRequestId("request-b-" + time.Now().Format("20060102150405"))

@@ -7,6 +7,7 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"encoding/json"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/lestrrat-go/jwx/v3/jwa"
@@ -20,11 +21,20 @@ import (
 )
 
 // verifyJWTWithKeySet verifies a JWT token against a JWK key set and returns claims.
-func verifyJWTWithKeySet(ctx context.Context, tokenString string, keySet jwk.Set) (claims *Claims, err error) {
+// clockSkew is applied as leeway to the nbf ("not before") claim only, matching
+// the macaroon verification path: minor clock drift between the issuing node and
+// the verifying node must not cause spurious "not yet valid" rejections on a
+// multi-node deployment. exp is checked strictly — the skew is deliberately not
+// extended to expiry, because doing so would keep short-lived tokens valid for
+// minutes past their configured TTL.
+func verifyJWTWithKeySet(ctx context.Context, tokenString string, keySet jwk.Set, clockSkew time.Duration) (claims *Claims, err error) {
 	_, span := tracing.StartWithoutNID(ctx, "jwt.VerifyWithKeySet")
 	defer otelx.End(span, &err)
 
-	parsedToken, err := jwt.Parse([]byte(tokenString), jwt.WithKeySet(keySet), jwt.WithValidate(true))
+	// jwx applies the skew to every time-based claim, including exp. We accept
+	// that leeway for nbf and then re-check exp strictly below, so skew never
+	// extends a token's lifetime.
+	parsedToken, err := jwt.Parse([]byte(tokenString), jwt.WithKeySet(keySet), jwt.WithValidate(true), jwt.WithAcceptableSkew(clockSkew))
 	if err != nil {
 		return nil, errors.Wrap(err, "parse/verify JWT token")
 	}
@@ -32,6 +42,13 @@ func verifyJWTWithKeySet(ctx context.Context, tokenString string, keySet jwk.Set
 	claims, err = fromJWXToken(parsedToken)
 	if err != nil {
 		return nil, err
+	}
+
+	// Strict expiry check. A token expired by less than clockSkew is accepted by
+	// jwx above, but must still be rejected here so clock skew tolerance never
+	// extends expiry (consistent with the macaroon path's strict exp handling).
+	if !claims.expiresAt.IsZero() && time.Now().UTC().After(claims.expiresAt) {
+		return nil, errors.New("token expired")
 	}
 
 	span.SetAttributes(
@@ -43,12 +60,13 @@ func verifyJWTWithKeySet(ctx context.Context, tokenString string, keySet jwk.Set
 
 // VerifyJWTWithKeySetAndIssuer verifies a JWT token against a JWK key set, validates issuer, and returns claims.
 // allowedIssuers is the list of accepted issuer URLs (current + retired).
-func VerifyJWTWithKeySetAndIssuer(ctx context.Context, tokenString string, keySet jwk.Set, allowedIssuers []string) (claims *Claims, err error) {
+// clockSkew is the tolerance applied to the time-based claims (see verifyJWTWithKeySet).
+func VerifyJWTWithKeySetAndIssuer(ctx context.Context, tokenString string, keySet jwk.Set, allowedIssuers []string, clockSkew time.Duration) (claims *Claims, err error) {
 	_, span := tracing.StartWithoutNID(ctx, "jwt.VerifyWithKeySetAndIssuer")
 	defer otelx.End(span, &err)
 
 	// First verify signature with key set
-	claims, err = verifyJWTWithKeySet(ctx, tokenString, keySet)
+	claims, err = verifyJWTWithKeySet(ctx, tokenString, keySet, clockSkew)
 	if err != nil {
 		return nil, err
 	}

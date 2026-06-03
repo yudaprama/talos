@@ -40,7 +40,7 @@ import (
 type GatewayServer struct {
 	mux           *http.ServeMux
 	healthChecker *health.Checker
-	adminAdapter  talosv2alpha1.APIKeysServer
+	adminAdapter  talosv2alpha1.ApiKeysServer
 	writer        herodot.Writer
 	config        config.ProviderInterface
 }
@@ -48,7 +48,7 @@ type GatewayServer struct {
 // NewGatewayServer creates a new HTTP gateway server with direct service integration
 func NewGatewayServer(
 	healthChecker *health.Checker,
-	adminAdapter talosv2alpha1.APIKeysServer,
+	adminAdapter talosv2alpha1.ApiKeysServer,
 	writer herodot.Writer,
 	provider config.ProviderInterface,
 ) *GatewayServer {
@@ -76,7 +76,7 @@ func (s *GatewayServer) Setup(ctx context.Context) error {
 		runtime.WithMiddlewares(GetDefaultMetrics().GatewayMiddleware()),
 	)
 
-	err := talosv2alpha1.RegisterAPIKeysHandlerServer(ctx, gwmux, s.adminAdapter)
+	err := talosv2alpha1.RegisterApiKeysHandlerServer(ctx, gwmux, s.adminAdapter)
 	if err != nil {
 		return errors.Wrap(err, "register API keys handler")
 	}
@@ -182,7 +182,7 @@ func cacheStatusHeaderMatcher(key string) (string, bool) {
 // forwardRateLimitHeaders intercepts gRPC responses and adds rate limit headers
 // Compliant with draft-ietf-httpapi-ratelimit-headers-10
 func forwardRateLimitHeaders(_ context.Context, w http.ResponseWriter, resp proto.Message) error {
-	verifyResp, ok := resp.(*talosv2alpha1.VerifyAPIKeyResponse)
+	verifyResp, ok := resp.(*talosv2alpha1.VerifyApiKeyResponse)
 	if !ok {
 		return nil
 	}
@@ -215,25 +215,29 @@ func forwardRateLimitHeaders(_ context.Context, w http.ResponseWriter, resp prot
 // AIP-133 requires Create responses to set a Location header pointing at the
 // newly created resource. Rotate is a custom method that creates a new key
 // resource on success, so it follows the same convention.
-func forwardHTTPStatusCode(_ context.Context, w http.ResponseWriter, resp proto.Message) error {
+func forwardHTTPStatusCode(ctx context.Context, w http.ResponseWriter, resp proto.Message) error {
 	switch r := resp.(type) {
-	case *talosv2alpha1.IssueAPIKeyResponse:
+	case *talosv2alpha1.IssueApiKeyResponse:
 		if r.GetIssuedApiKey() != nil && r.GetIssuedApiKey().GetKeyId() != "" {
 			w.Header().Set("Location", "/v2alpha1/admin/issuedApiKeys/"+r.GetIssuedApiKey().GetKeyId())
 		}
 		w.WriteHeader(http.StatusCreated)
-	case *talosv2alpha1.RotateIssuedAPIKeyResponse:
+	case *talosv2alpha1.RotateIssuedApiKeyResponse:
 		if r.GetIssuedApiKey() != nil && r.GetIssuedApiKey().GetKeyId() != "" {
 			w.Header().Set("Location", "/v2alpha1/admin/issuedApiKeys/"+r.GetIssuedApiKey().GetKeyId())
 		}
 		w.WriteHeader(http.StatusCreated)
-	case *talosv2alpha1.ImportedAPIKey:
-		if r.GetKeyId() != "" {
-			w.Header().Set("Location", "/v2alpha1/admin/importedApiKeys/"+r.GetKeyId())
+	case *talosv2alpha1.ImportedApiKey:
+		// ImportedApiKey is returned by Import (Create), Get, and Update.
+		// Only Create gets 201 + Location per AIP-133; Get/Update default to 200.
+		if method, ok := runtime.RPCMethod(ctx); ok && strings.HasSuffix(method, "/AdminImportApiKey") {
+			if r.GetKeyId() != "" {
+				w.Header().Set("Location", "/v2alpha1/admin/importedApiKeys/"+r.GetKeyId())
+			}
+			w.WriteHeader(http.StatusCreated)
 		}
-		w.WriteHeader(http.StatusCreated)
 	case *emptypb.Empty:
-		// RevokeAPIKey and DeleteImportedAPIKey both return Empty → 204
+		// RevokeApiKey and DeleteImportedAPIKey both return Empty → 204
 		w.WriteHeader(http.StatusNoContent)
 	}
 	return nil

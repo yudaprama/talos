@@ -19,25 +19,25 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 	svc, _, ctx := setupTestService(t)
 
 	// Create 5 keys: 3 for user-a, 2 for user-b. Revoke one user-a key.
-	for i, req := range []*talosv2alpha1.IssueAPIKeyRequest{
+	for i, req := range []*talosv2alpha1.IssueApiKeyRequest{
 		{Name: "a1", ActorId: "user-a"},
 		{Name: "a2", ActorId: "user-a"},
 		{Name: "a3", ActorId: "user-a"},
 		{Name: "b1", ActorId: "user-b"},
 		{Name: "b2", ActorId: "user-b"},
 	} {
-		resp, err := svc.IssueAPIKey(ctx, req)
+		resp, err := svc.IssueApiKey(ctx, req)
 		require.NoError(t, err)
 		// Revoke the first user-a key so we have a mix of statuses.
 		if i == 0 {
-			_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{KeyId: resp.IssuedApiKey.KeyId})
+			_, err = svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{KeyId: resp.IssuedApiKey.KeyId})
 			require.NoError(t, err)
 		}
 	}
 
 	t.Run("page_size=0 defaults to 50 and returns all 5 keys", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{PageSize: 0})
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{PageSize: 0})
 		require.NoError(t, err)
 		assert.GreaterOrEqual(t, len(resp.IssuedApiKeys), 5)
 		assert.Empty(t, resp.NextPageToken)
@@ -49,7 +49,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 		token := ""
 		pages := 0
 		for {
-			resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+			resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 				PageSize:  1,
 				PageToken: token,
 			})
@@ -68,14 +68,14 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("last page returns empty next_page_token", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{PageSize: 1000})
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{PageSize: 1000})
 		require.NoError(t, err)
 		assert.Empty(t, resp.NextPageToken)
 	})
 
 	t.Run("malformed page token returns error", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageToken: "not-a-valid-token",
 		})
 		require.Error(t, err)
@@ -83,7 +83,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("garbage bytes page token returns error", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageToken: "\x00\x01\x02\x03\xff\xfe",
 		})
 		require.Error(t, err)
@@ -91,7 +91,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("base64-looking but invalid page token returns error", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageToken: "dGhpcyBsb29rcyBsaWtlIGJhc2U2NCBidXQgaXMgbm90IGEgY3Vyc29y",
 		})
 		require.Error(t, err)
@@ -99,7 +99,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("truncated base64 page token returns error", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageToken: "dGhpcyBpcyB0cnVuY2F0ZQ==",
 		})
 		require.Error(t, err)
@@ -108,7 +108,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 	t.Run("wrong-network_id page token returns error", func(t *testing.T) {
 		t.Parallel()
 		// Encode a cursor for a different NID. The service must reject it.
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageToken: "eyJpZCI6ImZha2UtaWQiLCJuaWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEifQ==",
 		})
 		require.Error(t, err)
@@ -116,7 +116,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("filter by actor_id returns only their keys", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			Filter:   `actor_id="user-a"`,
 			PageSize: 50,
 		})
@@ -129,7 +129,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("status-only filter requires actor_id", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			Filter:   "status=KEY_STATUS_REVOKED",
 			PageSize: 50,
 		})
@@ -138,7 +138,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("filter by actor AND revoked status returns only revoked keys", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			Filter:   `actor_id="user-a" AND status=KEY_STATUS_REVOKED`,
 			PageSize: 50,
 		})
@@ -151,7 +151,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("filter by actor AND status combined", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			Filter:   `actor_id="user-a" AND status=KEY_STATUS_ACTIVE`,
 			PageSize: 50,
 		})
@@ -165,7 +165,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("filter with no matching actor returns empty list", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			Filter:   `actor_id="nobody"`,
 			PageSize: 50,
 		})
@@ -180,7 +180,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 		seen := map[string]bool{}
 		token := ""
 		for {
-			resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+			resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 				Filter:    `actor_id="user-a"`,
 				PageSize:  1,
 				PageToken: token,
@@ -201,7 +201,7 @@ func TestListIssuedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("invalid filter expression returns error", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		_, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			Filter: "unknown_field=value",
 		})
 		require.Error(t, err)
@@ -218,7 +218,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 	type importedInfo struct {
 		keyID string
 	}
-	importRequests := []*talosv2alpha1.ImportAPIKeyRequest{
+	importRequests := []*talosv2alpha1.ImportApiKeyRequest{
 		{RawKey: "ext-key-x1-unique", Name: "x1", ActorId: "owner-x", Ttl: durationpb.New(24 * time.Hour)},
 		{RawKey: "ext-key-x2-unique", Name: "x2", ActorId: "owner-x", Ttl: durationpb.New(24 * time.Hour)},
 		{RawKey: "ext-key-y1-unique", Name: "y1", ActorId: "owner-y", Ttl: durationpb.New(24 * time.Hour)},
@@ -230,7 +230,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 		require.NoError(t, err)
 		importedKeys = append(importedKeys, importedInfo{keyID: resp.KeyId})
 		if i == 0 {
-			_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{KeyId: resp.KeyId})
+			_, err = svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{KeyId: resp.KeyId})
 			require.NoError(t, err)
 		}
 	}
@@ -238,7 +238,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("page_size=0 defaults and returns all keys", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{PageSize: 0})
+		resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{PageSize: 0})
 		require.NoError(t, err)
 		assert.GreaterOrEqual(t, len(resp.ImportedApiKeys), 4)
 		assert.Empty(t, resp.NextPageToken)
@@ -246,7 +246,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("malformed page token returns error", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+		_, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 			PageToken: "tampered-token",
 		})
 		require.Error(t, err)
@@ -254,7 +254,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("filter by actor returns only their keys", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+		resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 			Filter:   `actor_id="owner-x"`,
 			PageSize: 50,
 		})
@@ -267,7 +267,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("status-only filter requires actor_id", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+		_, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 			Filter:   "status=KEY_STATUS_REVOKED",
 			PageSize: 50,
 		})
@@ -276,7 +276,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 
 	t.Run("filter by actor AND revoked status", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+		resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 			Filter:   `actor_id="owner-x" AND status=KEY_STATUS_REVOKED`,
 			PageSize: 50,
 		})
@@ -293,7 +293,7 @@ func TestListImportedAPIKeys_Pagination(t *testing.T) {
 		token := ""
 		pages := 0
 		for {
-			resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+			resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 				PageSize:  1,
 				PageToken: token,
 			})
@@ -322,7 +322,7 @@ func TestListIssuedAPIKeys_RevokedKeyCursorStability(t *testing.T) {
 	// Create 3 keys so we can paginate with page_size=1.
 	names := []string{"cursor-a", "cursor-b", "cursor-c"}
 	for _, name := range names {
-		_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    name,
 			ActorId: "cursor-owner",
 		})
@@ -330,7 +330,7 @@ func TestListIssuedAPIKeys_RevokedKeyCursorStability(t *testing.T) {
 	}
 
 	// Fetch the first page (page_size=1) to get a cursor.
-	page1, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+	page1, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 		PageSize: 1,
 		Filter:   `actor_id="cursor-owner"`,
 	})
@@ -341,14 +341,14 @@ func TestListIssuedAPIKeys_RevokedKeyCursorStability(t *testing.T) {
 	firstKeyID := page1.IssuedApiKeys[0].KeyId
 
 	// Revoke the key that the cursor references.
-	_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{KeyId: firstKeyID})
+	_, err = svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{KeyId: firstKeyID})
 	require.NoError(t, err)
 
 	// Continue pagination with the same cursor — should still work.
 	seen := map[string]bool{firstKeyID: true}
 	token := page1.NextPageToken
 	for token != "" {
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageSize:  1,
 			PageToken: token,
 			Filter:    `actor_id="cursor-owner"`,
@@ -378,7 +378,7 @@ func TestListIssuedAPIKeys_SameTimestampTieBreaking(t *testing.T) {
 	// may share the same created_at value.
 	const keyCount = 5
 	for i := range keyCount {
-		_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "ts-" + time.Now().Format("150405.000000") + "-" + string(rune('a'+i)),
 			ActorId: "same-ts-owner",
 		})
@@ -391,7 +391,7 @@ func TestListIssuedAPIKeys_SameTimestampTieBreaking(t *testing.T) {
 	pages := 0
 
 	for {
-		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageSize:  1,
 			PageToken: token,
 			Filter:    `actor_id="same-ts-owner"`,

@@ -18,13 +18,13 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		req     *talosv2alpha1.IssueAPIKeyRequest
+		req     *talosv2alpha1.IssueApiKeyRequest
 		wantErr bool
 		check   func(t *testing.T, result CreateKeyRequest)
 	}{
 		{
 			name: "basic request with defaults",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 			},
@@ -53,7 +53,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with scopes",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 				Scopes:  []string{"read", "write"},
@@ -68,7 +68,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with metadata",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 				Metadata: func() *structpb.Struct {
@@ -90,7 +90,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with custom TTL",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 				Ttl:     durationpb.New(2 * time.Hour),
@@ -105,7 +105,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with rate limit policy",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
@@ -126,7 +126,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with zero TTL is rejected (non-expiring keys unsupported)",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 				Ttl:     durationpb.New(0),
@@ -135,7 +135,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with oversized metadata",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-123",
 				Metadata: func() *structpb.Struct {
@@ -149,7 +149,7 @@ func TestValidateAndNormalizeIssueRequest(t *testing.T) {
 		},
 		{
 			name: "request with all fields",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "full-key",
 				ActorId: "user-456",
 				Scopes:  []string{"admin"},
@@ -203,13 +203,13 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		req     *talosv2alpha1.ImportAPIKeyRequest
+		req     *talosv2alpha1.ImportApiKeyRequest
 		wantErr bool
 		check   func(t *testing.T, result ImportKeyRequest)
 	}{
 		{
 			name: "valid import request",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -230,7 +230,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "missing raw_key",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				Name:    "imported-key",
 				ActorId: "user-123",
 			},
@@ -238,7 +238,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "empty raw_key",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -247,7 +247,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "missing name",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				ActorId: "user-123",
 			},
@@ -255,7 +255,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "",
 				ActorId: "user-123",
@@ -264,7 +264,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "missing actor_id",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey: "sk_test_1234567890",
 				Name:   "imported-key",
 			},
@@ -272,7 +272,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "empty actor_id",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "",
@@ -281,7 +281,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "with scopes",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -297,7 +297,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "with metadata",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -319,7 +319,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "with TTL",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -335,7 +335,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "with zero TTL is rejected (non-expiring keys unsupported)",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -345,7 +345,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "with rate limit",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -364,7 +364,7 @@ func TestValidateAndNormalizeImportRequest(t *testing.T) {
 		},
 		{
 			name: "with oversized metadata",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_1234567890",
 				Name:    "imported-key",
 				ActorId: "user-123",
@@ -404,14 +404,14 @@ func TestValidateAndNormalizeIssueRequest_MaxTTL(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		req     *talosv2alpha1.IssueAPIKeyRequest
+		req     *talosv2alpha1.IssueApiKeyRequest
 		maxTTL  time.Duration
 		wantErr bool
 		check   func(t *testing.T, result CreateKeyRequest)
 	}{
 		{
 			name: "TTL equals maxTTL (boundary)",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-1",
 				Ttl:     durationpb.New(maxTTL),
@@ -427,7 +427,7 @@ func TestValidateAndNormalizeIssueRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "TTL exceeds maxTTL is rejected",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-1",
 				Ttl:     durationpb.New(maxTTL + time.Hour),
@@ -437,7 +437,7 @@ func TestValidateAndNormalizeIssueRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "zero TTL is rejected when maxTTL is set",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-1",
 				Ttl:     durationpb.New(0),
@@ -447,7 +447,7 @@ func TestValidateAndNormalizeIssueRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "nil TTL with defaultTTL over maxTTL is rejected",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-1",
 			},
@@ -456,7 +456,7 @@ func TestValidateAndNormalizeIssueRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "maxTTL disabled (zero) accepts any TTL",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "test-key",
 				ActorId: "user-1",
 				Ttl:     durationpb.New(8760 * time.Hour), // 1 year
@@ -497,14 +497,14 @@ func TestValidateAndNormalizeImportRequest_MaxTTL(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		req     *talosv2alpha1.ImportAPIKeyRequest
+		req     *talosv2alpha1.ImportApiKeyRequest
 		maxTTL  time.Duration
 		wantErr bool
 		check   func(t *testing.T, result ImportKeyRequest)
 	}{
 		{
 			name: "TTL equals maxTTL (boundary)",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_boundary",
 				Name:    "imported-key",
 				ActorId: "user-1",
@@ -521,7 +521,7 @@ func TestValidateAndNormalizeImportRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "TTL exceeds maxTTL is rejected",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_over",
 				Name:    "imported-key",
 				ActorId: "user-1",
@@ -532,7 +532,7 @@ func TestValidateAndNormalizeImportRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "zero TTL is rejected when maxTTL is set",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_noexpiry",
 				Name:    "imported-key",
 				ActorId: "user-1",
@@ -543,7 +543,7 @@ func TestValidateAndNormalizeImportRequest_MaxTTL(t *testing.T) {
 		},
 		{
 			name: "maxTTL disabled (zero) accepts any TTL",
-			req: &talosv2alpha1.ImportAPIKeyRequest{
+			req: &talosv2alpha1.ImportApiKeyRequest{
 				RawKey:  "sk_test_any",
 				Name:    "imported-key",
 				ActorId: "user-1",

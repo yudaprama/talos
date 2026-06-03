@@ -1,3 +1,9 @@
+// This file is a drift sentinel: when sqlc regenerates models from updated
+// schema, the generated struct's field set changes, but the manual mapping
+// sites in convert.go / params.go / per-driver files do not. Without this
+// test, drift surfaces only as silently dropped columns at runtime. The
+// canonical field lists below pin the expected sqlc model shape; updating
+// them is the explicit signal to update every mapping site.
 package persistencetypes
 
 import (

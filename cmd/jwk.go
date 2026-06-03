@@ -362,8 +362,8 @@ func newGetJWKSCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				GetJWKS(ctx).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				GetJwks(ctx).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()

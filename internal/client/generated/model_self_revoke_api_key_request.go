@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -14,41 +14,41 @@ import (
 	"encoding/json"
 )
 
-// checks if the SelfRevokeAPIKeyRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &SelfRevokeAPIKeyRequest{}
+// checks if the SelfRevokeApiKeyRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &SelfRevokeApiKeyRequest{}
 
-// SelfRevokeAPIKeyRequest SelfRevokeAPIKeyRequest allows an API key holder to revoke their own key by providing the full key secret as proof of possession.
-type SelfRevokeAPIKeyRequest struct {
+// SelfRevokeApiKeyRequest SelfRevokeApiKeyRequest allows an API key holder to revoke their own key by providing the full key secret as proof of possession.
+type SelfRevokeApiKeyRequest struct {
 	Credential           *string           `json:"credential,omitempty"`
 	Reason               *RevocationReason `json:"reason,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _SelfRevokeAPIKeyRequest SelfRevokeAPIKeyRequest
+type _SelfRevokeApiKeyRequest SelfRevokeApiKeyRequest
 
-// NewSelfRevokeAPIKeyRequest instantiates a new SelfRevokeAPIKeyRequest object
+// NewSelfRevokeApiKeyRequest instantiates a new SelfRevokeApiKeyRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSelfRevokeAPIKeyRequest() *SelfRevokeAPIKeyRequest {
-	this := SelfRevokeAPIKeyRequest{}
+func NewSelfRevokeApiKeyRequest() *SelfRevokeApiKeyRequest {
+	this := SelfRevokeApiKeyRequest{}
 	var reason RevocationReason = REVOCATIONREASON_REVOCATION_REASON_UNSPECIFIED
 	this.Reason = &reason
 	return &this
 }
 
-// NewSelfRevokeAPIKeyRequestWithDefaults instantiates a new SelfRevokeAPIKeyRequest object
+// NewSelfRevokeApiKeyRequestWithDefaults instantiates a new SelfRevokeApiKeyRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewSelfRevokeAPIKeyRequestWithDefaults() *SelfRevokeAPIKeyRequest {
-	this := SelfRevokeAPIKeyRequest{}
+func NewSelfRevokeApiKeyRequestWithDefaults() *SelfRevokeApiKeyRequest {
+	this := SelfRevokeApiKeyRequest{}
 	var reason RevocationReason = REVOCATIONREASON_REVOCATION_REASON_UNSPECIFIED
 	this.Reason = &reason
 	return &this
 }
 
 // GetCredential returns the Credential field value if set, zero value otherwise.
-func (o *SelfRevokeAPIKeyRequest) GetCredential() string {
+func (o *SelfRevokeApiKeyRequest) GetCredential() string {
 	if o == nil || IsNil(o.Credential) {
 		var ret string
 		return ret
@@ -58,7 +58,7 @@ func (o *SelfRevokeAPIKeyRequest) GetCredential() string {
 
 // GetCredentialOk returns a tuple with the Credential field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *SelfRevokeAPIKeyRequest) GetCredentialOk() (*string, bool) {
+func (o *SelfRevokeApiKeyRequest) GetCredentialOk() (*string, bool) {
 	if o == nil || IsNil(o.Credential) {
 		return nil, false
 	}
@@ -66,7 +66,7 @@ func (o *SelfRevokeAPIKeyRequest) GetCredentialOk() (*string, bool) {
 }
 
 // HasCredential returns a boolean if a field has been set.
-func (o *SelfRevokeAPIKeyRequest) HasCredential() bool {
+func (o *SelfRevokeApiKeyRequest) HasCredential() bool {
 	if o != nil && !IsNil(o.Credential) {
 		return true
 	}
@@ -75,12 +75,12 @@ func (o *SelfRevokeAPIKeyRequest) HasCredential() bool {
 }
 
 // SetCredential gets a reference to the given string and assigns it to the Credential field.
-func (o *SelfRevokeAPIKeyRequest) SetCredential(v string) {
+func (o *SelfRevokeApiKeyRequest) SetCredential(v string) {
 	o.Credential = &v
 }
 
 // GetReason returns the Reason field value if set, zero value otherwise.
-func (o *SelfRevokeAPIKeyRequest) GetReason() RevocationReason {
+func (o *SelfRevokeApiKeyRequest) GetReason() RevocationReason {
 	if o == nil || IsNil(o.Reason) {
 		var ret RevocationReason
 		return ret
@@ -90,7 +90,7 @@ func (o *SelfRevokeAPIKeyRequest) GetReason() RevocationReason {
 
 // GetReasonOk returns a tuple with the Reason field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *SelfRevokeAPIKeyRequest) GetReasonOk() (*RevocationReason, bool) {
+func (o *SelfRevokeApiKeyRequest) GetReasonOk() (*RevocationReason, bool) {
 	if o == nil || IsNil(o.Reason) {
 		return nil, false
 	}
@@ -98,7 +98,7 @@ func (o *SelfRevokeAPIKeyRequest) GetReasonOk() (*RevocationReason, bool) {
 }
 
 // HasReason returns a boolean if a field has been set.
-func (o *SelfRevokeAPIKeyRequest) HasReason() bool {
+func (o *SelfRevokeApiKeyRequest) HasReason() bool {
 	if o != nil && !IsNil(o.Reason) {
 		return true
 	}
@@ -107,11 +107,11 @@ func (o *SelfRevokeAPIKeyRequest) HasReason() bool {
 }
 
 // SetReason gets a reference to the given RevocationReason and assigns it to the Reason field.
-func (o *SelfRevokeAPIKeyRequest) SetReason(v RevocationReason) {
+func (o *SelfRevokeApiKeyRequest) SetReason(v RevocationReason) {
 	o.Reason = &v
 }
 
-func (o SelfRevokeAPIKeyRequest) MarshalJSON() ([]byte, error) {
+func (o SelfRevokeApiKeyRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -119,7 +119,7 @@ func (o SelfRevokeAPIKeyRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o SelfRevokeAPIKeyRequest) ToMap() (map[string]interface{}, error) {
+func (o SelfRevokeApiKeyRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Credential) {
 		toSerialize["credential"] = o.Credential
@@ -135,16 +135,16 @@ func (o SelfRevokeAPIKeyRequest) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *SelfRevokeAPIKeyRequest) UnmarshalJSON(data []byte) (err error) {
-	varSelfRevokeAPIKeyRequest := _SelfRevokeAPIKeyRequest{}
+func (o *SelfRevokeApiKeyRequest) UnmarshalJSON(data []byte) (err error) {
+	varSelfRevokeApiKeyRequest := _SelfRevokeApiKeyRequest{}
 
-	err = json.Unmarshal(data, &varSelfRevokeAPIKeyRequest)
+	err = json.Unmarshal(data, &varSelfRevokeApiKeyRequest)
 
 	if err != nil {
 		return err
 	}
 
-	*o = SelfRevokeAPIKeyRequest(varSelfRevokeAPIKeyRequest)
+	*o = SelfRevokeApiKeyRequest(varSelfRevokeApiKeyRequest)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -157,38 +157,38 @@ func (o *SelfRevokeAPIKeyRequest) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableSelfRevokeAPIKeyRequest struct {
-	value *SelfRevokeAPIKeyRequest
+type NullableSelfRevokeApiKeyRequest struct {
+	value *SelfRevokeApiKeyRequest
 	isSet bool
 }
 
-func (v NullableSelfRevokeAPIKeyRequest) Get() *SelfRevokeAPIKeyRequest {
+func (v NullableSelfRevokeApiKeyRequest) Get() *SelfRevokeApiKeyRequest {
 	return v.value
 }
 
-func (v *NullableSelfRevokeAPIKeyRequest) Set(val *SelfRevokeAPIKeyRequest) {
+func (v *NullableSelfRevokeApiKeyRequest) Set(val *SelfRevokeApiKeyRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableSelfRevokeAPIKeyRequest) IsSet() bool {
+func (v NullableSelfRevokeApiKeyRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableSelfRevokeAPIKeyRequest) Unset() {
+func (v *NullableSelfRevokeApiKeyRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableSelfRevokeAPIKeyRequest(val *SelfRevokeAPIKeyRequest) *NullableSelfRevokeAPIKeyRequest {
-	return &NullableSelfRevokeAPIKeyRequest{value: val, isSet: true}
+func NewNullableSelfRevokeApiKeyRequest(val *SelfRevokeApiKeyRequest) *NullableSelfRevokeApiKeyRequest {
+	return &NullableSelfRevokeApiKeyRequest{value: val, isSet: true}
 }
 
-func (v NullableSelfRevokeAPIKeyRequest) MarshalJSON() ([]byte, error) {
+func (v NullableSelfRevokeApiKeyRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableSelfRevokeAPIKeyRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableSelfRevokeApiKeyRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

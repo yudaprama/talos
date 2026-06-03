@@ -21,33 +21,33 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	APIKeys_AdminIssueAPIKey_FullMethodName          = "/talos.v2alpha1.APIKeys/AdminIssueAPIKey"
-	APIKeys_AdminGetIssuedAPIKey_FullMethodName      = "/talos.v2alpha1.APIKeys/AdminGetIssuedAPIKey"
-	APIKeys_AdminListIssuedAPIKeys_FullMethodName    = "/talos.v2alpha1.APIKeys/AdminListIssuedAPIKeys"
-	APIKeys_AdminUpdateIssuedAPIKey_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminUpdateIssuedAPIKey"
-	APIKeys_AdminRotateIssuedAPIKey_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminRotateIssuedAPIKey"
-	APIKeys_AdminRevokeIssuedAPIKey_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminRevokeIssuedAPIKey"
-	APIKeys_AdminImportAPIKey_FullMethodName         = "/talos.v2alpha1.APIKeys/AdminImportAPIKey"
-	APIKeys_AdminBatchImportAPIKeys_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminBatchImportAPIKeys"
-	APIKeys_AdminUpdateImportedAPIKey_FullMethodName = "/talos.v2alpha1.APIKeys/AdminUpdateImportedAPIKey"
-	APIKeys_AdminGetImportedAPIKey_FullMethodName    = "/talos.v2alpha1.APIKeys/AdminGetImportedAPIKey"
-	APIKeys_AdminListImportedAPIKeys_FullMethodName  = "/talos.v2alpha1.APIKeys/AdminListImportedAPIKeys"
-	APIKeys_AdminDeleteImportedAPIKey_FullMethodName = "/talos.v2alpha1.APIKeys/AdminDeleteImportedAPIKey"
-	APIKeys_AdminRevokeImportedAPIKey_FullMethodName = "/talos.v2alpha1.APIKeys/AdminRevokeImportedAPIKey"
-	APIKeys_RevokeAPIKey_FullMethodName              = "/talos.v2alpha1.APIKeys/RevokeAPIKey"
-	APIKeys_AdminDeriveToken_FullMethodName          = "/talos.v2alpha1.APIKeys/AdminDeriveToken"
-	APIKeys_GetJWKS_FullMethodName                   = "/talos.v2alpha1.APIKeys/GetJWKS"
-	APIKeys_AdminVerifyAPIKey_FullMethodName         = "/talos.v2alpha1.APIKeys/AdminVerifyAPIKey"
-	APIKeys_AdminBatchVerifyAPIKeys_FullMethodName   = "/talos.v2alpha1.APIKeys/AdminBatchVerifyAPIKeys"
+	ApiKeys_AdminIssueApiKey_FullMethodName                = "/talos.v2alpha1.ApiKeys/AdminIssueApiKey"
+	ApiKeys_AdminGetIssuedApiKey_FullMethodName            = "/talos.v2alpha1.ApiKeys/AdminGetIssuedApiKey"
+	ApiKeys_AdminListIssuedApiKeys_FullMethodName          = "/talos.v2alpha1.ApiKeys/AdminListIssuedApiKeys"
+	ApiKeys_AdminUpdateIssuedApiKey_FullMethodName         = "/talos.v2alpha1.ApiKeys/AdminUpdateIssuedApiKey"
+	ApiKeys_AdminRotateIssuedApiKey_FullMethodName         = "/talos.v2alpha1.ApiKeys/AdminRotateIssuedApiKey"
+	ApiKeys_AdminRevokeIssuedApiKey_FullMethodName         = "/talos.v2alpha1.ApiKeys/AdminRevokeIssuedApiKey"
+	ApiKeys_AdminImportApiKey_FullMethodName               = "/talos.v2alpha1.ApiKeys/AdminImportApiKey"
+	ApiKeys_AdminBatchCreateImportedApiKeys_FullMethodName = "/talos.v2alpha1.ApiKeys/AdminBatchCreateImportedApiKeys"
+	ApiKeys_AdminUpdateImportedApiKey_FullMethodName       = "/talos.v2alpha1.ApiKeys/AdminUpdateImportedApiKey"
+	ApiKeys_AdminGetImportedApiKey_FullMethodName          = "/talos.v2alpha1.ApiKeys/AdminGetImportedApiKey"
+	ApiKeys_AdminListImportedApiKeys_FullMethodName        = "/talos.v2alpha1.ApiKeys/AdminListImportedApiKeys"
+	ApiKeys_AdminDeleteImportedApiKey_FullMethodName       = "/talos.v2alpha1.ApiKeys/AdminDeleteImportedApiKey"
+	ApiKeys_AdminRevokeImportedApiKey_FullMethodName       = "/talos.v2alpha1.ApiKeys/AdminRevokeImportedApiKey"
+	ApiKeys_RevokeApiKey_FullMethodName                    = "/talos.v2alpha1.ApiKeys/RevokeApiKey"
+	ApiKeys_AdminDeriveToken_FullMethodName                = "/talos.v2alpha1.ApiKeys/AdminDeriveToken"
+	ApiKeys_GetJwks_FullMethodName                         = "/talos.v2alpha1.ApiKeys/GetJwks"
+	ApiKeys_AdminVerifyApiKey_FullMethodName               = "/talos.v2alpha1.ApiKeys/AdminVerifyApiKey"
+	ApiKeys_AdminBatchVerifyApiKeys_FullMethodName         = "/talos.v2alpha1.ApiKeys/AdminBatchVerifyApiKeys"
 )
 
-// APIKeysClient is the client API for APIKeys service.
+// ApiKeysClient is the client API for ApiKeys service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// # APIKeys - Manages API key lifecycle and verification
+// # ApiKeys - Manages API key lifecycle and verification
 //
-// The APIKeys service provides administrative operations for managing API keys.
+// The ApiKeys service provides administrative operations for managing API keys.
 // Deploy behind appropriate authentication and authorization.
 //
 // Key features:
@@ -57,7 +57,7 @@ const (
 // - Token derivation and minting (JWT and Macaroon)
 // - API key verification (single and batch)
 // - JWKS endpoint for public key distribution
-type APIKeysClient interface {
+type ApiKeysClient interface {
 	// Issue API Key
 	//
 	// Creates a new API key for a given actor. The secret is returned only once
@@ -75,7 +75,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminIssueAPIKey(ctx context.Context, in *IssueAPIKeyRequest, opts ...grpc.CallOption) (*IssueAPIKeyResponse, error)
+	AdminIssueApiKey(ctx context.Context, in *IssueApiKeyRequest, opts ...grpc.CallOption) (*IssueApiKeyResponse, error)
 	// Get Issued API Key
 	//
 	// Retrieves details about a specific issued API key including its status,
@@ -84,23 +84,23 @@ type APIKeysClient interface {
 	// ```http
 	// GET /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ
 	// ```
-	AdminGetIssuedAPIKey(ctx context.Context, in *GetIssuedAPIKeyRequest, opts ...grpc.CallOption) (*IssuedAPIKey, error)
+	AdminGetIssuedApiKey(ctx context.Context, in *GetIssuedApiKeyRequest, opts ...grpc.CallOption) (*IssuedApiKey, error)
 	// List Issued API Keys
 	//
 	// Lists issued API keys with optional filtering. Supports cursor-based
 	// pagination and AIP-160 filter expressions. Returns only issued
-	// (generated) API keys; use ListImportedAPIKeys for imported keys.
+	// (generated) API keys; use ListImportedApiKeys for imported keys.
 	//
 	// ```http
 	// GET /v2alpha1/admin/issuedApiKeys?page_size=50&filter=actor_id%3D%22user_123%22
 	// ```
-	AdminListIssuedAPIKeys(ctx context.Context, in *ListIssuedAPIKeysRequest, opts ...grpc.CallOption) (*ListIssuedAPIKeysResponse, error)
+	AdminListIssuedApiKeys(ctx context.Context, in *ListIssuedApiKeysRequest, opts ...grpc.CallOption) (*ListIssuedApiKeysResponse, error)
 	// Update Issued API Key
 	//
 	// Updates metadata, scopes, or rate limits of an issued key without rotating
-	// the secret. Use RotateIssuedAPIKey to change the secret.
+	// the secret. Use RotateIssuedApiKey to change the secret.
 	//
-	// Follows AIP-134: the request body is the IssuedAPIKey resource itself,
+	// Follows AIP-134: the request body is the IssuedApiKey resource itself,
 	// and the update_mask query parameter names the subset of fields to apply.
 	// Omitting update_mask is equivalent to a mask of every populated field
 	// in the body. To clear a field to its zero value, list it explicitly in
@@ -117,7 +117,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminUpdateIssuedAPIKey(ctx context.Context, in *UpdateIssuedAPIKeyRequest, opts ...grpc.CallOption) (*IssuedAPIKey, error)
+	AdminUpdateIssuedApiKey(ctx context.Context, in *UpdateIssuedApiKeyRequest, opts ...grpc.CallOption) (*IssuedApiKey, error)
 	// Rotate Issued API Key
 	//
 	// Generates a new secret for an issued API key. Creates a new API key with a
@@ -125,10 +125,10 @@ type APIKeysClient interface {
 	// recommended way to update scopes, metadata, or rotate credentials.
 	//
 	// For zero-downtime rotation, use this workflow instead:
-	//  1. IssueAPIKey with new credentials
+	//  1. IssueApiKey with new credentials
 	//  2. Deploy new secret to all services
 	//  3. Verify new secret works everywhere
-	//  4. AdminRevokeIssuedAPIKey to remove the old key
+	//  4. AdminRevokeIssuedApiKey to remove the old key
 	//
 	// ```http
 	// POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -138,7 +138,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminRotateIssuedAPIKey(ctx context.Context, in *RotateIssuedAPIKeyRequest, opts ...grpc.CallOption) (*RotateIssuedAPIKeyResponse, error)
+	AdminRotateIssuedApiKey(ctx context.Context, in *RotateIssuedApiKeyRequest, opts ...grpc.CallOption) (*RotateIssuedApiKeyResponse, error)
 	// Revoke Issued API Key
 	//
 	// Immediately revokes an issued API key. Once revoked, the key can no longer
@@ -153,7 +153,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminRevokeIssuedAPIKey(ctx context.Context, in *RevokeIssuedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AdminRevokeIssuedApiKey(ctx context.Context, in *RevokeIssuedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Import API Key
 	//
 	// Imports an external API key into the system. Allows importing keys from
@@ -171,7 +171,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminImportAPIKey(ctx context.Context, in *ImportAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error)
+	AdminImportApiKey(ctx context.Context, in *ImportApiKeyRequest, opts ...grpc.CallOption) (*ImportedApiKey, error)
 	// Batch Import API Keys
 	//
 	// Imports up to 1000 external API keys in one request. Returns per-item
@@ -179,7 +179,7 @@ type APIKeysClient interface {
 	// fail, the endpoint returns a non-200 error.
 	//
 	// ```http
-	// POST /v2alpha1/admin/importedApiKeys:batchImport
+	// POST /v2alpha1/admin/importedApiKeys:batchCreate
 	//
 	//	{
 	//	  "requests": [
@@ -189,7 +189,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminBatchImportAPIKeys(ctx context.Context, in *BatchImportAPIKeysRequest, opts ...grpc.CallOption) (*BatchImportAPIKeysResponse, error)
+	AdminBatchCreateImportedApiKeys(ctx context.Context, in *BatchCreateImportedApiKeysRequest, opts ...grpc.CallOption) (*BatchCreateImportedApiKeysResponse, error)
 	// Update Imported API Key
 	//
 	// Updates metadata, scopes, or rate limits of an imported key. Supports
@@ -209,7 +209,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminUpdateImportedAPIKey(ctx context.Context, in *UpdateImportedAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error)
+	AdminUpdateImportedApiKey(ctx context.Context, in *UpdateImportedApiKeyRequest, opts ...grpc.CallOption) (*ImportedApiKey, error)
 	// Get Imported API Key
 	//
 	// Retrieves details about a specific imported key. Returns metadata about
@@ -218,7 +218,7 @@ type APIKeysClient interface {
 	// ```http
 	// GET /v2alpha1/admin/importedApiKeys/{key_id}
 	// ```
-	AdminGetImportedAPIKey(ctx context.Context, in *GetImportedAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error)
+	AdminGetImportedApiKey(ctx context.Context, in *GetImportedApiKeyRequest, opts ...grpc.CallOption) (*ImportedApiKey, error)
 	// List Imported API Keys
 	//
 	// Lists all imported keys with filtering. Returns imported keys only (not
@@ -227,16 +227,16 @@ type APIKeysClient interface {
 	// ```http
 	// GET /v2alpha1/admin/importedApiKeys?page_size=50&filter=status%3DKEY_STATUS_ACTIVE
 	// ```
-	AdminListImportedAPIKeys(ctx context.Context, in *ListImportedAPIKeysRequest, opts ...grpc.CallOption) (*ListImportedAPIKeysResponse, error)
+	AdminListImportedApiKeys(ctx context.Context, in *ListImportedApiKeysRequest, opts ...grpc.CallOption) (*ListImportedApiKeysResponse, error)
 	// Delete Imported API Key
 	//
 	// Permanently deletes an imported key (hard delete). The key is removed from
-	// the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
+	// the database. Use AdminRevokeImportedApiKey for soft deletion (recommended).
 	//
 	// ```http
 	// DELETE /v2alpha1/admin/importedApiKeys/{key_id}
 	// ```
-	AdminDeleteImportedAPIKey(ctx context.Context, in *DeleteImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AdminDeleteImportedApiKey(ctx context.Context, in *DeleteImportedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Revoke Imported API Key
 	//
 	// Immediately revokes an imported API key. Once revoked, the key can no longer
@@ -251,12 +251,12 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminRevokeImportedAPIKey(ctx context.Context, in *RevokeImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AdminRevokeImportedApiKey(ctx context.Context, in *RevokeImportedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Revoke API Key (self-service)
 	//
 	// Proof-of-possession variant of revocation. The `Self*` prefix on the
 	// request/response messages disambiguates from the admin variants
-	// (`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
+	// (`AdminRevokeIssuedApiKey` / `AdminRevokeImportedApiKey`).
 	//
 	// Allows an API key holder to revoke their own key. The caller must provide
 	// the full API key secret as proof of possession. Supports issued API keys
@@ -275,7 +275,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	RevokeAPIKey(ctx context.Context, in *SelfRevokeAPIKeyRequest, opts ...grpc.CallOption) (*SelfRevokeAPIKeyResponse, error)
+	RevokeApiKey(ctx context.Context, in *SelfRevokeApiKeyRequest, opts ...grpc.CallOption) (*SelfRevokeApiKeyResponse, error)
 	// Derive Token
 	//
 	// Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -302,7 +302,7 @@ type APIKeysClient interface {
 	// ```http
 	// GET /v2alpha1/derivedKeys/jwks.json
 	// ```
-	GetJWKS(ctx context.Context, in *GetJWKSRequest, opts ...grpc.CallOption) (*GetJWKSResponse, error)
+	GetJwks(ctx context.Context, in *GetJWKSRequest, opts ...grpc.CallOption) (*GetJWKSResponse, error)
 	// Verify API Key
 	//
 	// Verifies a single API key or derived token. Validates the credential's
@@ -323,7 +323,7 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminVerifyAPIKey(ctx context.Context, in *VerifyAPIKeyRequest, opts ...grpc.CallOption) (*VerifyAPIKeyResponse, error)
+	AdminVerifyApiKey(ctx context.Context, in *VerifyApiKeyRequest, opts ...grpc.CallOption) (*VerifyApiKeyResponse, error)
 	// Batch Verify API Keys
 	//
 	// Verifies multiple credentials in a single request. Efficiently verifies up
@@ -348,204 +348,204 @@ type APIKeysClient interface {
 	//	}
 	//
 	// ```
-	AdminBatchVerifyAPIKeys(ctx context.Context, in *BatchVerifyAPIKeysRequest, opts ...grpc.CallOption) (*BatchVerifyAPIKeysResponse, error)
+	AdminBatchVerifyApiKeys(ctx context.Context, in *BatchVerifyApiKeysRequest, opts ...grpc.CallOption) (*BatchVerifyApiKeysResponse, error)
 }
 
-type aPIKeysClient struct {
+type apiKeysClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAPIKeysClient(cc grpc.ClientConnInterface) APIKeysClient {
-	return &aPIKeysClient{cc}
+func NewApiKeysClient(cc grpc.ClientConnInterface) ApiKeysClient {
+	return &apiKeysClient{cc}
 }
 
-func (c *aPIKeysClient) AdminIssueAPIKey(ctx context.Context, in *IssueAPIKeyRequest, opts ...grpc.CallOption) (*IssueAPIKeyResponse, error) {
+func (c *apiKeysClient) AdminIssueApiKey(ctx context.Context, in *IssueApiKeyRequest, opts ...grpc.CallOption) (*IssueApiKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(IssueAPIKeyResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminIssueAPIKey_FullMethodName, in, out, cOpts...)
+	out := new(IssueApiKeyResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminIssueApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminGetIssuedAPIKey(ctx context.Context, in *GetIssuedAPIKeyRequest, opts ...grpc.CallOption) (*IssuedAPIKey, error) {
+func (c *apiKeysClient) AdminGetIssuedApiKey(ctx context.Context, in *GetIssuedApiKeyRequest, opts ...grpc.CallOption) (*IssuedApiKey, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(IssuedAPIKey)
-	err := c.cc.Invoke(ctx, APIKeys_AdminGetIssuedAPIKey_FullMethodName, in, out, cOpts...)
+	out := new(IssuedApiKey)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminGetIssuedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminListIssuedAPIKeys(ctx context.Context, in *ListIssuedAPIKeysRequest, opts ...grpc.CallOption) (*ListIssuedAPIKeysResponse, error) {
+func (c *apiKeysClient) AdminListIssuedApiKeys(ctx context.Context, in *ListIssuedApiKeysRequest, opts ...grpc.CallOption) (*ListIssuedApiKeysResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListIssuedAPIKeysResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminListIssuedAPIKeys_FullMethodName, in, out, cOpts...)
+	out := new(ListIssuedApiKeysResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminListIssuedApiKeys_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminUpdateIssuedAPIKey(ctx context.Context, in *UpdateIssuedAPIKeyRequest, opts ...grpc.CallOption) (*IssuedAPIKey, error) {
+func (c *apiKeysClient) AdminUpdateIssuedApiKey(ctx context.Context, in *UpdateIssuedApiKeyRequest, opts ...grpc.CallOption) (*IssuedApiKey, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(IssuedAPIKey)
-	err := c.cc.Invoke(ctx, APIKeys_AdminUpdateIssuedAPIKey_FullMethodName, in, out, cOpts...)
+	out := new(IssuedApiKey)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminUpdateIssuedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminRotateIssuedAPIKey(ctx context.Context, in *RotateIssuedAPIKeyRequest, opts ...grpc.CallOption) (*RotateIssuedAPIKeyResponse, error) {
+func (c *apiKeysClient) AdminRotateIssuedApiKey(ctx context.Context, in *RotateIssuedApiKeyRequest, opts ...grpc.CallOption) (*RotateIssuedApiKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RotateIssuedAPIKeyResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminRotateIssuedAPIKey_FullMethodName, in, out, cOpts...)
+	out := new(RotateIssuedApiKeyResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminRotateIssuedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminRevokeIssuedAPIKey(ctx context.Context, in *RevokeIssuedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, APIKeys_AdminRevokeIssuedAPIKey_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIKeysClient) AdminImportAPIKey(ctx context.Context, in *ImportAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ImportedAPIKey)
-	err := c.cc.Invoke(ctx, APIKeys_AdminImportAPIKey_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIKeysClient) AdminBatchImportAPIKeys(ctx context.Context, in *BatchImportAPIKeysRequest, opts ...grpc.CallOption) (*BatchImportAPIKeysResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BatchImportAPIKeysResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminBatchImportAPIKeys_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIKeysClient) AdminUpdateImportedAPIKey(ctx context.Context, in *UpdateImportedAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ImportedAPIKey)
-	err := c.cc.Invoke(ctx, APIKeys_AdminUpdateImportedAPIKey_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIKeysClient) AdminGetImportedAPIKey(ctx context.Context, in *GetImportedAPIKeyRequest, opts ...grpc.CallOption) (*ImportedAPIKey, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ImportedAPIKey)
-	err := c.cc.Invoke(ctx, APIKeys_AdminGetImportedAPIKey_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIKeysClient) AdminListImportedAPIKeys(ctx context.Context, in *ListImportedAPIKeysRequest, opts ...grpc.CallOption) (*ListImportedAPIKeysResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListImportedAPIKeysResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminListImportedAPIKeys_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIKeysClient) AdminDeleteImportedAPIKey(ctx context.Context, in *DeleteImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *apiKeysClient) AdminRevokeIssuedApiKey(ctx context.Context, in *RevokeIssuedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, APIKeys_AdminDeleteImportedAPIKey_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminRevokeIssuedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminRevokeImportedAPIKey(ctx context.Context, in *RevokeImportedAPIKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *apiKeysClient) AdminImportApiKey(ctx context.Context, in *ImportApiKeyRequest, opts ...grpc.CallOption) (*ImportedApiKey, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ImportedApiKey)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminImportApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) AdminBatchCreateImportedApiKeys(ctx context.Context, in *BatchCreateImportedApiKeysRequest, opts ...grpc.CallOption) (*BatchCreateImportedApiKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchCreateImportedApiKeysResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminBatchCreateImportedApiKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) AdminUpdateImportedApiKey(ctx context.Context, in *UpdateImportedApiKeyRequest, opts ...grpc.CallOption) (*ImportedApiKey, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ImportedApiKey)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminUpdateImportedApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) AdminGetImportedApiKey(ctx context.Context, in *GetImportedApiKeyRequest, opts ...grpc.CallOption) (*ImportedApiKey, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ImportedApiKey)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminGetImportedApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) AdminListImportedApiKeys(ctx context.Context, in *ListImportedApiKeysRequest, opts ...grpc.CallOption) (*ListImportedApiKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListImportedApiKeysResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminListImportedApiKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) AdminDeleteImportedApiKey(ctx context.Context, in *DeleteImportedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, APIKeys_AdminRevokeImportedAPIKey_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminDeleteImportedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) RevokeAPIKey(ctx context.Context, in *SelfRevokeAPIKeyRequest, opts ...grpc.CallOption) (*SelfRevokeAPIKeyResponse, error) {
+func (c *apiKeysClient) AdminRevokeImportedApiKey(ctx context.Context, in *RevokeImportedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SelfRevokeAPIKeyResponse)
-	err := c.cc.Invoke(ctx, APIKeys_RevokeAPIKey_FullMethodName, in, out, cOpts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminRevokeImportedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminDeriveToken(ctx context.Context, in *DeriveTokenRequest, opts ...grpc.CallOption) (*DeriveTokenResponse, error) {
+func (c *apiKeysClient) RevokeApiKey(ctx context.Context, in *SelfRevokeApiKeyRequest, opts ...grpc.CallOption) (*SelfRevokeApiKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SelfRevokeApiKeyResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_RevokeApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) AdminDeriveToken(ctx context.Context, in *DeriveTokenRequest, opts ...grpc.CallOption) (*DeriveTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeriveTokenResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminDeriveToken_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminDeriveToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) GetJWKS(ctx context.Context, in *GetJWKSRequest, opts ...grpc.CallOption) (*GetJWKSResponse, error) {
+func (c *apiKeysClient) GetJwks(ctx context.Context, in *GetJWKSRequest, opts ...grpc.CallOption) (*GetJWKSResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetJWKSResponse)
-	err := c.cc.Invoke(ctx, APIKeys_GetJWKS_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ApiKeys_GetJwks_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminVerifyAPIKey(ctx context.Context, in *VerifyAPIKeyRequest, opts ...grpc.CallOption) (*VerifyAPIKeyResponse, error) {
+func (c *apiKeysClient) AdminVerifyApiKey(ctx context.Context, in *VerifyApiKeyRequest, opts ...grpc.CallOption) (*VerifyApiKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(VerifyAPIKeyResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminVerifyAPIKey_FullMethodName, in, out, cOpts...)
+	out := new(VerifyApiKeyResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminVerifyApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIKeysClient) AdminBatchVerifyAPIKeys(ctx context.Context, in *BatchVerifyAPIKeysRequest, opts ...grpc.CallOption) (*BatchVerifyAPIKeysResponse, error) {
+func (c *apiKeysClient) AdminBatchVerifyApiKeys(ctx context.Context, in *BatchVerifyApiKeysRequest, opts ...grpc.CallOption) (*BatchVerifyApiKeysResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BatchVerifyAPIKeysResponse)
-	err := c.cc.Invoke(ctx, APIKeys_AdminBatchVerifyAPIKeys_FullMethodName, in, out, cOpts...)
+	out := new(BatchVerifyApiKeysResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_AdminBatchVerifyApiKeys_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// APIKeysServer is the server API for APIKeys service.
-// All implementations should embed UnimplementedAPIKeysServer
+// ApiKeysServer is the server API for ApiKeys service.
+// All implementations should embed UnimplementedApiKeysServer
 // for forward compatibility.
 //
-// # APIKeys - Manages API key lifecycle and verification
+// # ApiKeys - Manages API key lifecycle and verification
 //
-// The APIKeys service provides administrative operations for managing API keys.
+// The ApiKeys service provides administrative operations for managing API keys.
 // Deploy behind appropriate authentication and authorization.
 //
 // Key features:
@@ -555,7 +555,7 @@ func (c *aPIKeysClient) AdminBatchVerifyAPIKeys(ctx context.Context, in *BatchVe
 // - Token derivation and minting (JWT and Macaroon)
 // - API key verification (single and batch)
 // - JWKS endpoint for public key distribution
-type APIKeysServer interface {
+type ApiKeysServer interface {
 	// Issue API Key
 	//
 	// Creates a new API key for a given actor. The secret is returned only once
@@ -573,7 +573,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminIssueAPIKey(context.Context, *IssueAPIKeyRequest) (*IssueAPIKeyResponse, error)
+	AdminIssueApiKey(context.Context, *IssueApiKeyRequest) (*IssueApiKeyResponse, error)
 	// Get Issued API Key
 	//
 	// Retrieves details about a specific issued API key including its status,
@@ -582,23 +582,23 @@ type APIKeysServer interface {
 	// ```http
 	// GET /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ
 	// ```
-	AdminGetIssuedAPIKey(context.Context, *GetIssuedAPIKeyRequest) (*IssuedAPIKey, error)
+	AdminGetIssuedApiKey(context.Context, *GetIssuedApiKeyRequest) (*IssuedApiKey, error)
 	// List Issued API Keys
 	//
 	// Lists issued API keys with optional filtering. Supports cursor-based
 	// pagination and AIP-160 filter expressions. Returns only issued
-	// (generated) API keys; use ListImportedAPIKeys for imported keys.
+	// (generated) API keys; use ListImportedApiKeys for imported keys.
 	//
 	// ```http
 	// GET /v2alpha1/admin/issuedApiKeys?page_size=50&filter=actor_id%3D%22user_123%22
 	// ```
-	AdminListIssuedAPIKeys(context.Context, *ListIssuedAPIKeysRequest) (*ListIssuedAPIKeysResponse, error)
+	AdminListIssuedApiKeys(context.Context, *ListIssuedApiKeysRequest) (*ListIssuedApiKeysResponse, error)
 	// Update Issued API Key
 	//
 	// Updates metadata, scopes, or rate limits of an issued key without rotating
-	// the secret. Use RotateIssuedAPIKey to change the secret.
+	// the secret. Use RotateIssuedApiKey to change the secret.
 	//
-	// Follows AIP-134: the request body is the IssuedAPIKey resource itself,
+	// Follows AIP-134: the request body is the IssuedApiKey resource itself,
 	// and the update_mask query parameter names the subset of fields to apply.
 	// Omitting update_mask is equivalent to a mask of every populated field
 	// in the body. To clear a field to its zero value, list it explicitly in
@@ -615,7 +615,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminUpdateIssuedAPIKey(context.Context, *UpdateIssuedAPIKeyRequest) (*IssuedAPIKey, error)
+	AdminUpdateIssuedApiKey(context.Context, *UpdateIssuedApiKeyRequest) (*IssuedApiKey, error)
 	// Rotate Issued API Key
 	//
 	// Generates a new secret for an issued API key. Creates a new API key with a
@@ -623,10 +623,10 @@ type APIKeysServer interface {
 	// recommended way to update scopes, metadata, or rotate credentials.
 	//
 	// For zero-downtime rotation, use this workflow instead:
-	//  1. IssueAPIKey with new credentials
+	//  1. IssueApiKey with new credentials
 	//  2. Deploy new secret to all services
 	//  3. Verify new secret works everywhere
-	//  4. AdminRevokeIssuedAPIKey to remove the old key
+	//  4. AdminRevokeIssuedApiKey to remove the old key
 	//
 	// ```http
 	// POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -636,7 +636,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminRotateIssuedAPIKey(context.Context, *RotateIssuedAPIKeyRequest) (*RotateIssuedAPIKeyResponse, error)
+	AdminRotateIssuedApiKey(context.Context, *RotateIssuedApiKeyRequest) (*RotateIssuedApiKeyResponse, error)
 	// Revoke Issued API Key
 	//
 	// Immediately revokes an issued API key. Once revoked, the key can no longer
@@ -651,7 +651,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminRevokeIssuedAPIKey(context.Context, *RevokeIssuedAPIKeyRequest) (*emptypb.Empty, error)
+	AdminRevokeIssuedApiKey(context.Context, *RevokeIssuedApiKeyRequest) (*emptypb.Empty, error)
 	// Import API Key
 	//
 	// Imports an external API key into the system. Allows importing keys from
@@ -669,7 +669,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminImportAPIKey(context.Context, *ImportAPIKeyRequest) (*ImportedAPIKey, error)
+	AdminImportApiKey(context.Context, *ImportApiKeyRequest) (*ImportedApiKey, error)
 	// Batch Import API Keys
 	//
 	// Imports up to 1000 external API keys in one request. Returns per-item
@@ -677,7 +677,7 @@ type APIKeysServer interface {
 	// fail, the endpoint returns a non-200 error.
 	//
 	// ```http
-	// POST /v2alpha1/admin/importedApiKeys:batchImport
+	// POST /v2alpha1/admin/importedApiKeys:batchCreate
 	//
 	//	{
 	//	  "requests": [
@@ -687,7 +687,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminBatchImportAPIKeys(context.Context, *BatchImportAPIKeysRequest) (*BatchImportAPIKeysResponse, error)
+	AdminBatchCreateImportedApiKeys(context.Context, *BatchCreateImportedApiKeysRequest) (*BatchCreateImportedApiKeysResponse, error)
 	// Update Imported API Key
 	//
 	// Updates metadata, scopes, or rate limits of an imported key. Supports
@@ -707,7 +707,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminUpdateImportedAPIKey(context.Context, *UpdateImportedAPIKeyRequest) (*ImportedAPIKey, error)
+	AdminUpdateImportedApiKey(context.Context, *UpdateImportedApiKeyRequest) (*ImportedApiKey, error)
 	// Get Imported API Key
 	//
 	// Retrieves details about a specific imported key. Returns metadata about
@@ -716,7 +716,7 @@ type APIKeysServer interface {
 	// ```http
 	// GET /v2alpha1/admin/importedApiKeys/{key_id}
 	// ```
-	AdminGetImportedAPIKey(context.Context, *GetImportedAPIKeyRequest) (*ImportedAPIKey, error)
+	AdminGetImportedApiKey(context.Context, *GetImportedApiKeyRequest) (*ImportedApiKey, error)
 	// List Imported API Keys
 	//
 	// Lists all imported keys with filtering. Returns imported keys only (not
@@ -725,16 +725,16 @@ type APIKeysServer interface {
 	// ```http
 	// GET /v2alpha1/admin/importedApiKeys?page_size=50&filter=status%3DKEY_STATUS_ACTIVE
 	// ```
-	AdminListImportedAPIKeys(context.Context, *ListImportedAPIKeysRequest) (*ListImportedAPIKeysResponse, error)
+	AdminListImportedApiKeys(context.Context, *ListImportedApiKeysRequest) (*ListImportedApiKeysResponse, error)
 	// Delete Imported API Key
 	//
 	// Permanently deletes an imported key (hard delete). The key is removed from
-	// the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
+	// the database. Use AdminRevokeImportedApiKey for soft deletion (recommended).
 	//
 	// ```http
 	// DELETE /v2alpha1/admin/importedApiKeys/{key_id}
 	// ```
-	AdminDeleteImportedAPIKey(context.Context, *DeleteImportedAPIKeyRequest) (*emptypb.Empty, error)
+	AdminDeleteImportedApiKey(context.Context, *DeleteImportedApiKeyRequest) (*emptypb.Empty, error)
 	// Revoke Imported API Key
 	//
 	// Immediately revokes an imported API key. Once revoked, the key can no longer
@@ -749,12 +749,12 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminRevokeImportedAPIKey(context.Context, *RevokeImportedAPIKeyRequest) (*emptypb.Empty, error)
+	AdminRevokeImportedApiKey(context.Context, *RevokeImportedApiKeyRequest) (*emptypb.Empty, error)
 	// Revoke API Key (self-service)
 	//
 	// Proof-of-possession variant of revocation. The `Self*` prefix on the
 	// request/response messages disambiguates from the admin variants
-	// (`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
+	// (`AdminRevokeIssuedApiKey` / `AdminRevokeImportedApiKey`).
 	//
 	// Allows an API key holder to revoke their own key. The caller must provide
 	// the full API key secret as proof of possession. Supports issued API keys
@@ -773,7 +773,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	RevokeAPIKey(context.Context, *SelfRevokeAPIKeyRequest) (*SelfRevokeAPIKeyResponse, error)
+	RevokeApiKey(context.Context, *SelfRevokeApiKeyRequest) (*SelfRevokeApiKeyResponse, error)
 	// Derive Token
 	//
 	// Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -800,7 +800,7 @@ type APIKeysServer interface {
 	// ```http
 	// GET /v2alpha1/derivedKeys/jwks.json
 	// ```
-	GetJWKS(context.Context, *GetJWKSRequest) (*GetJWKSResponse, error)
+	GetJwks(context.Context, *GetJWKSRequest) (*GetJWKSResponse, error)
 	// Verify API Key
 	//
 	// Verifies a single API key or derived token. Validates the credential's
@@ -821,7 +821,7 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminVerifyAPIKey(context.Context, *VerifyAPIKeyRequest) (*VerifyAPIKeyResponse, error)
+	AdminVerifyApiKey(context.Context, *VerifyApiKeyRequest) (*VerifyApiKeyResponse, error)
 	// Batch Verify API Keys
 	//
 	// Verifies multiple credentials in a single request. Efficiently verifies up
@@ -846,492 +846,492 @@ type APIKeysServer interface {
 	//	}
 	//
 	// ```
-	AdminBatchVerifyAPIKeys(context.Context, *BatchVerifyAPIKeysRequest) (*BatchVerifyAPIKeysResponse, error)
+	AdminBatchVerifyApiKeys(context.Context, *BatchVerifyApiKeysRequest) (*BatchVerifyApiKeysResponse, error)
 }
 
-// UnimplementedAPIKeysServer should be embedded to have
+// UnimplementedApiKeysServer should be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedAPIKeysServer struct{}
+type UnimplementedApiKeysServer struct{}
 
-func (UnimplementedAPIKeysServer) AdminIssueAPIKey(context.Context, *IssueAPIKeyRequest) (*IssueAPIKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminIssueAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminIssueApiKey(context.Context, *IssueApiKeyRequest) (*IssueApiKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminIssueApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminGetIssuedAPIKey(context.Context, *GetIssuedAPIKeyRequest) (*IssuedAPIKey, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminGetIssuedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminGetIssuedApiKey(context.Context, *GetIssuedApiKeyRequest) (*IssuedApiKey, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminGetIssuedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminListIssuedAPIKeys(context.Context, *ListIssuedAPIKeysRequest) (*ListIssuedAPIKeysResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminListIssuedAPIKeys not implemented")
+func (UnimplementedApiKeysServer) AdminListIssuedApiKeys(context.Context, *ListIssuedApiKeysRequest) (*ListIssuedApiKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListIssuedApiKeys not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminUpdateIssuedAPIKey(context.Context, *UpdateIssuedAPIKeyRequest) (*IssuedAPIKey, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdateIssuedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminUpdateIssuedApiKey(context.Context, *UpdateIssuedApiKeyRequest) (*IssuedApiKey, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdateIssuedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminRotateIssuedAPIKey(context.Context, *RotateIssuedAPIKeyRequest) (*RotateIssuedAPIKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminRotateIssuedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminRotateIssuedApiKey(context.Context, *RotateIssuedApiKeyRequest) (*RotateIssuedApiKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRotateIssuedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminRevokeIssuedAPIKey(context.Context, *RevokeIssuedAPIKeyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeIssuedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminRevokeIssuedApiKey(context.Context, *RevokeIssuedApiKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeIssuedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminImportAPIKey(context.Context, *ImportAPIKeyRequest) (*ImportedAPIKey, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminImportAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminImportApiKey(context.Context, *ImportApiKeyRequest) (*ImportedApiKey, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminImportApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminBatchImportAPIKeys(context.Context, *BatchImportAPIKeysRequest) (*BatchImportAPIKeysResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminBatchImportAPIKeys not implemented")
+func (UnimplementedApiKeysServer) AdminBatchCreateImportedApiKeys(context.Context, *BatchCreateImportedApiKeysRequest) (*BatchCreateImportedApiKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminBatchCreateImportedApiKeys not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminUpdateImportedAPIKey(context.Context, *UpdateImportedAPIKeyRequest) (*ImportedAPIKey, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdateImportedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminUpdateImportedApiKey(context.Context, *UpdateImportedApiKeyRequest) (*ImportedApiKey, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdateImportedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminGetImportedAPIKey(context.Context, *GetImportedAPIKeyRequest) (*ImportedAPIKey, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminGetImportedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminGetImportedApiKey(context.Context, *GetImportedApiKeyRequest) (*ImportedApiKey, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminGetImportedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminListImportedAPIKeys(context.Context, *ListImportedAPIKeysRequest) (*ListImportedAPIKeysResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminListImportedAPIKeys not implemented")
+func (UnimplementedApiKeysServer) AdminListImportedApiKeys(context.Context, *ListImportedApiKeysRequest) (*ListImportedApiKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListImportedApiKeys not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminDeleteImportedAPIKey(context.Context, *DeleteImportedAPIKeyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminDeleteImportedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminDeleteImportedApiKey(context.Context, *DeleteImportedApiKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminDeleteImportedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminRevokeImportedAPIKey(context.Context, *RevokeImportedAPIKeyRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeImportedAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminRevokeImportedApiKey(context.Context, *RevokeImportedApiKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRevokeImportedApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) RevokeAPIKey(context.Context, *SelfRevokeAPIKeyRequest) (*SelfRevokeAPIKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RevokeAPIKey not implemented")
+func (UnimplementedApiKeysServer) RevokeApiKey(context.Context, *SelfRevokeApiKeyRequest) (*SelfRevokeApiKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminDeriveToken(context.Context, *DeriveTokenRequest) (*DeriveTokenResponse, error) {
+func (UnimplementedApiKeysServer) AdminDeriveToken(context.Context, *DeriveTokenRequest) (*DeriveTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDeriveToken not implemented")
 }
-func (UnimplementedAPIKeysServer) GetJWKS(context.Context, *GetJWKSRequest) (*GetJWKSResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetJWKS not implemented")
+func (UnimplementedApiKeysServer) GetJwks(context.Context, *GetJWKSRequest) (*GetJWKSResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJwks not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminVerifyAPIKey(context.Context, *VerifyAPIKeyRequest) (*VerifyAPIKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminVerifyAPIKey not implemented")
+func (UnimplementedApiKeysServer) AdminVerifyApiKey(context.Context, *VerifyApiKeyRequest) (*VerifyApiKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminVerifyApiKey not implemented")
 }
-func (UnimplementedAPIKeysServer) AdminBatchVerifyAPIKeys(context.Context, *BatchVerifyAPIKeysRequest) (*BatchVerifyAPIKeysResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminBatchVerifyAPIKeys not implemented")
+func (UnimplementedApiKeysServer) AdminBatchVerifyApiKeys(context.Context, *BatchVerifyApiKeysRequest) (*BatchVerifyApiKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminBatchVerifyApiKeys not implemented")
 }
-func (UnimplementedAPIKeysServer) testEmbeddedByValue() {}
+func (UnimplementedApiKeysServer) testEmbeddedByValue() {}
 
-// UnsafeAPIKeysServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to APIKeysServer will
+// UnsafeApiKeysServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ApiKeysServer will
 // result in compilation errors.
-type UnsafeAPIKeysServer interface {
-	mustEmbedUnimplementedAPIKeysServer()
+type UnsafeApiKeysServer interface {
+	mustEmbedUnimplementedApiKeysServer()
 }
 
-func RegisterAPIKeysServer(s grpc.ServiceRegistrar, srv APIKeysServer) {
-	// If the following call pancis, it indicates UnimplementedAPIKeysServer was
+func RegisterApiKeysServer(s grpc.ServiceRegistrar, srv ApiKeysServer) {
+	// If the following call pancis, it indicates UnimplementedApiKeysServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&APIKeys_ServiceDesc, srv)
+	s.RegisterService(&ApiKeys_ServiceDesc, srv)
 }
 
-func _APIKeys_AdminIssueAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IssueAPIKeyRequest)
+func _ApiKeys_AdminIssueApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IssueApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminIssueAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminIssueApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminIssueAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminIssueApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminIssueAPIKey(ctx, req.(*IssueAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminIssueApiKey(ctx, req.(*IssueApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminGetIssuedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetIssuedAPIKeyRequest)
+func _ApiKeys_AdminGetIssuedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIssuedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminGetIssuedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminGetIssuedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminGetIssuedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminGetIssuedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminGetIssuedAPIKey(ctx, req.(*GetIssuedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminGetIssuedApiKey(ctx, req.(*GetIssuedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminListIssuedAPIKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListIssuedAPIKeysRequest)
+func _ApiKeys_AdminListIssuedApiKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListIssuedApiKeysRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminListIssuedAPIKeys(ctx, in)
+		return srv.(ApiKeysServer).AdminListIssuedApiKeys(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminListIssuedAPIKeys_FullMethodName,
+		FullMethod: ApiKeys_AdminListIssuedApiKeys_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminListIssuedAPIKeys(ctx, req.(*ListIssuedAPIKeysRequest))
+		return srv.(ApiKeysServer).AdminListIssuedApiKeys(ctx, req.(*ListIssuedApiKeysRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminUpdateIssuedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateIssuedAPIKeyRequest)
+func _ApiKeys_AdminUpdateIssuedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateIssuedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminUpdateIssuedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminUpdateIssuedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminUpdateIssuedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminUpdateIssuedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminUpdateIssuedAPIKey(ctx, req.(*UpdateIssuedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminUpdateIssuedApiKey(ctx, req.(*UpdateIssuedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminRotateIssuedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RotateIssuedAPIKeyRequest)
+func _ApiKeys_AdminRotateIssuedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RotateIssuedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminRotateIssuedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminRotateIssuedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminRotateIssuedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminRotateIssuedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminRotateIssuedAPIKey(ctx, req.(*RotateIssuedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminRotateIssuedApiKey(ctx, req.(*RotateIssuedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminRevokeIssuedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RevokeIssuedAPIKeyRequest)
+func _ApiKeys_AdminRevokeIssuedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeIssuedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminRevokeIssuedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminRevokeIssuedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminRevokeIssuedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminRevokeIssuedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminRevokeIssuedAPIKey(ctx, req.(*RevokeIssuedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminRevokeIssuedApiKey(ctx, req.(*RevokeIssuedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminImportAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ImportAPIKeyRequest)
+func _ApiKeys_AdminImportApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminImportAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminImportApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminImportAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminImportApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminImportAPIKey(ctx, req.(*ImportAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminImportApiKey(ctx, req.(*ImportApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminBatchImportAPIKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchImportAPIKeysRequest)
+func _ApiKeys_AdminBatchCreateImportedApiKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchCreateImportedApiKeysRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminBatchImportAPIKeys(ctx, in)
+		return srv.(ApiKeysServer).AdminBatchCreateImportedApiKeys(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminBatchImportAPIKeys_FullMethodName,
+		FullMethod: ApiKeys_AdminBatchCreateImportedApiKeys_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminBatchImportAPIKeys(ctx, req.(*BatchImportAPIKeysRequest))
+		return srv.(ApiKeysServer).AdminBatchCreateImportedApiKeys(ctx, req.(*BatchCreateImportedApiKeysRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminUpdateImportedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateImportedAPIKeyRequest)
+func _ApiKeys_AdminUpdateImportedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateImportedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminUpdateImportedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminUpdateImportedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminUpdateImportedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminUpdateImportedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminUpdateImportedAPIKey(ctx, req.(*UpdateImportedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminUpdateImportedApiKey(ctx, req.(*UpdateImportedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminGetImportedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetImportedAPIKeyRequest)
+func _ApiKeys_AdminGetImportedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetImportedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminGetImportedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminGetImportedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminGetImportedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminGetImportedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminGetImportedAPIKey(ctx, req.(*GetImportedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminGetImportedApiKey(ctx, req.(*GetImportedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminListImportedAPIKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListImportedAPIKeysRequest)
+func _ApiKeys_AdminListImportedApiKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListImportedApiKeysRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminListImportedAPIKeys(ctx, in)
+		return srv.(ApiKeysServer).AdminListImportedApiKeys(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminListImportedAPIKeys_FullMethodName,
+		FullMethod: ApiKeys_AdminListImportedApiKeys_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminListImportedAPIKeys(ctx, req.(*ListImportedAPIKeysRequest))
+		return srv.(ApiKeysServer).AdminListImportedApiKeys(ctx, req.(*ListImportedApiKeysRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminDeleteImportedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteImportedAPIKeyRequest)
+func _ApiKeys_AdminDeleteImportedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteImportedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminDeleteImportedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminDeleteImportedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminDeleteImportedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminDeleteImportedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminDeleteImportedAPIKey(ctx, req.(*DeleteImportedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminDeleteImportedApiKey(ctx, req.(*DeleteImportedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminRevokeImportedAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RevokeImportedAPIKeyRequest)
+func _ApiKeys_AdminRevokeImportedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeImportedApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminRevokeImportedAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminRevokeImportedApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminRevokeImportedAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminRevokeImportedApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminRevokeImportedAPIKey(ctx, req.(*RevokeImportedAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminRevokeImportedApiKey(ctx, req.(*RevokeImportedApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_RevokeAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SelfRevokeAPIKeyRequest)
+func _ApiKeys_RevokeApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelfRevokeApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).RevokeAPIKey(ctx, in)
+		return srv.(ApiKeysServer).RevokeApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_RevokeAPIKey_FullMethodName,
+		FullMethod: ApiKeys_RevokeApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).RevokeAPIKey(ctx, req.(*SelfRevokeAPIKeyRequest))
+		return srv.(ApiKeysServer).RevokeApiKey(ctx, req.(*SelfRevokeApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminDeriveToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ApiKeys_AdminDeriveToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeriveTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminDeriveToken(ctx, in)
+		return srv.(ApiKeysServer).AdminDeriveToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminDeriveToken_FullMethodName,
+		FullMethod: ApiKeys_AdminDeriveToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminDeriveToken(ctx, req.(*DeriveTokenRequest))
+		return srv.(ApiKeysServer).AdminDeriveToken(ctx, req.(*DeriveTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_GetJWKS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ApiKeys_GetJwks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetJWKSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).GetJWKS(ctx, in)
+		return srv.(ApiKeysServer).GetJwks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_GetJWKS_FullMethodName,
+		FullMethod: ApiKeys_GetJwks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).GetJWKS(ctx, req.(*GetJWKSRequest))
+		return srv.(ApiKeysServer).GetJwks(ctx, req.(*GetJWKSRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminVerifyAPIKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyAPIKeyRequest)
+func _ApiKeys_AdminVerifyApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyApiKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminVerifyAPIKey(ctx, in)
+		return srv.(ApiKeysServer).AdminVerifyApiKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminVerifyAPIKey_FullMethodName,
+		FullMethod: ApiKeys_AdminVerifyApiKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminVerifyAPIKey(ctx, req.(*VerifyAPIKeyRequest))
+		return srv.(ApiKeysServer).AdminVerifyApiKey(ctx, req.(*VerifyApiKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIKeys_AdminBatchVerifyAPIKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatchVerifyAPIKeysRequest)
+func _ApiKeys_AdminBatchVerifyApiKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchVerifyApiKeysRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIKeysServer).AdminBatchVerifyAPIKeys(ctx, in)
+		return srv.(ApiKeysServer).AdminBatchVerifyApiKeys(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: APIKeys_AdminBatchVerifyAPIKeys_FullMethodName,
+		FullMethod: ApiKeys_AdminBatchVerifyApiKeys_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIKeysServer).AdminBatchVerifyAPIKeys(ctx, req.(*BatchVerifyAPIKeysRequest))
+		return srv.(ApiKeysServer).AdminBatchVerifyApiKeys(ctx, req.(*BatchVerifyApiKeysRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// APIKeys_ServiceDesc is the grpc.ServiceDesc for APIKeys service.
+// ApiKeys_ServiceDesc is the grpc.ServiceDesc for ApiKeys service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var APIKeys_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "talos.v2alpha1.APIKeys",
-	HandlerType: (*APIKeysServer)(nil),
+var ApiKeys_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "talos.v2alpha1.ApiKeys",
+	HandlerType: (*ApiKeysServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AdminIssueAPIKey",
-			Handler:    _APIKeys_AdminIssueAPIKey_Handler,
+			MethodName: "AdminIssueApiKey",
+			Handler:    _ApiKeys_AdminIssueApiKey_Handler,
 		},
 		{
-			MethodName: "AdminGetIssuedAPIKey",
-			Handler:    _APIKeys_AdminGetIssuedAPIKey_Handler,
+			MethodName: "AdminGetIssuedApiKey",
+			Handler:    _ApiKeys_AdminGetIssuedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminListIssuedAPIKeys",
-			Handler:    _APIKeys_AdminListIssuedAPIKeys_Handler,
+			MethodName: "AdminListIssuedApiKeys",
+			Handler:    _ApiKeys_AdminListIssuedApiKeys_Handler,
 		},
 		{
-			MethodName: "AdminUpdateIssuedAPIKey",
-			Handler:    _APIKeys_AdminUpdateIssuedAPIKey_Handler,
+			MethodName: "AdminUpdateIssuedApiKey",
+			Handler:    _ApiKeys_AdminUpdateIssuedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminRotateIssuedAPIKey",
-			Handler:    _APIKeys_AdminRotateIssuedAPIKey_Handler,
+			MethodName: "AdminRotateIssuedApiKey",
+			Handler:    _ApiKeys_AdminRotateIssuedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminRevokeIssuedAPIKey",
-			Handler:    _APIKeys_AdminRevokeIssuedAPIKey_Handler,
+			MethodName: "AdminRevokeIssuedApiKey",
+			Handler:    _ApiKeys_AdminRevokeIssuedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminImportAPIKey",
-			Handler:    _APIKeys_AdminImportAPIKey_Handler,
+			MethodName: "AdminImportApiKey",
+			Handler:    _ApiKeys_AdminImportApiKey_Handler,
 		},
 		{
-			MethodName: "AdminBatchImportAPIKeys",
-			Handler:    _APIKeys_AdminBatchImportAPIKeys_Handler,
+			MethodName: "AdminBatchCreateImportedApiKeys",
+			Handler:    _ApiKeys_AdminBatchCreateImportedApiKeys_Handler,
 		},
 		{
-			MethodName: "AdminUpdateImportedAPIKey",
-			Handler:    _APIKeys_AdminUpdateImportedAPIKey_Handler,
+			MethodName: "AdminUpdateImportedApiKey",
+			Handler:    _ApiKeys_AdminUpdateImportedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminGetImportedAPIKey",
-			Handler:    _APIKeys_AdminGetImportedAPIKey_Handler,
+			MethodName: "AdminGetImportedApiKey",
+			Handler:    _ApiKeys_AdminGetImportedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminListImportedAPIKeys",
-			Handler:    _APIKeys_AdminListImportedAPIKeys_Handler,
+			MethodName: "AdminListImportedApiKeys",
+			Handler:    _ApiKeys_AdminListImportedApiKeys_Handler,
 		},
 		{
-			MethodName: "AdminDeleteImportedAPIKey",
-			Handler:    _APIKeys_AdminDeleteImportedAPIKey_Handler,
+			MethodName: "AdminDeleteImportedApiKey",
+			Handler:    _ApiKeys_AdminDeleteImportedApiKey_Handler,
 		},
 		{
-			MethodName: "AdminRevokeImportedAPIKey",
-			Handler:    _APIKeys_AdminRevokeImportedAPIKey_Handler,
+			MethodName: "AdminRevokeImportedApiKey",
+			Handler:    _ApiKeys_AdminRevokeImportedApiKey_Handler,
 		},
 		{
-			MethodName: "RevokeAPIKey",
-			Handler:    _APIKeys_RevokeAPIKey_Handler,
+			MethodName: "RevokeApiKey",
+			Handler:    _ApiKeys_RevokeApiKey_Handler,
 		},
 		{
 			MethodName: "AdminDeriveToken",
-			Handler:    _APIKeys_AdminDeriveToken_Handler,
+			Handler:    _ApiKeys_AdminDeriveToken_Handler,
 		},
 		{
-			MethodName: "GetJWKS",
-			Handler:    _APIKeys_GetJWKS_Handler,
+			MethodName: "GetJwks",
+			Handler:    _ApiKeys_GetJwks_Handler,
 		},
 		{
-			MethodName: "AdminVerifyAPIKey",
-			Handler:    _APIKeys_AdminVerifyAPIKey_Handler,
+			MethodName: "AdminVerifyApiKey",
+			Handler:    _ApiKeys_AdminVerifyApiKey_Handler,
 		},
 		{
-			MethodName: "AdminBatchVerifyAPIKeys",
-			Handler:    _APIKeys_AdminBatchVerifyAPIKeys_Handler,
+			MethodName: "AdminBatchVerifyApiKeys",
+			Handler:    _ApiKeys_AdminBatchVerifyApiKeys_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

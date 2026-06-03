@@ -146,7 +146,7 @@ func (tc *testContext) createAPIKey(t *testing.T, name string) (keyID, secret st
 		"--scopes", "read,write",
 		"--format", "json")
 
-	var output client.IssueAPIKeyResponse
+	var output client.IssueApiKeyResponse
 	require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 		"parse create output: %s", stdout)
 	apiKey := output.GetIssuedApiKey()
@@ -167,8 +167,8 @@ func (tc *testContext) revokeAPIKey(t *testing.T, keyID string) {
 func (tc *testContext) assertAPIKeyRevoked(t *testing.T, keyID string) {
 	t.Helper()
 
-	resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-		AdminGetIssuedAPIKey(t.Context(), keyID).
+	resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+		AdminGetIssuedApiKey(t.Context(), keyID).
 		Execute()
 	if httpResp != nil {
 		defer httpResp.Body.Close()
@@ -187,7 +187,7 @@ func (tc *testContext) importAPIKey(t *testing.T, name, rawKey string) string {
 		"--scopes", "read,write",
 		"--format", "json")
 
-	var output client.ImportedAPIKey
+	var output client.ImportedApiKey
 	require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 		"parse import output: %s", stdout)
 	require.NotEmpty(t, output.GetKeyId(), "key ID should not be empty")

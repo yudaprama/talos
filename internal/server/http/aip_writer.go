@@ -3,12 +3,15 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"math"
 	"net/http"
 	"strings"
 
 	stderr "errors"
 
 	"github.com/cockroachdb/errors"
+	codepb "google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/grpc/codes"
 
 	"github.com/ory/talos/internal/errdef"
 
@@ -86,8 +89,15 @@ func (w *AIPWriter) buildAIPResponse(err *herodot.DefaultError, httpCode int) ai
 		message = http.StatusText(httpCode)
 	}
 
-	// Derive status from HTTP code for guaranteed coherence (W1).
+	// Derive the canonical status from the error's gRPC code, which is the
+	// authoritative AIP-193 status. The HTTP code is overloaded — 409 maps to
+	// both FAILED_PRECONDITION and ALREADY_EXISTS, and 402 has no canonical gRPC
+	// status — so deriving the status from it loses information. Fall back to the
+	// HTTP-code mapping only when no gRPC code is set (zero value == codes.OK).
 	statusName := httpToGRPCStatus(httpCode)
+	if err.GRPCCodeField != codes.OK {
+		statusName = grpcCodeToAIPStatus(err.GRPCCodeField)
+	}
 
 	// Build ErrorInfo reason from IDField, sanitized to AIP-193 pattern (W2).
 	// Falls back to UNSPECIFIED_ERROR when IDField is empty to avoid restating the status (F2).
@@ -146,6 +156,17 @@ type aipErrorInfo struct {
 // OpenAPIErrorResponse is the published error response schema in OpenAPI docs.
 // It mirrors the runtime AIP envelope exactly.
 type OpenAPIErrorResponse = aipErrorResponse
+
+// grpcCodeToAIPStatus returns the canonical AIP-193 status name for a gRPC code
+// (e.g. codes.FailedPrecondition -> "FAILED_PRECONDITION"). grpc's codes.Code
+// values are numerically identical to google.rpc.Code, so we reuse the generated
+// enum names instead of maintaining a parallel mapping table.
+func grpcCodeToAIPStatus(c codes.Code) string {
+	if c > math.MaxInt32 {
+		return codepb.Code_UNKNOWN.String()
+	}
+	return codepb.Code(c).String()
+}
 
 // httpToGRPCStatus maps HTTP status codes to canonical AIP-193 status names.
 // Based on https://cloud.google.com/apis/design/errors#handling_errors

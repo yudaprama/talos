@@ -21,21 +21,21 @@ import (
 func TestAPIKeyQuotaEnforcement(t *testing.T) {
 	t.Parallel()
 
-	t.Run("IssueAPIKey rejects when at cap", func(t *testing.T) {
+	t.Run("IssueApiKey rejects when at cap", func(t *testing.T) {
 		t.Parallel()
 		svc, ctx := setupTestServiceWithConfig(t, map[string]any{
 			config.KeyQuotaAPIKeysMax.String(): 2,
 		})
 
 		for i := range 2 {
-			_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+			_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 				Name:    fmt.Sprintf("Key %d", i),
 				ActorId: "tester",
 			})
 			require.NoError(t, err)
 		}
 
-		_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Over cap",
 			ActorId: "tester",
 		})
@@ -53,14 +53,14 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 			config.KeyQuotaAPIKeysMax.String(): 1,
 		})
 
-		_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "sk_live_first_key_abcdef",
 			Name:    "First imported",
 			ActorId: "tester",
 		})
 		require.NoError(t, err)
 
-		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "sk_live_second_key_zyxwvu",
 			Name:    "Second imported",
 			ActorId: "tester",
@@ -78,13 +78,13 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 			config.KeyQuotaAPIKeysMax.String(): 2,
 		})
 
-		_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Issued one",
 			ActorId: "tester",
 		})
 		require.NoError(t, err)
 
-		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "sk_live_combined_test_abc",
 			Name:    "Imported one",
 			ActorId: "tester",
@@ -92,13 +92,13 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 		require.NoError(t, err)
 
 		// The combined total now matches the cap, so further creates fail.
-		_, err = svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err = svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Issued two",
 			ActorId: "tester",
 		})
 		require.Error(t, err)
 
-		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "sk_live_combined_test_def",
 			Name:    "Imported two",
 			ActorId: "tester",
@@ -112,7 +112,7 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 		svc, _, ctx := setupTestService(t)
 
 		for i := range 5 {
-			_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+			_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 				Name:    fmt.Sprintf("Unbounded %d", i),
 				ActorId: "tester",
 			})
@@ -129,7 +129,7 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 		})
 
 		for i := range 10 {
-			_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+			_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 				Name:    fmt.Sprintf("Zero cap %d", i),
 				ActorId: "tester",
 			})
@@ -143,19 +143,19 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 			config.KeyQuotaAPIKeysMax.String(): 1,
 		})
 
-		first, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		first, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "First",
 			ActorId: "tester",
 		})
 		require.NoError(t, err)
 
-		_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
+		_, err = svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{
 			KeyId: first.IssuedApiKey.KeyId,
 		})
 		require.NoError(t, err)
 
 		// Cap counts only non-revoked keys; another issue should succeed.
-		_, err = svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err = svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "After revoke",
 			ActorId: "tester",
 		})
@@ -168,7 +168,7 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 			config.KeyQuotaAPIKeysMax.String(): 3,
 		})
 
-		_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Preexisting",
 			ActorId: "tester",
 		})
@@ -176,13 +176,13 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 
 		// Cap is 3 with 1 already issued, so headroom is 2. We submit 4 imports
 		// and expect the first two to succeed and the last two to be rejected.
-		batch := []*talosv2alpha1.ImportAPIKeyRequest{
+		batch := []*talosv2alpha1.ImportApiKeyRequest{
 			{RawKey: "sk_live_batch_one", Name: "One", ActorId: "tester"},
 			{RawKey: "sk_live_batch_two", Name: "Two", ActorId: "tester"},
 			{RawKey: "sk_live_batch_three", Name: "Three", ActorId: "tester"},
 			{RawKey: "sk_live_batch_four", Name: "Four", ActorId: "tester"},
 		}
-		resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchImportAPIKeysRequest{
+		resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{
 			Requests: batch,
 		})
 		require.NoError(t, err)
@@ -192,9 +192,9 @@ func TestAPIKeyQuotaEnforcement(t *testing.T) {
 		assert.NotNil(t, resp.Results[1].ImportedApiKey)
 
 		require.NotNil(t, resp.Results[2].ErrorCode)
-		assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, *resp.Results[2].ErrorCode)
+		assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED, *resp.Results[2].ErrorCode)
 
 		require.NotNil(t, resp.Results[3].ErrorCode)
-		assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, *resp.Results[3].ErrorCode)
+		assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED, *resp.Results[3].ErrorCode)
 	})
 }

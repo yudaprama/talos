@@ -40,7 +40,7 @@ func buildJWTVerifyFunc(t *testing.T, signer *JWTSigner) func(ctx context.Contex
 	keySet := jwk.NewSet()
 	require.NoError(t, keySet.AddKey(k))
 	return func(ctx context.Context, _ *testing.T, tokenString string) (*Claims, error) {
-		return verifyJWTWithKeySet(ctx, tokenString, keySet)
+		return verifyJWTWithKeySet(ctx, tokenString, keySet, 0)
 	}
 }
 
@@ -522,10 +522,10 @@ func BenchmarkSigner_Verify(b *testing.B) {
 
 	cases := []benchCase{
 		{"JWT_EdDSA", edSigner, func(ctx context.Context, token string) (*Claims, error) {
-			return verifyJWTWithKeySet(ctx, token, edKeySet)
+			return verifyJWTWithKeySet(ctx, token, edKeySet, 0)
 		}},
 		{"JWT_RS256", rsaSigner, func(ctx context.Context, token string) (*Claims, error) {
-			return verifyJWTWithKeySet(ctx, token, rsaKeySet)
+			return verifyJWTWithKeySet(ctx, token, rsaKeySet, 0)
 		}},
 		{"Macaroon_v2", macSigner, func(ctx context.Context, token string) (*Claims, error) {
 			return VerifyMacaroonWithSecrets(ctx, token, macSecrets, []string{"https://bench.example.com"}, []string{"mc"}, testClockSkew)

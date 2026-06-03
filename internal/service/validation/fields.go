@@ -23,7 +23,7 @@ type NormalizedFields struct {
 	AllowedCIDRs    json.RawMessage // JSON array of CIDR strings
 }
 
-// NormalizeCreateFields normalizes fields from IssueAPIKeyRequest or ImportAPIKeyRequest.
+// NormalizeCreateFields normalizes fields from IssueApiKeyRequest or ImportApiKeyRequest.
 // Returns normalized JSON-encoded fields ready for persistence.
 func NormalizeCreateFields(
 	scopes []string,

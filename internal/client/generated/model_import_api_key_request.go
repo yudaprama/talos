@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -14,11 +14,11 @@ import (
 	"encoding/json"
 )
 
-// checks if the ImportAPIKeyRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ImportAPIKeyRequest{}
+// checks if the ImportApiKeyRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ImportApiKeyRequest{}
 
-// ImportAPIKeyRequest Example:   {     \"raw_key\": \"sk_live_abc123xyz789\",     \"name\": \"Stripe Production Key\",     \"actor_id\": \"payment-processor\",     \"scopes\": [\"read\", \"write\"],     \"ttl\": \"8760h\",  // 1 year (also accepts: 31536000s)     \"metadata\": {\"source\": \"stripe\", \"environment\": \"production\"}   }
-type ImportAPIKeyRequest struct {
+// ImportApiKeyRequest Example:   {     \"raw_key\": \"sk_live_abc123xyz789\",     \"name\": \"Stripe Production Key\",     \"actor_id\": \"payment-processor\",     \"scopes\": [\"read\", \"write\"],     \"ttl\": \"8760h\",  // 1 year (also accepts: 31536000s)     \"metadata\": {\"source\": \"stripe\", \"environment\": \"production\"}   }
+type ImportApiKeyRequest struct {
 	// actor_id is the identifier of the entity that owns this imported key. Required so every imported key is traceable to an actor for revocation and audit queries.
 	ActorId       *string        `json:"actor_id,omitempty"`
 	IpRestriction *IPRestriction `json:"ip_restriction,omitempty"`
@@ -35,31 +35,31 @@ type ImportAPIKeyRequest struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _ImportAPIKeyRequest ImportAPIKeyRequest
+type _ImportApiKeyRequest ImportApiKeyRequest
 
-// NewImportAPIKeyRequest instantiates a new ImportAPIKeyRequest object
+// NewImportApiKeyRequest instantiates a new ImportApiKeyRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewImportAPIKeyRequest() *ImportAPIKeyRequest {
-	this := ImportAPIKeyRequest{}
+func NewImportApiKeyRequest() *ImportApiKeyRequest {
+	this := ImportApiKeyRequest{}
 	var visibility KeyVisibility = KEYVISIBILITY_KEY_VISIBILITY_UNSPECIFIED
 	this.Visibility = &visibility
 	return &this
 }
 
-// NewImportAPIKeyRequestWithDefaults instantiates a new ImportAPIKeyRequest object
+// NewImportApiKeyRequestWithDefaults instantiates a new ImportApiKeyRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewImportAPIKeyRequestWithDefaults() *ImportAPIKeyRequest {
-	this := ImportAPIKeyRequest{}
+func NewImportApiKeyRequestWithDefaults() *ImportApiKeyRequest {
+	this := ImportApiKeyRequest{}
 	var visibility KeyVisibility = KEYVISIBILITY_KEY_VISIBILITY_UNSPECIFIED
 	this.Visibility = &visibility
 	return &this
 }
 
 // GetActorId returns the ActorId field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetActorId() string {
+func (o *ImportApiKeyRequest) GetActorId() string {
 	if o == nil || IsNil(o.ActorId) {
 		var ret string
 		return ret
@@ -69,7 +69,7 @@ func (o *ImportAPIKeyRequest) GetActorId() string {
 
 // GetActorIdOk returns a tuple with the ActorId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetActorIdOk() (*string, bool) {
+func (o *ImportApiKeyRequest) GetActorIdOk() (*string, bool) {
 	if o == nil || IsNil(o.ActorId) {
 		return nil, false
 	}
@@ -77,7 +77,7 @@ func (o *ImportAPIKeyRequest) GetActorIdOk() (*string, bool) {
 }
 
 // HasActorId returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasActorId() bool {
+func (o *ImportApiKeyRequest) HasActorId() bool {
 	if o != nil && !IsNil(o.ActorId) {
 		return true
 	}
@@ -86,12 +86,12 @@ func (o *ImportAPIKeyRequest) HasActorId() bool {
 }
 
 // SetActorId gets a reference to the given string and assigns it to the ActorId field.
-func (o *ImportAPIKeyRequest) SetActorId(v string) {
+func (o *ImportApiKeyRequest) SetActorId(v string) {
 	o.ActorId = &v
 }
 
 // GetIpRestriction returns the IpRestriction field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetIpRestriction() IPRestriction {
+func (o *ImportApiKeyRequest) GetIpRestriction() IPRestriction {
 	if o == nil || IsNil(o.IpRestriction) {
 		var ret IPRestriction
 		return ret
@@ -101,7 +101,7 @@ func (o *ImportAPIKeyRequest) GetIpRestriction() IPRestriction {
 
 // GetIpRestrictionOk returns a tuple with the IpRestriction field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetIpRestrictionOk() (*IPRestriction, bool) {
+func (o *ImportApiKeyRequest) GetIpRestrictionOk() (*IPRestriction, bool) {
 	if o == nil || IsNil(o.IpRestriction) {
 		return nil, false
 	}
@@ -109,7 +109,7 @@ func (o *ImportAPIKeyRequest) GetIpRestrictionOk() (*IPRestriction, bool) {
 }
 
 // HasIpRestriction returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasIpRestriction() bool {
+func (o *ImportApiKeyRequest) HasIpRestriction() bool {
 	if o != nil && !IsNil(o.IpRestriction) {
 		return true
 	}
@@ -118,12 +118,12 @@ func (o *ImportAPIKeyRequest) HasIpRestriction() bool {
 }
 
 // SetIpRestriction gets a reference to the given IPRestriction and assigns it to the IpRestriction field.
-func (o *ImportAPIKeyRequest) SetIpRestriction(v IPRestriction) {
+func (o *ImportApiKeyRequest) SetIpRestriction(v IPRestriction) {
 	o.IpRestriction = &v
 }
 
 // GetMetadata returns the Metadata field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetMetadata() map[string]interface{} {
+func (o *ImportApiKeyRequest) GetMetadata() map[string]interface{} {
 	if o == nil || IsNil(o.Metadata) {
 		var ret map[string]interface{}
 		return ret
@@ -133,7 +133,7 @@ func (o *ImportAPIKeyRequest) GetMetadata() map[string]interface{} {
 
 // GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetMetadataOk() (map[string]interface{}, bool) {
+func (o *ImportApiKeyRequest) GetMetadataOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Metadata) {
 		return map[string]interface{}{}, false
 	}
@@ -141,7 +141,7 @@ func (o *ImportAPIKeyRequest) GetMetadataOk() (map[string]interface{}, bool) {
 }
 
 // HasMetadata returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasMetadata() bool {
+func (o *ImportApiKeyRequest) HasMetadata() bool {
 	if o != nil && !IsNil(o.Metadata) {
 		return true
 	}
@@ -150,12 +150,12 @@ func (o *ImportAPIKeyRequest) HasMetadata() bool {
 }
 
 // SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
-func (o *ImportAPIKeyRequest) SetMetadata(v map[string]interface{}) {
+func (o *ImportApiKeyRequest) SetMetadata(v map[string]interface{}) {
 	o.Metadata = v
 }
 
 // GetName returns the Name field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetName() string {
+func (o *ImportApiKeyRequest) GetName() string {
 	if o == nil || IsNil(o.Name) {
 		var ret string
 		return ret
@@ -165,7 +165,7 @@ func (o *ImportAPIKeyRequest) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetNameOk() (*string, bool) {
+func (o *ImportApiKeyRequest) GetNameOk() (*string, bool) {
 	if o == nil || IsNil(o.Name) {
 		return nil, false
 	}
@@ -173,7 +173,7 @@ func (o *ImportAPIKeyRequest) GetNameOk() (*string, bool) {
 }
 
 // HasName returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasName() bool {
+func (o *ImportApiKeyRequest) HasName() bool {
 	if o != nil && !IsNil(o.Name) {
 		return true
 	}
@@ -182,12 +182,12 @@ func (o *ImportAPIKeyRequest) HasName() bool {
 }
 
 // SetName gets a reference to the given string and assigns it to the Name field.
-func (o *ImportAPIKeyRequest) SetName(v string) {
+func (o *ImportApiKeyRequest) SetName(v string) {
 	o.Name = &v
 }
 
 // GetRateLimitPolicy returns the RateLimitPolicy field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetRateLimitPolicy() RateLimitPolicy {
+func (o *ImportApiKeyRequest) GetRateLimitPolicy() RateLimitPolicy {
 	if o == nil || IsNil(o.RateLimitPolicy) {
 		var ret RateLimitPolicy
 		return ret
@@ -197,7 +197,7 @@ func (o *ImportAPIKeyRequest) GetRateLimitPolicy() RateLimitPolicy {
 
 // GetRateLimitPolicyOk returns a tuple with the RateLimitPolicy field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetRateLimitPolicyOk() (*RateLimitPolicy, bool) {
+func (o *ImportApiKeyRequest) GetRateLimitPolicyOk() (*RateLimitPolicy, bool) {
 	if o == nil || IsNil(o.RateLimitPolicy) {
 		return nil, false
 	}
@@ -205,7 +205,7 @@ func (o *ImportAPIKeyRequest) GetRateLimitPolicyOk() (*RateLimitPolicy, bool) {
 }
 
 // HasRateLimitPolicy returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasRateLimitPolicy() bool {
+func (o *ImportApiKeyRequest) HasRateLimitPolicy() bool {
 	if o != nil && !IsNil(o.RateLimitPolicy) {
 		return true
 	}
@@ -214,12 +214,12 @@ func (o *ImportAPIKeyRequest) HasRateLimitPolicy() bool {
 }
 
 // SetRateLimitPolicy gets a reference to the given RateLimitPolicy and assigns it to the RateLimitPolicy field.
-func (o *ImportAPIKeyRequest) SetRateLimitPolicy(v RateLimitPolicy) {
+func (o *ImportApiKeyRequest) SetRateLimitPolicy(v RateLimitPolicy) {
 	o.RateLimitPolicy = &v
 }
 
 // GetRawKey returns the RawKey field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetRawKey() string {
+func (o *ImportApiKeyRequest) GetRawKey() string {
 	if o == nil || IsNil(o.RawKey) {
 		var ret string
 		return ret
@@ -229,7 +229,7 @@ func (o *ImportAPIKeyRequest) GetRawKey() string {
 
 // GetRawKeyOk returns a tuple with the RawKey field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetRawKeyOk() (*string, bool) {
+func (o *ImportApiKeyRequest) GetRawKeyOk() (*string, bool) {
 	if o == nil || IsNil(o.RawKey) {
 		return nil, false
 	}
@@ -237,7 +237,7 @@ func (o *ImportAPIKeyRequest) GetRawKeyOk() (*string, bool) {
 }
 
 // HasRawKey returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasRawKey() bool {
+func (o *ImportApiKeyRequest) HasRawKey() bool {
 	if o != nil && !IsNil(o.RawKey) {
 		return true
 	}
@@ -246,12 +246,12 @@ func (o *ImportAPIKeyRequest) HasRawKey() bool {
 }
 
 // SetRawKey gets a reference to the given string and assigns it to the RawKey field.
-func (o *ImportAPIKeyRequest) SetRawKey(v string) {
+func (o *ImportApiKeyRequest) SetRawKey(v string) {
 	o.RawKey = &v
 }
 
 // GetRequestId returns the RequestId field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetRequestId() string {
+func (o *ImportApiKeyRequest) GetRequestId() string {
 	if o == nil || IsNil(o.RequestId) {
 		var ret string
 		return ret
@@ -261,7 +261,7 @@ func (o *ImportAPIKeyRequest) GetRequestId() string {
 
 // GetRequestIdOk returns a tuple with the RequestId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetRequestIdOk() (*string, bool) {
+func (o *ImportApiKeyRequest) GetRequestIdOk() (*string, bool) {
 	if o == nil || IsNil(o.RequestId) {
 		return nil, false
 	}
@@ -269,7 +269,7 @@ func (o *ImportAPIKeyRequest) GetRequestIdOk() (*string, bool) {
 }
 
 // HasRequestId returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasRequestId() bool {
+func (o *ImportApiKeyRequest) HasRequestId() bool {
 	if o != nil && !IsNil(o.RequestId) {
 		return true
 	}
@@ -278,12 +278,12 @@ func (o *ImportAPIKeyRequest) HasRequestId() bool {
 }
 
 // SetRequestId gets a reference to the given string and assigns it to the RequestId field.
-func (o *ImportAPIKeyRequest) SetRequestId(v string) {
+func (o *ImportApiKeyRequest) SetRequestId(v string) {
 	o.RequestId = &v
 }
 
 // GetScopes returns the Scopes field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetScopes() []string {
+func (o *ImportApiKeyRequest) GetScopes() []string {
 	if o == nil || IsNil(o.Scopes) {
 		var ret []string
 		return ret
@@ -293,7 +293,7 @@ func (o *ImportAPIKeyRequest) GetScopes() []string {
 
 // GetScopesOk returns a tuple with the Scopes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetScopesOk() ([]string, bool) {
+func (o *ImportApiKeyRequest) GetScopesOk() ([]string, bool) {
 	if o == nil || IsNil(o.Scopes) {
 		return nil, false
 	}
@@ -301,7 +301,7 @@ func (o *ImportAPIKeyRequest) GetScopesOk() ([]string, bool) {
 }
 
 // HasScopes returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasScopes() bool {
+func (o *ImportApiKeyRequest) HasScopes() bool {
 	if o != nil && !IsNil(o.Scopes) {
 		return true
 	}
@@ -310,12 +310,12 @@ func (o *ImportAPIKeyRequest) HasScopes() bool {
 }
 
 // SetScopes gets a reference to the given []string and assigns it to the Scopes field.
-func (o *ImportAPIKeyRequest) SetScopes(v []string) {
+func (o *ImportApiKeyRequest) SetScopes(v []string) {
 	o.Scopes = v
 }
 
 // GetTtl returns the Ttl field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetTtl() string {
+func (o *ImportApiKeyRequest) GetTtl() string {
 	if o == nil || IsNil(o.Ttl) {
 		var ret string
 		return ret
@@ -325,7 +325,7 @@ func (o *ImportAPIKeyRequest) GetTtl() string {
 
 // GetTtlOk returns a tuple with the Ttl field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetTtlOk() (*string, bool) {
+func (o *ImportApiKeyRequest) GetTtlOk() (*string, bool) {
 	if o == nil || IsNil(o.Ttl) {
 		return nil, false
 	}
@@ -333,7 +333,7 @@ func (o *ImportAPIKeyRequest) GetTtlOk() (*string, bool) {
 }
 
 // HasTtl returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasTtl() bool {
+func (o *ImportApiKeyRequest) HasTtl() bool {
 	if o != nil && !IsNil(o.Ttl) {
 		return true
 	}
@@ -342,12 +342,12 @@ func (o *ImportAPIKeyRequest) HasTtl() bool {
 }
 
 // SetTtl gets a reference to the given string and assigns it to the Ttl field.
-func (o *ImportAPIKeyRequest) SetTtl(v string) {
+func (o *ImportApiKeyRequest) SetTtl(v string) {
 	o.Ttl = &v
 }
 
 // GetVisibility returns the Visibility field value if set, zero value otherwise.
-func (o *ImportAPIKeyRequest) GetVisibility() KeyVisibility {
+func (o *ImportApiKeyRequest) GetVisibility() KeyVisibility {
 	if o == nil || IsNil(o.Visibility) {
 		var ret KeyVisibility
 		return ret
@@ -357,7 +357,7 @@ func (o *ImportAPIKeyRequest) GetVisibility() KeyVisibility {
 
 // GetVisibilityOk returns a tuple with the Visibility field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ImportAPIKeyRequest) GetVisibilityOk() (*KeyVisibility, bool) {
+func (o *ImportApiKeyRequest) GetVisibilityOk() (*KeyVisibility, bool) {
 	if o == nil || IsNil(o.Visibility) {
 		return nil, false
 	}
@@ -365,7 +365,7 @@ func (o *ImportAPIKeyRequest) GetVisibilityOk() (*KeyVisibility, bool) {
 }
 
 // HasVisibility returns a boolean if a field has been set.
-func (o *ImportAPIKeyRequest) HasVisibility() bool {
+func (o *ImportApiKeyRequest) HasVisibility() bool {
 	if o != nil && !IsNil(o.Visibility) {
 		return true
 	}
@@ -374,11 +374,11 @@ func (o *ImportAPIKeyRequest) HasVisibility() bool {
 }
 
 // SetVisibility gets a reference to the given KeyVisibility and assigns it to the Visibility field.
-func (o *ImportAPIKeyRequest) SetVisibility(v KeyVisibility) {
+func (o *ImportApiKeyRequest) SetVisibility(v KeyVisibility) {
 	o.Visibility = &v
 }
 
-func (o ImportAPIKeyRequest) MarshalJSON() ([]byte, error) {
+func (o ImportApiKeyRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -386,7 +386,7 @@ func (o ImportAPIKeyRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o ImportAPIKeyRequest) ToMap() (map[string]interface{}, error) {
+func (o ImportApiKeyRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.ActorId) {
 		toSerialize["actor_id"] = o.ActorId
@@ -426,16 +426,16 @@ func (o ImportAPIKeyRequest) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *ImportAPIKeyRequest) UnmarshalJSON(data []byte) (err error) {
-	varImportAPIKeyRequest := _ImportAPIKeyRequest{}
+func (o *ImportApiKeyRequest) UnmarshalJSON(data []byte) (err error) {
+	varImportApiKeyRequest := _ImportApiKeyRequest{}
 
-	err = json.Unmarshal(data, &varImportAPIKeyRequest)
+	err = json.Unmarshal(data, &varImportApiKeyRequest)
 
 	if err != nil {
 		return err
 	}
 
-	*o = ImportAPIKeyRequest(varImportAPIKeyRequest)
+	*o = ImportApiKeyRequest(varImportApiKeyRequest)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -456,38 +456,38 @@ func (o *ImportAPIKeyRequest) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableImportAPIKeyRequest struct {
-	value *ImportAPIKeyRequest
+type NullableImportApiKeyRequest struct {
+	value *ImportApiKeyRequest
 	isSet bool
 }
 
-func (v NullableImportAPIKeyRequest) Get() *ImportAPIKeyRequest {
+func (v NullableImportApiKeyRequest) Get() *ImportApiKeyRequest {
 	return v.value
 }
 
-func (v *NullableImportAPIKeyRequest) Set(val *ImportAPIKeyRequest) {
+func (v *NullableImportApiKeyRequest) Set(val *ImportApiKeyRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableImportAPIKeyRequest) IsSet() bool {
+func (v NullableImportApiKeyRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableImportAPIKeyRequest) Unset() {
+func (v *NullableImportApiKeyRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableImportAPIKeyRequest(val *ImportAPIKeyRequest) *NullableImportAPIKeyRequest {
-	return &NullableImportAPIKeyRequest{value: val, isSet: true}
+func NewNullableImportApiKeyRequest(val *ImportApiKeyRequest) *NullableImportApiKeyRequest {
+	return &NullableImportApiKeyRequest{value: val, isSet: true}
 }
 
-func (v NullableImportAPIKeyRequest) MarshalJSON() ([]byte, error) {
+func (v NullableImportApiKeyRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableImportAPIKeyRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableImportApiKeyRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

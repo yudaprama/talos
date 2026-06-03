@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -15,11 +15,11 @@ import (
 	"time"
 )
 
-// checks if the VerifyAPIKeyResponse type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &VerifyAPIKeyResponse{}
+// checks if the VerifyApiKeyResponse type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &VerifyApiKeyResponse{}
 
-// VerifyAPIKeyResponse struct for VerifyAPIKeyResponse
-type VerifyAPIKeyResponse struct {
+// VerifyApiKeyResponse struct for VerifyApiKeyResponse
+type VerifyApiKeyResponse struct {
 	ActorId      *string                `json:"actor_id,omitempty"`
 	ErrorCode    *VerificationErrorCode `json:"error_code,omitempty"`
 	ErrorMessage *string                `json:"error_message,omitempty"`
@@ -42,14 +42,14 @@ type VerifyAPIKeyResponse struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _VerifyAPIKeyResponse VerifyAPIKeyResponse
+type _VerifyApiKeyResponse VerifyApiKeyResponse
 
-// NewVerifyAPIKeyResponse instantiates a new VerifyAPIKeyResponse object
+// NewVerifyApiKeyResponse instantiates a new VerifyApiKeyResponse object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewVerifyAPIKeyResponse() *VerifyAPIKeyResponse {
-	this := VerifyAPIKeyResponse{}
+func NewVerifyApiKeyResponse() *VerifyApiKeyResponse {
+	this := VerifyApiKeyResponse{}
 	var errorCode VerificationErrorCode = VERIFICATIONERRORCODE_VERIFICATION_ERROR_UNSPECIFIED
 	this.ErrorCode = &errorCode
 	var status KeyStatus = KEYSTATUS_KEY_STATUS_UNSPECIFIED
@@ -59,11 +59,11 @@ func NewVerifyAPIKeyResponse() *VerifyAPIKeyResponse {
 	return &this
 }
 
-// NewVerifyAPIKeyResponseWithDefaults instantiates a new VerifyAPIKeyResponse object
+// NewVerifyApiKeyResponseWithDefaults instantiates a new VerifyApiKeyResponse object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewVerifyAPIKeyResponseWithDefaults() *VerifyAPIKeyResponse {
-	this := VerifyAPIKeyResponse{}
+func NewVerifyApiKeyResponseWithDefaults() *VerifyApiKeyResponse {
+	this := VerifyApiKeyResponse{}
 	var errorCode VerificationErrorCode = VERIFICATIONERRORCODE_VERIFICATION_ERROR_UNSPECIFIED
 	this.ErrorCode = &errorCode
 	var status KeyStatus = KEYSTATUS_KEY_STATUS_UNSPECIFIED
@@ -74,7 +74,7 @@ func NewVerifyAPIKeyResponseWithDefaults() *VerifyAPIKeyResponse {
 }
 
 // GetActorId returns the ActorId field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetActorId() string {
+func (o *VerifyApiKeyResponse) GetActorId() string {
 	if o == nil || IsNil(o.ActorId) {
 		var ret string
 		return ret
@@ -84,7 +84,7 @@ func (o *VerifyAPIKeyResponse) GetActorId() string {
 
 // GetActorIdOk returns a tuple with the ActorId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetActorIdOk() (*string, bool) {
+func (o *VerifyApiKeyResponse) GetActorIdOk() (*string, bool) {
 	if o == nil || IsNil(o.ActorId) {
 		return nil, false
 	}
@@ -92,7 +92,7 @@ func (o *VerifyAPIKeyResponse) GetActorIdOk() (*string, bool) {
 }
 
 // HasActorId returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasActorId() bool {
+func (o *VerifyApiKeyResponse) HasActorId() bool {
 	if o != nil && !IsNil(o.ActorId) {
 		return true
 	}
@@ -101,12 +101,12 @@ func (o *VerifyAPIKeyResponse) HasActorId() bool {
 }
 
 // SetActorId gets a reference to the given string and assigns it to the ActorId field.
-func (o *VerifyAPIKeyResponse) SetActorId(v string) {
+func (o *VerifyApiKeyResponse) SetActorId(v string) {
 	o.ActorId = &v
 }
 
 // GetErrorCode returns the ErrorCode field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetErrorCode() VerificationErrorCode {
+func (o *VerifyApiKeyResponse) GetErrorCode() VerificationErrorCode {
 	if o == nil || IsNil(o.ErrorCode) {
 		var ret VerificationErrorCode
 		return ret
@@ -116,7 +116,7 @@ func (o *VerifyAPIKeyResponse) GetErrorCode() VerificationErrorCode {
 
 // GetErrorCodeOk returns a tuple with the ErrorCode field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetErrorCodeOk() (*VerificationErrorCode, bool) {
+func (o *VerifyApiKeyResponse) GetErrorCodeOk() (*VerificationErrorCode, bool) {
 	if o == nil || IsNil(o.ErrorCode) {
 		return nil, false
 	}
@@ -124,7 +124,7 @@ func (o *VerifyAPIKeyResponse) GetErrorCodeOk() (*VerificationErrorCode, bool) {
 }
 
 // HasErrorCode returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasErrorCode() bool {
+func (o *VerifyApiKeyResponse) HasErrorCode() bool {
 	if o != nil && !IsNil(o.ErrorCode) {
 		return true
 	}
@@ -133,12 +133,12 @@ func (o *VerifyAPIKeyResponse) HasErrorCode() bool {
 }
 
 // SetErrorCode gets a reference to the given VerificationErrorCode and assigns it to the ErrorCode field.
-func (o *VerifyAPIKeyResponse) SetErrorCode(v VerificationErrorCode) {
+func (o *VerifyApiKeyResponse) SetErrorCode(v VerificationErrorCode) {
 	o.ErrorCode = &v
 }
 
 // GetErrorMessage returns the ErrorMessage field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetErrorMessage() string {
+func (o *VerifyApiKeyResponse) GetErrorMessage() string {
 	if o == nil || IsNil(o.ErrorMessage) {
 		var ret string
 		return ret
@@ -148,7 +148,7 @@ func (o *VerifyAPIKeyResponse) GetErrorMessage() string {
 
 // GetErrorMessageOk returns a tuple with the ErrorMessage field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetErrorMessageOk() (*string, bool) {
+func (o *VerifyApiKeyResponse) GetErrorMessageOk() (*string, bool) {
 	if o == nil || IsNil(o.ErrorMessage) {
 		return nil, false
 	}
@@ -156,7 +156,7 @@ func (o *VerifyAPIKeyResponse) GetErrorMessageOk() (*string, bool) {
 }
 
 // HasErrorMessage returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasErrorMessage() bool {
+func (o *VerifyApiKeyResponse) HasErrorMessage() bool {
 	if o != nil && !IsNil(o.ErrorMessage) {
 		return true
 	}
@@ -165,12 +165,12 @@ func (o *VerifyAPIKeyResponse) HasErrorMessage() bool {
 }
 
 // SetErrorMessage gets a reference to the given string and assigns it to the ErrorMessage field.
-func (o *VerifyAPIKeyResponse) SetErrorMessage(v string) {
+func (o *VerifyApiKeyResponse) SetErrorMessage(v string) {
 	o.ErrorMessage = &v
 }
 
 // GetExpireTime returns the ExpireTime field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetExpireTime() time.Time {
+func (o *VerifyApiKeyResponse) GetExpireTime() time.Time {
 	if o == nil || IsNil(o.ExpireTime) {
 		var ret time.Time
 		return ret
@@ -180,7 +180,7 @@ func (o *VerifyAPIKeyResponse) GetExpireTime() time.Time {
 
 // GetExpireTimeOk returns a tuple with the ExpireTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetExpireTimeOk() (*time.Time, bool) {
+func (o *VerifyApiKeyResponse) GetExpireTimeOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.ExpireTime) {
 		return nil, false
 	}
@@ -188,7 +188,7 @@ func (o *VerifyAPIKeyResponse) GetExpireTimeOk() (*time.Time, bool) {
 }
 
 // HasExpireTime returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasExpireTime() bool {
+func (o *VerifyApiKeyResponse) HasExpireTime() bool {
 	if o != nil && !IsNil(o.ExpireTime) {
 		return true
 	}
@@ -197,12 +197,12 @@ func (o *VerifyAPIKeyResponse) HasExpireTime() bool {
 }
 
 // SetExpireTime gets a reference to the given time.Time and assigns it to the ExpireTime field.
-func (o *VerifyAPIKeyResponse) SetExpireTime(v time.Time) {
+func (o *VerifyApiKeyResponse) SetExpireTime(v time.Time) {
 	o.ExpireTime = &v
 }
 
 // GetIsValid returns the IsValid field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetIsValid() bool {
+func (o *VerifyApiKeyResponse) GetIsValid() bool {
 	if o == nil || IsNil(o.IsValid) {
 		var ret bool
 		return ret
@@ -212,7 +212,7 @@ func (o *VerifyAPIKeyResponse) GetIsValid() bool {
 
 // GetIsValidOk returns a tuple with the IsValid field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetIsValidOk() (*bool, bool) {
+func (o *VerifyApiKeyResponse) GetIsValidOk() (*bool, bool) {
 	if o == nil || IsNil(o.IsValid) {
 		return nil, false
 	}
@@ -220,7 +220,7 @@ func (o *VerifyAPIKeyResponse) GetIsValidOk() (*bool, bool) {
 }
 
 // HasIsValid returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasIsValid() bool {
+func (o *VerifyApiKeyResponse) HasIsValid() bool {
 	if o != nil && !IsNil(o.IsValid) {
 		return true
 	}
@@ -229,12 +229,12 @@ func (o *VerifyAPIKeyResponse) HasIsValid() bool {
 }
 
 // SetIsValid gets a reference to the given bool and assigns it to the IsValid field.
-func (o *VerifyAPIKeyResponse) SetIsValid(v bool) {
+func (o *VerifyApiKeyResponse) SetIsValid(v bool) {
 	o.IsValid = &v
 }
 
 // GetIssuer returns the Issuer field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetIssuer() string {
+func (o *VerifyApiKeyResponse) GetIssuer() string {
 	if o == nil || IsNil(o.Issuer) {
 		var ret string
 		return ret
@@ -244,7 +244,7 @@ func (o *VerifyAPIKeyResponse) GetIssuer() string {
 
 // GetIssuerOk returns a tuple with the Issuer field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetIssuerOk() (*string, bool) {
+func (o *VerifyApiKeyResponse) GetIssuerOk() (*string, bool) {
 	if o == nil || IsNil(o.Issuer) {
 		return nil, false
 	}
@@ -252,7 +252,7 @@ func (o *VerifyAPIKeyResponse) GetIssuerOk() (*string, bool) {
 }
 
 // HasIssuer returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasIssuer() bool {
+func (o *VerifyApiKeyResponse) HasIssuer() bool {
 	if o != nil && !IsNil(o.Issuer) {
 		return true
 	}
@@ -261,12 +261,12 @@ func (o *VerifyAPIKeyResponse) HasIssuer() bool {
 }
 
 // SetIssuer gets a reference to the given string and assigns it to the Issuer field.
-func (o *VerifyAPIKeyResponse) SetIssuer(v string) {
+func (o *VerifyApiKeyResponse) SetIssuer(v string) {
 	o.Issuer = &v
 }
 
 // GetKeyId returns the KeyId field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetKeyId() string {
+func (o *VerifyApiKeyResponse) GetKeyId() string {
 	if o == nil || IsNil(o.KeyId) {
 		var ret string
 		return ret
@@ -276,7 +276,7 @@ func (o *VerifyAPIKeyResponse) GetKeyId() string {
 
 // GetKeyIdOk returns a tuple with the KeyId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetKeyIdOk() (*string, bool) {
+func (o *VerifyApiKeyResponse) GetKeyIdOk() (*string, bool) {
 	if o == nil || IsNil(o.KeyId) {
 		return nil, false
 	}
@@ -284,7 +284,7 @@ func (o *VerifyAPIKeyResponse) GetKeyIdOk() (*string, bool) {
 }
 
 // HasKeyId returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasKeyId() bool {
+func (o *VerifyApiKeyResponse) HasKeyId() bool {
 	if o != nil && !IsNil(o.KeyId) {
 		return true
 	}
@@ -293,12 +293,12 @@ func (o *VerifyAPIKeyResponse) HasKeyId() bool {
 }
 
 // SetKeyId gets a reference to the given string and assigns it to the KeyId field.
-func (o *VerifyAPIKeyResponse) SetKeyId(v string) {
+func (o *VerifyApiKeyResponse) SetKeyId(v string) {
 	o.KeyId = &v
 }
 
 // GetMetadata returns the Metadata field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetMetadata() map[string]interface{} {
+func (o *VerifyApiKeyResponse) GetMetadata() map[string]interface{} {
 	if o == nil || IsNil(o.Metadata) {
 		var ret map[string]interface{}
 		return ret
@@ -308,7 +308,7 @@ func (o *VerifyAPIKeyResponse) GetMetadata() map[string]interface{} {
 
 // GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetMetadataOk() (map[string]interface{}, bool) {
+func (o *VerifyApiKeyResponse) GetMetadataOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Metadata) {
 		return map[string]interface{}{}, false
 	}
@@ -316,7 +316,7 @@ func (o *VerifyAPIKeyResponse) GetMetadataOk() (map[string]interface{}, bool) {
 }
 
 // HasMetadata returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasMetadata() bool {
+func (o *VerifyApiKeyResponse) HasMetadata() bool {
 	if o != nil && !IsNil(o.Metadata) {
 		return true
 	}
@@ -325,12 +325,12 @@ func (o *VerifyAPIKeyResponse) HasMetadata() bool {
 }
 
 // SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
-func (o *VerifyAPIKeyResponse) SetMetadata(v map[string]interface{}) {
+func (o *VerifyApiKeyResponse) SetMetadata(v map[string]interface{}) {
 	o.Metadata = v
 }
 
 // GetRateLimitPolicy returns the RateLimitPolicy field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetRateLimitPolicy() RateLimitPolicy {
+func (o *VerifyApiKeyResponse) GetRateLimitPolicy() RateLimitPolicy {
 	if o == nil || IsNil(o.RateLimitPolicy) {
 		var ret RateLimitPolicy
 		return ret
@@ -340,7 +340,7 @@ func (o *VerifyAPIKeyResponse) GetRateLimitPolicy() RateLimitPolicy {
 
 // GetRateLimitPolicyOk returns a tuple with the RateLimitPolicy field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetRateLimitPolicyOk() (*RateLimitPolicy, bool) {
+func (o *VerifyApiKeyResponse) GetRateLimitPolicyOk() (*RateLimitPolicy, bool) {
 	if o == nil || IsNil(o.RateLimitPolicy) {
 		return nil, false
 	}
@@ -348,7 +348,7 @@ func (o *VerifyAPIKeyResponse) GetRateLimitPolicyOk() (*RateLimitPolicy, bool) {
 }
 
 // HasRateLimitPolicy returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasRateLimitPolicy() bool {
+func (o *VerifyApiKeyResponse) HasRateLimitPolicy() bool {
 	if o != nil && !IsNil(o.RateLimitPolicy) {
 		return true
 	}
@@ -357,12 +357,12 @@ func (o *VerifyAPIKeyResponse) HasRateLimitPolicy() bool {
 }
 
 // SetRateLimitPolicy gets a reference to the given RateLimitPolicy and assigns it to the RateLimitPolicy field.
-func (o *VerifyAPIKeyResponse) SetRateLimitPolicy(v RateLimitPolicy) {
+func (o *VerifyApiKeyResponse) SetRateLimitPolicy(v RateLimitPolicy) {
 	o.RateLimitPolicy = &v
 }
 
 // GetRateLimitRemaining returns the RateLimitRemaining field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetRateLimitRemaining() string {
+func (o *VerifyApiKeyResponse) GetRateLimitRemaining() string {
 	if o == nil || IsNil(o.RateLimitRemaining) {
 		var ret string
 		return ret
@@ -372,7 +372,7 @@ func (o *VerifyAPIKeyResponse) GetRateLimitRemaining() string {
 
 // GetRateLimitRemainingOk returns a tuple with the RateLimitRemaining field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetRateLimitRemainingOk() (*string, bool) {
+func (o *VerifyApiKeyResponse) GetRateLimitRemainingOk() (*string, bool) {
 	if o == nil || IsNil(o.RateLimitRemaining) {
 		return nil, false
 	}
@@ -380,7 +380,7 @@ func (o *VerifyAPIKeyResponse) GetRateLimitRemainingOk() (*string, bool) {
 }
 
 // HasRateLimitRemaining returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasRateLimitRemaining() bool {
+func (o *VerifyApiKeyResponse) HasRateLimitRemaining() bool {
 	if o != nil && !IsNil(o.RateLimitRemaining) {
 		return true
 	}
@@ -389,12 +389,12 @@ func (o *VerifyAPIKeyResponse) HasRateLimitRemaining() bool {
 }
 
 // SetRateLimitRemaining gets a reference to the given string and assigns it to the RateLimitRemaining field.
-func (o *VerifyAPIKeyResponse) SetRateLimitRemaining(v string) {
+func (o *VerifyApiKeyResponse) SetRateLimitRemaining(v string) {
 	o.RateLimitRemaining = &v
 }
 
 // GetRateLimitResetTime returns the RateLimitResetTime field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetRateLimitResetTime() time.Time {
+func (o *VerifyApiKeyResponse) GetRateLimitResetTime() time.Time {
 	if o == nil || IsNil(o.RateLimitResetTime) {
 		var ret time.Time
 		return ret
@@ -404,7 +404,7 @@ func (o *VerifyAPIKeyResponse) GetRateLimitResetTime() time.Time {
 
 // GetRateLimitResetTimeOk returns a tuple with the RateLimitResetTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetRateLimitResetTimeOk() (*time.Time, bool) {
+func (o *VerifyApiKeyResponse) GetRateLimitResetTimeOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.RateLimitResetTime) {
 		return nil, false
 	}
@@ -412,7 +412,7 @@ func (o *VerifyAPIKeyResponse) GetRateLimitResetTimeOk() (*time.Time, bool) {
 }
 
 // HasRateLimitResetTime returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasRateLimitResetTime() bool {
+func (o *VerifyApiKeyResponse) HasRateLimitResetTime() bool {
 	if o != nil && !IsNil(o.RateLimitResetTime) {
 		return true
 	}
@@ -421,12 +421,12 @@ func (o *VerifyAPIKeyResponse) HasRateLimitResetTime() bool {
 }
 
 // SetRateLimitResetTime gets a reference to the given time.Time and assigns it to the RateLimitResetTime field.
-func (o *VerifyAPIKeyResponse) SetRateLimitResetTime(v time.Time) {
+func (o *VerifyApiKeyResponse) SetRateLimitResetTime(v time.Time) {
 	o.RateLimitResetTime = &v
 }
 
 // GetScopes returns the Scopes field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetScopes() []string {
+func (o *VerifyApiKeyResponse) GetScopes() []string {
 	if o == nil || IsNil(o.Scopes) {
 		var ret []string
 		return ret
@@ -436,7 +436,7 @@ func (o *VerifyAPIKeyResponse) GetScopes() []string {
 
 // GetScopesOk returns a tuple with the Scopes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetScopesOk() ([]string, bool) {
+func (o *VerifyApiKeyResponse) GetScopesOk() ([]string, bool) {
 	if o == nil || IsNil(o.Scopes) {
 		return nil, false
 	}
@@ -444,7 +444,7 @@ func (o *VerifyAPIKeyResponse) GetScopesOk() ([]string, bool) {
 }
 
 // HasScopes returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasScopes() bool {
+func (o *VerifyApiKeyResponse) HasScopes() bool {
 	if o != nil && !IsNil(o.Scopes) {
 		return true
 	}
@@ -453,12 +453,12 @@ func (o *VerifyAPIKeyResponse) HasScopes() bool {
 }
 
 // SetScopes gets a reference to the given []string and assigns it to the Scopes field.
-func (o *VerifyAPIKeyResponse) SetScopes(v []string) {
+func (o *VerifyApiKeyResponse) SetScopes(v []string) {
 	o.Scopes = v
 }
 
 // GetStatus returns the Status field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetStatus() KeyStatus {
+func (o *VerifyApiKeyResponse) GetStatus() KeyStatus {
 	if o == nil || IsNil(o.Status) {
 		var ret KeyStatus
 		return ret
@@ -468,7 +468,7 @@ func (o *VerifyAPIKeyResponse) GetStatus() KeyStatus {
 
 // GetStatusOk returns a tuple with the Status field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetStatusOk() (*KeyStatus, bool) {
+func (o *VerifyApiKeyResponse) GetStatusOk() (*KeyStatus, bool) {
 	if o == nil || IsNil(o.Status) {
 		return nil, false
 	}
@@ -476,7 +476,7 @@ func (o *VerifyAPIKeyResponse) GetStatusOk() (*KeyStatus, bool) {
 }
 
 // HasStatus returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasStatus() bool {
+func (o *VerifyApiKeyResponse) HasStatus() bool {
 	if o != nil && !IsNil(o.Status) {
 		return true
 	}
@@ -485,12 +485,12 @@ func (o *VerifyAPIKeyResponse) HasStatus() bool {
 }
 
 // SetStatus gets a reference to the given KeyStatus and assigns it to the Status field.
-func (o *VerifyAPIKeyResponse) SetStatus(v KeyStatus) {
+func (o *VerifyApiKeyResponse) SetStatus(v KeyStatus) {
 	o.Status = &v
 }
 
 // GetVisibility returns the Visibility field value if set, zero value otherwise.
-func (o *VerifyAPIKeyResponse) GetVisibility() KeyVisibility {
+func (o *VerifyApiKeyResponse) GetVisibility() KeyVisibility {
 	if o == nil || IsNil(o.Visibility) {
 		var ret KeyVisibility
 		return ret
@@ -500,7 +500,7 @@ func (o *VerifyAPIKeyResponse) GetVisibility() KeyVisibility {
 
 // GetVisibilityOk returns a tuple with the Visibility field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *VerifyAPIKeyResponse) GetVisibilityOk() (*KeyVisibility, bool) {
+func (o *VerifyApiKeyResponse) GetVisibilityOk() (*KeyVisibility, bool) {
 	if o == nil || IsNil(o.Visibility) {
 		return nil, false
 	}
@@ -508,7 +508,7 @@ func (o *VerifyAPIKeyResponse) GetVisibilityOk() (*KeyVisibility, bool) {
 }
 
 // HasVisibility returns a boolean if a field has been set.
-func (o *VerifyAPIKeyResponse) HasVisibility() bool {
+func (o *VerifyApiKeyResponse) HasVisibility() bool {
 	if o != nil && !IsNil(o.Visibility) {
 		return true
 	}
@@ -517,11 +517,11 @@ func (o *VerifyAPIKeyResponse) HasVisibility() bool {
 }
 
 // SetVisibility gets a reference to the given KeyVisibility and assigns it to the Visibility field.
-func (o *VerifyAPIKeyResponse) SetVisibility(v KeyVisibility) {
+func (o *VerifyApiKeyResponse) SetVisibility(v KeyVisibility) {
 	o.Visibility = &v
 }
 
-func (o VerifyAPIKeyResponse) MarshalJSON() ([]byte, error) {
+func (o VerifyApiKeyResponse) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -529,7 +529,7 @@ func (o VerifyAPIKeyResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o VerifyAPIKeyResponse) ToMap() (map[string]interface{}, error) {
+func (o VerifyApiKeyResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.ActorId) {
 		toSerialize["actor_id"] = o.ActorId
@@ -581,16 +581,16 @@ func (o VerifyAPIKeyResponse) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *VerifyAPIKeyResponse) UnmarshalJSON(data []byte) (err error) {
-	varVerifyAPIKeyResponse := _VerifyAPIKeyResponse{}
+func (o *VerifyApiKeyResponse) UnmarshalJSON(data []byte) (err error) {
+	varVerifyApiKeyResponse := _VerifyApiKeyResponse{}
 
-	err = json.Unmarshal(data, &varVerifyAPIKeyResponse)
+	err = json.Unmarshal(data, &varVerifyApiKeyResponse)
 
 	if err != nil {
 		return err
 	}
 
-	*o = VerifyAPIKeyResponse(varVerifyAPIKeyResponse)
+	*o = VerifyApiKeyResponse(varVerifyApiKeyResponse)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -615,38 +615,38 @@ func (o *VerifyAPIKeyResponse) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableVerifyAPIKeyResponse struct {
-	value *VerifyAPIKeyResponse
+type NullableVerifyApiKeyResponse struct {
+	value *VerifyApiKeyResponse
 	isSet bool
 }
 
-func (v NullableVerifyAPIKeyResponse) Get() *VerifyAPIKeyResponse {
+func (v NullableVerifyApiKeyResponse) Get() *VerifyApiKeyResponse {
 	return v.value
 }
 
-func (v *NullableVerifyAPIKeyResponse) Set(val *VerifyAPIKeyResponse) {
+func (v *NullableVerifyApiKeyResponse) Set(val *VerifyApiKeyResponse) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableVerifyAPIKeyResponse) IsSet() bool {
+func (v NullableVerifyApiKeyResponse) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableVerifyAPIKeyResponse) Unset() {
+func (v *NullableVerifyApiKeyResponse) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableVerifyAPIKeyResponse(val *VerifyAPIKeyResponse) *NullableVerifyAPIKeyResponse {
-	return &NullableVerifyAPIKeyResponse{value: val, isSet: true}
+func NewNullableVerifyApiKeyResponse(val *VerifyApiKeyResponse) *NullableVerifyApiKeyResponse {
+	return &NullableVerifyApiKeyResponse{value: val, isSet: true}
 }
 
-func (v NullableVerifyAPIKeyResponse) MarshalJSON() ([]byte, error) {
+func (v NullableVerifyApiKeyResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableVerifyAPIKeyResponse) UnmarshalJSON(src []byte) error {
+func (v *NullableVerifyApiKeyResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

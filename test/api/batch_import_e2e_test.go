@@ -16,7 +16,7 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 		beforeCreated := snap(m.APIKeysCreated)
 		beforePartialFail := snap(m.BatchImportPartialFailures)
 
-		keys := make([]client.ImportAPIKeyRequest, 5)
+		keys := make([]client.ImportApiKeyRequest, 5)
 		for i := range 5 {
 			keys[i] = newImportReq(
 				fmt.Sprintf("e2e-batch-success-%d", i),
@@ -25,7 +25,7 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 			)
 		}
 
-		batchReq := client.NewBatchImportAPIKeysRequest()
+		batchReq := client.NewBatchCreateImportedApiKeysRequest()
 		batchReq.SetRequests(keys)
 
 		resp := s.sdkBatchImportAPIKeys(ctx, batchReq)
@@ -60,12 +60,12 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 		beforeCreated := snap(m.APIKeysCreated)
 		beforePartialFail := snap(m.BatchImportPartialFailures)
 
-		batchReq := client.NewBatchImportAPIKeysRequest()
-		batchReq.SetRequests([]client.ImportAPIKeyRequest{
+		batchReq := client.NewBatchCreateImportedApiKeysRequest()
+		batchReq.SetRequests([]client.ImportApiKeyRequest{
 			newImportReq("e2e-batch-matrix-valid-1", "matrix-valid-1", "e2e-batch-matrix-owner"),
 			newImportReq("e2e-batch-matrix-duplicate-existing", "matrix-duplicate", "e2e-batch-matrix-owner"),
-			func() client.ImportAPIKeyRequest {
-				req := client.NewImportAPIKeyRequest()
+			func() client.ImportApiKeyRequest {
+				req := client.NewImportApiKeyRequest()
 				req.SetRawKey("e2e-batch-matrix-invalid-missing-name")
 				req.SetActorId("e2e-batch-matrix-owner")
 				return *req
@@ -80,9 +80,9 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 
 		s.True(resp.GetResults()[0].HasImportedApiKey())
 		s.True(resp.GetResults()[1].HasErrorCode())
-		s.Equal(client.BATCHIMPORTERRORCODE_BATCH_IMPORT_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
+		s.Equal(client.BATCHCREATEIMPORTEDAPIKEYSERRORCODE_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
 		s.True(resp.GetResults()[2].HasErrorCode())
-		s.Equal(client.BATCHIMPORTERRORCODE_BATCH_IMPORT_ERROR_INVALID_ARGUMENT, resp.GetResults()[2].GetErrorCode())
+		s.Equal(client.BATCHCREATEIMPORTEDAPIKEYSERRORCODE_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, resp.GetResults()[2].GetErrorCode())
 		s.True(resp.GetResults()[3].HasImportedApiKey())
 
 		verifyFirst := s.sdkVerify(ctx, "e2e-batch-matrix-valid-1")
@@ -96,17 +96,17 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 	})
 
 	s.Run("partial failure response structure", func() {
-		duplicateReq := client.NewImportAPIKeyRequest()
+		duplicateReq := client.NewImportApiKeyRequest()
 		duplicateReq.SetRawKey("e2e-batch-duplicate-existing")
 		duplicateReq.SetName("existing")
 		duplicateReq.SetActorId("e2e-batch-owner")
 		s.sdkImportAPIKey(ctx, duplicateReq)
 
-		batchItems := []client.ImportAPIKeyRequest{
+		batchItems := []client.ImportApiKeyRequest{
 			newImportReq("e2e-batch-partial-valid-1", "partial-valid-1", "e2e-batch-owner"),
 			newImportReq("e2e-batch-duplicate-existing", "duplicate", "e2e-batch-owner"),
-			func() client.ImportAPIKeyRequest {
-				req := client.NewImportAPIKeyRequest()
+			func() client.ImportApiKeyRequest {
+				req := client.NewImportApiKeyRequest()
 				req.SetRawKey("e2e-batch-invalid-missing-name")
 				req.SetActorId("e2e-batch-owner")
 				return *req
@@ -115,7 +115,7 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 			newImportReq("e2e-batch-partial-valid-2", "partial-valid-2", "e2e-batch-owner"),
 		}
 
-		batchReq := client.NewBatchImportAPIKeysRequest()
+		batchReq := client.NewBatchCreateImportedApiKeysRequest()
 		batchReq.SetRequests(batchItems)
 
 		resp := s.sdkBatchImportAPIKeys(ctx, batchReq)
@@ -129,11 +129,11 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 
 		s.True(resp.GetResults()[0].HasImportedApiKey())
 		s.True(resp.GetResults()[1].HasErrorCode())
-		s.Equal(client.BATCHIMPORTERRORCODE_BATCH_IMPORT_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
+		s.Equal(client.BATCHCREATEIMPORTEDAPIKEYSERRORCODE_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
 		s.True(resp.GetResults()[2].HasErrorCode())
-		s.Equal(client.BATCHIMPORTERRORCODE_BATCH_IMPORT_ERROR_INVALID_ARGUMENT, resp.GetResults()[2].GetErrorCode())
+		s.Equal(client.BATCHCREATEIMPORTEDAPIKEYSERRORCODE_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, resp.GetResults()[2].GetErrorCode())
 		s.True(resp.GetResults()[3].HasErrorCode())
-		s.Equal(client.BATCHIMPORTERRORCODE_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, resp.GetResults()[3].GetErrorCode())
+		s.Equal(client.BATCHCREATEIMPORTEDAPIKEYSERRORCODE_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION, resp.GetResults()[3].GetErrorCode())
 		s.True(resp.GetResults()[4].HasImportedApiKey())
 
 		verifyFirst := s.sdkVerify(ctx, "e2e-batch-partial-valid-1")
@@ -143,16 +143,16 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 	})
 
 	s.Run("batch limit enforcement", func() {
-		keys := make([]client.ImportAPIKeyRequest, 1001)
+		keys := make([]client.ImportApiKeyRequest, 1001)
 		for i := range 1001 {
-			req := client.NewImportAPIKeyRequest()
+			req := client.NewImportApiKeyRequest()
 			req.SetRawKey(fmt.Sprintf("e2e-batch-over-limit-%d", i))
 			req.SetName(fmt.Sprintf("over-limit-%d", i))
 			req.SetActorId("e2e-over-limit-owner")
 			keys[i] = *req
 		}
 
-		batchReq := client.NewBatchImportAPIKeysRequest()
+		batchReq := client.NewBatchCreateImportedApiKeysRequest()
 		batchReq.SetRequests(keys)
 
 		httpResp, err := s.sdkBatchImportAPIKeysExpectError(ctx, batchReq)
@@ -161,19 +161,19 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 
 	s.Run("none pass via HTTP when all keys already exist", func() {
 		m := s.testServer.Metrics
-		first := client.NewImportAPIKeyRequest()
+		first := client.NewImportApiKeyRequest()
 		first.SetRawKey("e2e-batch-all-dup-1")
 		first.SetName("all-dup-1")
 		first.SetActorId("e2e-all-dup-owner")
 		s.sdkImportAPIKey(ctx, first)
 
-		second := client.NewImportAPIKeyRequest()
+		second := client.NewImportApiKeyRequest()
 		second.SetRawKey("e2e-batch-all-dup-2")
 		second.SetName("all-dup-2")
 		second.SetActorId("e2e-all-dup-owner")
 		s.sdkImportAPIKey(ctx, second)
 
-		third := client.NewImportAPIKeyRequest()
+		third := client.NewImportApiKeyRequest()
 		third.SetRawKey("e2e-batch-all-dup-3")
 		third.SetName("all-dup-3")
 		third.SetActorId("e2e-all-dup-owner")
@@ -183,8 +183,8 @@ func (s *APIKeyE2ETestSuite) TestBatchImportAPIKeys() {
 		beforeCreated := snap(m.APIKeysCreated)
 		beforePartialFail := snap(m.BatchImportPartialFailures)
 
-		batchReq := client.NewBatchImportAPIKeysRequest()
-		batchReq.SetRequests([]client.ImportAPIKeyRequest{*first, *second, *third})
+		batchReq := client.NewBatchCreateImportedApiKeysRequest()
+		batchReq.SetRequests([]client.ImportApiKeyRequest{*first, *second, *third})
 
 		httpResp, err := s.sdkBatchImportAPIKeysExpectError(ctx, batchReq)
 		s.requireHTTPError(err, httpResp, http.StatusConflict)

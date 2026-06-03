@@ -42,7 +42,7 @@ talos jwk generate hmac [flags]
       --bits int        Key size in bits (default 512, minimum 256) (default 512)
   -h, --help            help for hmac
       --jwks            Output as JWKS (JSON Web Key Set)
-      --kid string      Key ID (JWK Thumbprint used if not provided)
+      --kid string      Key ID (RFC 7638 JWK thumbprint used if not provided)
   -o, --output string   Output file (writes to stdout if not specified)
       --use string      Key usage: 'sig' for signing, 'enc' for encryption (default: sig)
 ```

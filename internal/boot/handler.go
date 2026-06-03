@@ -51,7 +51,7 @@ type ServerDependencies struct {
 	// When set, HTTPHandlerFromDependencies uses this adapter directly
 	// instead of calling Factory.CreateAdmin. Used by commercial test
 	// servers that construct services with custom providers.
-	PreBuiltAdmin talosv2alpha1.APIKeysServer
+	PreBuiltAdmin talosv2alpha1.ApiKeysServer
 }
 
 // HandlerOptions controls optional middleware layers.
@@ -123,9 +123,9 @@ func HTTPHandlerFromDependencies(ctx context.Context, deps *ServerDependencies, 
 
 // buildAdapters creates or returns the single APIKeys adapter based
 // on mode and pre-built overrides. In all modes a single adapter is returned;
-// per-mode constructors use UnimplementedAPIKeysServer to fail
+// per-mode constructors use UnimplementedApiKeysServer to fail
 // closed on methods that are not wired for the current mode.
-func buildAdapters(ctx context.Context, deps *ServerDependencies) (talosv2alpha1.APIKeysServer, error) {
+func buildAdapters(ctx context.Context, deps *ServerDependencies) (talosv2alpha1.ApiKeysServer, error) {
 	// If a pre-built adapter is provided, use it directly.
 	if deps.PreBuiltAdmin != nil {
 		return deps.PreBuiltAdmin, nil

@@ -92,7 +92,7 @@ func TestDeriveToken_KIDHintRoutesToConfiguredKey(t *testing.T) {
 				metrics.New(prometheus.NewRegistry()), tracker,
 			)
 
-			issued, err := svc.IssueAPIKey(ctx, &talosv2.IssueAPIKeyRequest{
+			issued, err := svc.IssueApiKey(ctx, &talosv2.IssueApiKeyRequest{
 				Name:    "Parent Key",
 				ActorId: "actor-kid-hint",
 				Scopes:  []string{"read"},

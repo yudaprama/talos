@@ -54,7 +54,7 @@ func NewPublic(v *verifier.Verifier, pv protovalidate.Validator, rl ratelimit.Li
 // For recognized herodot errors the reason field is used as the message.
 // For all other errors a generic message is returned to avoid leaking internal
 // error details (driver messages, stack traces, library internals) to callers.
-func verificationErrorToResponse(err error) *talosv2alpha1.VerifyAPIKeyResponse {
+func verificationErrorToResponse(err error) *talosv2alpha1.VerifyApiKeyResponse {
 	code := mapErrorToVerificationCode(err)
 	msg := "An internal server error occurred."
 	// stderrors.AsType is a generic type-assertion helper from the Go stdlib errors package.
@@ -66,7 +66,7 @@ func verificationErrorToResponse(err error) *talosv2alpha1.VerifyAPIKeyResponse 
 			msg = herodotErr.ErrorField
 		}
 	}
-	return &talosv2alpha1.VerifyAPIKeyResponse{
+	return &talosv2alpha1.VerifyApiKeyResponse{
 		IsValid:      false,
 		ErrorCode:    &code,
 		ErrorMessage: &msg,
@@ -101,9 +101,9 @@ func mapErrorToVerificationCode(err error) talosv2alpha1.VerificationErrorCode {
 	}
 }
 
-// dbKeyToVerifyResponse converts a db.IssuedApiKey to a proto VerifyAPIKeyResponse.
+// dbKeyToVerifyResponse converts a db.IssuedApiKey to a proto VerifyApiKeyResponse.
 // Note: DB column uses ExpiresAt, proto uses ExpireTime
-func dbKeyToVerifyResponse(_ context.Context, dbKey *db.IssuedApiKey) (*talosv2alpha1.VerifyAPIKeyResponse, error) {
+func dbKeyToVerifyResponse(_ context.Context, dbKey *db.IssuedApiKey) (*talosv2alpha1.VerifyApiKeyResponse, error) {
 	metadata := metadataToStructpb(dbKey.Metadata)
 	rateLimitPolicy := buildRateLimitPolicy(dbKey.RateLimitQuota, dbKey.RateLimitWindow)
 
@@ -117,7 +117,7 @@ func dbKeyToVerifyResponse(_ context.Context, dbKey *db.IssuedApiKey) (*talosv2a
 		return nil, err
 	}
 
-	return &talosv2alpha1.VerifyAPIKeyResponse{
+	return &talosv2alpha1.VerifyApiKeyResponse{
 		IsValid:         true,
 		Status:          talosv2alpha1.KeyStatus(dbKey.Status),
 		KeyId:           dbKey.KeyID,
@@ -133,7 +133,7 @@ func dbKeyToVerifyResponse(_ context.Context, dbKey *db.IssuedApiKey) (*talosv2a
 // applyRateLimiting enforces rate limiting on a verification response.
 // It is a no-op when the key has no rate limit policy.
 // On limiter error, it fails open (records the error on the span but does not block).
-func (s *Public) applyRateLimiting(ctx context.Context, keyID string, response *talosv2alpha1.VerifyAPIKeyResponse, span trace.Span) {
+func (s *Public) applyRateLimiting(ctx context.Context, keyID string, response *talosv2alpha1.VerifyApiKeyResponse, span trace.Span) {
 	if response.RateLimitPolicy == nil {
 		return
 	}
@@ -158,7 +158,7 @@ func (s *Public) applyRateLimiting(ctx context.Context, keyID string, response *
 }
 
 // VerifyAPIKey verifies a single credential (API key or derived token)
-func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyAPIKeyRequest) (resp *talosv2alpha1.VerifyAPIKeyResponse, err error) {
+func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyApiKeyRequest) (resp *talosv2alpha1.VerifyApiKeyResponse, err error) {
 	ctx, span := tracing.Start(ctx, "public.VerifyAPIKey")
 	defer otelx.End(span, &err)
 
@@ -201,7 +201,7 @@ func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyAPIK
 // Issued keys are pre-validated (parse, timestamp, prefix, checksum) then fetched via
 // a single WHERE key_id IN (...) query. Non-issued types (imported, derived) fall through
 // to individual verification.
-func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.BatchVerifyAPIKeysRequest) (resp *talosv2alpha1.BatchVerifyAPIKeysResponse, err error) {
+func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.BatchVerifyApiKeysRequest) (resp *talosv2alpha1.BatchVerifyApiKeysResponse, err error) {
 	ctx, span := tracing.Start(
 		ctx, "public.BatchVerifyAPIKeys",
 		attribute.Int("batch_size", len(req.GetRequests())),
@@ -213,7 +213,7 @@ func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.Batc
 	}
 
 	keys := req.GetRequests()
-	results := make([]*talosv2alpha1.VerifyAPIKeyResponse, len(keys))
+	results := make([]*talosv2alpha1.VerifyApiKeyResponse, len(keys))
 
 	// Collect non-empty credentials while pre-filling errors for nil/empty entries.
 	credentials := make([]string, 0, len(keys))
@@ -223,7 +223,7 @@ func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.Batc
 		if credReq == nil {
 			code := talosv2alpha1.VerificationErrorCode_VERIFICATION_ERROR_INVALID_FORMAT
 			msg := "empty credential in request"
-			results[i] = &talosv2alpha1.VerifyAPIKeyResponse{
+			results[i] = &talosv2alpha1.VerifyApiKeyResponse{
 				IsValid:      false,
 				ErrorCode:    &code,
 				ErrorMessage: &msg,
@@ -234,7 +234,7 @@ func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.Batc
 		cred := credReq.GetCredential()
 		if cred == "" {
 			msg := "credential is required"
-			results[i] = &talosv2alpha1.VerifyAPIKeyResponse{
+			results[i] = &talosv2alpha1.VerifyApiKeyResponse{
 				IsValid:      false,
 				ErrorCode:    talosv2alpha1.VerificationErrorCode_VERIFICATION_ERROR_INVALID_FORMAT.Enum(),
 				ErrorMessage: &msg,
@@ -271,14 +271,14 @@ func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.Batc
 		}
 	}
 
-	return &talosv2alpha1.BatchVerifyAPIKeysResponse{
+	return &talosv2alpha1.BatchVerifyApiKeysResponse{
 		Results: results,
 	}, nil
 }
 
-// RevokeAPIKey allows an API key holder to revoke their own key by providing the full secret.
-func (s *Public) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.SelfRevokeAPIKeyRequest) (resp *talosv2alpha1.SelfRevokeAPIKeyResponse, err error) {
-	ctx, span := tracing.Start(ctx, "public.RevokeAPIKey")
+// RevokeApiKey allows an API key holder to revoke their own key by providing the full secret.
+func (s *Public) RevokeApiKey(ctx context.Context, req *talosv2alpha1.SelfRevokeApiKeyRequest) (resp *talosv2alpha1.SelfRevokeApiKeyResponse, err error) {
+	ctx, span := tracing.Start(ctx, "public.RevokeApiKey")
 	defer otelx.End(span, &err)
 
 	if err := s.protoValidator.Validate(req); err != nil {
@@ -294,15 +294,15 @@ func (s *Public) RevokeAPIKey(ctx context.Context, req *talosv2alpha1.SelfRevoke
 		return nil, err
 	}
 
-	return &talosv2alpha1.SelfRevokeAPIKeyResponse{}, nil
+	return &talosv2alpha1.SelfRevokeApiKeyResponse{}, nil
 }
 
-// GetJWKS returns the JSON Web Key Set for token verification. The set is
+// GetJwks returns the JSON Web Key Set for token verification. The set is
 // sourced from the configured signing keys via the shared KeyService and
 // is suitable for publishing on the public verification surface (RFC 7517).
 // Symmetric keys are filtered out and private key material is stripped.
-func (s *Public) GetJWKS(ctx context.Context, _ *talosv2alpha1.GetJWKSRequest) (_ *talosv2alpha1.GetJWKSResponse, err error) {
-	ctx, span := tracing.Start(ctx, "public.GetJWKS")
+func (s *Public) GetJwks(ctx context.Context, _ *talosv2alpha1.GetJWKSRequest) (_ *talosv2alpha1.GetJWKSResponse, err error) {
+	ctx, span := tracing.Start(ctx, "public.GetJwks")
 	defer otelx.End(span, &err)
 
 	keySet, err := s.apiKeyVerifier.ListActiveSigningKeys(ctx)

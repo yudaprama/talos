@@ -22,24 +22,24 @@ func TestBatchImportAPIKeys_RequestValidation(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		req         *talosv2alpha1.BatchImportAPIKeysRequest
+		req         *talosv2alpha1.BatchCreateImportedApiKeysRequest
 		errContains string
 	}{
 		{
 			name:        "empty request",
-			req:         &talosv2alpha1.BatchImportAPIKeysRequest{},
+			req:         &talosv2alpha1.BatchCreateImportedApiKeysRequest{},
 			errContains: "at least one item",
 		},
 		{
 			name: "empty batch",
-			req: &talosv2alpha1.BatchImportAPIKeysRequest{
-				Requests: []*talosv2alpha1.ImportAPIKeyRequest{},
+			req: &talosv2alpha1.BatchCreateImportedApiKeysRequest{
+				Requests: []*talosv2alpha1.ImportApiKeyRequest{},
 			},
 			errContains: "at least one item",
 		},
 		{
 			name: "batch exceeds limit",
-			req: &talosv2alpha1.BatchImportAPIKeysRequest{
+			req: &talosv2alpha1.BatchCreateImportedApiKeysRequest{
 				Requests: makeImportRequests(service.MaxBatchImportSize + 1),
 			},
 			errContains: "maximum 1000 keys per batch",
@@ -89,9 +89,9 @@ func TestBatchImportAPIKeys_SuccessScenarios(t *testing.T) {
 			t.Parallel()
 			svc, verifier, ctx := setupTestService(t)
 
-			keys := make([]*talosv2alpha1.ImportAPIKeyRequest, tt.batchSize)
+			keys := make([]*talosv2alpha1.ImportApiKeyRequest, tt.batchSize)
 			for i := range tt.batchSize {
-				keys[i] = &talosv2alpha1.ImportAPIKeyRequest{
+				keys[i] = &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:  fmt.Sprintf("batch-success-raw-key-%04d-abcdefghijklmnopqrstuvwxyz", i),
 					Name:    fmt.Sprintf("batch-success-name-%d", i),
 					ActorId: "batch-owner",
@@ -99,7 +99,7 @@ func TestBatchImportAPIKeys_SuccessScenarios(t *testing.T) {
 				}
 			}
 
-			resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchImportAPIKeysRequest{Requests: keys})
+			resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{Requests: keys})
 			require.NoError(t, err)
 			require.NotNil(t, resp)
 
@@ -136,14 +136,14 @@ func TestBatchImportAPIKeys_PartialFailure(t *testing.T) {
 
 	svc, verifier, ctx := setupTestService(t)
 
-	_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+	_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:  "already-imported-key",
 		Name:    "existing",
 		ActorId: "existing-owner",
 	})
 	require.NoError(t, err)
 
-	batch := []*talosv2alpha1.ImportAPIKeyRequest{
+	batch := []*talosv2alpha1.ImportApiKeyRequest{
 		{RawKey: "partial-valid-1-abcdefghijklmnopqrstuvwxyz123456", Name: "partial-name-1", ActorId: "partial-owner"},
 		{RawKey: "already-imported-key", Name: "duplicate", ActorId: "partial-owner"},
 		{RawKey: "", Name: "missing-raw", ActorId: "partial-owner"},
@@ -151,7 +151,7 @@ func TestBatchImportAPIKeys_PartialFailure(t *testing.T) {
 		{RawKey: "partial-valid-2-abcdefghijklmnopqrstuvwxyz123456", Name: "partial-name-2", ActorId: "partial-owner"},
 	}
 
-	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchImportAPIKeysRequest{Requests: batch})
+	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{Requests: batch})
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -164,9 +164,9 @@ func TestBatchImportAPIKeys_PartialFailure(t *testing.T) {
 	}
 
 	assert.NotNil(t, resp.GetResults()[0].GetImportedApiKey())
-	assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
-	assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT, resp.GetResults()[2].GetErrorCode())
-	assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION, resp.GetResults()[3].GetErrorCode())
+	assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
+	assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, resp.GetResults()[2].GetErrorCode())
+	assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION, resp.GetResults()[3].GetErrorCode())
 	assert.Contains(t, resp.GetResults()[3].GetErrorMessage(), "derived token pattern")
 	assert.NotNil(t, resp.GetResults()[4].GetImportedApiKey())
 
@@ -184,13 +184,13 @@ func TestBatchImportAPIKeys_AllFailuresReturnError(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		keys         []*talosv2alpha1.ImportAPIKeyRequest
+		keys         []*talosv2alpha1.ImportApiKeyRequest
 		expectedCode int
 		errContains  string
 	}{
 		{
 			name: "all validation errors",
-			keys: []*talosv2alpha1.ImportAPIKeyRequest{
+			keys: []*talosv2alpha1.ImportApiKeyRequest{
 				{RawKey: "", Name: "", ActorId: ""},
 				{RawKey: "", Name: "name-only", ActorId: "owner"},
 			},
@@ -199,7 +199,7 @@ func TestBatchImportAPIKeys_AllFailuresReturnError(t *testing.T) {
 		},
 		{
 			name: "all duplicates",
-			keys: []*talosv2alpha1.ImportAPIKeyRequest{
+			keys: []*talosv2alpha1.ImportApiKeyRequest{
 				{RawKey: "duplicate-all-1", Name: "duplicate-all-1", ActorId: "duplicate-owner"},
 				{RawKey: "duplicate-all-2", Name: "duplicate-all-2", ActorId: "duplicate-owner"},
 			},
@@ -220,7 +220,7 @@ func TestBatchImportAPIKeys_AllFailuresReturnError(t *testing.T) {
 				}
 			}
 
-			resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchImportAPIKeysRequest{Requests: tt.keys})
+			resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{Requests: tt.keys})
 			require.Error(t, err)
 			assert.Nil(t, resp)
 
@@ -238,8 +238,8 @@ func TestBatchImportAPIKeys_DuplicateWithinSameBatch(t *testing.T) {
 	svc, _, ctx := setupTestService(t)
 
 	duplicateRawKey := "duplicate-within-batch"
-	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchImportAPIKeysRequest{
-		Requests: []*talosv2alpha1.ImportAPIKeyRequest{
+	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{
+		Requests: []*talosv2alpha1.ImportApiKeyRequest{
 			{RawKey: duplicateRawKey, Name: "first", ActorId: "owner"},
 			{RawKey: duplicateRawKey, Name: "second", ActorId: "owner"},
 		},
@@ -253,7 +253,7 @@ func TestBatchImportAPIKeys_DuplicateWithinSameBatch(t *testing.T) {
 	assert.Equal(t, int32(0), resp.GetResults()[0].GetIndex())
 	assert.Equal(t, int32(1), resp.GetResults()[1].GetIndex())
 	assert.NotNil(t, resp.GetResults()[0].GetImportedApiKey())
-	assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
+	assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS, resp.GetResults()[1].GetErrorCode())
 }
 
 func TestBatchImportAPIKeys_MetadataTooLarge(t *testing.T) {
@@ -266,8 +266,8 @@ func TestBatchImportAPIKeys_MetadataTooLarge(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchImportAPIKeysRequest{
-		Requests: []*talosv2alpha1.ImportAPIKeyRequest{
+	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{
+		Requests: []*talosv2alpha1.ImportApiKeyRequest{
 			{
 				RawKey:   "batch-metadata-too-large-key",
 				Name:     "batch-metadata-too-large-name",
@@ -286,15 +286,15 @@ func TestBatchImportAPIKeys_MetadataTooLarge(t *testing.T) {
 	assert.Equal(t, int32(1), resp.GetSuccessCount())
 	assert.Equal(t, int32(1), resp.GetFailureCount())
 	require.Len(t, resp.GetResults(), 2)
-	assert.Equal(t, talosv2alpha1.BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT, resp.GetResults()[0].GetErrorCode())
+	assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, resp.GetResults()[0].GetErrorCode())
 	assert.Contains(t, resp.GetResults()[0].GetErrorMessage(), "metadata size")
 	assert.NotNil(t, resp.GetResults()[1].GetImportedApiKey())
 }
 
-func makeImportRequests(size int) []*talosv2alpha1.ImportAPIKeyRequest {
-	keys := make([]*talosv2alpha1.ImportAPIKeyRequest, size)
+func makeImportRequests(size int) []*talosv2alpha1.ImportApiKeyRequest {
+	keys := make([]*talosv2alpha1.ImportApiKeyRequest, size)
 	for i := range size {
-		keys[i] = &talosv2alpha1.ImportAPIKeyRequest{
+		keys[i] = &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  fmt.Sprintf("batch-limit-raw-key-%04d-abcdefghijklmnopqrstuvwxyz", i),
 			Name:    fmt.Sprintf("batch-limit-name-%d", i),
 			ActorId: "batch-limit-owner",

@@ -262,62 +262,62 @@ func (TokenAlgorithm) EnumDescriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{3}
 }
 
-// BatchImportErrorCode classifies per-item batch import failures.
-type BatchImportErrorCode int32
+// BatchCreateImportedApiKeysErrorCode classifies per-item batch import failures.
+type BatchCreateImportedApiKeysErrorCode int32
 
 const (
-	BatchImportErrorCode_BATCH_IMPORT_ERROR_UNSPECIFIED         BatchImportErrorCode = 0 // No error (import succeeded)
-	BatchImportErrorCode_BATCH_IMPORT_ERROR_INVALID_ARGUMENT    BatchImportErrorCode = 1 // The key data is malformed or missing required fields
-	BatchImportErrorCode_BATCH_IMPORT_ERROR_ALREADY_EXISTS      BatchImportErrorCode = 2 // A key with this identifier already exists
-	BatchImportErrorCode_BATCH_IMPORT_ERROR_FAILED_PRECONDITION BatchImportErrorCode = 3 // State conflict prevents the import
-	BatchImportErrorCode_BATCH_IMPORT_ERROR_INTERNAL            BatchImportErrorCode = 4 // Server error during import
-	BatchImportErrorCode_BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED  BatchImportErrorCode = 5 // Per-tenant quota cap reached
+	BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED         BatchCreateImportedApiKeysErrorCode = 0 // No error (import succeeded)
+	BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT    BatchCreateImportedApiKeysErrorCode = 1 // The key data is malformed or missing required fields
+	BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS      BatchCreateImportedApiKeysErrorCode = 2 // A key with this identifier already exists
+	BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION BatchCreateImportedApiKeysErrorCode = 3 // State conflict prevents the import
+	BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL            BatchCreateImportedApiKeysErrorCode = 4 // Server error during import
+	BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED  BatchCreateImportedApiKeysErrorCode = 5 // Per-tenant quota cap reached
 )
 
-// Enum value maps for BatchImportErrorCode.
+// Enum value maps for BatchCreateImportedApiKeysErrorCode.
 var (
-	BatchImportErrorCode_name = map[int32]string{
-		0: "BATCH_IMPORT_ERROR_UNSPECIFIED",
-		1: "BATCH_IMPORT_ERROR_INVALID_ARGUMENT",
-		2: "BATCH_IMPORT_ERROR_ALREADY_EXISTS",
-		3: "BATCH_IMPORT_ERROR_FAILED_PRECONDITION",
-		4: "BATCH_IMPORT_ERROR_INTERNAL",
-		5: "BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED",
+	BatchCreateImportedApiKeysErrorCode_name = map[int32]string{
+		0: "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED",
+		1: "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT",
+		2: "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS",
+		3: "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION",
+		4: "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL",
+		5: "BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED",
 	}
-	BatchImportErrorCode_value = map[string]int32{
-		"BATCH_IMPORT_ERROR_UNSPECIFIED":         0,
-		"BATCH_IMPORT_ERROR_INVALID_ARGUMENT":    1,
-		"BATCH_IMPORT_ERROR_ALREADY_EXISTS":      2,
-		"BATCH_IMPORT_ERROR_FAILED_PRECONDITION": 3,
-		"BATCH_IMPORT_ERROR_INTERNAL":            4,
-		"BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED":  5,
+	BatchCreateImportedApiKeysErrorCode_value = map[string]int32{
+		"BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED":         0,
+		"BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT":    1,
+		"BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS":      2,
+		"BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION": 3,
+		"BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL":            4,
+		"BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED":  5,
 	}
 )
 
-func (x BatchImportErrorCode) Enum() *BatchImportErrorCode {
-	p := new(BatchImportErrorCode)
+func (x BatchCreateImportedApiKeysErrorCode) Enum() *BatchCreateImportedApiKeysErrorCode {
+	p := new(BatchCreateImportedApiKeysErrorCode)
 	*p = x
 	return p
 }
 
-func (x BatchImportErrorCode) String() string {
+func (x BatchCreateImportedApiKeysErrorCode) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (BatchImportErrorCode) Descriptor() protoreflect.EnumDescriptor {
+func (BatchCreateImportedApiKeysErrorCode) Descriptor() protoreflect.EnumDescriptor {
 	return file_api_talos_v2alpha1_talos_proto_enumTypes[4].Descriptor()
 }
 
-func (BatchImportErrorCode) Type() protoreflect.EnumType {
+func (BatchCreateImportedApiKeysErrorCode) Type() protoreflect.EnumType {
 	return &file_api_talos_v2alpha1_talos_proto_enumTypes[4]
 }
 
-func (x BatchImportErrorCode) Number() protoreflect.EnumNumber {
+func (x BatchCreateImportedApiKeysErrorCode) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use BatchImportErrorCode.Descriptor instead.
-func (BatchImportErrorCode) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use BatchCreateImportedApiKeysErrorCode.Descriptor instead.
+func (BatchCreateImportedApiKeysErrorCode) EnumDescriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{4}
 }
 
@@ -389,10 +389,10 @@ func (VerificationErrorCode) EnumDescriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{5}
 }
 
-// IssuedAPIKey represents an API key issued (generated) by Talos.
+// IssuedApiKey represents an API key issued (generated) by Talos.
 // Root keys are opaque v1 format tokens stored in the database.
 // Derived tokens (JWT/Macaroon) are created via DeriveToken and are stateless (not stored).
-type IssuedAPIKey struct {
+type IssuedApiKey struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	KeyId   string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
 	Name    string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -421,20 +421,20 @@ type IssuedAPIKey struct {
 	sizeCache             protoimpl.SizeCache
 }
 
-func (x *IssuedAPIKey) Reset() {
-	*x = IssuedAPIKey{}
+func (x *IssuedApiKey) Reset() {
+	*x = IssuedApiKey{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IssuedAPIKey) String() string {
+func (x *IssuedApiKey) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IssuedAPIKey) ProtoMessage() {}
+func (*IssuedApiKey) ProtoMessage() {}
 
-func (x *IssuedAPIKey) ProtoReflect() protoreflect.Message {
+func (x *IssuedApiKey) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -446,119 +446,119 @@ func (x *IssuedAPIKey) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IssuedAPIKey.ProtoReflect.Descriptor instead.
-func (*IssuedAPIKey) Descriptor() ([]byte, []int) {
+// Deprecated: Use IssuedApiKey.ProtoReflect.Descriptor instead.
+func (*IssuedApiKey) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *IssuedAPIKey) GetKeyId() string {
+func (x *IssuedApiKey) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-func (x *IssuedAPIKey) GetName() string {
+func (x *IssuedApiKey) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *IssuedAPIKey) GetActorId() string {
+func (x *IssuedApiKey) GetActorId() string {
 	if x != nil {
 		return x.ActorId
 	}
 	return ""
 }
 
-func (x *IssuedAPIKey) GetScopes() []string {
+func (x *IssuedApiKey) GetScopes() []string {
 	if x != nil {
 		return x.Scopes
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetMetadata() *structpb.Struct {
+func (x *IssuedApiKey) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetStatus() KeyStatus {
+func (x *IssuedApiKey) GetStatus() KeyStatus {
 	if x != nil {
 		return x.Status
 	}
 	return KeyStatus_KEY_STATUS_UNSPECIFIED
 }
 
-func (x *IssuedAPIKey) GetCreateTime() *timestamppb.Timestamp {
+func (x *IssuedApiKey) GetCreateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreateTime
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetUpdateTime() *timestamppb.Timestamp {
+func (x *IssuedApiKey) GetUpdateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdateTime
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetExpireTime() *timestamppb.Timestamp {
+func (x *IssuedApiKey) GetExpireTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpireTime
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetLastUsedTime() *timestamppb.Timestamp {
+func (x *IssuedApiKey) GetLastUsedTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastUsedTime
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetRateLimitPolicy() *RateLimitPolicy {
+func (x *IssuedApiKey) GetRateLimitPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.RateLimitPolicy
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetRevocationReason() RevocationReason {
+func (x *IssuedApiKey) GetRevocationReason() RevocationReason {
 	if x != nil && x.RevocationReason != nil {
 		return *x.RevocationReason
 	}
 	return RevocationReason_REVOCATION_REASON_UNSPECIFIED
 }
 
-func (x *IssuedAPIKey) GetRevocationDescription() string {
+func (x *IssuedApiKey) GetRevocationDescription() string {
 	if x != nil && x.RevocationDescription != nil {
 		return *x.RevocationDescription
 	}
 	return ""
 }
 
-func (x *IssuedAPIKey) GetIpRestriction() *IPRestriction {
+func (x *IssuedApiKey) GetIpRestriction() *IPRestriction {
 	if x != nil {
 		return x.IpRestriction
 	}
 	return nil
 }
 
-func (x *IssuedAPIKey) GetVisibility() KeyVisibility {
+func (x *IssuedApiKey) GetVisibility() KeyVisibility {
 	if x != nil {
 		return x.Visibility
 	}
 	return KeyVisibility_KEY_VISIBILITY_UNSPECIFIED
 }
 
-// ImportedAPIKey represents an API key imported from an external system.
+// ImportedApiKey represents an API key imported from an external system.
 // The raw key is hashed (SHA-512/256) and stored. The original key is never retained.
-type ImportedAPIKey struct {
+type ImportedApiKey struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	KeyId   string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"` // SHA-512/256 hash of credential
 	Name    string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -587,20 +587,20 @@ type ImportedAPIKey struct {
 	sizeCache             protoimpl.SizeCache
 }
 
-func (x *ImportedAPIKey) Reset() {
-	*x = ImportedAPIKey{}
+func (x *ImportedApiKey) Reset() {
+	*x = ImportedApiKey{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ImportedAPIKey) String() string {
+func (x *ImportedApiKey) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ImportedAPIKey) ProtoMessage() {}
+func (*ImportedApiKey) ProtoMessage() {}
 
-func (x *ImportedAPIKey) ProtoReflect() protoreflect.Message {
+func (x *ImportedApiKey) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -612,110 +612,110 @@ func (x *ImportedAPIKey) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ImportedAPIKey.ProtoReflect.Descriptor instead.
-func (*ImportedAPIKey) Descriptor() ([]byte, []int) {
+// Deprecated: Use ImportedApiKey.ProtoReflect.Descriptor instead.
+func (*ImportedApiKey) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ImportedAPIKey) GetKeyId() string {
+func (x *ImportedApiKey) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-func (x *ImportedAPIKey) GetName() string {
+func (x *ImportedApiKey) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *ImportedAPIKey) GetActorId() string {
+func (x *ImportedApiKey) GetActorId() string {
 	if x != nil {
 		return x.ActorId
 	}
 	return ""
 }
 
-func (x *ImportedAPIKey) GetScopes() []string {
+func (x *ImportedApiKey) GetScopes() []string {
 	if x != nil {
 		return x.Scopes
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetMetadata() *structpb.Struct {
+func (x *ImportedApiKey) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetStatus() KeyStatus {
+func (x *ImportedApiKey) GetStatus() KeyStatus {
 	if x != nil {
 		return x.Status
 	}
 	return KeyStatus_KEY_STATUS_UNSPECIFIED
 }
 
-func (x *ImportedAPIKey) GetCreateTime() *timestamppb.Timestamp {
+func (x *ImportedApiKey) GetCreateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreateTime
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetUpdateTime() *timestamppb.Timestamp {
+func (x *ImportedApiKey) GetUpdateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdateTime
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetExpireTime() *timestamppb.Timestamp {
+func (x *ImportedApiKey) GetExpireTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpireTime
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetLastUsedTime() *timestamppb.Timestamp {
+func (x *ImportedApiKey) GetLastUsedTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastUsedTime
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetRateLimitPolicy() *RateLimitPolicy {
+func (x *ImportedApiKey) GetRateLimitPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.RateLimitPolicy
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetRevocationReason() RevocationReason {
+func (x *ImportedApiKey) GetRevocationReason() RevocationReason {
 	if x != nil && x.RevocationReason != nil {
 		return *x.RevocationReason
 	}
 	return RevocationReason_REVOCATION_REASON_UNSPECIFIED
 }
 
-func (x *ImportedAPIKey) GetRevocationDescription() string {
+func (x *ImportedApiKey) GetRevocationDescription() string {
 	if x != nil && x.RevocationDescription != nil {
 		return *x.RevocationDescription
 	}
 	return ""
 }
 
-func (x *ImportedAPIKey) GetIpRestriction() *IPRestriction {
+func (x *ImportedApiKey) GetIpRestriction() *IPRestriction {
 	if x != nil {
 		return x.IpRestriction
 	}
 	return nil
 }
 
-func (x *ImportedAPIKey) GetVisibility() KeyVisibility {
+func (x *ImportedApiKey) GetVisibility() KeyVisibility {
 	if x != nil {
 		return x.Visibility
 	}
@@ -924,7 +924,7 @@ func (x *RateLimitPolicy) GetUnit() string {
 	return ""
 }
 
-type IssueAPIKeyRequest struct {
+type IssueApiKeyRequest struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Name    string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	ActorId string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
@@ -951,20 +951,20 @@ type IssueAPIKeyRequest struct {
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *IssueAPIKeyRequest) Reset() {
-	*x = IssueAPIKeyRequest{}
+func (x *IssueApiKeyRequest) Reset() {
+	*x = IssueApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IssueAPIKeyRequest) String() string {
+func (x *IssueApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IssueAPIKeyRequest) ProtoMessage() {}
+func (*IssueApiKeyRequest) ProtoMessage() {}
 
-func (x *IssueAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *IssueApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -976,96 +976,96 @@ func (x *IssueAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IssueAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*IssueAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use IssueApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*IssueApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *IssueAPIKeyRequest) GetName() string {
+func (x *IssueApiKeyRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *IssueAPIKeyRequest) GetActorId() string {
+func (x *IssueApiKeyRequest) GetActorId() string {
 	if x != nil {
 		return x.ActorId
 	}
 	return ""
 }
 
-func (x *IssueAPIKeyRequest) GetScopes() []string {
+func (x *IssueApiKeyRequest) GetScopes() []string {
 	if x != nil {
 		return x.Scopes
 	}
 	return nil
 }
 
-func (x *IssueAPIKeyRequest) GetTtl() *durationpb.Duration {
+func (x *IssueApiKeyRequest) GetTtl() *durationpb.Duration {
 	if x != nil {
 		return x.Ttl
 	}
 	return nil
 }
 
-func (x *IssueAPIKeyRequest) GetMetadata() *structpb.Struct {
+func (x *IssueApiKeyRequest) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *IssueAPIKeyRequest) GetRateLimitPolicy() *RateLimitPolicy {
+func (x *IssueApiKeyRequest) GetRateLimitPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.RateLimitPolicy
 	}
 	return nil
 }
 
-func (x *IssueAPIKeyRequest) GetRequestId() string {
+func (x *IssueApiKeyRequest) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
 	}
 	return ""
 }
 
-func (x *IssueAPIKeyRequest) GetIpRestriction() *IPRestriction {
+func (x *IssueApiKeyRequest) GetIpRestriction() *IPRestriction {
 	if x != nil {
 		return x.IpRestriction
 	}
 	return nil
 }
 
-func (x *IssueAPIKeyRequest) GetVisibility() KeyVisibility {
+func (x *IssueApiKeyRequest) GetVisibility() KeyVisibility {
 	if x != nil {
 		return x.Visibility
 	}
 	return KeyVisibility_KEY_VISIBILITY_UNSPECIFIED
 }
 
-type IssueAPIKeyResponse struct {
+type IssueApiKeyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IssuedApiKey  *IssuedAPIKey          `protobuf:"bytes,1,opt,name=issued_api_key,json=issuedApiKey,proto3" json:"issued_api_key,omitempty"`
+	IssuedApiKey  *IssuedApiKey          `protobuf:"bytes,1,opt,name=issued_api_key,json=issuedApiKey,proto3" json:"issued_api_key,omitempty"`
 	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"` // Only returned on creation
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IssueAPIKeyResponse) Reset() {
-	*x = IssueAPIKeyResponse{}
+func (x *IssueApiKeyResponse) Reset() {
+	*x = IssueApiKeyResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IssueAPIKeyResponse) String() string {
+func (x *IssueApiKeyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IssueAPIKeyResponse) ProtoMessage() {}
+func (*IssueApiKeyResponse) ProtoMessage() {}
 
-func (x *IssueAPIKeyResponse) ProtoReflect() protoreflect.Message {
+func (x *IssueApiKeyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1077,46 +1077,46 @@ func (x *IssueAPIKeyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IssueAPIKeyResponse.ProtoReflect.Descriptor instead.
-func (*IssueAPIKeyResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use IssueApiKeyResponse.ProtoReflect.Descriptor instead.
+func (*IssueApiKeyResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *IssueAPIKeyResponse) GetIssuedApiKey() *IssuedAPIKey {
+func (x *IssueApiKeyResponse) GetIssuedApiKey() *IssuedApiKey {
 	if x != nil {
 		return x.IssuedApiKey
 	}
 	return nil
 }
 
-func (x *IssueAPIKeyResponse) GetSecret() string {
+func (x *IssueApiKeyResponse) GetSecret() string {
 	if x != nil {
 		return x.Secret
 	}
 	return ""
 }
 
-type GetIssuedAPIKeyRequest struct {
+type GetIssuedApiKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetIssuedAPIKeyRequest) Reset() {
-	*x = GetIssuedAPIKeyRequest{}
+func (x *GetIssuedApiKeyRequest) Reset() {
+	*x = GetIssuedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetIssuedAPIKeyRequest) String() string {
+func (x *GetIssuedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetIssuedAPIKeyRequest) ProtoMessage() {}
+func (*GetIssuedApiKeyRequest) ProtoMessage() {}
 
-func (x *GetIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *GetIssuedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1128,19 +1128,19 @@ func (x *GetIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetIssuedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*GetIssuedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetIssuedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*GetIssuedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *GetIssuedAPIKeyRequest) GetKeyId() string {
+func (x *GetIssuedApiKeyRequest) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-type ListIssuedAPIKeysRequest struct {
+type ListIssuedApiKeysRequest struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	PageSize  int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`   // Number of items per page (default: 50, max: 1000)
 	PageToken string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // Cursor token for pagination
@@ -1158,20 +1158,20 @@ type ListIssuedAPIKeysRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListIssuedAPIKeysRequest) Reset() {
-	*x = ListIssuedAPIKeysRequest{}
+func (x *ListIssuedApiKeysRequest) Reset() {
+	*x = ListIssuedApiKeysRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListIssuedAPIKeysRequest) String() string {
+func (x *ListIssuedApiKeysRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListIssuedAPIKeysRequest) ProtoMessage() {}
+func (*ListIssuedApiKeysRequest) ProtoMessage() {}
 
-func (x *ListIssuedAPIKeysRequest) ProtoReflect() protoreflect.Message {
+func (x *ListIssuedApiKeysRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1183,54 +1183,54 @@ func (x *ListIssuedAPIKeysRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListIssuedAPIKeysRequest.ProtoReflect.Descriptor instead.
-func (*ListIssuedAPIKeysRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListIssuedApiKeysRequest.ProtoReflect.Descriptor instead.
+func (*ListIssuedApiKeysRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListIssuedAPIKeysRequest) GetPageSize() int32 {
+func (x *ListIssuedApiKeysRequest) GetPageSize() int32 {
 	if x != nil {
 		return x.PageSize
 	}
 	return 0
 }
 
-func (x *ListIssuedAPIKeysRequest) GetPageToken() string {
+func (x *ListIssuedApiKeysRequest) GetPageToken() string {
 	if x != nil {
 		return x.PageToken
 	}
 	return ""
 }
 
-func (x *ListIssuedAPIKeysRequest) GetFilter() string {
+func (x *ListIssuedApiKeysRequest) GetFilter() string {
 	if x != nil {
 		return x.Filter
 	}
 	return ""
 }
 
-type ListIssuedAPIKeysResponse struct {
+type ListIssuedApiKeysResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IssuedApiKeys []*IssuedAPIKey        `protobuf:"bytes,1,rep,name=issued_api_keys,json=issuedApiKeys,proto3" json:"issued_api_keys,omitempty"`
+	IssuedApiKeys []*IssuedApiKey        `protobuf:"bytes,1,rep,name=issued_api_keys,json=issuedApiKeys,proto3" json:"issued_api_keys,omitempty"`
 	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListIssuedAPIKeysResponse) Reset() {
-	*x = ListIssuedAPIKeysResponse{}
+func (x *ListIssuedApiKeysResponse) Reset() {
+	*x = ListIssuedApiKeysResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListIssuedAPIKeysResponse) String() string {
+func (x *ListIssuedApiKeysResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListIssuedAPIKeysResponse) ProtoMessage() {}
+func (*ListIssuedApiKeysResponse) ProtoMessage() {}
 
-func (x *ListIssuedAPIKeysResponse) ProtoReflect() protoreflect.Message {
+func (x *ListIssuedApiKeysResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1242,54 +1242,54 @@ func (x *ListIssuedAPIKeysResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListIssuedAPIKeysResponse.ProtoReflect.Descriptor instead.
-func (*ListIssuedAPIKeysResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListIssuedApiKeysResponse.ProtoReflect.Descriptor instead.
+func (*ListIssuedApiKeysResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListIssuedAPIKeysResponse) GetIssuedApiKeys() []*IssuedAPIKey {
+func (x *ListIssuedApiKeysResponse) GetIssuedApiKeys() []*IssuedApiKey {
 	if x != nil {
 		return x.IssuedApiKeys
 	}
 	return nil
 }
 
-func (x *ListIssuedAPIKeysResponse) GetNextPageToken() string {
+func (x *ListIssuedApiKeysResponse) GetNextPageToken() string {
 	if x != nil {
 		return x.NextPageToken
 	}
 	return ""
 }
 
-// UpdateIssuedAPIKeyRequest is the request for AdminUpdateIssuedAPIKey.
+// UpdateIssuedApiKeyRequest is the request for AdminUpdateIssuedApiKey.
 //
 // Follows AIP-134: the resource being updated is embedded directly. The
 // `key_id` inside `issued_api_key` identifies which key to update, and only
 // fields listed in `update_mask` are applied. Server-managed fields on
-// IssuedAPIKey (status, timestamps, revocation_*) are ignored on input.
-type UpdateIssuedAPIKeyRequest struct {
+// IssuedApiKey (status, timestamps, revocation_*) are ignored on input.
+type UpdateIssuedApiKeyRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
-	IssuedApiKey *IssuedAPIKey          `protobuf:"bytes,1,opt,name=issued_api_key,json=issuedApiKey,proto3" json:"issued_api_key,omitempty"`
+	IssuedApiKey *IssuedApiKey          `protobuf:"bytes,1,opt,name=issued_api_key,json=issuedApiKey,proto3" json:"issued_api_key,omitempty"`
 	// The list of fields to update. See AIP-134.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateIssuedAPIKeyRequest) Reset() {
-	*x = UpdateIssuedAPIKeyRequest{}
+func (x *UpdateIssuedApiKeyRequest) Reset() {
+	*x = UpdateIssuedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateIssuedAPIKeyRequest) String() string {
+func (x *UpdateIssuedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateIssuedAPIKeyRequest) ProtoMessage() {}
+func (*UpdateIssuedApiKeyRequest) ProtoMessage() {}
 
-func (x *UpdateIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateIssuedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1301,33 +1301,33 @@ func (x *UpdateIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateIssuedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*UpdateIssuedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateIssuedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*UpdateIssuedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *UpdateIssuedAPIKeyRequest) GetIssuedApiKey() *IssuedAPIKey {
+func (x *UpdateIssuedApiKeyRequest) GetIssuedApiKey() *IssuedApiKey {
 	if x != nil {
 		return x.IssuedApiKey
 	}
 	return nil
 }
 
-func (x *UpdateIssuedAPIKeyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+func (x *UpdateIssuedApiKeyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
 		return x.UpdateMask
 	}
 	return nil
 }
 
-// RotateIssuedAPIKeyRequest is the request for AdminRotateIssuedAPIKey.
+// RotateIssuedApiKeyRequest is the request for AdminRotateIssuedApiKey.
 //
 // Rotation is a custom method (AIP-136) that swaps an active key for a new
 // one with a fresh secret and key_id, then revokes the old key. It is not a
 // partial update, so it does not carry an update_mask. Mutable fields use
 // presence-based semantics: an absent field inherits from the old key, while
 // a present field (including an explicitly empty value) overrides.
-type RotateIssuedAPIKeyRequest struct {
+type RotateIssuedApiKeyRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// key_id is the ID of the existing API key to rotate
 	KeyId string `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
@@ -1353,20 +1353,20 @@ type RotateIssuedAPIKeyRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RotateIssuedAPIKeyRequest) Reset() {
-	*x = RotateIssuedAPIKeyRequest{}
+func (x *RotateIssuedApiKeyRequest) Reset() {
+	*x = RotateIssuedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RotateIssuedAPIKeyRequest) String() string {
+func (x *RotateIssuedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RotateIssuedAPIKeyRequest) ProtoMessage() {}
+func (*RotateIssuedApiKeyRequest) ProtoMessage() {}
 
-func (x *RotateIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *RotateIssuedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1378,86 +1378,86 @@ func (x *RotateIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RotateIssuedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*RotateIssuedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RotateIssuedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*RotateIssuedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetKeyId() string {
+func (x *RotateIssuedApiKeyRequest) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetName() string {
+func (x *RotateIssuedApiKeyRequest) GetName() string {
 	if x != nil && x.Name != nil {
 		return *x.Name
 	}
 	return ""
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetScopes() []string {
+func (x *RotateIssuedApiKeyRequest) GetScopes() []string {
 	if x != nil {
 		return x.Scopes
 	}
 	return nil
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetMetadata() *structpb.Struct {
+func (x *RotateIssuedApiKeyRequest) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetRateLimitPolicy() *RateLimitPolicy {
+func (x *RotateIssuedApiKeyRequest) GetRateLimitPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.RateLimitPolicy
 	}
 	return nil
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetIpRestriction() *IPRestriction {
+func (x *RotateIssuedApiKeyRequest) GetIpRestriction() *IPRestriction {
 	if x != nil {
 		return x.IpRestriction
 	}
 	return nil
 }
 
-func (x *RotateIssuedAPIKeyRequest) GetVisibility() KeyVisibility {
+func (x *RotateIssuedApiKeyRequest) GetVisibility() KeyVisibility {
 	if x != nil {
 		return x.Visibility
 	}
 	return KeyVisibility_KEY_VISIBILITY_UNSPECIFIED
 }
 
-type RotateIssuedAPIKeyResponse struct {
+type RotateIssuedApiKeyResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// issued_api_key is the newly created API key with a new key_id and secret
-	IssuedApiKey *IssuedAPIKey `protobuf:"bytes,1,opt,name=issued_api_key,json=issuedApiKey,proto3" json:"issued_api_key,omitempty"`
+	IssuedApiKey *IssuedApiKey `protobuf:"bytes,1,opt,name=issued_api_key,json=issuedApiKey,proto3" json:"issued_api_key,omitempty"`
 	// secret is the new API key secret (only returned once, never retrievable again)
 	Secret string `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
 	// old_issued_api_key is the previous API key (always revoked after rotation)
-	OldIssuedApiKey *IssuedAPIKey `protobuf:"bytes,3,opt,name=old_issued_api_key,json=oldIssuedApiKey,proto3" json:"old_issued_api_key,omitempty"`
+	OldIssuedApiKey *IssuedApiKey `protobuf:"bytes,3,opt,name=old_issued_api_key,json=oldIssuedApiKey,proto3" json:"old_issued_api_key,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *RotateIssuedAPIKeyResponse) Reset() {
-	*x = RotateIssuedAPIKeyResponse{}
+func (x *RotateIssuedApiKeyResponse) Reset() {
+	*x = RotateIssuedApiKeyResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RotateIssuedAPIKeyResponse) String() string {
+func (x *RotateIssuedApiKeyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RotateIssuedAPIKeyResponse) ProtoMessage() {}
+func (*RotateIssuedApiKeyResponse) ProtoMessage() {}
 
-func (x *RotateIssuedAPIKeyResponse) ProtoReflect() protoreflect.Message {
+func (x *RotateIssuedApiKeyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1469,33 +1469,33 @@ func (x *RotateIssuedAPIKeyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RotateIssuedAPIKeyResponse.ProtoReflect.Descriptor instead.
-func (*RotateIssuedAPIKeyResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RotateIssuedApiKeyResponse.ProtoReflect.Descriptor instead.
+func (*RotateIssuedApiKeyResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *RotateIssuedAPIKeyResponse) GetIssuedApiKey() *IssuedAPIKey {
+func (x *RotateIssuedApiKeyResponse) GetIssuedApiKey() *IssuedApiKey {
 	if x != nil {
 		return x.IssuedApiKey
 	}
 	return nil
 }
 
-func (x *RotateIssuedAPIKeyResponse) GetSecret() string {
+func (x *RotateIssuedApiKeyResponse) GetSecret() string {
 	if x != nil {
 		return x.Secret
 	}
 	return ""
 }
 
-func (x *RotateIssuedAPIKeyResponse) GetOldIssuedApiKey() *IssuedAPIKey {
+func (x *RotateIssuedApiKeyResponse) GetOldIssuedApiKey() *IssuedApiKey {
 	if x != nil {
 		return x.OldIssuedApiKey
 	}
 	return nil
 }
 
-// ImportAPIKeyRequest imports an external HMAC-based API key
+// ImportApiKeyRequest imports an external HMAC-based API key
 //
 // Example:
 //
@@ -1507,7 +1507,7 @@ func (x *RotateIssuedAPIKeyResponse) GetOldIssuedApiKey() *IssuedAPIKey {
 //	  "ttl": "8760h",  // 1 year (also accepts: 31536000s)
 //	  "metadata": {"source": "stripe", "environment": "production"}
 //	}
-type ImportAPIKeyRequest struct {
+type ImportApiKeyRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	RawKey string                 `protobuf:"bytes,1,opt,name=raw_key,json=rawKey,proto3" json:"raw_key,omitempty"` // The actual key string to import (REQUIRED)
 	Name   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                   // Human-readable name (REQUIRED)
@@ -1538,20 +1538,20 @@ type ImportAPIKeyRequest struct {
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ImportAPIKeyRequest) Reset() {
-	*x = ImportAPIKeyRequest{}
+func (x *ImportApiKeyRequest) Reset() {
+	*x = ImportApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ImportAPIKeyRequest) String() string {
+func (x *ImportApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ImportAPIKeyRequest) ProtoMessage() {}
+func (*ImportApiKeyRequest) ProtoMessage() {}
 
-func (x *ImportAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *ImportApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1563,104 +1563,104 @@ func (x *ImportAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ImportAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*ImportAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ImportApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*ImportApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *ImportAPIKeyRequest) GetRawKey() string {
+func (x *ImportApiKeyRequest) GetRawKey() string {
 	if x != nil {
 		return x.RawKey
 	}
 	return ""
 }
 
-func (x *ImportAPIKeyRequest) GetName() string {
+func (x *ImportApiKeyRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *ImportAPIKeyRequest) GetActorId() string {
+func (x *ImportApiKeyRequest) GetActorId() string {
 	if x != nil {
 		return x.ActorId
 	}
 	return ""
 }
 
-func (x *ImportAPIKeyRequest) GetScopes() []string {
+func (x *ImportApiKeyRequest) GetScopes() []string {
 	if x != nil {
 		return x.Scopes
 	}
 	return nil
 }
 
-func (x *ImportAPIKeyRequest) GetTtl() *durationpb.Duration {
+func (x *ImportApiKeyRequest) GetTtl() *durationpb.Duration {
 	if x != nil {
 		return x.Ttl
 	}
 	return nil
 }
 
-func (x *ImportAPIKeyRequest) GetMetadata() *structpb.Struct {
+func (x *ImportApiKeyRequest) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *ImportAPIKeyRequest) GetRateLimitPolicy() *RateLimitPolicy {
+func (x *ImportApiKeyRequest) GetRateLimitPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.RateLimitPolicy
 	}
 	return nil
 }
 
-func (x *ImportAPIKeyRequest) GetIpRestriction() *IPRestriction {
+func (x *ImportApiKeyRequest) GetIpRestriction() *IPRestriction {
 	if x != nil {
 		return x.IpRestriction
 	}
 	return nil
 }
 
-func (x *ImportAPIKeyRequest) GetRequestId() string {
+func (x *ImportApiKeyRequest) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
 	}
 	return ""
 }
 
-func (x *ImportAPIKeyRequest) GetVisibility() KeyVisibility {
+func (x *ImportApiKeyRequest) GetVisibility() KeyVisibility {
 	if x != nil {
 		return x.Visibility
 	}
 	return KeyVisibility_KEY_VISIBILITY_UNSPECIFIED
 }
 
-// BatchImportAPIKeysRequest imports multiple external API keys in one request.
+// BatchCreateImportedApiKeysRequest imports multiple external API keys in one request.
 // The maximum batch size is 1000 keys.
-type BatchImportAPIKeysRequest struct {
+type BatchCreateImportedApiKeysRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Requests      []*ImportAPIKeyRequest `protobuf:"bytes,1,rep,name=requests,proto3" json:"requests,omitempty"` // Keys to import
+	Requests      []*ImportApiKeyRequest `protobuf:"bytes,1,rep,name=requests,proto3" json:"requests,omitempty"` // Keys to import
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchImportAPIKeysRequest) Reset() {
-	*x = BatchImportAPIKeysRequest{}
+func (x *BatchCreateImportedApiKeysRequest) Reset() {
+	*x = BatchCreateImportedApiKeysRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchImportAPIKeysRequest) String() string {
+func (x *BatchCreateImportedApiKeysRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchImportAPIKeysRequest) ProtoMessage() {}
+func (*BatchCreateImportedApiKeysRequest) ProtoMessage() {}
 
-func (x *BatchImportAPIKeysRequest) ProtoReflect() protoreflect.Message {
+func (x *BatchCreateImportedApiKeysRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1672,43 +1672,43 @@ func (x *BatchImportAPIKeysRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchImportAPIKeysRequest.ProtoReflect.Descriptor instead.
-func (*BatchImportAPIKeysRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchCreateImportedApiKeysRequest.ProtoReflect.Descriptor instead.
+func (*BatchCreateImportedApiKeysRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *BatchImportAPIKeysRequest) GetRequests() []*ImportAPIKeyRequest {
+func (x *BatchCreateImportedApiKeysRequest) GetRequests() []*ImportApiKeyRequest {
 	if x != nil {
 		return x.Requests
 	}
 	return nil
 }
 
-// BatchImportResult contains the result for one key in a batch import request.
-type BatchImportResult struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Index          int32                  `protobuf:"varint,1,opt,name=index,proto3" json:"index,omitempty"`                                                                         // Zero-based index in request.requests
-	ImportedApiKey *ImportedAPIKey        `protobuf:"bytes,2,opt,name=imported_api_key,json=importedApiKey,proto3" json:"imported_api_key,omitempty"`                                // Set when import succeeds
-	ErrorCode      *BatchImportErrorCode  `protobuf:"varint,3,opt,name=error_code,json=errorCode,proto3,enum=talos.v2alpha1.BatchImportErrorCode,oneof" json:"error_code,omitempty"` // Set when import fails
-	ErrorMessage   *string                `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`                                  // Human-readable failure reason
+// BatchCreateImportedApiKeysResult contains the result for one key in a batch import request.
+type BatchCreateImportedApiKeysResult struct {
+	state          protoimpl.MessageState               `protogen:"open.v1"`
+	Index          int32                                `protobuf:"varint,1,opt,name=index,proto3" json:"index,omitempty"`                                                                                        // Zero-based index in request.requests
+	ImportedApiKey *ImportedApiKey                      `protobuf:"bytes,2,opt,name=imported_api_key,json=importedApiKey,proto3" json:"imported_api_key,omitempty"`                                               // Set when import succeeds
+	ErrorCode      *BatchCreateImportedApiKeysErrorCode `protobuf:"varint,3,opt,name=error_code,json=errorCode,proto3,enum=talos.v2alpha1.BatchCreateImportedApiKeysErrorCode,oneof" json:"error_code,omitempty"` // Set when import fails
+	ErrorMessage   *string                              `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`                                                 // Human-readable failure reason
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *BatchImportResult) Reset() {
-	*x = BatchImportResult{}
+func (x *BatchCreateImportedApiKeysResult) Reset() {
+	*x = BatchCreateImportedApiKeysResult{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchImportResult) String() string {
+func (x *BatchCreateImportedApiKeysResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchImportResult) ProtoMessage() {}
+func (*BatchCreateImportedApiKeysResult) ProtoMessage() {}
 
-func (x *BatchImportResult) ProtoReflect() protoreflect.Message {
+func (x *BatchCreateImportedApiKeysResult) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1720,63 +1720,63 @@ func (x *BatchImportResult) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchImportResult.ProtoReflect.Descriptor instead.
-func (*BatchImportResult) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchCreateImportedApiKeysResult.ProtoReflect.Descriptor instead.
+func (*BatchCreateImportedApiKeysResult) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *BatchImportResult) GetIndex() int32 {
+func (x *BatchCreateImportedApiKeysResult) GetIndex() int32 {
 	if x != nil {
 		return x.Index
 	}
 	return 0
 }
 
-func (x *BatchImportResult) GetImportedApiKey() *ImportedAPIKey {
+func (x *BatchCreateImportedApiKeysResult) GetImportedApiKey() *ImportedApiKey {
 	if x != nil {
 		return x.ImportedApiKey
 	}
 	return nil
 }
 
-func (x *BatchImportResult) GetErrorCode() BatchImportErrorCode {
+func (x *BatchCreateImportedApiKeysResult) GetErrorCode() BatchCreateImportedApiKeysErrorCode {
 	if x != nil && x.ErrorCode != nil {
 		return *x.ErrorCode
 	}
-	return BatchImportErrorCode_BATCH_IMPORT_ERROR_UNSPECIFIED
+	return BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED
 }
 
-func (x *BatchImportResult) GetErrorMessage() string {
+func (x *BatchCreateImportedApiKeysResult) GetErrorMessage() string {
 	if x != nil && x.ErrorMessage != nil {
 		return *x.ErrorMessage
 	}
 	return ""
 }
 
-// BatchImportAPIKeysResponse returns per-item results and summary counters.
-type BatchImportAPIKeysResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Results       []*BatchImportResult   `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	SuccessCount  int32                  `protobuf:"varint,2,opt,name=success_count,json=successCount,proto3" json:"success_count,omitempty"`
-	FailureCount  int32                  `protobuf:"varint,3,opt,name=failure_count,json=failureCount,proto3" json:"failure_count,omitempty"`
+// BatchCreateImportedApiKeysResponse returns per-item results and summary counters.
+type BatchCreateImportedApiKeysResponse struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Results       []*BatchCreateImportedApiKeysResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	SuccessCount  int32                               `protobuf:"varint,2,opt,name=success_count,json=successCount,proto3" json:"success_count,omitempty"`
+	FailureCount  int32                               `protobuf:"varint,3,opt,name=failure_count,json=failureCount,proto3" json:"failure_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchImportAPIKeysResponse) Reset() {
-	*x = BatchImportAPIKeysResponse{}
+func (x *BatchCreateImportedApiKeysResponse) Reset() {
+	*x = BatchCreateImportedApiKeysResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchImportAPIKeysResponse) String() string {
+func (x *BatchCreateImportedApiKeysResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchImportAPIKeysResponse) ProtoMessage() {}
+func (*BatchCreateImportedApiKeysResponse) ProtoMessage() {}
 
-func (x *BatchImportAPIKeysResponse) ProtoReflect() protoreflect.Message {
+func (x *BatchCreateImportedApiKeysResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1788,38 +1788,38 @@ func (x *BatchImportAPIKeysResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchImportAPIKeysResponse.ProtoReflect.Descriptor instead.
-func (*BatchImportAPIKeysResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchCreateImportedApiKeysResponse.ProtoReflect.Descriptor instead.
+func (*BatchCreateImportedApiKeysResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *BatchImportAPIKeysResponse) GetResults() []*BatchImportResult {
+func (x *BatchCreateImportedApiKeysResponse) GetResults() []*BatchCreateImportedApiKeysResult {
 	if x != nil {
 		return x.Results
 	}
 	return nil
 }
 
-func (x *BatchImportAPIKeysResponse) GetSuccessCount() int32 {
+func (x *BatchCreateImportedApiKeysResponse) GetSuccessCount() int32 {
 	if x != nil {
 		return x.SuccessCount
 	}
 	return 0
 }
 
-func (x *BatchImportAPIKeysResponse) GetFailureCount() int32 {
+func (x *BatchCreateImportedApiKeysResponse) GetFailureCount() int32 {
 	if x != nil {
 		return x.FailureCount
 	}
 	return 0
 }
 
-// ListImportedAPIKeysRequest lists imported keys with filters
+// ListImportedApiKeysRequest lists imported keys with filters
 //
 // Example:
 //
 //	GET /v2alpha1/admin/importedApiKeys?filter=status%3DKEY_STATUS_ACTIVE&page_size=50
-type ListImportedAPIKeysRequest struct {
+type ListImportedApiKeysRequest struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	PageSize  int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`   // Number of items per page (default: 50, max: 1000)
 	PageToken string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // Cursor token for pagination (OPTIONAL)
@@ -1837,20 +1837,20 @@ type ListImportedAPIKeysRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListImportedAPIKeysRequest) Reset() {
-	*x = ListImportedAPIKeysRequest{}
+func (x *ListImportedApiKeysRequest) Reset() {
+	*x = ListImportedApiKeysRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListImportedAPIKeysRequest) String() string {
+func (x *ListImportedApiKeysRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListImportedAPIKeysRequest) ProtoMessage() {}
+func (*ListImportedApiKeysRequest) ProtoMessage() {}
 
-func (x *ListImportedAPIKeysRequest) ProtoReflect() protoreflect.Message {
+func (x *ListImportedApiKeysRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1862,55 +1862,55 @@ func (x *ListImportedAPIKeysRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListImportedAPIKeysRequest.ProtoReflect.Descriptor instead.
-func (*ListImportedAPIKeysRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListImportedApiKeysRequest.ProtoReflect.Descriptor instead.
+func (*ListImportedApiKeysRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *ListImportedAPIKeysRequest) GetPageSize() int32 {
+func (x *ListImportedApiKeysRequest) GetPageSize() int32 {
 	if x != nil {
 		return x.PageSize
 	}
 	return 0
 }
 
-func (x *ListImportedAPIKeysRequest) GetPageToken() string {
+func (x *ListImportedApiKeysRequest) GetPageToken() string {
 	if x != nil {
 		return x.PageToken
 	}
 	return ""
 }
 
-func (x *ListImportedAPIKeysRequest) GetFilter() string {
+func (x *ListImportedApiKeysRequest) GetFilter() string {
 	if x != nil {
 		return x.Filter
 	}
 	return ""
 }
 
-// ListImportedAPIKeysResponse returns paginated list of imported keys
-type ListImportedAPIKeysResponse struct {
+// ListImportedApiKeysResponse returns paginated list of imported keys
+type ListImportedApiKeysResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	ImportedApiKeys []*ImportedAPIKey      `protobuf:"bytes,1,rep,name=imported_api_keys,json=importedApiKeys,proto3" json:"imported_api_keys,omitempty"` // List of imported keys
+	ImportedApiKeys []*ImportedApiKey      `protobuf:"bytes,1,rep,name=imported_api_keys,json=importedApiKeys,proto3" json:"imported_api_keys,omitempty"` // List of imported keys
 	NextPageToken   string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`       // Token for fetching the next page (empty if no more results)
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListImportedAPIKeysResponse) Reset() {
-	*x = ListImportedAPIKeysResponse{}
+func (x *ListImportedApiKeysResponse) Reset() {
+	*x = ListImportedApiKeysResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListImportedAPIKeysResponse) String() string {
+func (x *ListImportedApiKeysResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListImportedAPIKeysResponse) ProtoMessage() {}
+func (*ListImportedApiKeysResponse) ProtoMessage() {}
 
-func (x *ListImportedAPIKeysResponse) ProtoReflect() protoreflect.Message {
+func (x *ListImportedApiKeysResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1922,51 +1922,51 @@ func (x *ListImportedAPIKeysResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListImportedAPIKeysResponse.ProtoReflect.Descriptor instead.
-func (*ListImportedAPIKeysResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListImportedApiKeysResponse.ProtoReflect.Descriptor instead.
+func (*ListImportedApiKeysResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *ListImportedAPIKeysResponse) GetImportedApiKeys() []*ImportedAPIKey {
+func (x *ListImportedApiKeysResponse) GetImportedApiKeys() []*ImportedApiKey {
 	if x != nil {
 		return x.ImportedApiKeys
 	}
 	return nil
 }
 
-func (x *ListImportedAPIKeysResponse) GetNextPageToken() string {
+func (x *ListImportedApiKeysResponse) GetNextPageToken() string {
 	if x != nil {
 		return x.NextPageToken
 	}
 	return ""
 }
 
-// GetImportedAPIKeyRequest retrieves a single imported key by its hash ID
+// GetImportedApiKeyRequest retrieves a single imported key by its hash ID
 //
 // Example:
 //
 //	GET /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b7c1e4f0d9a6b3c8e1f5d2a7b4c0e8f1d
-type GetImportedAPIKeyRequest struct {
+type GetImportedApiKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"` // SHA512/256 hash of the imported key (REQUIRED)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetImportedAPIKeyRequest) Reset() {
-	*x = GetImportedAPIKeyRequest{}
+func (x *GetImportedApiKeyRequest) Reset() {
+	*x = GetImportedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetImportedAPIKeyRequest) String() string {
+func (x *GetImportedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetImportedAPIKeyRequest) ProtoMessage() {}
+func (*GetImportedApiKeyRequest) ProtoMessage() {}
 
-func (x *GetImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *GetImportedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1978,46 +1978,46 @@ func (x *GetImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetImportedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*GetImportedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetImportedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*GetImportedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *GetImportedAPIKeyRequest) GetKeyId() string {
+func (x *GetImportedApiKeyRequest) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-// DeleteImportedAPIKeyRequest permanently deletes an imported key
+// DeleteImportedApiKeyRequest permanently deletes an imported key
 //
 // Example:
 //
 //	DELETE /v2alpha1/admin/importedApiKeys/9a3f...
 //
 // Note: This is a destructive operation. Prefer revocation for audit trail.
-type DeleteImportedAPIKeyRequest struct {
+type DeleteImportedApiKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"` // SHA512/256 hash of the imported key (REQUIRED)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteImportedAPIKeyRequest) Reset() {
-	*x = DeleteImportedAPIKeyRequest{}
+func (x *DeleteImportedApiKeyRequest) Reset() {
+	*x = DeleteImportedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteImportedAPIKeyRequest) String() string {
+func (x *DeleteImportedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteImportedAPIKeyRequest) ProtoMessage() {}
+func (*DeleteImportedApiKeyRequest) ProtoMessage() {}
 
-func (x *DeleteImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteImportedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2029,47 +2029,47 @@ func (x *DeleteImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteImportedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*DeleteImportedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteImportedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*DeleteImportedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *DeleteImportedAPIKeyRequest) GetKeyId() string {
+func (x *DeleteImportedApiKeyRequest) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-// UpdateImportedAPIKeyRequest is the request for AdminUpdateImportedAPIKey.
+// UpdateImportedApiKeyRequest is the request for AdminUpdateImportedApiKey.
 //
 // Follows AIP-134: the resource being updated is embedded directly. The
 // `key_id` inside `imported_api_key` identifies which key to update, and only
 // fields listed in `update_mask` are applied. Server-managed fields on
-// ImportedAPIKey (status, timestamps, revocation_*) are ignored on input.
-type UpdateImportedAPIKeyRequest struct {
+// ImportedApiKey (status, timestamps, revocation_*) are ignored on input.
+type UpdateImportedApiKeyRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	ImportedApiKey *ImportedAPIKey        `protobuf:"bytes,1,opt,name=imported_api_key,json=importedApiKey,proto3" json:"imported_api_key,omitempty"`
+	ImportedApiKey *ImportedApiKey        `protobuf:"bytes,1,opt,name=imported_api_key,json=importedApiKey,proto3" json:"imported_api_key,omitempty"`
 	// The list of fields to update. See AIP-134.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateImportedAPIKeyRequest) Reset() {
-	*x = UpdateImportedAPIKeyRequest{}
+func (x *UpdateImportedApiKeyRequest) Reset() {
+	*x = UpdateImportedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateImportedAPIKeyRequest) String() string {
+func (x *UpdateImportedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateImportedAPIKeyRequest) ProtoMessage() {}
+func (*UpdateImportedApiKeyRequest) ProtoMessage() {}
 
-func (x *UpdateImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateImportedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2081,27 +2081,27 @@ func (x *UpdateImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateImportedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*UpdateImportedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateImportedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*UpdateImportedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *UpdateImportedAPIKeyRequest) GetImportedApiKey() *ImportedAPIKey {
+func (x *UpdateImportedApiKeyRequest) GetImportedApiKey() *ImportedApiKey {
 	if x != nil {
 		return x.ImportedApiKey
 	}
 	return nil
 }
 
-func (x *UpdateImportedAPIKeyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+func (x *UpdateImportedApiKeyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
 		return x.UpdateMask
 	}
 	return nil
 }
 
-// RevokeIssuedAPIKeyRequest revokes an issued API key by its key_id.
-type RevokeIssuedAPIKeyRequest struct {
+// RevokeIssuedApiKeyRequest revokes an issued API key by its key_id.
+type RevokeIssuedApiKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"` // UUID of the issued key (REQUIRED)
 	Reason        RevocationReason       `protobuf:"varint,2,opt,name=reason,proto3,enum=talos.v2alpha1.RevocationReason" json:"reason,omitempty"`
@@ -2110,20 +2110,20 @@ type RevokeIssuedAPIKeyRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RevokeIssuedAPIKeyRequest) Reset() {
-	*x = RevokeIssuedAPIKeyRequest{}
+func (x *RevokeIssuedApiKeyRequest) Reset() {
+	*x = RevokeIssuedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RevokeIssuedAPIKeyRequest) String() string {
+func (x *RevokeIssuedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RevokeIssuedAPIKeyRequest) ProtoMessage() {}
+func (*RevokeIssuedApiKeyRequest) ProtoMessage() {}
 
-func (x *RevokeIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *RevokeIssuedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2135,34 +2135,34 @@ func (x *RevokeIssuedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RevokeIssuedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*RevokeIssuedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RevokeIssuedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*RevokeIssuedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *RevokeIssuedAPIKeyRequest) GetKeyId() string {
+func (x *RevokeIssuedApiKeyRequest) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-func (x *RevokeIssuedAPIKeyRequest) GetReason() RevocationReason {
+func (x *RevokeIssuedApiKeyRequest) GetReason() RevocationReason {
 	if x != nil {
 		return x.Reason
 	}
 	return RevocationReason_REVOCATION_REASON_UNSPECIFIED
 }
 
-func (x *RevokeIssuedAPIKeyRequest) GetDescription() string {
+func (x *RevokeIssuedApiKeyRequest) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-// RevokeImportedAPIKeyRequest revokes an imported API key by its key_id.
-type RevokeImportedAPIKeyRequest struct {
+// RevokeImportedApiKeyRequest revokes an imported API key by its key_id.
+type RevokeImportedApiKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"` // SHA-512/256 hash of the imported key (REQUIRED)
 	Reason        RevocationReason       `protobuf:"varint,2,opt,name=reason,proto3,enum=talos.v2alpha1.RevocationReason" json:"reason,omitempty"`
@@ -2171,20 +2171,20 @@ type RevokeImportedAPIKeyRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RevokeImportedAPIKeyRequest) Reset() {
-	*x = RevokeImportedAPIKeyRequest{}
+func (x *RevokeImportedApiKeyRequest) Reset() {
+	*x = RevokeImportedApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RevokeImportedAPIKeyRequest) String() string {
+func (x *RevokeImportedApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RevokeImportedAPIKeyRequest) ProtoMessage() {}
+func (*RevokeImportedApiKeyRequest) ProtoMessage() {}
 
-func (x *RevokeImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *RevokeImportedApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2196,26 +2196,26 @@ func (x *RevokeImportedAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RevokeImportedAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*RevokeImportedAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RevokeImportedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*RevokeImportedApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *RevokeImportedAPIKeyRequest) GetKeyId() string {
+func (x *RevokeImportedApiKeyRequest) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-func (x *RevokeImportedAPIKeyRequest) GetReason() RevocationReason {
+func (x *RevokeImportedApiKeyRequest) GetReason() RevocationReason {
 	if x != nil {
 		return x.Reason
 	}
 	return RevocationReason_REVOCATION_REASON_UNSPECIFIED
 }
 
-func (x *RevokeImportedAPIKeyRequest) GetDescription() string {
+func (x *RevokeImportedApiKeyRequest) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
@@ -2440,27 +2440,27 @@ func (x *GetJWKSResponse) GetJwks() *structpb.Struct {
 	return nil
 }
 
-type VerifyAPIKeyRequest struct {
+type VerifyApiKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Credential    string                 `protobuf:"bytes,1,opt,name=credential,proto3" json:"credential,omitempty"` // API key or derived token (any format: sk_*, JWT, macaroon)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *VerifyAPIKeyRequest) Reset() {
-	*x = VerifyAPIKeyRequest{}
+func (x *VerifyApiKeyRequest) Reset() {
+	*x = VerifyApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *VerifyAPIKeyRequest) String() string {
+func (x *VerifyApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*VerifyAPIKeyRequest) ProtoMessage() {}
+func (*VerifyApiKeyRequest) ProtoMessage() {}
 
-func (x *VerifyAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *VerifyApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2472,19 +2472,19 @@ func (x *VerifyAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use VerifyAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*VerifyAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use VerifyApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*VerifyApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *VerifyAPIKeyRequest) GetCredential() string {
+func (x *VerifyApiKeyRequest) GetCredential() string {
 	if x != nil {
 		return x.Credential
 	}
 	return ""
 }
 
-type VerifyAPIKeyResponse struct {
+type VerifyApiKeyResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// is_valid reports whether verification succeeded. It is true only when the
 	// credential parses, the signature checks out, the key was found, all
@@ -2523,20 +2523,20 @@ type VerifyAPIKeyResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *VerifyAPIKeyResponse) Reset() {
-	*x = VerifyAPIKeyResponse{}
+func (x *VerifyApiKeyResponse) Reset() {
+	*x = VerifyApiKeyResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *VerifyAPIKeyResponse) String() string {
+func (x *VerifyApiKeyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*VerifyAPIKeyResponse) ProtoMessage() {}
+func (*VerifyApiKeyResponse) ProtoMessage() {}
 
-func (x *VerifyAPIKeyResponse) ProtoReflect() protoreflect.Message {
+func (x *VerifyApiKeyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2548,130 +2548,130 @@ func (x *VerifyAPIKeyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use VerifyAPIKeyResponse.ProtoReflect.Descriptor instead.
-func (*VerifyAPIKeyResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use VerifyApiKeyResponse.ProtoReflect.Descriptor instead.
+func (*VerifyApiKeyResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *VerifyAPIKeyResponse) GetIsValid() bool {
+func (x *VerifyApiKeyResponse) GetIsValid() bool {
 	if x != nil {
 		return x.IsValid
 	}
 	return false
 }
 
-func (x *VerifyAPIKeyResponse) GetKeyId() string {
+func (x *VerifyApiKeyResponse) GetKeyId() string {
 	if x != nil {
 		return x.KeyId
 	}
 	return ""
 }
 
-func (x *VerifyAPIKeyResponse) GetActorId() string {
+func (x *VerifyApiKeyResponse) GetActorId() string {
 	if x != nil {
 		return x.ActorId
 	}
 	return ""
 }
 
-func (x *VerifyAPIKeyResponse) GetScopes() []string {
+func (x *VerifyApiKeyResponse) GetScopes() []string {
 	if x != nil {
 		return x.Scopes
 	}
 	return nil
 }
 
-func (x *VerifyAPIKeyResponse) GetExpireTime() *timestamppb.Timestamp {
+func (x *VerifyApiKeyResponse) GetExpireTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpireTime
 	}
 	return nil
 }
 
-func (x *VerifyAPIKeyResponse) GetMetadata() *structpb.Struct {
+func (x *VerifyApiKeyResponse) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *VerifyAPIKeyResponse) GetErrorCode() VerificationErrorCode {
+func (x *VerifyApiKeyResponse) GetErrorCode() VerificationErrorCode {
 	if x != nil && x.ErrorCode != nil {
 		return *x.ErrorCode
 	}
 	return VerificationErrorCode_VERIFICATION_ERROR_UNSPECIFIED
 }
 
-func (x *VerifyAPIKeyResponse) GetErrorMessage() string {
+func (x *VerifyApiKeyResponse) GetErrorMessage() string {
 	if x != nil && x.ErrorMessage != nil {
 		return *x.ErrorMessage
 	}
 	return ""
 }
 
-func (x *VerifyAPIKeyResponse) GetRateLimitPolicy() *RateLimitPolicy {
+func (x *VerifyApiKeyResponse) GetRateLimitPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.RateLimitPolicy
 	}
 	return nil
 }
 
-func (x *VerifyAPIKeyResponse) GetRateLimitRemaining() int64 {
+func (x *VerifyApiKeyResponse) GetRateLimitRemaining() int64 {
 	if x != nil && x.RateLimitRemaining != nil {
 		return *x.RateLimitRemaining
 	}
 	return 0
 }
 
-func (x *VerifyAPIKeyResponse) GetRateLimitResetTime() *timestamppb.Timestamp {
+func (x *VerifyApiKeyResponse) GetRateLimitResetTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.RateLimitResetTime
 	}
 	return nil
 }
 
-func (x *VerifyAPIKeyResponse) GetVisibility() KeyVisibility {
+func (x *VerifyApiKeyResponse) GetVisibility() KeyVisibility {
 	if x != nil {
 		return x.Visibility
 	}
 	return KeyVisibility_KEY_VISIBILITY_UNSPECIFIED
 }
 
-func (x *VerifyAPIKeyResponse) GetIssuer() string {
+func (x *VerifyApiKeyResponse) GetIssuer() string {
 	if x != nil {
 		return x.Issuer
 	}
 	return ""
 }
 
-func (x *VerifyAPIKeyResponse) GetStatus() KeyStatus {
+func (x *VerifyApiKeyResponse) GetStatus() KeyStatus {
 	if x != nil {
 		return x.Status
 	}
 	return KeyStatus_KEY_STATUS_UNSPECIFIED
 }
 
-type BatchVerifyAPIKeysRequest struct {
+type BatchVerifyApiKeysRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Requests      []*VerifyAPIKeyRequest `protobuf:"bytes,1,rep,name=requests,proto3" json:"requests,omitempty"`
+	Requests      []*VerifyApiKeyRequest `protobuf:"bytes,1,rep,name=requests,proto3" json:"requests,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchVerifyAPIKeysRequest) Reset() {
-	*x = BatchVerifyAPIKeysRequest{}
+func (x *BatchVerifyApiKeysRequest) Reset() {
+	*x = BatchVerifyApiKeysRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchVerifyAPIKeysRequest) String() string {
+func (x *BatchVerifyApiKeysRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchVerifyAPIKeysRequest) ProtoMessage() {}
+func (*BatchVerifyApiKeysRequest) ProtoMessage() {}
 
-func (x *BatchVerifyAPIKeysRequest) ProtoReflect() protoreflect.Message {
+func (x *BatchVerifyApiKeysRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2683,39 +2683,39 @@ func (x *BatchVerifyAPIKeysRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchVerifyAPIKeysRequest.ProtoReflect.Descriptor instead.
-func (*BatchVerifyAPIKeysRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchVerifyApiKeysRequest.ProtoReflect.Descriptor instead.
+func (*BatchVerifyApiKeysRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *BatchVerifyAPIKeysRequest) GetRequests() []*VerifyAPIKeyRequest {
+func (x *BatchVerifyApiKeysRequest) GetRequests() []*VerifyApiKeyRequest {
 	if x != nil {
 		return x.Requests
 	}
 	return nil
 }
 
-type BatchVerifyAPIKeysResponse struct {
+type BatchVerifyApiKeysResponse struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Results       []*VerifyAPIKeyResponse `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Results       []*VerifyApiKeyResponse `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BatchVerifyAPIKeysResponse) Reset() {
-	*x = BatchVerifyAPIKeysResponse{}
+func (x *BatchVerifyApiKeysResponse) Reset() {
+	*x = BatchVerifyApiKeysResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BatchVerifyAPIKeysResponse) String() string {
+func (x *BatchVerifyApiKeysResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BatchVerifyAPIKeysResponse) ProtoMessage() {}
+func (*BatchVerifyApiKeysResponse) ProtoMessage() {}
 
-func (x *BatchVerifyAPIKeysResponse) ProtoReflect() protoreflect.Message {
+func (x *BatchVerifyApiKeysResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2727,21 +2727,21 @@ func (x *BatchVerifyAPIKeysResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BatchVerifyAPIKeysResponse.ProtoReflect.Descriptor instead.
-func (*BatchVerifyAPIKeysResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use BatchVerifyApiKeysResponse.ProtoReflect.Descriptor instead.
+func (*BatchVerifyApiKeysResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{31}
 }
 
-func (x *BatchVerifyAPIKeysResponse) GetResults() []*VerifyAPIKeyResponse {
+func (x *BatchVerifyApiKeysResponse) GetResults() []*VerifyApiKeyResponse {
 	if x != nil {
 		return x.Results
 	}
 	return nil
 }
 
-// SelfRevokeAPIKeyRequest allows an API key holder to revoke their own key
+// SelfRevokeApiKeyRequest allows an API key holder to revoke their own key
 // by providing the full key secret as proof of possession.
-type SelfRevokeAPIKeyRequest struct {
+type SelfRevokeApiKeyRequest struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Credential string                 `protobuf:"bytes,1,opt,name=credential,proto3" json:"credential,omitempty"` // Full API key secret or imported key (REQUIRED)
 	// reason explains why the holder is revoking the key. Must be one of
@@ -2752,20 +2752,20 @@ type SelfRevokeAPIKeyRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SelfRevokeAPIKeyRequest) Reset() {
-	*x = SelfRevokeAPIKeyRequest{}
+func (x *SelfRevokeApiKeyRequest) Reset() {
+	*x = SelfRevokeApiKeyRequest{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SelfRevokeAPIKeyRequest) String() string {
+func (x *SelfRevokeApiKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SelfRevokeAPIKeyRequest) ProtoMessage() {}
+func (*SelfRevokeApiKeyRequest) ProtoMessage() {}
 
-func (x *SelfRevokeAPIKeyRequest) ProtoReflect() protoreflect.Message {
+func (x *SelfRevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2777,46 +2777,46 @@ func (x *SelfRevokeAPIKeyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SelfRevokeAPIKeyRequest.ProtoReflect.Descriptor instead.
-func (*SelfRevokeAPIKeyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SelfRevokeApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*SelfRevokeApiKeyRequest) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{32}
 }
 
-func (x *SelfRevokeAPIKeyRequest) GetCredential() string {
+func (x *SelfRevokeApiKeyRequest) GetCredential() string {
 	if x != nil {
 		return x.Credential
 	}
 	return ""
 }
 
-func (x *SelfRevokeAPIKeyRequest) GetReason() RevocationReason {
+func (x *SelfRevokeApiKeyRequest) GetReason() RevocationReason {
 	if x != nil {
 		return x.Reason
 	}
 	return RevocationReason_REVOCATION_REASON_UNSPECIFIED
 }
 
-// SelfRevokeAPIKeyResponse is returned on successful self-revocation.
-type SelfRevokeAPIKeyResponse struct {
+// SelfRevokeApiKeyResponse is returned on successful self-revocation.
+type SelfRevokeApiKeyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SelfRevokeAPIKeyResponse) Reset() {
-	*x = SelfRevokeAPIKeyResponse{}
+func (x *SelfRevokeApiKeyResponse) Reset() {
+	*x = SelfRevokeApiKeyResponse{}
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SelfRevokeAPIKeyResponse) String() string {
+func (x *SelfRevokeApiKeyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SelfRevokeAPIKeyResponse) ProtoMessage() {}
+func (*SelfRevokeApiKeyResponse) ProtoMessage() {}
 
-func (x *SelfRevokeAPIKeyResponse) ProtoReflect() protoreflect.Message {
+func (x *SelfRevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2828,8 +2828,8 @@ func (x *SelfRevokeAPIKeyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SelfRevokeAPIKeyResponse.ProtoReflect.Descriptor instead.
-func (*SelfRevokeAPIKeyResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use SelfRevokeApiKeyResponse.ProtoReflect.Descriptor instead.
+func (*SelfRevokeApiKeyResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{33}
 }
 
@@ -2838,7 +2838,7 @@ var File_api_talos_v2alpha1_talos_proto protoreflect.FileDescriptor
 const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\n" +
 	"\x1eapi/talos/v2alpha1/talos.proto\x12\x0etalos.v2alpha1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xe5\a\n" +
-	"\fIssuedAPIKey\x12\x1e\n" +
+	"\fIssuedApiKey\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\x12\x1c\n" +
 	"\x04name\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x04name\x12\x19\n" +
 	"\bactor_id\x18\x03 \x01(\tR\aactorId\x12(\n" +
@@ -2867,7 +2867,7 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x12_revocation_reasonB\x19\n" +
 	"\x17_revocation_descriptionB\x11\n" +
 	"\x0f_ip_restriction\"\xe7\a\n" +
-	"\x0eImportedAPIKey\x12\x1e\n" +
+	"\x0eImportedApiKey\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\x12\x1c\n" +
 	"\x04name\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x04name\x12\x19\n" +
 	"\bactor_id\x18\x03 \x01(\tR\aactorId\x12(\n" +
@@ -2909,7 +2909,7 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x05quota\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02 \x00R\x05quota\x12;\n" +
 	"\x06window\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\b\xbaH\x05\xaa\x01\x02*\x00R\x06window\x12\x12\n" +
 	"\x04unit\x18\x03 \x01(\tR\x04unit\"\xab\x04\n" +
-	"\x12IssueAPIKeyRequest\x12\x1e\n" +
+	"\x12IssueApiKeyRequest\x12\x1e\n" +
 	"\x04name\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\x04name\x12%\n" +
 	"\bactor_id\x18\x02 \x01(\tB\n" +
@@ -2927,25 +2927,25 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"visibilityB\x14\n" +
 	"\x12_rate_limit_policyB\x11\n" +
 	"\x0f_ip_restriction\"q\n" +
-	"\x13IssueAPIKeyResponse\x12B\n" +
-	"\x0eissued_api_key\x18\x01 \x01(\v2\x1c.talos.v2alpha1.IssuedAPIKeyR\fissuedApiKey\x12\x16\n" +
+	"\x13IssueApiKeyResponse\x12B\n" +
+	"\x0eissued_api_key\x18\x01 \x01(\v2\x1c.talos.v2alpha1.IssuedApiKeyR\fissuedApiKey\x12\x16\n" +
 	"\x06secret\x18\x02 \x01(\tR\x06secret\"8\n" +
-	"\x16GetIssuedAPIKeyRequest\x12\x1e\n" +
+	"\x16GetIssuedApiKeyRequest\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\"z\n" +
-	"\x18ListIssuedAPIKeysRequest\x12'\n" +
+	"\x18ListIssuedApiKeysRequest\x12'\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\n" +
 	"\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\x12\x16\n" +
 	"\x06filter\x18\x03 \x01(\tR\x06filter\"\x89\x01\n" +
-	"\x19ListIssuedAPIKeysResponse\x12D\n" +
-	"\x0fissued_api_keys\x18\x01 \x03(\v2\x1c.talos.v2alpha1.IssuedAPIKeyR\rissuedApiKeys\x12&\n" +
+	"\x19ListIssuedApiKeysResponse\x12D\n" +
+	"\x0fissued_api_keys\x18\x01 \x03(\v2\x1c.talos.v2alpha1.IssuedApiKeyR\rissuedApiKeys\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xa4\x01\n" +
-	"\x19UpdateIssuedAPIKeyRequest\x12J\n" +
-	"\x0eissued_api_key\x18\x01 \x01(\v2\x1c.talos.v2alpha1.IssuedAPIKeyB\x06\xbaH\x03\xc8\x01\x01R\fissuedApiKey\x12;\n" +
+	"\x19UpdateIssuedApiKeyRequest\x12J\n" +
+	"\x0eissued_api_key\x18\x01 \x01(\v2\x1c.talos.v2alpha1.IssuedApiKeyB\x06\xbaH\x03\xc8\x01\x01R\fissuedApiKey\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\xde\x03\n" +
-	"\x19RotateIssuedAPIKeyRequest\x12\x1e\n" +
+	"\x19RotateIssuedApiKeyRequest\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\x12!\n" +
 	"\x04name\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01H\x00R\x04name\x88\x01\x01\x12(\n" +
 	"\x06scopes\x18\x03 \x03(\tB\x10\xbaH\r\x92\x01\n" +
@@ -2959,11 +2959,11 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x05_nameB\x14\n" +
 	"\x12_rate_limit_policyB\x11\n" +
 	"\x0f_ip_restrictionJ\x04\b\x06\x10\aR\vupdate_mask\"\xc3\x01\n" +
-	"\x1aRotateIssuedAPIKeyResponse\x12B\n" +
-	"\x0eissued_api_key\x18\x01 \x01(\v2\x1c.talos.v2alpha1.IssuedAPIKeyR\fissuedApiKey\x12\x16\n" +
+	"\x1aRotateIssuedApiKeyResponse\x12B\n" +
+	"\x0eissued_api_key\x18\x01 \x01(\v2\x1c.talos.v2alpha1.IssuedApiKeyR\fissuedApiKey\x12\x16\n" +
 	"\x06secret\x18\x02 \x01(\tR\x06secret\x12I\n" +
-	"\x12old_issued_api_key\x18\x03 \x01(\v2\x1c.talos.v2alpha1.IssuedAPIKeyR\x0foldIssuedApiKey\"\xd1\x04\n" +
-	"\x13ImportAPIKeyRequest\x12#\n" +
+	"\x12old_issued_api_key\x18\x03 \x01(\v2\x1c.talos.v2alpha1.IssuedApiKeyR\x0foldIssuedApiKey\"\xd1\x04\n" +
+	"\x13ImportApiKeyRequest\x12#\n" +
 	"\araw_key\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80 R\x06rawKey\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
@@ -2983,43 +2983,43 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	" \x01(\x0e2\x1d.talos.v2alpha1.KeyVisibilityR\n" +
 	"visibilityB\x14\n" +
 	"\x12_rate_limit_policyB\x11\n" +
-	"\x0f_ip_restriction\"i\n" +
-	"\x19BatchImportAPIKeysRequest\x12L\n" +
-	"\brequests\x18\x01 \x03(\v2#.talos.v2alpha1.ImportAPIKeyRequestB\v\xbaH\b\x92\x01\x05\b\x01\x10\xe8\aR\brequests\"\x88\x02\n" +
-	"\x11BatchImportResult\x12\x14\n" +
+	"\x0f_ip_restriction\"q\n" +
+	"!BatchCreateImportedApiKeysRequest\x12L\n" +
+	"\brequests\x18\x01 \x03(\v2#.talos.v2alpha1.ImportApiKeyRequestB\v\xbaH\b\x92\x01\x05\b\x01\x10\xe8\aR\brequests\"\xa6\x02\n" +
+	" BatchCreateImportedApiKeysResult\x12\x14\n" +
 	"\x05index\x18\x01 \x01(\x05R\x05index\x12H\n" +
-	"\x10imported_api_key\x18\x02 \x01(\v2\x1e.talos.v2alpha1.ImportedAPIKeyR\x0eimportedApiKey\x12H\n" +
+	"\x10imported_api_key\x18\x02 \x01(\v2\x1e.talos.v2alpha1.ImportedApiKeyR\x0eimportedApiKey\x12W\n" +
 	"\n" +
-	"error_code\x18\x03 \x01(\x0e2$.talos.v2alpha1.BatchImportErrorCodeH\x00R\terrorCode\x88\x01\x01\x12(\n" +
+	"error_code\x18\x03 \x01(\x0e23.talos.v2alpha1.BatchCreateImportedApiKeysErrorCodeH\x00R\terrorCode\x88\x01\x01\x12(\n" +
 	"\rerror_message\x18\x04 \x01(\tH\x01R\ferrorMessage\x88\x01\x01B\r\n" +
 	"\v_error_codeB\x10\n" +
-	"\x0e_error_message\"\xa3\x01\n" +
-	"\x1aBatchImportAPIKeysResponse\x12;\n" +
-	"\aresults\x18\x01 \x03(\v2!.talos.v2alpha1.BatchImportResultR\aresults\x12#\n" +
+	"\x0e_error_message\"\xba\x01\n" +
+	"\"BatchCreateImportedApiKeysResponse\x12J\n" +
+	"\aresults\x18\x01 \x03(\v20.talos.v2alpha1.BatchCreateImportedApiKeysResultR\aresults\x12#\n" +
 	"\rsuccess_count\x18\x02 \x01(\x05R\fsuccessCount\x12#\n" +
 	"\rfailure_count\x18\x03 \x01(\x05R\ffailureCount\"|\n" +
-	"\x1aListImportedAPIKeysRequest\x12'\n" +
+	"\x1aListImportedApiKeysRequest\x12'\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\n" +
 	"\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\x12\x16\n" +
 	"\x06filter\x18\x03 \x01(\tR\x06filter\"\x91\x01\n" +
-	"\x1bListImportedAPIKeysResponse\x12J\n" +
-	"\x11imported_api_keys\x18\x01 \x03(\v2\x1e.talos.v2alpha1.ImportedAPIKeyR\x0fimportedApiKeys\x12&\n" +
+	"\x1bListImportedApiKeysResponse\x12J\n" +
+	"\x11imported_api_keys\x18\x01 \x03(\v2\x1e.talos.v2alpha1.ImportedApiKeyR\x0fimportedApiKeys\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\":\n" +
-	"\x18GetImportedAPIKeyRequest\x12\x1e\n" +
+	"\x18GetImportedApiKeyRequest\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\"=\n" +
-	"\x1bDeleteImportedAPIKeyRequest\x12\x1e\n" +
+	"\x1bDeleteImportedApiKeyRequest\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\"\xac\x01\n" +
-	"\x1bUpdateImportedAPIKeyRequest\x12P\n" +
-	"\x10imported_api_key\x18\x01 \x01(\v2\x1e.talos.v2alpha1.ImportedAPIKeyB\x06\xbaH\x03\xc8\x01\x01R\x0eimportedApiKey\x12;\n" +
+	"\x1bUpdateImportedApiKeyRequest\x12P\n" +
+	"\x10imported_api_key\x18\x01 \x01(\v2\x1e.talos.v2alpha1.ImportedApiKeyB\x06\xbaH\x03\xc8\x01\x01R\x0eimportedApiKey\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\x97\x01\n" +
-	"\x19RevokeIssuedAPIKeyRequest\x12\x1e\n" +
+	"\x19RevokeIssuedApiKeyRequest\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\x128\n" +
 	"\x06reason\x18\x02 \x01(\x0e2 .talos.v2alpha1.RevocationReasonR\x06reason\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\"\x99\x01\n" +
-	"\x1bRevokeImportedAPIKeyRequest\x12\x1e\n" +
+	"\x1bRevokeImportedApiKeyRequest\x12\x1e\n" +
 	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\x128\n" +
 	"\x06reason\x18\x02 \x01(\x0e2 .talos.v2alpha1.RevocationReasonR\x06reason\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\"\xaa\x02\n" +
@@ -3038,12 +3038,12 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x0eGetJWKSRequest\">\n" +
 	"\x0fGetJWKSResponse\x12+\n" +
 	"\x04jwks\x18\x01 \x01(\v2\x17.google.protobuf.StructR\x04jwks\"A\n" +
-	"\x13VerifyAPIKeyRequest\x12*\n" +
+	"\x13VerifyApiKeyRequest\x12*\n" +
 	"\n" +
 	"credential\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80 R\n" +
 	"credential\"\xb3\x06\n" +
-	"\x14VerifyAPIKeyResponse\x12\x19\n" +
+	"\x14VerifyApiKeyResponse\x12\x19\n" +
 	"\bis_valid\x18\x01 \x01(\bR\aisValid\x12\x15\n" +
 	"\x06key_id\x18\x02 \x01(\tR\x05keyId\x12\x19\n" +
 	"\bactor_id\x18\x03 \x01(\tR\aactorId\x12\x16\n" +
@@ -3068,18 +3068,18 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x12_rate_limit_policyB\x17\n" +
 	"\x15_rate_limit_remainingB\x18\n" +
 	"\x16_rate_limit_reset_time\"h\n" +
-	"\x19BatchVerifyAPIKeysRequest\x12K\n" +
-	"\brequests\x18\x01 \x03(\v2#.talos.v2alpha1.VerifyAPIKeyRequestB\n" +
+	"\x19BatchVerifyApiKeysRequest\x12K\n" +
+	"\brequests\x18\x01 \x03(\v2#.talos.v2alpha1.VerifyApiKeyRequestB\n" +
 	"\xbaH\a\x92\x01\x04\b\x01\x10dR\brequests\"\\\n" +
-	"\x1aBatchVerifyAPIKeysResponse\x12>\n" +
-	"\aresults\x18\x01 \x03(\v2$.talos.v2alpha1.VerifyAPIKeyResponseR\aresults\"\x7f\n" +
-	"\x17SelfRevokeAPIKeyRequest\x12*\n" +
+	"\x1aBatchVerifyApiKeysResponse\x12>\n" +
+	"\aresults\x18\x01 \x03(\v2$.talos.v2alpha1.VerifyApiKeyResponseR\aresults\"\x7f\n" +
+	"\x17SelfRevokeApiKeyRequest\x12*\n" +
 	"\n" +
 	"credential\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80 R\n" +
 	"credential\x128\n" +
 	"\x06reason\x18\x02 \x01(\x0e2 .talos.v2alpha1.RevocationReasonR\x06reason\"\x1a\n" +
-	"\x18SelfRevokeAPIKeyResponse*n\n" +
+	"\x18SelfRevokeApiKeyResponse*n\n" +
 	"\tKeyStatus\x12\x1a\n" +
 	"\x16KEY_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11KEY_STATUS_ACTIVE\x10\x01\x12\x16\n" +
@@ -3098,14 +3098,14 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x0eTokenAlgorithm\x12\x1f\n" +
 	"\x1bTOKEN_ALGORITHM_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13TOKEN_ALGORITHM_JWT\x10\x01\x12\x1c\n" +
-	"\x18TOKEN_ALGORITHM_MACAROON\x10\x02*\x82\x02\n" +
-	"\x14BatchImportErrorCode\x12\"\n" +
-	"\x1eBATCH_IMPORT_ERROR_UNSPECIFIED\x10\x00\x12'\n" +
-	"#BATCH_IMPORT_ERROR_INVALID_ARGUMENT\x10\x01\x12%\n" +
-	"!BATCH_IMPORT_ERROR_ALREADY_EXISTS\x10\x02\x12*\n" +
-	"&BATCH_IMPORT_ERROR_FAILED_PRECONDITION\x10\x03\x12\x1f\n" +
-	"\x1bBATCH_IMPORT_ERROR_INTERNAL\x10\x04\x12)\n" +
-	"%BATCH_IMPORT_ERROR_RESOURCE_EXHAUSTED\x10\x05*\xdb\x02\n" +
+	"\x18TOKEN_ALGORITHM_MACAROON\x10\x02*\xfd\x02\n" +
+	"#BatchCreateImportedApiKeysErrorCode\x124\n" +
+	"0BATCH_CREATE_IMPORTED_API_KEYS_ERROR_UNSPECIFIED\x10\x00\x129\n" +
+	"5BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT\x10\x01\x127\n" +
+	"3BATCH_CREATE_IMPORTED_API_KEYS_ERROR_ALREADY_EXISTS\x10\x02\x12<\n" +
+	"8BATCH_CREATE_IMPORTED_API_KEYS_ERROR_FAILED_PRECONDITION\x10\x03\x121\n" +
+	"-BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INTERNAL\x10\x04\x12;\n" +
+	"7BATCH_CREATE_IMPORTED_API_KEYS_ERROR_RESOURCE_EXHAUSTED\x10\x05*\xdb\x02\n" +
 	"\x15VerificationErrorCode\x12\"\n" +
 	"\x1eVERIFICATION_ERROR_UNSPECIFIED\x10\x00\x12%\n" +
 	"!VERIFICATION_ERROR_INVALID_FORMAT\x10\x01\x12\x1e\n" +
@@ -3115,52 +3115,52 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"$VERIFICATION_ERROR_SIGNATURE_INVALID\x10\x05\x12\x1f\n" +
 	"\x1bVERIFICATION_ERROR_INTERNAL\x10\x06\x12%\n" +
 	"!VERIFICATION_ERROR_IP_NOT_ALLOWED\x10\a\x12#\n" +
-	"\x1fVERIFICATION_ERROR_RATE_LIMITED\x10\b2\xd9!\n" +
-	"\aAPIKeys\x12\xc1\x01\n" +
-	"\x10AdminIssueAPIKey\x12\".talos.v2alpha1.IssueAPIKeyRequest\x1a#.talos.v2alpha1.IssueAPIKeyResponse\"d\x92A9*\x10AdminIssueAPIKeyJ%\n" +
+	"\x1fVERIFICATION_ERROR_RATE_LIMITED\x10\b2\xf9!\n" +
+	"\aApiKeys\x12\xc1\x01\n" +
+	"\x10AdminIssueApiKey\x12\".talos.v2alpha1.IssueApiKeyRequest\x1a#.talos.v2alpha1.IssueApiKeyResponse\"d\x92A9*\x10adminIssueApiKeyJ%\n" +
 	"\x03201\x12\x1e\n" +
 	"\x1cAPI key issued successfully.\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v2alpha1/admin/issuedApiKeys\x12\xa5\x01\n" +
-	"\x14AdminGetIssuedAPIKey\x12&.talos.v2alpha1.GetIssuedAPIKeyRequest\x1a\x1c.talos.v2alpha1.IssuedAPIKey\"G\x92A\x16*\x14AdminGetIssuedAPIKey\x82\xd3\xe4\x93\x02(\x12&/v2alpha1/admin/issuedApiKeys/{key_id}\x12\xaf\x01\n" +
-	"\x16AdminListIssuedAPIKeys\x12(.talos.v2alpha1.ListIssuedAPIKeysRequest\x1a).talos.v2alpha1.ListIssuedAPIKeysResponse\"@\x92A\x18*\x16AdminListIssuedAPIKeys\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v2alpha1/admin/issuedApiKeys\x12\xcd\x01\n" +
-	"\x17AdminUpdateIssuedAPIKey\x12).talos.v2alpha1.UpdateIssuedAPIKeyRequest\x1a\x1c.talos.v2alpha1.IssuedAPIKey\"i\x92A\x19*\x17AdminUpdateIssuedAPIKey\x82\xd3\xe4\x93\x02G:\x0eissued_api_key25/v2alpha1/admin/issuedApiKeys/{issued_api_key.key_id}\x12\x90\x02\n" +
-	"\x17AdminRotateIssuedAPIKey\x12).talos.v2alpha1.RotateIssuedAPIKeyRequest\x1a*.talos.v2alpha1.RotateIssuedAPIKeyResponse\"\x9d\x01\x92Ab*\x17AdminRotateIssuedAPIKeyJG\n" +
+	"\x14AdminGetIssuedApiKey\x12&.talos.v2alpha1.GetIssuedApiKeyRequest\x1a\x1c.talos.v2alpha1.IssuedApiKey\"G\x92A\x16*\x14adminGetIssuedApiKey\x82\xd3\xe4\x93\x02(\x12&/v2alpha1/admin/issuedApiKeys/{key_id}\x12\xaf\x01\n" +
+	"\x16AdminListIssuedApiKeys\x12(.talos.v2alpha1.ListIssuedApiKeysRequest\x1a).talos.v2alpha1.ListIssuedApiKeysResponse\"@\x92A\x18*\x16adminListIssuedApiKeys\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v2alpha1/admin/issuedApiKeys\x12\xcd\x01\n" +
+	"\x17AdminUpdateIssuedApiKey\x12).talos.v2alpha1.UpdateIssuedApiKeyRequest\x1a\x1c.talos.v2alpha1.IssuedApiKey\"i\x92A\x19*\x17adminUpdateIssuedApiKey\x82\xd3\xe4\x93\x02G:\x0eissued_api_key25/v2alpha1/admin/issuedApiKeys/{issued_api_key.key_id}\x12\x90\x02\n" +
+	"\x17AdminRotateIssuedApiKey\x12).talos.v2alpha1.RotateIssuedApiKeyRequest\x1a*.talos.v2alpha1.RotateIssuedApiKeyResponse\"\x9d\x01\x92Ab*\x17adminRotateIssuedApiKeyJG\n" +
 	"\x03201\x12@\n" +
 	">API key rotated successfully. New key issued, old key revoked.\x82\xd3\xe4\x93\x022:\x01*\"-/v2alpha1/admin/issuedApiKeys/{key_id}:rotate\x12\xda\x01\n" +
-	"\x17AdminRevokeIssuedAPIKey\x12).talos.v2alpha1.RevokeIssuedAPIKeyRequest\x1a\x16.google.protobuf.Empty\"|\x92AA*\x17AdminRevokeIssuedAPIKeyJ&\n" +
+	"\x17AdminRevokeIssuedApiKey\x12).talos.v2alpha1.RevokeIssuedApiKeyRequest\x1a\x16.google.protobuf.Empty\"|\x92AA*\x17adminRevokeIssuedApiKeyJ&\n" +
 	"\x03204\x12\x1f\n" +
 	"\x1dAPI key revoked successfully.\x82\xd3\xe4\x93\x022:\x01*\"-/v2alpha1/admin/issuedApiKeys/{key_id}:revoke\x12\xc3\x01\n" +
-	"\x11AdminImportAPIKey\x12#.talos.v2alpha1.ImportAPIKeyRequest\x1a\x1e.talos.v2alpha1.ImportedAPIKey\"i\x92A<*\x11AdminImportAPIKeyJ'\n" +
+	"\x11AdminImportApiKey\x12#.talos.v2alpha1.ImportApiKeyRequest\x1a\x1e.talos.v2alpha1.ImportedApiKey\"i\x92A<*\x11adminImportApiKeyJ'\n" +
 	"\x03201\x12 \n" +
-	"\x1eAPI key imported successfully.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v2alpha1/admin/importedApiKeys\x12\x95\x02\n" +
-	"\x17AdminBatchImportAPIKeys\x12).talos.v2alpha1.BatchImportAPIKeysRequest\x1a*.talos.v2alpha1.BatchImportAPIKeysResponse\"\xa2\x01\x92Ai*\x17AdminBatchImportAPIKeysJN\n" +
+	"\x1eAPI key imported successfully.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v2alpha1/admin/importedApiKeys\x12\xb5\x02\n" +
+	"\x1fAdminBatchCreateImportedApiKeys\x121.talos.v2alpha1.BatchCreateImportedApiKeysRequest\x1a2.talos.v2alpha1.BatchCreateImportedApiKeysResponse\"\xaa\x01\x92Aq*\x1fadminBatchCreateImportedApiKeysJN\n" +
 	"\x03200\x12G\n" +
-	"EBatch import completed. Check per-item results for individual status.\x82\xd3\xe4\x93\x020:\x01*\"+/v2alpha1/admin/importedApiKeys:batchImport\x12\xdb\x01\n" +
-	"\x19AdminUpdateImportedAPIKey\x12+.talos.v2alpha1.UpdateImportedAPIKeyRequest\x1a\x1e.talos.v2alpha1.ImportedAPIKey\"q\x92A\x1b*\x19AdminUpdateImportedAPIKey\x82\xd3\xe4\x93\x02M:\x10imported_api_key29/v2alpha1/admin/importedApiKeys/{imported_api_key.key_id}\x12\xaf\x01\n" +
-	"\x16AdminGetImportedAPIKey\x12(.talos.v2alpha1.GetImportedAPIKeyRequest\x1a\x1e.talos.v2alpha1.ImportedAPIKey\"K\x92A\x18*\x16AdminGetImportedAPIKey\x82\xd3\xe4\x93\x02*\x12(/v2alpha1/admin/importedApiKeys/{key_id}\x12\xb9\x01\n" +
-	"\x18AdminListImportedAPIKeys\x12*.talos.v2alpha1.ListImportedAPIKeysRequest\x1a+.talos.v2alpha1.ListImportedAPIKeysResponse\"D\x92A\x1a*\x18AdminListImportedAPIKeys\x82\xd3\xe4\x93\x02!\x12\x1f/v2alpha1/admin/importedApiKeys\x12\xdd\x01\n" +
-	"\x19AdminDeleteImportedAPIKey\x12+.talos.v2alpha1.DeleteImportedAPIKeyRequest\x1a\x16.google.protobuf.Empty\"{\x92AH*\x19AdminDeleteImportedAPIKeyJ+\n" +
+	"EBatch import completed. Check per-item results for individual status.\x82\xd3\xe4\x93\x020:\x01*\"+/v2alpha1/admin/importedApiKeys:batchCreate\x12\xdb\x01\n" +
+	"\x19AdminUpdateImportedApiKey\x12+.talos.v2alpha1.UpdateImportedApiKeyRequest\x1a\x1e.talos.v2alpha1.ImportedApiKey\"q\x92A\x1b*\x19adminUpdateImportedApiKey\x82\xd3\xe4\x93\x02M:\x10imported_api_key29/v2alpha1/admin/importedApiKeys/{imported_api_key.key_id}\x12\xaf\x01\n" +
+	"\x16AdminGetImportedApiKey\x12(.talos.v2alpha1.GetImportedApiKeyRequest\x1a\x1e.talos.v2alpha1.ImportedApiKey\"K\x92A\x18*\x16adminGetImportedApiKey\x82\xd3\xe4\x93\x02*\x12(/v2alpha1/admin/importedApiKeys/{key_id}\x12\xb9\x01\n" +
+	"\x18AdminListImportedApiKeys\x12*.talos.v2alpha1.ListImportedApiKeysRequest\x1a+.talos.v2alpha1.ListImportedApiKeysResponse\"D\x92A\x1a*\x18adminListImportedApiKeys\x82\xd3\xe4\x93\x02!\x12\x1f/v2alpha1/admin/importedApiKeys\x12\xdd\x01\n" +
+	"\x19AdminDeleteImportedApiKey\x12+.talos.v2alpha1.DeleteImportedApiKeyRequest\x1a\x16.google.protobuf.Empty\"{\x92AH*\x19adminDeleteImportedApiKeyJ+\n" +
 	"\x03204\x12$\n" +
 	"\"Imported key deleted successfully.\x82\xd3\xe4\x93\x02**(/v2alpha1/admin/importedApiKeys/{key_id}\x12\xe3\x01\n" +
-	"\x19AdminRevokeImportedAPIKey\x12+.talos.v2alpha1.RevokeImportedAPIKeyRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x92AC*\x19AdminRevokeImportedAPIKeyJ&\n" +
+	"\x19AdminRevokeImportedApiKey\x12+.talos.v2alpha1.RevokeImportedApiKeyRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x92AC*\x19adminRevokeImportedApiKeyJ&\n" +
 	"\x03204\x12\x1f\n" +
 	"\x1dAPI key revoked successfully.\x82\xd3\xe4\x93\x024:\x01*\"//v2alpha1/admin/importedApiKeys/{key_id}:revoke\x12\x9b\x01\n" +
-	"\fRevokeAPIKey\x12'.talos.v2alpha1.SelfRevokeAPIKeyRequest\x1a(.talos.v2alpha1.SelfRevokeAPIKeyResponse\"8\x92A\x0e*\fRevokeAPIKey\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v2alpha1/apiKeys:selfRevoke\x12\x9b\x01\n" +
-	"\x10AdminDeriveToken\x12\".talos.v2alpha1.DeriveTokenRequest\x1a#.talos.v2alpha1.DeriveTokenResponse\">\x92A\x12*\x10AdminDeriveToken\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v2alpha1/admin/apiKeys:derive\x12\x7f\n" +
-	"\aGetJWKS\x12\x1e.talos.v2alpha1.GetJWKSRequest\x1a\x1f.talos.v2alpha1.GetJWKSResponse\"3\x92A\t*\aGetJWKS\x82\xd3\xe4\x93\x02!\x12\x1f/v2alpha1/derivedKeys/jwks.json\x12\x91\x04\n" +
-	"\x11AdminVerifyAPIKey\x12#.talos.v2alpha1.VerifyAPIKeyRequest\x1a$.talos.v2alpha1.VerifyAPIKeyResponse\"\xb0\x03\x92A\x83\x03*\x11AdminVerifyAPIKeyr\xed\x02\n" +
+	"\fRevokeApiKey\x12'.talos.v2alpha1.SelfRevokeApiKeyRequest\x1a(.talos.v2alpha1.SelfRevokeApiKeyResponse\"8\x92A\x0e*\frevokeApiKey\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v2alpha1/apiKeys:selfRevoke\x12\x9b\x01\n" +
+	"\x10AdminDeriveToken\x12\".talos.v2alpha1.DeriveTokenRequest\x1a#.talos.v2alpha1.DeriveTokenResponse\">\x92A\x12*\x10adminDeriveToken\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v2alpha1/admin/apiKeys:derive\x12\x7f\n" +
+	"\aGetJwks\x12\x1e.talos.v2alpha1.GetJWKSRequest\x1a\x1f.talos.v2alpha1.GetJWKSResponse\"3\x92A\t*\agetJwks\x82\xd3\xe4\x93\x02!\x12\x1f/v2alpha1/derivedKeys/jwks.json\x12\x91\x04\n" +
+	"\x11AdminVerifyApiKey\x12#.talos.v2alpha1.VerifyApiKeyRequest\x1a$.talos.v2alpha1.VerifyApiKeyResponse\"\xb0\x03\x92A\x83\x03*\x11adminVerifyApiKeyr\xed\x02\n" +
 	"\xf0\x01\n" +
 	"\rCache-Control\x12\xdc\x01Cache-directive controlling the verifier cache. `no-cache` forces a fresh database lookup (cache read is bypassed). `no-store` additionally prevents the result from being written to the cache. Any other value is ignored.\x18\x01\n" +
 	"x\n" +
 	"\x06Pragma\x12lHTTP/1.0 alias for `Cache-Control: no-cache`. Behaves identically when set to `no-cache`; ignored otherwise.\x18\x01\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v2alpha1/admin/apiKeys:verify\x12\xae\x04\n" +
-	"\x17AdminBatchVerifyAPIKeys\x12).talos.v2alpha1.BatchVerifyAPIKeysRequest\x1a*.talos.v2alpha1.BatchVerifyAPIKeysResponse\"\xbb\x03\x92A\x89\x03*\x17AdminBatchVerifyAPIKeysr\xed\x02\n" +
+	"\x17AdminBatchVerifyApiKeys\x12).talos.v2alpha1.BatchVerifyApiKeysRequest\x1a*.talos.v2alpha1.BatchVerifyApiKeysResponse\"\xbb\x03\x92A\x89\x03*\x17adminBatchVerifyApiKeysr\xed\x02\n" +
 	"\xf0\x01\n" +
 	"\rCache-Control\x12\xdc\x01Cache-directive controlling the verifier cache. `no-cache` forces a fresh database lookup (cache read is bypassed). `no-store` additionally prevents the result from being written to the cache. Any other value is ignored.\x18\x01\n" +
 	"x\n" +
 	"\x06Pragma\x12lHTTP/1.0 alias for `Cache-Control: no-cache`. Behaves identically when set to `no-cache`; ignored otherwise.\x18\x01\x82\xd3\xe4\x93\x02(:\x01*\"#/v2alpha1/admin/apiKeys:batchVerifyB\x99\x06\x92A\xe1\x04\x12\x87\x03\n" +
 	"\rOry Talos API\x12\xeb\x02Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n" +
 	"\n" +
-	"`Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).2\bv2alpha1j\xd4\x01\n" +
-	"\aAPIKeys\x12\xc8\x01Administrative operations for managing API keys. Deploy behind authentication and authorization. Supports issued keys (generated by Talos), imported keys (from external systems), and key verification.\n" +
+	"`Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).2\bv2alpha1j\xd4\x01\n" +
+	"\aApiKeys\x12\xc8\x01Administrative operations for managing API keys. Deploy behind authentication and authorization. Supports issued keys (generated by Talos), imported keys (from external systems), and key verification.\n" +
 	"\x12com.talos.v2alpha1B\n" +
 	"TalosProtoP\x01Z9github.com/ory/talos/pkg/api/talos/v2alpha1;talosv2alpha1\xa2\x02\x03TXX\xaa\x02\x0eTalos.V2alpha1\xca\x02\x0eTalos\\V2alpha1\xe2\x02\x1aTalos\\V2alpha1\\GPBMetadata\xea\x02\x0fTalos::V2alpha1b\x06proto3"
 
@@ -3179,156 +3179,156 @@ func file_api_talos_v2alpha1_talos_proto_rawDescGZIP() []byte {
 var file_api_talos_v2alpha1_talos_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_api_talos_v2alpha1_talos_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_api_talos_v2alpha1_talos_proto_goTypes = []any{
-	(KeyStatus)(0),                      // 0: talos.v2alpha1.KeyStatus
-	(KeyVisibility)(0),                  // 1: talos.v2alpha1.KeyVisibility
-	(RevocationReason)(0),               // 2: talos.v2alpha1.RevocationReason
-	(TokenAlgorithm)(0),                 // 3: talos.v2alpha1.TokenAlgorithm
-	(BatchImportErrorCode)(0),           // 4: talos.v2alpha1.BatchImportErrorCode
-	(VerificationErrorCode)(0),          // 5: talos.v2alpha1.VerificationErrorCode
-	(*IssuedAPIKey)(nil),                // 6: talos.v2alpha1.IssuedAPIKey
-	(*ImportedAPIKey)(nil),              // 7: talos.v2alpha1.ImportedAPIKey
-	(*Token)(nil),                       // 8: talos.v2alpha1.Token
-	(*IPRestriction)(nil),               // 9: talos.v2alpha1.IPRestriction
-	(*RateLimitPolicy)(nil),             // 10: talos.v2alpha1.RateLimitPolicy
-	(*IssueAPIKeyRequest)(nil),          // 11: talos.v2alpha1.IssueAPIKeyRequest
-	(*IssueAPIKeyResponse)(nil),         // 12: talos.v2alpha1.IssueAPIKeyResponse
-	(*GetIssuedAPIKeyRequest)(nil),      // 13: talos.v2alpha1.GetIssuedAPIKeyRequest
-	(*ListIssuedAPIKeysRequest)(nil),    // 14: talos.v2alpha1.ListIssuedAPIKeysRequest
-	(*ListIssuedAPIKeysResponse)(nil),   // 15: talos.v2alpha1.ListIssuedAPIKeysResponse
-	(*UpdateIssuedAPIKeyRequest)(nil),   // 16: talos.v2alpha1.UpdateIssuedAPIKeyRequest
-	(*RotateIssuedAPIKeyRequest)(nil),   // 17: talos.v2alpha1.RotateIssuedAPIKeyRequest
-	(*RotateIssuedAPIKeyResponse)(nil),  // 18: talos.v2alpha1.RotateIssuedAPIKeyResponse
-	(*ImportAPIKeyRequest)(nil),         // 19: talos.v2alpha1.ImportAPIKeyRequest
-	(*BatchImportAPIKeysRequest)(nil),   // 20: talos.v2alpha1.BatchImportAPIKeysRequest
-	(*BatchImportResult)(nil),           // 21: talos.v2alpha1.BatchImportResult
-	(*BatchImportAPIKeysResponse)(nil),  // 22: talos.v2alpha1.BatchImportAPIKeysResponse
-	(*ListImportedAPIKeysRequest)(nil),  // 23: talos.v2alpha1.ListImportedAPIKeysRequest
-	(*ListImportedAPIKeysResponse)(nil), // 24: talos.v2alpha1.ListImportedAPIKeysResponse
-	(*GetImportedAPIKeyRequest)(nil),    // 25: talos.v2alpha1.GetImportedAPIKeyRequest
-	(*DeleteImportedAPIKeyRequest)(nil), // 26: talos.v2alpha1.DeleteImportedAPIKeyRequest
-	(*UpdateImportedAPIKeyRequest)(nil), // 27: talos.v2alpha1.UpdateImportedAPIKeyRequest
-	(*RevokeIssuedAPIKeyRequest)(nil),   // 28: talos.v2alpha1.RevokeIssuedAPIKeyRequest
-	(*RevokeImportedAPIKeyRequest)(nil), // 29: talos.v2alpha1.RevokeImportedAPIKeyRequest
-	(*DeriveTokenRequest)(nil),          // 30: talos.v2alpha1.DeriveTokenRequest
-	(*DeriveTokenResponse)(nil),         // 31: talos.v2alpha1.DeriveTokenResponse
-	(*GetJWKSRequest)(nil),              // 32: talos.v2alpha1.GetJWKSRequest
-	(*GetJWKSResponse)(nil),             // 33: talos.v2alpha1.GetJWKSResponse
-	(*VerifyAPIKeyRequest)(nil),         // 34: talos.v2alpha1.VerifyAPIKeyRequest
-	(*VerifyAPIKeyResponse)(nil),        // 35: talos.v2alpha1.VerifyAPIKeyResponse
-	(*BatchVerifyAPIKeysRequest)(nil),   // 36: talos.v2alpha1.BatchVerifyAPIKeysRequest
-	(*BatchVerifyAPIKeysResponse)(nil),  // 37: talos.v2alpha1.BatchVerifyAPIKeysResponse
-	(*SelfRevokeAPIKeyRequest)(nil),     // 38: talos.v2alpha1.SelfRevokeAPIKeyRequest
-	(*SelfRevokeAPIKeyResponse)(nil),    // 39: talos.v2alpha1.SelfRevokeAPIKeyResponse
-	(*structpb.Struct)(nil),             // 40: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),       // 41: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),         // 42: google.protobuf.Duration
-	(*fieldmaskpb.FieldMask)(nil),       // 43: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),               // 44: google.protobuf.Empty
+	(KeyStatus)(0),                             // 0: talos.v2alpha1.KeyStatus
+	(KeyVisibility)(0),                         // 1: talos.v2alpha1.KeyVisibility
+	(RevocationReason)(0),                      // 2: talos.v2alpha1.RevocationReason
+	(TokenAlgorithm)(0),                        // 3: talos.v2alpha1.TokenAlgorithm
+	(BatchCreateImportedApiKeysErrorCode)(0),   // 4: talos.v2alpha1.BatchCreateImportedApiKeysErrorCode
+	(VerificationErrorCode)(0),                 // 5: talos.v2alpha1.VerificationErrorCode
+	(*IssuedApiKey)(nil),                       // 6: talos.v2alpha1.IssuedApiKey
+	(*ImportedApiKey)(nil),                     // 7: talos.v2alpha1.ImportedApiKey
+	(*Token)(nil),                              // 8: talos.v2alpha1.Token
+	(*IPRestriction)(nil),                      // 9: talos.v2alpha1.IPRestriction
+	(*RateLimitPolicy)(nil),                    // 10: talos.v2alpha1.RateLimitPolicy
+	(*IssueApiKeyRequest)(nil),                 // 11: talos.v2alpha1.IssueApiKeyRequest
+	(*IssueApiKeyResponse)(nil),                // 12: talos.v2alpha1.IssueApiKeyResponse
+	(*GetIssuedApiKeyRequest)(nil),             // 13: talos.v2alpha1.GetIssuedApiKeyRequest
+	(*ListIssuedApiKeysRequest)(nil),           // 14: talos.v2alpha1.ListIssuedApiKeysRequest
+	(*ListIssuedApiKeysResponse)(nil),          // 15: talos.v2alpha1.ListIssuedApiKeysResponse
+	(*UpdateIssuedApiKeyRequest)(nil),          // 16: talos.v2alpha1.UpdateIssuedApiKeyRequest
+	(*RotateIssuedApiKeyRequest)(nil),          // 17: talos.v2alpha1.RotateIssuedApiKeyRequest
+	(*RotateIssuedApiKeyResponse)(nil),         // 18: talos.v2alpha1.RotateIssuedApiKeyResponse
+	(*ImportApiKeyRequest)(nil),                // 19: talos.v2alpha1.ImportApiKeyRequest
+	(*BatchCreateImportedApiKeysRequest)(nil),  // 20: talos.v2alpha1.BatchCreateImportedApiKeysRequest
+	(*BatchCreateImportedApiKeysResult)(nil),   // 21: talos.v2alpha1.BatchCreateImportedApiKeysResult
+	(*BatchCreateImportedApiKeysResponse)(nil), // 22: talos.v2alpha1.BatchCreateImportedApiKeysResponse
+	(*ListImportedApiKeysRequest)(nil),         // 23: talos.v2alpha1.ListImportedApiKeysRequest
+	(*ListImportedApiKeysResponse)(nil),        // 24: talos.v2alpha1.ListImportedApiKeysResponse
+	(*GetImportedApiKeyRequest)(nil),           // 25: talos.v2alpha1.GetImportedApiKeyRequest
+	(*DeleteImportedApiKeyRequest)(nil),        // 26: talos.v2alpha1.DeleteImportedApiKeyRequest
+	(*UpdateImportedApiKeyRequest)(nil),        // 27: talos.v2alpha1.UpdateImportedApiKeyRequest
+	(*RevokeIssuedApiKeyRequest)(nil),          // 28: talos.v2alpha1.RevokeIssuedApiKeyRequest
+	(*RevokeImportedApiKeyRequest)(nil),        // 29: talos.v2alpha1.RevokeImportedApiKeyRequest
+	(*DeriveTokenRequest)(nil),                 // 30: talos.v2alpha1.DeriveTokenRequest
+	(*DeriveTokenResponse)(nil),                // 31: talos.v2alpha1.DeriveTokenResponse
+	(*GetJWKSRequest)(nil),                     // 32: talos.v2alpha1.GetJWKSRequest
+	(*GetJWKSResponse)(nil),                    // 33: talos.v2alpha1.GetJWKSResponse
+	(*VerifyApiKeyRequest)(nil),                // 34: talos.v2alpha1.VerifyApiKeyRequest
+	(*VerifyApiKeyResponse)(nil),               // 35: talos.v2alpha1.VerifyApiKeyResponse
+	(*BatchVerifyApiKeysRequest)(nil),          // 36: talos.v2alpha1.BatchVerifyApiKeysRequest
+	(*BatchVerifyApiKeysResponse)(nil),         // 37: talos.v2alpha1.BatchVerifyApiKeysResponse
+	(*SelfRevokeApiKeyRequest)(nil),            // 38: talos.v2alpha1.SelfRevokeApiKeyRequest
+	(*SelfRevokeApiKeyResponse)(nil),           // 39: talos.v2alpha1.SelfRevokeApiKeyResponse
+	(*structpb.Struct)(nil),                    // 40: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),              // 41: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                // 42: google.protobuf.Duration
+	(*fieldmaskpb.FieldMask)(nil),              // 43: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                      // 44: google.protobuf.Empty
 }
 var file_api_talos_v2alpha1_talos_proto_depIdxs = []int32{
-	40, // 0: talos.v2alpha1.IssuedAPIKey.metadata:type_name -> google.protobuf.Struct
-	0,  // 1: talos.v2alpha1.IssuedAPIKey.status:type_name -> talos.v2alpha1.KeyStatus
-	41, // 2: talos.v2alpha1.IssuedAPIKey.create_time:type_name -> google.protobuf.Timestamp
-	41, // 3: talos.v2alpha1.IssuedAPIKey.update_time:type_name -> google.protobuf.Timestamp
-	41, // 4: talos.v2alpha1.IssuedAPIKey.expire_time:type_name -> google.protobuf.Timestamp
-	41, // 5: talos.v2alpha1.IssuedAPIKey.last_used_time:type_name -> google.protobuf.Timestamp
-	10, // 6: talos.v2alpha1.IssuedAPIKey.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	2,  // 7: talos.v2alpha1.IssuedAPIKey.revocation_reason:type_name -> talos.v2alpha1.RevocationReason
-	9,  // 8: talos.v2alpha1.IssuedAPIKey.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
-	1,  // 9: talos.v2alpha1.IssuedAPIKey.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	40, // 10: talos.v2alpha1.ImportedAPIKey.metadata:type_name -> google.protobuf.Struct
-	0,  // 11: talos.v2alpha1.ImportedAPIKey.status:type_name -> talos.v2alpha1.KeyStatus
-	41, // 12: talos.v2alpha1.ImportedAPIKey.create_time:type_name -> google.protobuf.Timestamp
-	41, // 13: talos.v2alpha1.ImportedAPIKey.update_time:type_name -> google.protobuf.Timestamp
-	41, // 14: talos.v2alpha1.ImportedAPIKey.expire_time:type_name -> google.protobuf.Timestamp
-	41, // 15: talos.v2alpha1.ImportedAPIKey.last_used_time:type_name -> google.protobuf.Timestamp
-	10, // 16: talos.v2alpha1.ImportedAPIKey.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	2,  // 17: talos.v2alpha1.ImportedAPIKey.revocation_reason:type_name -> talos.v2alpha1.RevocationReason
-	9,  // 18: talos.v2alpha1.ImportedAPIKey.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
-	1,  // 19: talos.v2alpha1.ImportedAPIKey.visibility:type_name -> talos.v2alpha1.KeyVisibility
+	40, // 0: talos.v2alpha1.IssuedApiKey.metadata:type_name -> google.protobuf.Struct
+	0,  // 1: talos.v2alpha1.IssuedApiKey.status:type_name -> talos.v2alpha1.KeyStatus
+	41, // 2: talos.v2alpha1.IssuedApiKey.create_time:type_name -> google.protobuf.Timestamp
+	41, // 3: talos.v2alpha1.IssuedApiKey.update_time:type_name -> google.protobuf.Timestamp
+	41, // 4: talos.v2alpha1.IssuedApiKey.expire_time:type_name -> google.protobuf.Timestamp
+	41, // 5: talos.v2alpha1.IssuedApiKey.last_used_time:type_name -> google.protobuf.Timestamp
+	10, // 6: talos.v2alpha1.IssuedApiKey.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
+	2,  // 7: talos.v2alpha1.IssuedApiKey.revocation_reason:type_name -> talos.v2alpha1.RevocationReason
+	9,  // 8: talos.v2alpha1.IssuedApiKey.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
+	1,  // 9: talos.v2alpha1.IssuedApiKey.visibility:type_name -> talos.v2alpha1.KeyVisibility
+	40, // 10: talos.v2alpha1.ImportedApiKey.metadata:type_name -> google.protobuf.Struct
+	0,  // 11: talos.v2alpha1.ImportedApiKey.status:type_name -> talos.v2alpha1.KeyStatus
+	41, // 12: talos.v2alpha1.ImportedApiKey.create_time:type_name -> google.protobuf.Timestamp
+	41, // 13: talos.v2alpha1.ImportedApiKey.update_time:type_name -> google.protobuf.Timestamp
+	41, // 14: talos.v2alpha1.ImportedApiKey.expire_time:type_name -> google.protobuf.Timestamp
+	41, // 15: talos.v2alpha1.ImportedApiKey.last_used_time:type_name -> google.protobuf.Timestamp
+	10, // 16: talos.v2alpha1.ImportedApiKey.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
+	2,  // 17: talos.v2alpha1.ImportedApiKey.revocation_reason:type_name -> talos.v2alpha1.RevocationReason
+	9,  // 18: talos.v2alpha1.ImportedApiKey.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
+	1,  // 19: talos.v2alpha1.ImportedApiKey.visibility:type_name -> talos.v2alpha1.KeyVisibility
 	41, // 20: talos.v2alpha1.Token.expire_time:type_name -> google.protobuf.Timestamp
 	40, // 21: talos.v2alpha1.Token.claims:type_name -> google.protobuf.Struct
 	42, // 22: talos.v2alpha1.RateLimitPolicy.window:type_name -> google.protobuf.Duration
-	42, // 23: talos.v2alpha1.IssueAPIKeyRequest.ttl:type_name -> google.protobuf.Duration
-	40, // 24: talos.v2alpha1.IssueAPIKeyRequest.metadata:type_name -> google.protobuf.Struct
-	10, // 25: talos.v2alpha1.IssueAPIKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	9,  // 26: talos.v2alpha1.IssueAPIKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
-	1,  // 27: talos.v2alpha1.IssueAPIKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	6,  // 28: talos.v2alpha1.IssueAPIKeyResponse.issued_api_key:type_name -> talos.v2alpha1.IssuedAPIKey
-	6,  // 29: talos.v2alpha1.ListIssuedAPIKeysResponse.issued_api_keys:type_name -> talos.v2alpha1.IssuedAPIKey
-	6,  // 30: talos.v2alpha1.UpdateIssuedAPIKeyRequest.issued_api_key:type_name -> talos.v2alpha1.IssuedAPIKey
-	43, // 31: talos.v2alpha1.UpdateIssuedAPIKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	40, // 32: talos.v2alpha1.RotateIssuedAPIKeyRequest.metadata:type_name -> google.protobuf.Struct
-	10, // 33: talos.v2alpha1.RotateIssuedAPIKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	9,  // 34: talos.v2alpha1.RotateIssuedAPIKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
-	1,  // 35: talos.v2alpha1.RotateIssuedAPIKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	6,  // 36: talos.v2alpha1.RotateIssuedAPIKeyResponse.issued_api_key:type_name -> talos.v2alpha1.IssuedAPIKey
-	6,  // 37: talos.v2alpha1.RotateIssuedAPIKeyResponse.old_issued_api_key:type_name -> talos.v2alpha1.IssuedAPIKey
-	42, // 38: talos.v2alpha1.ImportAPIKeyRequest.ttl:type_name -> google.protobuf.Duration
-	40, // 39: talos.v2alpha1.ImportAPIKeyRequest.metadata:type_name -> google.protobuf.Struct
-	10, // 40: talos.v2alpha1.ImportAPIKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	9,  // 41: talos.v2alpha1.ImportAPIKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
-	1,  // 42: talos.v2alpha1.ImportAPIKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	19, // 43: talos.v2alpha1.BatchImportAPIKeysRequest.requests:type_name -> talos.v2alpha1.ImportAPIKeyRequest
-	7,  // 44: talos.v2alpha1.BatchImportResult.imported_api_key:type_name -> talos.v2alpha1.ImportedAPIKey
-	4,  // 45: talos.v2alpha1.BatchImportResult.error_code:type_name -> talos.v2alpha1.BatchImportErrorCode
-	21, // 46: talos.v2alpha1.BatchImportAPIKeysResponse.results:type_name -> talos.v2alpha1.BatchImportResult
-	7,  // 47: talos.v2alpha1.ListImportedAPIKeysResponse.imported_api_keys:type_name -> talos.v2alpha1.ImportedAPIKey
-	7,  // 48: talos.v2alpha1.UpdateImportedAPIKeyRequest.imported_api_key:type_name -> talos.v2alpha1.ImportedAPIKey
-	43, // 49: talos.v2alpha1.UpdateImportedAPIKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 50: talos.v2alpha1.RevokeIssuedAPIKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
-	2,  // 51: talos.v2alpha1.RevokeImportedAPIKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
+	42, // 23: talos.v2alpha1.IssueApiKeyRequest.ttl:type_name -> google.protobuf.Duration
+	40, // 24: talos.v2alpha1.IssueApiKeyRequest.metadata:type_name -> google.protobuf.Struct
+	10, // 25: talos.v2alpha1.IssueApiKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
+	9,  // 26: talos.v2alpha1.IssueApiKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
+	1,  // 27: talos.v2alpha1.IssueApiKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
+	6,  // 28: talos.v2alpha1.IssueApiKeyResponse.issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
+	6,  // 29: talos.v2alpha1.ListIssuedApiKeysResponse.issued_api_keys:type_name -> talos.v2alpha1.IssuedApiKey
+	6,  // 30: talos.v2alpha1.UpdateIssuedApiKeyRequest.issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
+	43, // 31: talos.v2alpha1.UpdateIssuedApiKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	40, // 32: talos.v2alpha1.RotateIssuedApiKeyRequest.metadata:type_name -> google.protobuf.Struct
+	10, // 33: talos.v2alpha1.RotateIssuedApiKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
+	9,  // 34: talos.v2alpha1.RotateIssuedApiKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
+	1,  // 35: talos.v2alpha1.RotateIssuedApiKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
+	6,  // 36: talos.v2alpha1.RotateIssuedApiKeyResponse.issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
+	6,  // 37: talos.v2alpha1.RotateIssuedApiKeyResponse.old_issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
+	42, // 38: talos.v2alpha1.ImportApiKeyRequest.ttl:type_name -> google.protobuf.Duration
+	40, // 39: talos.v2alpha1.ImportApiKeyRequest.metadata:type_name -> google.protobuf.Struct
+	10, // 40: talos.v2alpha1.ImportApiKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
+	9,  // 41: talos.v2alpha1.ImportApiKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
+	1,  // 42: talos.v2alpha1.ImportApiKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
+	19, // 43: talos.v2alpha1.BatchCreateImportedApiKeysRequest.requests:type_name -> talos.v2alpha1.ImportApiKeyRequest
+	7,  // 44: talos.v2alpha1.BatchCreateImportedApiKeysResult.imported_api_key:type_name -> talos.v2alpha1.ImportedApiKey
+	4,  // 45: talos.v2alpha1.BatchCreateImportedApiKeysResult.error_code:type_name -> talos.v2alpha1.BatchCreateImportedApiKeysErrorCode
+	21, // 46: talos.v2alpha1.BatchCreateImportedApiKeysResponse.results:type_name -> talos.v2alpha1.BatchCreateImportedApiKeysResult
+	7,  // 47: talos.v2alpha1.ListImportedApiKeysResponse.imported_api_keys:type_name -> talos.v2alpha1.ImportedApiKey
+	7,  // 48: talos.v2alpha1.UpdateImportedApiKeyRequest.imported_api_key:type_name -> talos.v2alpha1.ImportedApiKey
+	43, // 49: talos.v2alpha1.UpdateImportedApiKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 50: talos.v2alpha1.RevokeIssuedApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
+	2,  // 51: talos.v2alpha1.RevokeImportedApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
 	3,  // 52: talos.v2alpha1.DeriveTokenRequest.algorithm:type_name -> talos.v2alpha1.TokenAlgorithm
 	42, // 53: talos.v2alpha1.DeriveTokenRequest.ttl:type_name -> google.protobuf.Duration
 	40, // 54: talos.v2alpha1.DeriveTokenRequest.custom_claims:type_name -> google.protobuf.Struct
 	8,  // 55: talos.v2alpha1.DeriveTokenResponse.token:type_name -> talos.v2alpha1.Token
 	40, // 56: talos.v2alpha1.GetJWKSResponse.jwks:type_name -> google.protobuf.Struct
-	41, // 57: talos.v2alpha1.VerifyAPIKeyResponse.expire_time:type_name -> google.protobuf.Timestamp
-	40, // 58: talos.v2alpha1.VerifyAPIKeyResponse.metadata:type_name -> google.protobuf.Struct
-	5,  // 59: talos.v2alpha1.VerifyAPIKeyResponse.error_code:type_name -> talos.v2alpha1.VerificationErrorCode
-	10, // 60: talos.v2alpha1.VerifyAPIKeyResponse.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	41, // 61: talos.v2alpha1.VerifyAPIKeyResponse.rate_limit_reset_time:type_name -> google.protobuf.Timestamp
-	1,  // 62: talos.v2alpha1.VerifyAPIKeyResponse.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	0,  // 63: talos.v2alpha1.VerifyAPIKeyResponse.status:type_name -> talos.v2alpha1.KeyStatus
-	34, // 64: talos.v2alpha1.BatchVerifyAPIKeysRequest.requests:type_name -> talos.v2alpha1.VerifyAPIKeyRequest
-	35, // 65: talos.v2alpha1.BatchVerifyAPIKeysResponse.results:type_name -> talos.v2alpha1.VerifyAPIKeyResponse
-	2,  // 66: talos.v2alpha1.SelfRevokeAPIKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
-	11, // 67: talos.v2alpha1.APIKeys.AdminIssueAPIKey:input_type -> talos.v2alpha1.IssueAPIKeyRequest
-	13, // 68: talos.v2alpha1.APIKeys.AdminGetIssuedAPIKey:input_type -> talos.v2alpha1.GetIssuedAPIKeyRequest
-	14, // 69: talos.v2alpha1.APIKeys.AdminListIssuedAPIKeys:input_type -> talos.v2alpha1.ListIssuedAPIKeysRequest
-	16, // 70: talos.v2alpha1.APIKeys.AdminUpdateIssuedAPIKey:input_type -> talos.v2alpha1.UpdateIssuedAPIKeyRequest
-	17, // 71: talos.v2alpha1.APIKeys.AdminRotateIssuedAPIKey:input_type -> talos.v2alpha1.RotateIssuedAPIKeyRequest
-	28, // 72: talos.v2alpha1.APIKeys.AdminRevokeIssuedAPIKey:input_type -> talos.v2alpha1.RevokeIssuedAPIKeyRequest
-	19, // 73: talos.v2alpha1.APIKeys.AdminImportAPIKey:input_type -> talos.v2alpha1.ImportAPIKeyRequest
-	20, // 74: talos.v2alpha1.APIKeys.AdminBatchImportAPIKeys:input_type -> talos.v2alpha1.BatchImportAPIKeysRequest
-	27, // 75: talos.v2alpha1.APIKeys.AdminUpdateImportedAPIKey:input_type -> talos.v2alpha1.UpdateImportedAPIKeyRequest
-	25, // 76: talos.v2alpha1.APIKeys.AdminGetImportedAPIKey:input_type -> talos.v2alpha1.GetImportedAPIKeyRequest
-	23, // 77: talos.v2alpha1.APIKeys.AdminListImportedAPIKeys:input_type -> talos.v2alpha1.ListImportedAPIKeysRequest
-	26, // 78: talos.v2alpha1.APIKeys.AdminDeleteImportedAPIKey:input_type -> talos.v2alpha1.DeleteImportedAPIKeyRequest
-	29, // 79: talos.v2alpha1.APIKeys.AdminRevokeImportedAPIKey:input_type -> talos.v2alpha1.RevokeImportedAPIKeyRequest
-	38, // 80: talos.v2alpha1.APIKeys.RevokeAPIKey:input_type -> talos.v2alpha1.SelfRevokeAPIKeyRequest
-	30, // 81: talos.v2alpha1.APIKeys.AdminDeriveToken:input_type -> talos.v2alpha1.DeriveTokenRequest
-	32, // 82: talos.v2alpha1.APIKeys.GetJWKS:input_type -> talos.v2alpha1.GetJWKSRequest
-	34, // 83: talos.v2alpha1.APIKeys.AdminVerifyAPIKey:input_type -> talos.v2alpha1.VerifyAPIKeyRequest
-	36, // 84: talos.v2alpha1.APIKeys.AdminBatchVerifyAPIKeys:input_type -> talos.v2alpha1.BatchVerifyAPIKeysRequest
-	12, // 85: talos.v2alpha1.APIKeys.AdminIssueAPIKey:output_type -> talos.v2alpha1.IssueAPIKeyResponse
-	6,  // 86: talos.v2alpha1.APIKeys.AdminGetIssuedAPIKey:output_type -> talos.v2alpha1.IssuedAPIKey
-	15, // 87: talos.v2alpha1.APIKeys.AdminListIssuedAPIKeys:output_type -> talos.v2alpha1.ListIssuedAPIKeysResponse
-	6,  // 88: talos.v2alpha1.APIKeys.AdminUpdateIssuedAPIKey:output_type -> talos.v2alpha1.IssuedAPIKey
-	18, // 89: talos.v2alpha1.APIKeys.AdminRotateIssuedAPIKey:output_type -> talos.v2alpha1.RotateIssuedAPIKeyResponse
-	44, // 90: talos.v2alpha1.APIKeys.AdminRevokeIssuedAPIKey:output_type -> google.protobuf.Empty
-	7,  // 91: talos.v2alpha1.APIKeys.AdminImportAPIKey:output_type -> talos.v2alpha1.ImportedAPIKey
-	22, // 92: talos.v2alpha1.APIKeys.AdminBatchImportAPIKeys:output_type -> talos.v2alpha1.BatchImportAPIKeysResponse
-	7,  // 93: talos.v2alpha1.APIKeys.AdminUpdateImportedAPIKey:output_type -> talos.v2alpha1.ImportedAPIKey
-	7,  // 94: talos.v2alpha1.APIKeys.AdminGetImportedAPIKey:output_type -> talos.v2alpha1.ImportedAPIKey
-	24, // 95: talos.v2alpha1.APIKeys.AdminListImportedAPIKeys:output_type -> talos.v2alpha1.ListImportedAPIKeysResponse
-	44, // 96: talos.v2alpha1.APIKeys.AdminDeleteImportedAPIKey:output_type -> google.protobuf.Empty
-	44, // 97: talos.v2alpha1.APIKeys.AdminRevokeImportedAPIKey:output_type -> google.protobuf.Empty
-	39, // 98: talos.v2alpha1.APIKeys.RevokeAPIKey:output_type -> talos.v2alpha1.SelfRevokeAPIKeyResponse
-	31, // 99: talos.v2alpha1.APIKeys.AdminDeriveToken:output_type -> talos.v2alpha1.DeriveTokenResponse
-	33, // 100: talos.v2alpha1.APIKeys.GetJWKS:output_type -> talos.v2alpha1.GetJWKSResponse
-	35, // 101: talos.v2alpha1.APIKeys.AdminVerifyAPIKey:output_type -> talos.v2alpha1.VerifyAPIKeyResponse
-	37, // 102: talos.v2alpha1.APIKeys.AdminBatchVerifyAPIKeys:output_type -> talos.v2alpha1.BatchVerifyAPIKeysResponse
+	41, // 57: talos.v2alpha1.VerifyApiKeyResponse.expire_time:type_name -> google.protobuf.Timestamp
+	40, // 58: talos.v2alpha1.VerifyApiKeyResponse.metadata:type_name -> google.protobuf.Struct
+	5,  // 59: talos.v2alpha1.VerifyApiKeyResponse.error_code:type_name -> talos.v2alpha1.VerificationErrorCode
+	10, // 60: talos.v2alpha1.VerifyApiKeyResponse.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
+	41, // 61: talos.v2alpha1.VerifyApiKeyResponse.rate_limit_reset_time:type_name -> google.protobuf.Timestamp
+	1,  // 62: talos.v2alpha1.VerifyApiKeyResponse.visibility:type_name -> talos.v2alpha1.KeyVisibility
+	0,  // 63: talos.v2alpha1.VerifyApiKeyResponse.status:type_name -> talos.v2alpha1.KeyStatus
+	34, // 64: talos.v2alpha1.BatchVerifyApiKeysRequest.requests:type_name -> talos.v2alpha1.VerifyApiKeyRequest
+	35, // 65: talos.v2alpha1.BatchVerifyApiKeysResponse.results:type_name -> talos.v2alpha1.VerifyApiKeyResponse
+	2,  // 66: talos.v2alpha1.SelfRevokeApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
+	11, // 67: talos.v2alpha1.ApiKeys.AdminIssueApiKey:input_type -> talos.v2alpha1.IssueApiKeyRequest
+	13, // 68: talos.v2alpha1.ApiKeys.AdminGetIssuedApiKey:input_type -> talos.v2alpha1.GetIssuedApiKeyRequest
+	14, // 69: talos.v2alpha1.ApiKeys.AdminListIssuedApiKeys:input_type -> talos.v2alpha1.ListIssuedApiKeysRequest
+	16, // 70: talos.v2alpha1.ApiKeys.AdminUpdateIssuedApiKey:input_type -> talos.v2alpha1.UpdateIssuedApiKeyRequest
+	17, // 71: talos.v2alpha1.ApiKeys.AdminRotateIssuedApiKey:input_type -> talos.v2alpha1.RotateIssuedApiKeyRequest
+	28, // 72: talos.v2alpha1.ApiKeys.AdminRevokeIssuedApiKey:input_type -> talos.v2alpha1.RevokeIssuedApiKeyRequest
+	19, // 73: talos.v2alpha1.ApiKeys.AdminImportApiKey:input_type -> talos.v2alpha1.ImportApiKeyRequest
+	20, // 74: talos.v2alpha1.ApiKeys.AdminBatchCreateImportedApiKeys:input_type -> talos.v2alpha1.BatchCreateImportedApiKeysRequest
+	27, // 75: talos.v2alpha1.ApiKeys.AdminUpdateImportedApiKey:input_type -> talos.v2alpha1.UpdateImportedApiKeyRequest
+	25, // 76: talos.v2alpha1.ApiKeys.AdminGetImportedApiKey:input_type -> talos.v2alpha1.GetImportedApiKeyRequest
+	23, // 77: talos.v2alpha1.ApiKeys.AdminListImportedApiKeys:input_type -> talos.v2alpha1.ListImportedApiKeysRequest
+	26, // 78: talos.v2alpha1.ApiKeys.AdminDeleteImportedApiKey:input_type -> talos.v2alpha1.DeleteImportedApiKeyRequest
+	29, // 79: talos.v2alpha1.ApiKeys.AdminRevokeImportedApiKey:input_type -> talos.v2alpha1.RevokeImportedApiKeyRequest
+	38, // 80: talos.v2alpha1.ApiKeys.RevokeApiKey:input_type -> talos.v2alpha1.SelfRevokeApiKeyRequest
+	30, // 81: talos.v2alpha1.ApiKeys.AdminDeriveToken:input_type -> talos.v2alpha1.DeriveTokenRequest
+	32, // 82: talos.v2alpha1.ApiKeys.GetJwks:input_type -> talos.v2alpha1.GetJWKSRequest
+	34, // 83: talos.v2alpha1.ApiKeys.AdminVerifyApiKey:input_type -> talos.v2alpha1.VerifyApiKeyRequest
+	36, // 84: talos.v2alpha1.ApiKeys.AdminBatchVerifyApiKeys:input_type -> talos.v2alpha1.BatchVerifyApiKeysRequest
+	12, // 85: talos.v2alpha1.ApiKeys.AdminIssueApiKey:output_type -> talos.v2alpha1.IssueApiKeyResponse
+	6,  // 86: talos.v2alpha1.ApiKeys.AdminGetIssuedApiKey:output_type -> talos.v2alpha1.IssuedApiKey
+	15, // 87: talos.v2alpha1.ApiKeys.AdminListIssuedApiKeys:output_type -> talos.v2alpha1.ListIssuedApiKeysResponse
+	6,  // 88: talos.v2alpha1.ApiKeys.AdminUpdateIssuedApiKey:output_type -> talos.v2alpha1.IssuedApiKey
+	18, // 89: talos.v2alpha1.ApiKeys.AdminRotateIssuedApiKey:output_type -> talos.v2alpha1.RotateIssuedApiKeyResponse
+	44, // 90: talos.v2alpha1.ApiKeys.AdminRevokeIssuedApiKey:output_type -> google.protobuf.Empty
+	7,  // 91: talos.v2alpha1.ApiKeys.AdminImportApiKey:output_type -> talos.v2alpha1.ImportedApiKey
+	22, // 92: talos.v2alpha1.ApiKeys.AdminBatchCreateImportedApiKeys:output_type -> talos.v2alpha1.BatchCreateImportedApiKeysResponse
+	7,  // 93: talos.v2alpha1.ApiKeys.AdminUpdateImportedApiKey:output_type -> talos.v2alpha1.ImportedApiKey
+	7,  // 94: talos.v2alpha1.ApiKeys.AdminGetImportedApiKey:output_type -> talos.v2alpha1.ImportedApiKey
+	24, // 95: talos.v2alpha1.ApiKeys.AdminListImportedApiKeys:output_type -> talos.v2alpha1.ListImportedApiKeysResponse
+	44, // 96: talos.v2alpha1.ApiKeys.AdminDeleteImportedApiKey:output_type -> google.protobuf.Empty
+	44, // 97: talos.v2alpha1.ApiKeys.AdminRevokeImportedApiKey:output_type -> google.protobuf.Empty
+	39, // 98: talos.v2alpha1.ApiKeys.RevokeApiKey:output_type -> talos.v2alpha1.SelfRevokeApiKeyResponse
+	31, // 99: talos.v2alpha1.ApiKeys.AdminDeriveToken:output_type -> talos.v2alpha1.DeriveTokenResponse
+	33, // 100: talos.v2alpha1.ApiKeys.GetJwks:output_type -> talos.v2alpha1.GetJWKSResponse
+	35, // 101: talos.v2alpha1.ApiKeys.AdminVerifyApiKey:output_type -> talos.v2alpha1.VerifyApiKeyResponse
+	37, // 102: talos.v2alpha1.ApiKeys.AdminBatchVerifyApiKeys:output_type -> talos.v2alpha1.BatchVerifyApiKeysResponse
 	85, // [85:103] is the sub-list for method output_type
 	67, // [67:85] is the sub-list for method input_type
 	67, // [67:67] is the sub-list for extension type_name

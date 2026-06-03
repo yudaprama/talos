@@ -26,20 +26,20 @@ func TestImportAPIKey(t *testing.T) {
 	tests := []struct {
 		name        string
 		rawKey      string
-		params      func(string) *talosv2alpha1.ImportAPIKeyRequest
+		params      func(string) *talosv2alpha1.ImportApiKeyRequest
 		wantErr     bool
 		errContains string
 	}{
 		{
 			name:   "success - import Stripe key",
 			rawKey: "sk_live_abc123xyz789",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
 				metadata, _ := structpb.NewStruct(map[string]any{
 					"source": "stripe",
 					"env":    "production",
 				})
 
-				return &talosv2alpha1.ImportAPIKeyRequest{
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:   "sk_live_abc123xyz789",
 					Name:     "Stripe Production Key",
 					ActorId:  "payment-processor",
@@ -52,12 +52,12 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "success - import GitHub PAT",
 			rawKey: "ghp_1234567890abcdefghijklmnopqrstuvwxyz",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
 				metadata, _ := structpb.NewStruct(map[string]any{
 					"source": "github",
 				})
 
-				return &talosv2alpha1.ImportAPIKeyRequest{
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:   "ghp_1234567890abcdefghijklmnopqrstuvwxyz",
 					Name:     "GitHub Personal Access Token",
 					ActorId:  "developer-001",
@@ -70,8 +70,8 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "error - conflict with generated key pattern",
 			rawKey: "prod_v1_0ujsswThIGTUYm2K8Fj63K_AbC3XyZ789", // Base62 key ID (22 chars), 10 char base58 checksum
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
-				return &talosv2alpha1.ImportAPIKeyRequest{
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:   "prod_v1_Qixc9eno7AsY9gYxGU2tAFZf36gyPhnx2nNUpNvqexZun1jq7raV7c8VkrhyqPZR_AbC3XyZ789", // New format with timestamp+UUID identifier
 					Name:     "Should Fail",
 					ActorId:  "test",
@@ -85,8 +85,8 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "error - conflict with derived JWT pattern",
 			rawKey: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
-				return &talosv2alpha1.ImportAPIKeyRequest{
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U",
 					Name:    "JWT-like Import",
 					ActorId: "test",
@@ -99,8 +99,8 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "error - conflict with derived macaroon pattern",
 			rawKey: "mc_v1_AgETaHR0cHM6Ly9leGFtcGxlLmNvbQx4Y2FweWxvYWQ",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
-				return &talosv2alpha1.ImportAPIKeyRequest{
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:  "mc_v1_AgETaHR0cHM6Ly9leGFtcGxlLmNvbQx4Y2FweWxvYWQ",
 					Name:    "Macaroon-like Import",
 					ActorId: "test",
@@ -113,8 +113,8 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "error - duplicate key",
 			rawKey: "duplicate_key_12345",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
-				return &talosv2alpha1.ImportAPIKeyRequest{
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:   "duplicate_key_12345",
 					Name:     "First Import",
 					ActorId:  "test",
@@ -128,8 +128,8 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "error - empty raw key",
 			rawKey: "",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
-				return &talosv2alpha1.ImportAPIKeyRequest{
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:   "",
 					Name:     "Empty Key",
 					ActorId:  "test",
@@ -143,8 +143,8 @@ func TestImportAPIKey(t *testing.T) {
 		{
 			name:   "error - empty name",
 			rawKey: "some_valid_key",
-			params: func(_ string) *talosv2alpha1.ImportAPIKeyRequest {
-				return &talosv2alpha1.ImportAPIKeyRequest{
+			params: func(_ string) *talosv2alpha1.ImportApiKeyRequest {
+				return &talosv2alpha1.ImportApiKeyRequest{
 					RawKey:   "some_valid_key",
 					Name:     "",
 					ActorId:  "test",
@@ -208,7 +208,7 @@ func TestImportAPIKey_EmptyRequest(t *testing.T) {
 
 	svc, _, ctx := setupTestService(t)
 
-	resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{})
+	resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{})
 	require.Error(t, err)
 	assert.Nil(t, resp)
 
@@ -237,7 +237,7 @@ func TestListImportedAPIKeys(t *testing.T) {
 	}
 
 	for _, k := range keys {
-		params := &talosv2alpha1.ImportAPIKeyRequest{
+		params := &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:   k.rawKey,
 			Name:     k.name,
 			ActorId:  k.actorID,
@@ -315,7 +315,7 @@ func TestListImportedAPIKeys(t *testing.T) {
 				filterParts = append(filterParts, "status="+tt.status.String())
 			}
 			filter := strings.Join(filterParts, " AND ")
-			resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+			resp, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 				Filter:    filter,
 				PageSize:  tt.pageSize,
 				PageToken: tt.pageToken,
@@ -334,7 +334,7 @@ func TestListImportedAPIKeys(t *testing.T) {
 	t.Run("pagination - second page using cursor", func(t *testing.T) {
 		t.Parallel()
 		// Get first page
-		resp1, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+		resp1, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 			PageSize: 2,
 		})
 		require.NoError(t, err)
@@ -342,7 +342,7 @@ func TestListImportedAPIKeys(t *testing.T) {
 		assert.NotEmpty(t, resp1.NextPageToken)
 
 		// Get second page using the cursor
-		resp2, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedAPIKeysRequest{
+		resp2, err := svc.ListImportedAPIKeys(ctx, &talosv2alpha1.ListImportedApiKeysRequest{
 			PageSize:  2,
 			PageToken: resp1.NextPageToken,
 		})
@@ -368,7 +368,7 @@ func TestGetImportedAPIKey(t *testing.T) {
 	metadata, _ := structpb.NewStruct(map[string]any{
 		"test": "value",
 	})
-	params := &talosv2alpha1.ImportAPIKeyRequest{
+	params := &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:   rawKey,
 		Name:     "Test Key",
 		ActorId:  "test-owner",
@@ -401,7 +401,7 @@ func TestGetImportedAPIKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			resp, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{
+			resp, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{
 				KeyId: tt.keyID,
 			})
 
@@ -426,7 +426,7 @@ func TestRevokeImportedAPIKey(t *testing.T) {
 
 	// Import a key
 	rawKey := "test_key_for_revocation"
-	params := &talosv2alpha1.ImportAPIKeyRequest{
+	params := &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:   rawKey,
 		Name:     "Test Key for Revocation",
 		ActorId:  "test-owner",
@@ -440,7 +440,7 @@ func TestRevokeImportedAPIKey(t *testing.T) {
 	require.NotNil(t, imported)
 
 	// Import a second key and pre-revoke it to test the double-revoke error path.
-	preRevokedResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+	preRevokedResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:  "test_key_already_revoked",
 		Name:    "Pre-revoked Key",
 		ActorId: "test-owner",
@@ -448,7 +448,7 @@ func TestRevokeImportedAPIKey(t *testing.T) {
 	})
 	require.NoError(t, err)
 	preRevokedID := preRevokedResp.KeyId
-	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
+	_, err = svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{
 		KeyId:  preRevokedID,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
@@ -486,7 +486,7 @@ func TestRevokeImportedAPIKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			resp, err := svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
+			resp, err := svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{
 				KeyId:  tt.keyID,
 				Reason: tt.reason,
 			})
@@ -515,7 +515,7 @@ func TestDeleteImportedAPIKey(t *testing.T) {
 	// Note: Network is created automatically by driver.Initialize()
 
 	// Import keys for deletion tests
-	key1Params := &talosv2alpha1.ImportAPIKeyRequest{
+	key1Params := &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:   "test_key_for_deletion_1",
 		Name:     "Test Key 1",
 		ActorId:  "test-owner",
@@ -556,7 +556,7 @@ func TestDeleteImportedAPIKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// NOT parallel - subtests share state (same key, sequential dependency)
-			_, err := svc.DeleteImportedAPIKey(ctx, &talosv2alpha1.DeleteImportedAPIKeyRequest{
+			_, err := svc.DeleteImportedAPIKey(ctx, &talosv2alpha1.DeleteImportedApiKeyRequest{
 				KeyId: tt.keyID,
 			})
 
@@ -573,7 +573,7 @@ func TestDeleteImportedAPIKey(t *testing.T) {
 				require.NoError(t, err)
 
 				// Verify key is actually deleted
-				resp, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{
+				resp, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{
 					KeyId: tt.keyID,
 				})
 				require.Error(t, err)
@@ -594,7 +594,7 @@ func TestVerifyAPIKey_ImportedAPIKeys(t *testing.T) {
 	metadata, _ := structpb.NewStruct(map[string]any{
 		"env": "test",
 	})
-	params := &talosv2alpha1.ImportAPIKeyRequest{
+	params := &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:   importedRawKey,
 		Name:     "Test Imported Key",
 		ActorId:  "payment-service",
@@ -662,7 +662,7 @@ func TestVerifyAPIKey_RevokedImportedAPIKey(t *testing.T) {
 
 	// Import and then revoke a key
 	revokedRawKey := "key_to_be_revoked_1234567890abcdefghijklmnop"
-	params := &talosv2alpha1.ImportAPIKeyRequest{
+	params := &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:   revokedRawKey,
 		Name:     "Key to Revoke",
 		ActorId:  "test-user",
@@ -676,7 +676,7 @@ func TestVerifyAPIKey_RevokedImportedAPIKey(t *testing.T) {
 	require.NotNil(t, imported)
 
 	// Revoke the key
-	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
+	_, err = svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{
 		KeyId:  imported.KeyId,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
@@ -690,9 +690,9 @@ func TestVerifyAPIKey_RevokedImportedAPIKey(t *testing.T) {
 }
 
 // importKeyForUpdate is a helper that imports a unique key for a single update subtest.
-func importKeyForUpdate(t *testing.T, svc *service.Admin, ctx context.Context, rawKeySuffix, name string, scopes []string) *talosv2alpha1.ImportedAPIKey {
+func importKeyForUpdate(t *testing.T, svc *service.Admin, ctx context.Context, rawKeySuffix, name string, scopes []string) *talosv2alpha1.ImportedApiKey {
 	t.Helper()
-	resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+	resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:  "update_test_key_" + rawKeySuffix,
 		Name:    name,
 		ActorId: "owner-update-test",
@@ -713,8 +713,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("update name only via update_mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "name_mask", "Original Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				Name:  "Updated Name",
 			},
@@ -732,8 +732,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "mask_excl", "Excl Name", []string{"read"})
 		// Send both name and scopes, but mask only contains "name"
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:  imported.KeyId,
 				Name:   "Name Changed",
 				Scopes: []string{"admin"},
@@ -750,8 +750,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("update scopes via mask — name sent but not in mask is ignored", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "scopes_mask", "Scope Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:  imported.KeyId,
 				Name:   "Should Not Change",
 				Scopes: []string{"read", "write"},
@@ -768,8 +768,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("update scopes without mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "no_mask_scopes", "No Mask Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:  imported.KeyId,
 				Scopes: []string{"read", "write"},
 			},
@@ -783,8 +783,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		imported := importKeyForUpdate(t, svc, ctx, "meta_mask", "Meta Name", []string{"read"})
 		meta, err := structpb.NewStruct(map[string]any{"env": "production"})
 		require.NoError(t, err)
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:    imported.KeyId,
 				Name:     "Should Not Change",
 				Metadata: meta,
@@ -802,8 +802,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("set rate_limit_policy via mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "rl_set_mask", "RL Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
 					Quota:  1000,
@@ -822,7 +822,7 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("clear rate_limit_policy via mask with nil policy", func(t *testing.T) {
 		t.Parallel()
 		// Import key that has a rate limit policy
-		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "update_test_key_rl_clear_mask",
 			Name:    "RL Clear Name",
 			ActorId: "owner-update-test",
@@ -838,8 +838,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		require.NotNil(t, imported.RateLimitPolicy)
 
 		// Clear by including rate_limit_policy in mask with nil value
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:           imported.KeyId,
 				RateLimitPolicy: nil,
 			},
@@ -853,7 +853,7 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 
 	t.Run("nil rate_limit_policy without mask does not clear existing policy", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "update_test_key_rl_nil_no_mask",
 			Name:    "RL Nil No Mask",
 			ActorId: "owner-update-test",
@@ -869,8 +869,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		require.NotNil(t, imported.RateLimitPolicy)
 
 		// No mask, nil RateLimitPolicy — presence-based path skips nil fields
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:           imported.KeyId,
 				Name:            "Updated Name",
 				RateLimitPolicy: nil,
@@ -883,7 +883,7 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 
 	t.Run("nil rate_limit_policy excluded from mask does not clear existing policy", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "update_test_key_rl_nil_excl_mask",
 			Name:    "RL Nil Excl Mask",
 			ActorId: "owner-update-test",
@@ -899,8 +899,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		require.NotNil(t, imported.RateLimitPolicy)
 
 		// rate_limit_policy is NOT in mask — nil value must not clear
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:           imported.KeyId,
 				Name:            "Updated Name",
 				RateLimitPolicy: nil,
@@ -916,7 +916,7 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 
 	t.Run("clear rate_limit_policy alongside other fields in mask", func(t *testing.T) {
 		t.Parallel()
-		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "update_test_key_rl_clear_multi_mask",
 			Name:    "RL Clear Multi Name",
 			ActorId: "owner-update-test",
@@ -931,8 +931,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		imported := resp
 		require.NotNil(t, imported.RateLimitPolicy)
 
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:           imported.KeyId,
 				Name:            "Cleared RL",
 				RateLimitPolicy: nil,
@@ -949,8 +949,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("update name without mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "name_no_mask", "Original Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				Name:  "New Name",
 			},
@@ -965,8 +965,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		imported := importKeyForUpdate(t, svc, ctx, "meta_no_mask", "Meta Name", []string{"read"})
 		meta, err := structpb.NewStruct(map[string]any{"env": "staging"})
 		require.NoError(t, err)
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:    imported.KeyId,
 				Metadata: meta,
 			},
@@ -979,8 +979,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("set rate_limit_policy without mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "rl_no_mask", "RL Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
 					Quota:  500,
@@ -996,8 +996,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("set ip_restriction via mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "ip_mask", "IP Name", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				IpRestriction: &talosv2alpha1.IPRestriction{
 					AllowedCidrs: []string{"10.0.0.0/8"},
@@ -1015,8 +1015,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 	t.Run("set ip_restriction without mask", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "ip_no_mask", "IP No Mask", []string{"read"})
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				IpRestriction: &talosv2alpha1.IPRestriction{
 					AllowedCidrs: []string{"192.168.0.0/16"},
@@ -1032,8 +1032,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "rl_excl_mask", "RL Excl Name", []string{"read"})
 		// Send rate_limit_policy in request but NOT in mask — must be ignored
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				Name:  "Name Changed",
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
@@ -1054,8 +1054,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "ip_excl_mask", "IP Excl Name", []string{"read"})
 		// Send ip_restriction in request but NOT in mask — must be ignored
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: imported.KeyId,
 				Name:  "Name Changed",
 				IpRestriction: &talosv2alpha1.IPRestriction{
@@ -1076,8 +1076,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		imported := importKeyForUpdate(t, svc, ctx, "multi_mask", "Multi Name", []string{"read"})
 		meta, err := structpb.NewStruct(map[string]any{"tier": "gold"})
 		require.NoError(t, err)
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:    imported.KeyId,
 				Name:     "Multi Updated",
 				Scopes:   []string{"read", "write"},
@@ -1106,8 +1106,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 
 	t.Run("not found returns 404", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		_, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId: "nonexistenthashvalue000000000000",
 				Name:  "Does not matter",
 			},
@@ -1127,8 +1127,8 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		imported := importKeyForUpdate(t, svc, ctx, "dotted_meta", "Dotted Meta", []string{"read"})
 		meta, err := structpb.NewStruct(map[string]any{"plan": "premium"})
 		require.NoError(t, err)
-		_, err = svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		_, err = svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:    imported.KeyId,
 				Metadata: meta,
 			},
@@ -1143,14 +1143,14 @@ func TestUpdateImportedAPIKey(t *testing.T) {
 		assert.Contains(t, herodotErr.ReasonField, "metadata.plan")
 	})
 
-	// Server-managed fields on ImportedAPIKey (status, timestamps, revocation_*)
+	// Server-managed fields on ImportedApiKey (status, timestamps, revocation_*)
 	// must be ignored on input even when set in the embedded resource.
 	t.Run("server-managed fields in embedded resource are ignored", func(t *testing.T) {
 		t.Parallel()
 		imported := importKeyForUpdate(t, svc, ctx, "server_managed", "Server Managed", []string{"read"})
 		futureTime := timestamppb.New(time.Now().Add(99 * 365 * 24 * time.Hour))
-		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-			ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+		updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+			ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 				KeyId:      imported.KeyId,
 				Name:       "Renamed",
 				Status:     talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED,
@@ -1175,7 +1175,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	rawKey := "lifecycle_test_key_abcdefghijklmnopqrstuvwxyz0123"
 
 	// 1. Import
-	importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+	importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:  rawKey,
 		Name:    "Lifecycle Key",
 		ActorId: "lifecycle-owner",
@@ -1193,7 +1193,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	assert.Equal(t, []string{"read"}, imported.Scopes)
 
 	// 2. Get — assert fields match
-	got, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{KeyId: imported.KeyId})
+	got, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{KeyId: imported.KeyId})
 	require.NoError(t, err)
 	assert.Equal(t, imported.KeyId, got.KeyId)
 	assert.Equal(t, "Lifecycle Key", got.Name)
@@ -1201,8 +1201,8 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	// 3. Update — name change + new scope
 	meta, err := structpb.NewStruct(map[string]any{"version": "2"})
 	require.NoError(t, err)
-	updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedAPIKeyRequest{
-		ImportedApiKey: &talosv2alpha1.ImportedAPIKey{
+	updated, err := svc.UpdateImportedAPIKey(ctx, &talosv2alpha1.UpdateImportedApiKeyRequest{
+		ImportedApiKey: &talosv2alpha1.ImportedApiKey{
 			KeyId:    imported.KeyId,
 			Name:     "Lifecycle Key v2",
 			Scopes:   []string{"read", "write"},
@@ -1214,7 +1214,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	assert.Equal(t, []string{"read", "write"}, updated.Scopes)
 
 	// 4. Get again — assert update applied
-	got2, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{KeyId: imported.KeyId})
+	got2, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{KeyId: imported.KeyId})
 	require.NoError(t, err)
 	assert.Equal(t, "Lifecycle Key v2", got2.Name)
 	assert.Equal(t, []string{"read", "write"}, got2.Scopes)
@@ -1223,15 +1223,15 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	_, _, err = dpVerifier.VerifyAPIKey(ctx, rawKey)
 	require.NoError(t, err)
 
-	// 6. Revoke via unified endpoint (regression test for Postgres bug)
-	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
+	// 6. Revoke via the imported endpoint (regression test for Postgres bug)
+	_, err = svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{
 		KeyId:  imported.KeyId,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
 	require.NoError(t, err)
 
 	// 7. Get — key is now revoked
-	revoked, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{KeyId: imported.KeyId})
+	revoked, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{KeyId: imported.KeyId})
 	require.NoError(t, err)
 	assert.Equal(t, talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED, revoked.Status)
 
@@ -1241,7 +1241,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	assert.Contains(t, err.Error(), "revoked")
 
 	// 9. Re-revocation returns conflict
-	_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
+	_, err = svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{
 		KeyId:  imported.KeyId,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
@@ -1249,11 +1249,11 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	assert.Contains(t, err.Error(), "conflict")
 
 	// 10. Delete
-	_, err = svc.DeleteImportedAPIKey(ctx, &talosv2alpha1.DeleteImportedAPIKeyRequest{KeyId: imported.KeyId})
+	_, err = svc.DeleteImportedAPIKey(ctx, &talosv2alpha1.DeleteImportedApiKeyRequest{KeyId: imported.KeyId})
 	require.NoError(t, err)
 
 	// 11. Confirm it's gone
-	_, err = svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{KeyId: imported.KeyId})
+	_, err = svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{KeyId: imported.KeyId})
 	require.Error(t, err)
 	var herodotErr *herodot.DefaultError
 	require.True(t, errors.As(err, &herodotErr))

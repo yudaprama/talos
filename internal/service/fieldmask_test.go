@@ -13,7 +13,7 @@ import (
 
 func TestFieldMask_UnknownPath(t *testing.T) {
 	t.Parallel()
-	allowed := []string{"name", "scopes", "metadata"}
+	allowed := []string{"name", "scopes", "metadata", "ip_restriction"}
 	tests := []struct {
 		name      string
 		paths     []string
@@ -24,7 +24,9 @@ func TestFieldMask_UnknownPath(t *testing.T) {
 		{"all allowed paths", []string{"name", "scopes", "metadata"}, false},
 		{"single unknown path is rejected", []string{"bogus"}, true},
 		{"mix of allowed and unknown is rejected", []string{"name", "bogus"}, true},
-		{"case sensitive mismatch is rejected", []string{"Name"}, true},
+		{"case sensitive mismatch on single word is rejected", []string{"Name"}, true},
+		{"lowerCamelCase path is normalized to snake_case", []string{"ipRestriction"}, false},
+		{"lowerCamelCase unknown path is still rejected", []string{"unknownField"}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -40,6 +42,13 @@ func TestFieldMask_UnknownPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFieldMask_HasNormalizesCamelCase(t *testing.T) {
+	t.Parallel()
+	m := newFieldMask([]string{"ipRestriction", "rateLimitPolicy.window"})
+	assert.True(t, m.has("ip_restriction"), "camelCase path must match snake_case lookup")
+	assert.True(t, m.has("rate_limit_policy"), "dotted camelCase path must match prefix lookup")
 }
 
 func TestFieldMask_ApplyString(t *testing.T) {

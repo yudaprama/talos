@@ -130,13 +130,13 @@ func setupBenchmark(b *testing.B) {
 		testNid = "00000000-0000-0000-0000-000000000000"
 
 		// Create API key
-		resp, err := admin.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := admin.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Benchmark Key",
 			ActorId: "bench-1",
 			Scopes:  []string{"read", "write"},
 			Ttl:     durationpb.New(24 * time.Hour),
 		})
-		require.NoError(b, err, "benchmark setup: IssueAPIKey failed")
+		require.NoError(b, err, "benchmark setup: IssueApiKey failed")
 		testAPIKey = resp.Secret
 
 		// Derive token from API key

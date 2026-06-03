@@ -157,14 +157,14 @@ func TestForwardRateLimitHeaders(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		resp               *talosv2alpha1.VerifyAPIKeyResponse
+		resp               *talosv2alpha1.VerifyApiKeyResponse
 		expectPolicyHeader bool
 		expectRateLimit    bool
 		expectRetryAfter   bool
 	}{
 		{
 			name: "verify_with_rate_limit_policy",
-			resp: &talosv2alpha1.VerifyAPIKeyResponse{
+			resp: &talosv2alpha1.VerifyApiKeyResponse{
 				IsValid: true,
 				KeyId:   "key-123",
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
@@ -177,7 +177,7 @@ func TestForwardRateLimitHeaders(t *testing.T) {
 		},
 		{
 			name: "verify_with_enforcement_active",
-			resp: &talosv2alpha1.VerifyAPIKeyResponse{
+			resp: &talosv2alpha1.VerifyApiKeyResponse{
 				IsValid: true,
 				KeyId:   "key-456",
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
@@ -192,10 +192,10 @@ func TestForwardRateLimitHeaders(t *testing.T) {
 		},
 		{
 			name: "verify_rate_limited",
-			resp: func() *talosv2alpha1.VerifyAPIKeyResponse {
+			resp: func() *talosv2alpha1.VerifyApiKeyResponse {
 				remaining := int64(0)
 				errorCode := talosv2alpha1.VerificationErrorCode_VERIFICATION_ERROR_RATE_LIMITED
-				return &talosv2alpha1.VerifyAPIKeyResponse{
+				return &talosv2alpha1.VerifyApiKeyResponse{
 					IsValid: false,
 					KeyId:   "key-789",
 					RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
@@ -214,7 +214,7 @@ func TestForwardRateLimitHeaders(t *testing.T) {
 		},
 		{
 			name: "verify_no_policy",
-			resp: &talosv2alpha1.VerifyAPIKeyResponse{
+			resp: &talosv2alpha1.VerifyApiKeyResponse{
 				IsValid: true,
 				KeyId:   "key-no-policy",
 			},
@@ -262,7 +262,7 @@ func TestForwardRateLimitHeaders(t *testing.T) {
 		t.Parallel()
 
 		rec := httptest.NewRecorder()
-		resp := &talosv2alpha1.IssueAPIKeyResponse{}
+		resp := &talosv2alpha1.IssueApiKeyResponse{}
 		err := forwardRateLimitHeaders(ctx, rec, resp)
 		require.NoError(t, err)
 

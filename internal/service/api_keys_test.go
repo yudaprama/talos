@@ -44,20 +44,20 @@ import (
 	talosv2alpha1 "github.com/ory/talos/pkg/api/talos/v2alpha1"
 )
 
-// TestIssueAPIKey tests the IssueAPIKey service method
+// TestIssueAPIKey tests the IssueApiKey service method
 func TestIssueAPIKey(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name        string
-		req         *talosv2alpha1.IssueAPIKeyRequest
+		req         *talosv2alpha1.IssueApiKeyRequest
 		wantErr     bool
 		errContains string
-		validate    func(*testing.T, *talosv2alpha1.IssueAPIKeyResponse)
+		validate    func(*testing.T, *talosv2alpha1.IssueApiKeyResponse)
 	}{
 		{
 			name: "success - create with all fields",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "Test API Key",
 				ActorId: "user-123",
 				Scopes:  []string{"read:users", "write:users"},
@@ -71,7 +71,7 @@ func TestIssueAPIKey(t *testing.T) {
 				}(),
 			},
 			wantErr: false,
-			validate: func(t *testing.T, resp *talosv2alpha1.IssueAPIKeyResponse) {
+			validate: func(t *testing.T, resp *talosv2alpha1.IssueApiKeyResponse) {
 				t.Helper()
 				require.NotNil(t, resp.IssuedApiKey)
 				assert.NotEmpty(t, resp.IssuedApiKey.KeyId)
@@ -86,12 +86,12 @@ func TestIssueAPIKey(t *testing.T) {
 		},
 		{
 			name: "success - create with minimal fields",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "Minimal Key",
 				ActorId: "service-456",
 			},
 			wantErr: false,
-			validate: func(t *testing.T, resp *talosv2alpha1.IssueAPIKeyResponse) {
+			validate: func(t *testing.T, resp *talosv2alpha1.IssueApiKeyResponse) {
 				t.Helper()
 				require.NotNil(t, resp.IssuedApiKey)
 				assert.NotEmpty(t, resp.Secret)
@@ -104,7 +104,7 @@ func TestIssueAPIKey(t *testing.T) {
 		},
 		{
 			name: "error - missing name",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				ActorId: "user-123",
 			},
 			wantErr:     true,
@@ -112,7 +112,7 @@ func TestIssueAPIKey(t *testing.T) {
 		},
 		{
 			name: "error - missing actor_id",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name: "Test Key",
 			},
 			wantErr:     true,
@@ -120,13 +120,13 @@ func TestIssueAPIKey(t *testing.T) {
 		},
 		{
 			name: "success - empty scopes array",
-			req: &talosv2alpha1.IssueAPIKeyRequest{
+			req: &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "No Scope Key",
 				ActorId: "user-123",
 				Scopes:  []string{},
 			},
 			wantErr: false,
-			validate: func(t *testing.T, resp *talosv2alpha1.IssueAPIKeyResponse) {
+			validate: func(t *testing.T, resp *talosv2alpha1.IssueApiKeyResponse) {
 				t.Helper()
 				assert.Empty(t, resp.IssuedApiKey.Scopes)
 			},
@@ -139,7 +139,7 @@ func TestIssueAPIKey(t *testing.T) {
 
 			svc, _, ctx := setupTestService(t)
 
-			resp, err := svc.IssueAPIKey(ctx, tt.req)
+			resp, err := svc.IssueApiKey(ctx, tt.req)
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -171,7 +171,7 @@ func TestGetIssuedAPIKey(t *testing.T) {
 	svc, _, ctx := setupTestService(t)
 
 	// Create a test key
-	createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Test Get Key",
 		ActorId: "user-789",
 		Scopes:  []string{"read", "write"},
@@ -207,7 +207,7 @@ func TestGetIssuedAPIKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			resp, err := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedAPIKeyRequest{
+			resp, err := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{
 				KeyId: tt.keyID,
 			})
 
@@ -226,7 +226,7 @@ func TestGetIssuedAPIKey(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, resp)
-				// resp is directly IssuedAPIKey
+				// resp is directly IssuedApiKey
 				assert.Equal(t, keyID, resp.KeyId)
 				assert.Equal(t, "Test Get Key", resp.Name)
 				assert.Equal(t, []string{"read", "write"}, resp.Scopes)
@@ -255,7 +255,7 @@ func TestListIssuedAPIKeys(t *testing.T) {
 	}
 
 	for _, k := range keys {
-		_, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		_, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    k.name,
 			ActorId: k.actorID,
 			Scopes:  k.scopes,
@@ -265,13 +265,13 @@ func TestListIssuedAPIKeys(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		req             *talosv2alpha1.ListIssuedAPIKeysRequest
+		req             *talosv2alpha1.ListIssuedApiKeysRequest
 		wantMinCount    int
 		wantHasNextPage bool
 	}{
 		{
 			name: "list all keys",
-			req: &talosv2alpha1.ListIssuedAPIKeysRequest{
+			req: &talosv2alpha1.ListIssuedApiKeysRequest{
 				PageSize: 50,
 			},
 			wantMinCount:    5,
@@ -279,7 +279,7 @@ func TestListIssuedAPIKeys(t *testing.T) {
 		},
 		{
 			name: "filter by actor_id user-1",
-			req: &talosv2alpha1.ListIssuedAPIKeysRequest{
+			req: &talosv2alpha1.ListIssuedApiKeysRequest{
 				Filter:   `actor_id="user-1"`,
 				PageSize: 50,
 			},
@@ -288,7 +288,7 @@ func TestListIssuedAPIKeys(t *testing.T) {
 		},
 		{
 			name: "filter by status active with owner",
-			req: &talosv2alpha1.ListIssuedAPIKeysRequest{
+			req: &talosv2alpha1.ListIssuedApiKeysRequest{
 				Filter:   `actor_id="user-1" AND status=KEY_STATUS_ACTIVE`,
 				PageSize: 50,
 			},
@@ -297,7 +297,7 @@ func TestListIssuedAPIKeys(t *testing.T) {
 		},
 		{
 			name: "pagination - first page",
-			req: &talosv2alpha1.ListIssuedAPIKeysRequest{
+			req: &talosv2alpha1.ListIssuedApiKeysRequest{
 				PageSize: 2,
 			},
 			wantMinCount:    2,
@@ -322,7 +322,7 @@ func TestListIssuedAPIKeys(t *testing.T) {
 	// Test pagination continuation
 	t.Run("pagination - multiple pages", func(t *testing.T) {
 		// Get first page
-		resp1, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp1, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageSize: 2,
 		})
 		require.NoError(t, err)
@@ -330,7 +330,7 @@ func TestListIssuedAPIKeys(t *testing.T) {
 		assert.NotEmpty(t, resp1.NextPageToken)
 
 		// Get second page
-		resp2, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedAPIKeysRequest{
+		resp2, err := svc.ListIssuedAPIKeys(ctx, &talosv2alpha1.ListIssuedApiKeysRequest{
 			PageSize:  2,
 			PageToken: resp1.NextPageToken,
 		})
@@ -348,14 +348,14 @@ func TestListIssuedAPIKeys(t *testing.T) {
 	})
 }
 
-// TestRevokeIssuedAPIKey tests the RevokeIssuedAPIKey service method
+// TestRevokeIssuedAPIKey tests the RevokeIssuedApiKey service method
 func TestRevokeIssuedAPIKey(t *testing.T) {
 	t.Parallel()
 
 	svc, verifier, ctx := setupTestService(t)
 
 	// Create a test key for revocation
-	createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Key to Revoke",
 		ActorId: "user-revoke",
 	})
@@ -401,7 +401,7 @@ func TestRevokeIssuedAPIKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
+			resp, err := svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{
 				KeyId:  tt.keyID,
 				Reason: tt.reason,
 			})
@@ -422,7 +422,7 @@ func TestRevokeIssuedAPIKey(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, resp)
 				// Verify revocation by fetching the key
-				getResp, getErr := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedAPIKeyRequest{KeyId: tt.keyID})
+				getResp, getErr := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{KeyId: tt.keyID})
 				require.NoError(t, getErr)
 				assert.Equal(t, talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED, getResp.Status)
 			}
@@ -439,7 +439,7 @@ func TestRevokeIssuedAPIKey(t *testing.T) {
 	// Test double revocation returns conflict
 	t.Run("double revocation returns conflict", func(t *testing.T) {
 		// Try to revoke again
-		_, err := svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
+		_, err := svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{
 			KeyId:  keyID,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
@@ -456,7 +456,7 @@ func TestVerifyAPIKey_DerivedTokens(t *testing.T) {
 	svc, verifier, ctx := setupTestService(t)
 
 	// Create a parent API key
-	createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Parent Key",
 		ActorId: "service-token-test",
 		Scopes:  []string{"read:users", "write:users", "admin"},
@@ -550,7 +550,7 @@ func TestVerifyAPIKey_DerivedTokens(t *testing.T) {
 		expiredVerifier := expiredSvc.Verifier()
 
 		// Issue a key in the expired service
-		expiredCreateResp, createErr := expiredSvc.IssueAPIKey(expiredCtx, &talosv2alpha1.IssueAPIKeyRequest{
+		expiredCreateResp, createErr := expiredSvc.IssueApiKey(expiredCtx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Expired Token Parent",
 			ActorId: "expired-owner",
 			Ttl:     durationpb.New(24 * time.Hour),
@@ -591,7 +591,7 @@ func TestVerifyAPIKey_DerivedTokens(t *testing.T) {
 		derivedToken := deriveResp.Token.Token
 
 		// Revoke the parent key
-		_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
+		_, err = svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{
 			KeyId:  createResp.IssuedApiKey.KeyId,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
@@ -641,7 +641,7 @@ func TestMetadataHandling(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:     "Metadata Test Key",
 			ActorId:  "service-meta",
 			Metadata: metadata,
@@ -649,7 +649,7 @@ func TestMetadataHandling(t *testing.T) {
 		require.NoError(t, err)
 
 		// Retrieve and verify metadata
-		getResp, err := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedAPIKeyRequest{
+		getResp, err := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{
 			KeyId: createResp.IssuedApiKey.KeyId,
 		})
 		require.NoError(t, err)
@@ -661,14 +661,14 @@ func TestMetadataHandling(t *testing.T) {
 	})
 
 	t.Run("nil metadata is accepted", func(t *testing.T) {
-		createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:     "No Metadata Key",
 			ActorId:  "user-123",
 			Metadata: nil,
 		})
 		require.NoError(t, err)
 
-		_, err = svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedAPIKeyRequest{
+		_, err = svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{
 			KeyId: createResp.IssuedApiKey.KeyId,
 		})
 		require.NoError(t, err)
@@ -687,7 +687,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		svc, verifier, ctx := setupTestService(t)
 
 		// Import a key
-		importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "imported_key_jwt_test_1234567890",
 			Name:    "JWT Derive Test Key",
 			ActorId: "jwt-derive-user",
@@ -723,7 +723,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		svc, verifier, ctx := setupTestService(t)
 
 		// Import a key
-		importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "imported_key_macaroon_test_1234567890",
 			Name:    "Macaroon Derive Test Key",
 			ActorId: "macaroon-derive-user",
@@ -758,7 +758,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		svc, verifier, ctx := setupTestService(t)
 
 		// Import a key with multiple scopes
-		_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "imported_key_scope_test_1234567890",
 			Name:    "Scope Restriction Test Key",
 			ActorId: "scope-test-user",
@@ -791,7 +791,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		svc, verifier, ctx := setupTestService(t)
 
 		// Import a key
-		importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		importResp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "imported_key_revoke_test_1234567890",
 			Name:    "Stateless Token Test Key",
 			ActorId: "stateless-token-user",
@@ -816,7 +816,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		require.NoError(t, err)
 
 		// Revoke the imported parent key
-		_, err = svc.RevokeImportedAPIKey(ctx, &talosv2alpha1.RevokeImportedAPIKeyRequest{
+		_, err = svc.RevokeImportedApiKey(ctx, &talosv2alpha1.RevokeImportedApiKeyRequest{
 			KeyId:  imported.KeyId,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
@@ -839,7 +839,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		require.NoError(t, err)
 
 		// Import a key with metadata
-		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err = svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:   "imported_key_claims_test_1234567890",
 			Name:     "Custom Claims Test Key",
 			ActorId:  "claims-test-user",
@@ -882,7 +882,7 @@ func TestDeriveToken_ImportedKeys(t *testing.T) {
 		svc, _, ctx := setupTestService(t)
 
 		// Import a key with short TTL
-		_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		_, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "imported_key_ttl_test_1234567890",
 			Name:    "TTL Validation Test Key",
 			ActorId: "ttl-test-user",
@@ -906,7 +906,7 @@ func TestDeriveToken_IssuedKeyCustomACLCannotOverride(t *testing.T) {
 
 	svc, verifier, ctx := setupTestService(t)
 
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "ACL Override Issued Parent",
 		ActorId: "acl-test-issued-owner",
 		Scopes:  []string{"read:data"},
@@ -978,7 +978,7 @@ func TestDeriveToken_UsesConfiguredIssuer(t *testing.T) {
 	srv := service.NewAdminFromProvider(driver, provider, events.NewNoopEmitter(), keyService, cache.NewNoopCache[db.IssuedApiKey](), pv, metrics.New(prometheus.NewRegistry()), tracker)
 
 	// Create API key
-	createResp, err := srv.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	createResp, err := srv.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Test Key for Issuer",
 		ActorId: "test-owner",
 		Ttl:     durationpb.New(24 * time.Hour),
@@ -1050,7 +1050,7 @@ func TestTTLEdgeCases(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+			resp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 				Name:    "TTL Test Key",
 				ActorId: "user-ttl",
 				Ttl:     tt.ttl,
@@ -1077,9 +1077,9 @@ func TestTTLEdgeCases(t *testing.T) {
 }
 
 // issueKeyForUpdate is a helper that issues a unique key for a single update subtest.
-func issueKeyForUpdate(t *testing.T, svc *service.Admin, ctx context.Context, nameSuffix string, scopes []string) *talosv2alpha1.IssuedAPIKey {
+func issueKeyForUpdate(t *testing.T, svc *service.Admin, ctx context.Context, nameSuffix string, scopes []string) *talosv2alpha1.IssuedApiKey {
 	t.Helper()
-	resp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	resp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Original " + nameSuffix,
 		ActorId: "user-update-test",
 		Scopes:  scopes,
@@ -1098,8 +1098,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("update name without mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "Name", []string{"read:users", "write:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				Name:  "Updated Name",
 			},
@@ -1112,8 +1112,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("update name only via update_mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "NameMask", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				Name:  "Masked Name",
 			},
@@ -1129,8 +1129,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("mask excludes field — scopes sent but not in mask are ignored", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "MaskExcl", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:  key.KeyId,
 				Name:   "Name Changed",
 				Scopes: []string{"admin"},
@@ -1147,8 +1147,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("update scopes via mask — name sent but not in mask is ignored", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "ScopesMask", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:  key.KeyId,
 				Name:   "Should Not Change",
 				Scopes: []string{"read:users", "write:users"},
@@ -1165,8 +1165,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("update scopes without mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "ScopesNoMask", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:  key.KeyId,
 				Scopes: []string{"read:users", "write:users"},
 			},
@@ -1180,8 +1180,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		key := issueKeyForUpdate(t, svc, ctx, "MetaMask", []string{"read:users"})
 		meta, err := structpb.NewStruct(map[string]any{"env": "production"})
 		require.NoError(t, err)
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:    key.KeyId,
 				Name:     "Should Not Change",
 				Metadata: meta,
@@ -1198,8 +1198,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("set rate_limit_policy via mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "RLSet", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
 					Quota:  1000,
@@ -1217,7 +1217,7 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 
 	t.Run("clear rate_limit_policy via mask with nil policy", func(t *testing.T) {
 		t.Parallel()
-		createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "RL Clear Key",
 			ActorId: "user-update-test",
 			Ttl:     durationpb.New(24 * time.Hour),
@@ -1229,8 +1229,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, createResp.IssuedApiKey.RateLimitPolicy)
 
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:           createResp.IssuedApiKey.KeyId,
 				RateLimitPolicy: nil,
 			},
@@ -1244,7 +1244,7 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 
 	t.Run("clear rate_limit_policy alongside other fields in mask", func(t *testing.T) {
 		t.Parallel()
-		createResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		createResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "RL Clear Multi Key",
 			ActorId: "user-update-test",
 			Ttl:     durationpb.New(24 * time.Hour),
@@ -1256,8 +1256,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, createResp.IssuedApiKey.RateLimitPolicy)
 
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:           createResp.IssuedApiKey.KeyId,
 				Name:            "Cleared RL",
 				RateLimitPolicy: nil,
@@ -1276,8 +1276,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		key := issueKeyForUpdate(t, svc, ctx, "Multi", []string{"read:users"})
 		meta, err := structpb.NewStruct(map[string]any{"region": "us-west-2"})
 		require.NoError(t, err)
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:    key.KeyId,
 				Name:     "Multi-Update Name",
 				Scopes:   []string{"admin"},
@@ -1295,8 +1295,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		key := issueKeyForUpdate(t, svc, ctx, "MetaNoMask", []string{"read:users"})
 		meta, err := structpb.NewStruct(map[string]any{"env": "staging"})
 		require.NoError(t, err)
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:    key.KeyId,
 				Metadata: meta,
 			},
@@ -1310,8 +1310,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("set rate_limit_policy without mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "RLNoMask", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
 					Quota:  500,
@@ -1327,8 +1327,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("set ip_restriction via mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "IPMask", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				IpRestriction: &talosv2alpha1.IPRestriction{
 					AllowedCidrs: []string{"10.0.0.0/8"},
@@ -1346,8 +1346,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("set ip_restriction without mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "IPNoMask", []string{"read:users"})
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				IpRestriction: &talosv2alpha1.IPRestriction{
 					AllowedCidrs: []string{"192.168.0.0/16"},
@@ -1363,8 +1363,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "RLExclMask", []string{"read:users"})
 		// Send rate_limit_policy in request but NOT in mask — must be ignored
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				Name:  "Name Changed",
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
@@ -1385,8 +1385,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "IPExclMask", []string{"read:users"})
 		// Send ip_restriction in request but NOT in mask — must be ignored
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				Name:  "Name Changed",
 				IpRestriction: &talosv2alpha1.IPRestriction{
@@ -1406,8 +1406,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "RLNilNoMask", []string{"read"})
 		// First set a rate limit policy
-		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
 					Quota:  500,
@@ -1418,8 +1418,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		require.NoError(t, err)
 
 		// No mask, nil RateLimitPolicy — presence-based path skips nil fields
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:           key.KeyId,
 				Name:            "Updated Name",
 				RateLimitPolicy: nil,
@@ -1434,8 +1434,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "RLNilExclMask", []string{"read"})
 		// First set a rate limit policy
-		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				RateLimitPolicy: &talosv2alpha1.RateLimitPolicy{
 					Quota:  500,
@@ -1446,8 +1446,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		require.NoError(t, err)
 
 		// rate_limit_policy is NOT in mask — nil value must not clear
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:           key.KeyId,
 				Name:            "Updated Name",
 				RateLimitPolicy: nil,
@@ -1464,8 +1464,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		key := issueKeyForUpdate(t, svc, ctx, "MultiMask", []string{"read:users"})
 		meta, err := structpb.NewStruct(map[string]any{"tier": "gold"})
 		require.NoError(t, err)
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:    key.KeyId,
 				Name:     "Multi Masked",
 				Scopes:   []string{"read:users", "write:users"},
@@ -1494,8 +1494,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 
 	t.Run("update non-existent key returns 404", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: "non-existent-key-id",
 				Name:  "Should Fail",
 			},
@@ -1509,13 +1509,13 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 	t.Run("update revoked key succeeds", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "Revoked", []string{})
-		_, err := svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
+		_, err := svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{
 			KeyId:  key.KeyId,
 			Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 		})
 		require.NoError(t, err)
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: key.KeyId,
 				Name:  "Updated Revoked Key",
 			},
@@ -1527,8 +1527,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 
 	t.Run("update with empty key_id fails validation", func(t *testing.T) {
 		t.Parallel()
-		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		_, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId: "",
 				Name:  "Should Fail",
 			},
@@ -1548,8 +1548,8 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		key := issueKeyForUpdate(t, svc, ctx, "DottedMeta", []string{"read:users"})
 		meta, err := structpb.NewStruct(map[string]any{"plan": "premium"})
 		require.NoError(t, err)
-		_, err = svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		_, err = svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:    key.KeyId,
 				Metadata: meta,
 			},
@@ -1564,14 +1564,14 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		assert.Contains(t, herodotErr.ReasonField, "metadata.plan")
 	})
 
-	// Server-managed fields on IssuedAPIKey (status, timestamps, revocation_*)
+	// Server-managed fields on IssuedApiKey (status, timestamps, revocation_*)
 	// must be ignored on input even when set in the embedded resource.
 	t.Run("server-managed fields in embedded resource are ignored", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "ServerManaged", []string{"read:users"})
 		futureTime := timestamppb.New(time.Now().Add(99 * 365 * 24 * time.Hour))
-		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedAPIKeyRequest{
-			IssuedApiKey: &talosv2alpha1.IssuedAPIKey{
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
 				KeyId:      key.KeyId,
 				Name:       "Renamed",
 				Status:     talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED,
@@ -1591,28 +1591,28 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 
 // TODO generally add a test that ensures key operations send events with the right payload.
 
-// TestIssueAPIKey_Idempotency tests that IssueAPIKey honours request_id as an AIP-133
+// TestIssueAPIKey_Idempotency tests that IssueApiKey honours request_id as an AIP-133
 // idempotency key: the second call returns the same key without the secret.
 func TestIssueAPIKey_Idempotency(t *testing.T) {
 	t.Parallel()
 
 	svc, _, ctx := setupTestService(t)
 
-	req := &talosv2alpha1.IssueAPIKeyRequest{
+	req := &talosv2alpha1.IssueApiKeyRequest{
 		Name:      "Idempotent Key",
 		ActorId:   "user-idem-123",
 		RequestId: "idem-req-001",
 	}
 
 	// First call — creates the key and returns the secret.
-	resp1, err := svc.IssueAPIKey(ctx, req)
+	resp1, err := svc.IssueApiKey(ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp1.IssuedApiKey)
 	assert.NotEmpty(t, resp1.Secret, "first call should return the secret")
 	keyID := resp1.IssuedApiKey.KeyId
 
 	// Second call with the same request_id — must return the same key_id.
-	resp2, err := svc.IssueAPIKey(ctx, req)
+	resp2, err := svc.IssueApiKey(ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, resp2.IssuedApiKey)
 	assert.Equal(t, keyID, resp2.IssuedApiKey.KeyId, "idempotent replay must return the same key_id")
@@ -1626,15 +1626,15 @@ func TestIssueAPIKey_NoRequestID_CreatesDuplicate(t *testing.T) {
 
 	svc, _, ctx := setupTestService(t)
 
-	req := &talosv2alpha1.IssueAPIKeyRequest{
+	req := &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Duplicate Key",
 		ActorId: "user-dup-456",
 	}
 
-	resp1, err := svc.IssueAPIKey(ctx, req)
+	resp1, err := svc.IssueApiKey(ctx, req)
 	require.NoError(t, err)
 
-	resp2, err := svc.IssueAPIKey(ctx, req)
+	resp2, err := svc.IssueApiKey(ctx, req)
 	require.NoError(t, err)
 
 	assert.NotEqual(t, resp1.IssuedApiKey.KeyId, resp2.IssuedApiKey.KeyId,
@@ -1648,7 +1648,7 @@ func TestImportAPIKey_Idempotency(t *testing.T) {
 
 	svc, _, ctx := setupTestService(t)
 
-	req := &talosv2alpha1.ImportAPIKeyRequest{
+	req := &talosv2alpha1.ImportApiKeyRequest{
 		RawKey:    "idem_import_key_1234567890abcdef",
 		Name:      "Idempotent Import Key",
 		ActorId:   "user-idem-import",

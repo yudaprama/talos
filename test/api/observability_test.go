@@ -49,7 +49,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 		s.testServer.Emitter.Reset()
 		before := snap(m.APIKeysCreated)
 
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetName("obs-issued-lifecycle")
 		req.SetActorId("obs-owner-1")
 		req.SetScopes([]string{"read"})
@@ -101,7 +101,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_IssuedKeyLifecycle() {
 	s.Run("update emits event", func() {
 		s.testServer.Emitter.Reset()
 
-		body := client.NewAdminUpdateIssuedAPIKeyRequest()
+		body := client.NewAdminUpdateIssuedApiKeyRequest()
 		body.SetName("obs-issued-updated")
 		s.sdkUpdateIssuedAPIKey(ctx, keyID, *body)
 
@@ -178,7 +178,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 		s.testServer.Emitter.Reset()
 		before := snap(m.APIKeysCreated)
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("obs-imported-lifecycle")
 		req.SetActorId("obs-import-owner")
@@ -206,7 +206,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 	s.Run("update imported emits event", func() {
 		s.testServer.Emitter.Reset()
 
-		body := client.NewAdminUpdateImportedAPIKeyRequest()
+		body := client.NewAdminUpdateImportedApiKeyRequest()
 		body.SetName("obs-imported-updated")
 		s.sdkUpdateImportedAPIKey(ctx, keyID, *body)
 
@@ -232,7 +232,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_ImportedKeyLifecycle() {
 		// Create a fresh imported key to delete (the revoked one above can't be deleted)
 		s.testServer.Emitter.Reset()
 
-		importReq := client.NewImportAPIKeyRequest()
+		importReq := client.NewImportApiKeyRequest()
 		importReq.SetRawKey("obs-imported-delete-target")
 		importReq.SetName("obs-delete-target")
 		importReq.SetActorId("obs-import-owner")
@@ -261,13 +261,13 @@ func (s *APIKeyE2ETestSuite) TestObservability_BatchImport() {
 		beforeBatchReqs := snap(m.BatchImportRequests)
 		beforePartialFail := snap(m.BatchImportPartialFailures)
 
-		batchReq := client.NewBatchImportAPIKeysRequest()
-		batchReq.SetRequests([]client.ImportAPIKeyRequest{
+		batchReq := client.NewBatchCreateImportedApiKeysRequest()
+		batchReq.SetRequests([]client.ImportApiKeyRequest{
 			newImportReq("obs-batch-key-1", "obs-batch-1", "obs-batch-owner"),
 			newImportReq("obs-batch-key-2", "obs-batch-2", "obs-batch-owner"),
-			func() client.ImportAPIKeyRequest {
+			func() client.ImportApiKeyRequest {
 				// Missing name → validation failure
-				req := client.NewImportAPIKeyRequest()
+				req := client.NewImportApiKeyRequest()
 				req.SetRawKey("obs-batch-key-3")
 				req.SetActorId("obs-batch-owner")
 				return *req
@@ -325,7 +325,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_SelfRevocation() {
 
 	s.Run("self-revoke imported key emits event with initiated_by metadata", func() {
 		rawKey := "obs-self-revoke-imported-raw"
-		importReq := client.NewImportAPIKeyRequest()
+		importReq := client.NewImportApiKeyRequest()
 		importReq.SetRawKey(rawKey)
 		importReq.SetName("obs-self-revoke-imported")
 		importReq.SetActorId("obs-self-revoke-owner")
@@ -474,7 +474,7 @@ func (s *APIKeyE2ETestSuite) TestObservability_FailedCreateNoEvent() {
 		s.testServer.Emitter.Reset()
 		before := snap(m.APIKeysCreated)
 
-		req := client.NewIssueAPIKeyRequest()
+		req := client.NewIssueApiKeyRequest()
 		req.SetActorId("obs-fail-owner")
 		// Missing required Name field → validation error
 		_, _ = s.sdkIssueAPIKeyExpectError(ctx, req)
@@ -492,12 +492,12 @@ func (s *APIKeyE2ETestSuite) TestObservability_UpdateUnhappyPaths() {
 	ctx := s.T().Context()
 
 	s.Run("update non-existent issued key returns error", func() {
-		body := client.NewAdminUpdateIssuedAPIKeyRequest()
+		body := client.NewAdminUpdateIssuedApiKeyRequest()
 		body.SetName("ghost")
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateIssuedAPIKey(ctx, "non-existent-key-id").
-			AdminUpdateIssuedAPIKeyRequest(*body).
+		_, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateIssuedApiKey(ctx, "non-existent-key-id").
+			AdminUpdateIssuedApiKeyRequest(*body).
 			Execute()
 		if httpResp != nil && httpResp.Body != nil {
 			s.T().Cleanup(func() { _ = httpResp.Body.Close() })
@@ -506,12 +506,12 @@ func (s *APIKeyE2ETestSuite) TestObservability_UpdateUnhappyPaths() {
 	})
 
 	s.Run("update non-existent imported key returns error", func() {
-		body := client.NewAdminUpdateImportedAPIKeyRequest()
+		body := client.NewAdminUpdateImportedApiKeyRequest()
 		body.SetName("ghost")
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateImportedAPIKey(ctx, "non-existent-key-id").
-			AdminUpdateImportedAPIKeyRequest(*body).
+		_, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateImportedApiKey(ctx, "non-existent-key-id").
+			AdminUpdateImportedApiKeyRequest(*body).
 			Execute()
 		if httpResp != nil && httpResp.Body != nil {
 			s.T().Cleanup(func() { _ = httpResp.Body.Close() })

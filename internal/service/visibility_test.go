@@ -25,7 +25,7 @@ func TestIssueAPIKey_Visibility(t *testing.T) {
 
 		svc, ctx := setupTestAdminWithPublicPrefix(t, "pk_test")
 
-		resp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:       "Public API Key",
 			ActorId:    "user-pub-1",
 			Visibility: talosv2alpha1.KeyVisibility_KEY_VISIBILITY_PUBLIC,
@@ -44,7 +44,7 @@ func TestIssueAPIKey_Visibility(t *testing.T) {
 
 		svc, _, ctx := setupTestService(t)
 
-		resp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Default Secret Key",
 			ActorId: "user-sec-1",
 		})
@@ -63,7 +63,7 @@ func TestIssueAPIKey_Visibility(t *testing.T) {
 		// Use standard setupTestService which does NOT configure public_current
 		svc, _, ctx := setupTestService(t)
 
-		resp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:       "Should Fail Public Key",
 			ActorId:    "user-fail-1",
 			Visibility: talosv2alpha1.KeyVisibility_KEY_VISIBILITY_PUBLIC,
@@ -84,7 +84,7 @@ func TestIssueAPIKey_Visibility(t *testing.T) {
 
 		svc, ctx := setupTestAdminWithPublicPrefix(t, "pk_test")
 
-		resp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:       "Explicit Secret Key",
 			ActorId:    "user-sec-2",
 			Visibility: talosv2alpha1.KeyVisibility_KEY_VISIBILITY_SECRET,
@@ -108,7 +108,7 @@ func TestImportAPIKey_Visibility(t *testing.T) {
 
 		svc, _, ctx := setupTestService(t)
 
-		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:     "external_public_key_12345678",
 			Name:       "Public Imported Key",
 			ActorId:    "import-owner-pub",
@@ -122,7 +122,7 @@ func TestImportAPIKey_Visibility(t *testing.T) {
 		assert.Equal(t, talosv2alpha1.KeyVisibility_KEY_VISIBILITY_PUBLIC, resp.Visibility)
 
 		// Retrieve and verify visibility persisted
-		getResp, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedAPIKeyRequest{
+		getResp, err := svc.GetImportedAPIKey(ctx, &talosv2alpha1.GetImportedApiKeyRequest{
 			KeyId: resp.KeyId,
 		})
 		require.NoError(t, err)
@@ -134,7 +134,7 @@ func TestImportAPIKey_Visibility(t *testing.T) {
 
 		svc, _, ctx := setupTestService(t)
 
-		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportAPIKeyRequest{
+		resp, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
 			RawKey:  "external_default_vis_key_12345678",
 			Name:    "Default Visibility Imported Key",
 			ActorId: "import-owner-def",
@@ -159,7 +159,7 @@ func TestDeriveToken_VisibilityClaim(t *testing.T) {
 		ver := svc.Verifier()
 
 		// Issue a PUBLIC key
-		issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:       "Public Key for Token",
 			ActorId:    "derive-pub-owner",
 			Visibility: talosv2alpha1.KeyVisibility_KEY_VISIBILITY_PUBLIC,
@@ -198,7 +198,7 @@ func TestDeriveToken_VisibilityClaim(t *testing.T) {
 		svc, _, ctx := setupTestService(t)
 
 		// Issue a SECRET key (default)
-		issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Secret Key for Token",
 			ActorId: "derive-sec-owner",
 			Ttl:     durationpb.New(24 * time.Hour),
@@ -236,7 +236,7 @@ func TestVerifyAPIKey_Visibility(t *testing.T) {
 		ver := svc.Verifier()
 
 		// Issue a PUBLIC key
-		issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:       "Public Key for Verify",
 			ActorId:    "verify-pub-owner",
 			Visibility: talosv2alpha1.KeyVisibility_KEY_VISIBILITY_PUBLIC,
@@ -258,7 +258,7 @@ func TestVerifyAPIKey_Visibility(t *testing.T) {
 		ver := svc.Verifier()
 
 		// Issue a SECRET key (default)
-		issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Secret Key for Verify",
 			ActorId: "verify-sec-owner",
 		})
@@ -283,7 +283,7 @@ func TestRotateIssuedAPIKey_Visibility(t *testing.T) {
 		svc, ctx := setupTestAdminWithPublicPrefix(t, "pk_test")
 
 		// Issue a PUBLIC key
-		issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:       "Public Key to Rotate",
 			ActorId:    "rotate-pub-owner",
 			Visibility: talosv2alpha1.KeyVisibility_KEY_VISIBILITY_PUBLIC,
@@ -293,7 +293,7 @@ func TestRotateIssuedAPIKey_Visibility(t *testing.T) {
 		require.NotNil(t, issueResp)
 
 		// Rotate without specifying visibility
-		rotateResp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+		rotateResp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 			KeyId: issueResp.IssuedApiKey.KeyId,
 		})
 		require.NoError(t, err)
@@ -317,7 +317,7 @@ func TestRotateIssuedAPIKey_Visibility(t *testing.T) {
 		svc, _, ctx := setupTestService(t)
 
 		// Issue a SECRET key
-		issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Secret Key to Rotate",
 			ActorId: "rotate-sec-owner",
 			Ttl:     durationpb.New(24 * time.Hour),
@@ -325,7 +325,7 @@ func TestRotateIssuedAPIKey_Visibility(t *testing.T) {
 		require.NoError(t, err)
 
 		// Rotate without specifying visibility
-		rotateResp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+		rotateResp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 			KeyId: issueResp.IssuedApiKey.KeyId,
 		})
 		require.NoError(t, err)

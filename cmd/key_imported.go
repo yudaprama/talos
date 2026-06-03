@@ -20,7 +20,7 @@ import (
 const batchImportTimeout = 2 * time.Minute
 
 // issuedKeyListTable builds a rawTable for a list of issued API keys.
-func issuedKeyListTable(keys []client.IssuedAPIKey, raw any) rawTable {
+func issuedKeyListTable(keys []client.IssuedApiKey, raw any) rawTable {
 	rows := make([][]string, len(keys))
 	for i := range keys {
 		k := &keys[i]
@@ -37,7 +37,7 @@ func issuedKeyListTable(keys []client.IssuedAPIKey, raw any) rawTable {
 }
 
 // importedKeyListTable builds a rawTable for a list of imported API keys.
-func importedKeyListTable(keys []client.ImportedAPIKey, raw any) rawTable {
+func importedKeyListTable(keys []client.ImportedApiKey, raw any) rawTable {
 	rows := make([][]string, len(keys))
 	for i := range keys {
 		k := &keys[i]
@@ -54,7 +54,7 @@ func importedKeyListTable(keys []client.ImportedAPIKey, raw any) rawTable {
 }
 
 // batchImportTable builds a rawTable from a batch import response.
-func batchImportTable(resp *client.BatchImportAPIKeysResponse) rawTable {
+func batchImportTable(resp *client.BatchCreateImportedApiKeysResponse) rawTable {
 	results := resp.GetResults()
 	rows := make([][]string, len(results))
 	for i, item := range results {
@@ -155,7 +155,7 @@ func newImportAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			req := client.ImportAPIKeyRequest{}
+			req := client.ImportApiKeyRequest{}
 			req.SetName(name)
 			req.SetRawKey(rawKey)
 			req.SetActorId(actorID)
@@ -180,9 +180,9 @@ func newImportAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminImportAPIKey(ctx).
-				ImportAPIKeyRequest(req).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminImportApiKey(ctx).
+				ImportApiKeyRequest(req).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -236,15 +236,15 @@ func newBatchImportAPIKeysCmd() *cobra.Command {
 				return err
 			}
 			// Server enforces MaxBatchImportSize (1000 keys per request); see internal/service/limits.go.
-			req := client.NewBatchImportAPIKeysRequest()
+			req := client.NewBatchCreateImportedApiKeysRequest()
 			req.SetRequests(keys)
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), batchImportTimeout)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminBatchImportAPIKeys(ctx).
-				BatchImportAPIKeysRequest(*req).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminBatchCreateImportedApiKeys(ctx).
+				BatchCreateImportedApiKeysRequest(*req).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -271,7 +271,7 @@ func newBatchImportAPIKeysCmd() *cobra.Command {
 	return cmd
 }
 
-func readBatchImportRequests(cmd *cobra.Command, filePath string) ([]client.ImportAPIKeyRequest, error) {
+func readBatchImportRequests(cmd *cobra.Command, filePath string) ([]client.ImportApiKeyRequest, error) {
 	var (
 		raw []byte
 		err error
@@ -293,7 +293,7 @@ func readBatchImportRequests(cmd *cobra.Command, filePath string) ([]client.Impo
 		}
 	}
 
-	var keys []client.ImportAPIKeyRequest
+	var keys []client.ImportApiKeyRequest
 	if err := json.Unmarshal(raw, &keys); err != nil {
 		return nil, errors.Wrap(err, "parse batch import JSON")
 	}
@@ -318,8 +318,8 @@ func newGetImportedAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminGetImportedAPIKey(ctx, keyID).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminGetImportedApiKey(ctx, keyID).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -361,8 +361,8 @@ func newListImportedAPIKeysCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			req := newSDKClient(serverAddr).APIKeysAPI.
-				AdminListImportedAPIKeys(ctx)
+			req := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminListImportedApiKeys(ctx)
 
 			if f := buildListFilter(actorID, status); f != "" {
 				req = req.Filter(f)
@@ -423,7 +423,7 @@ func newUpdateImportedAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			body := client.AdminUpdateImportedAPIKeyRequest{}
+			body := client.AdminUpdateImportedApiKeyRequest{}
 
 			anyChanged := false
 
@@ -474,9 +474,9 @@ func newUpdateImportedAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			req := newSDKClient(serverAddr).APIKeysAPI.
-				AdminUpdateImportedAPIKey(ctx, keyID).
-				AdminUpdateImportedAPIKeyRequest(body)
+			req := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminUpdateImportedApiKey(ctx, keyID).
+				AdminUpdateImportedApiKeyRequest(body)
 			if useMask {
 				req = req.UpdateMask(updateMask)
 			}
@@ -521,14 +521,14 @@ func newRevokeImportedAPIKeyCmd() *cobra.Command {
 	})
 }
 
-func newRevokeImportedAPIKeyRequest(ctx context.Context, api client.APIKeysAPI, keyID string, reason client.RevocationReason, reasonText string) revokeAPIKeyRequest {
-	body := client.AdminRevokeImportedAPIKeyBody{}
+func newRevokeImportedAPIKeyRequest(ctx context.Context, api client.ApiKeysAPI, keyID string, reason client.RevocationReason, reasonText string) revokeAPIKeyRequest {
+	body := client.AdminRevokeImportedApiKeyBody{}
 	setRevocationBody(&body, reason, reasonText)
-	return api.AdminRevokeImportedAPIKey(ctx, keyID).AdminRevokeImportedAPIKeyBody(body)
+	return api.AdminRevokeImportedApiKey(ctx, keyID).AdminRevokeImportedApiKeyBody(body)
 }
 
-func getImportedAPIKeyAfterRevoke(ctx context.Context, api client.APIKeysAPI, keyID string) (any, apiKeyLike, error) {
-	return executeGetAPIKey(api.AdminGetImportedAPIKey(ctx, keyID))
+func getImportedAPIKeyAfterRevoke(ctx context.Context, api client.ApiKeysAPI, keyID string) (any, apiKeyLike, error) {
+	return executeGetAPIKey(api.AdminGetImportedApiKey(ctx, keyID))
 }
 
 func newDeleteImportedAPIKeyCmd() *cobra.Command {
@@ -547,8 +547,8 @@ func newDeleteImportedAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			_, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminDeleteImportedAPIKey(ctx, keyID).
+			_, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminDeleteImportedApiKey(ctx, keyID).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()

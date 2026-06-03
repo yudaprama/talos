@@ -37,7 +37,7 @@ func newPublicForTest(t *testing.T, v *verifier.Verifier) *service.Public {
 	return service.NewPublic(v, pv, &ratelimit.NoopLimiter{})
 }
 
-// TestGetJWKS tests the GetJWKS service method with various signing key configurations
+// TestGetJWKS tests the GetJwks service method with various signing key configurations
 func TestGetJWKS(t *testing.T) {
 	t.Parallel()
 
@@ -45,7 +45,7 @@ func TestGetJWKS(t *testing.T) {
 		_, v, ctx := setupTestService(t)
 		pub := newPublicForTest(t, v)
 
-		resp, err := pub.GetJWKS(ctx, &talosv2alpha1.GetJWKSRequest{})
+		resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Jwks)
@@ -94,7 +94,7 @@ func TestGetJWKS(t *testing.T) {
 		_, v, ctx := setupTestService(t)
 		pub := newPublicForTest(t, v)
 
-		resp, err := pub.GetJWKS(ctx, &talosv2alpha1.GetJWKSRequest{})
+		resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
 		require.NoError(t, err)
 
 		jwksMap := resp.Jwks.AsMap()
@@ -127,7 +127,7 @@ func TestGetJWKS(t *testing.T) {
 		_, v, ctx := setupTestService(t)
 		pub := newPublicForTest(t, v)
 
-		resp, err := pub.GetJWKS(ctx, &talosv2alpha1.GetJWKSRequest{})
+		resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
 		require.NoError(t, err)
 
 		jwksMap := resp.Jwks.AsMap()
@@ -152,7 +152,7 @@ func TestGetJWKS(t *testing.T) {
 		_, v, ctx := setupTestService(t)
 		pub := newPublicForTest(t, v)
 
-		resp, err := pub.GetJWKS(ctx, &talosv2alpha1.GetJWKSRequest{})
+		resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
 		require.NoError(t, err)
 
 		// Convert to JSON and verify it's valid
@@ -176,7 +176,7 @@ func TestGetJWKS(t *testing.T) {
 		_, v, ctx := setupTestService(t)
 		pub := newPublicForTest(t, v)
 
-		resp, err := pub.GetJWKS(ctx, &talosv2alpha1.GetJWKSRequest{})
+		resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
 		require.NoError(t, err)
 
 		jwksMap := resp.Jwks.AsMap()
@@ -204,7 +204,7 @@ func TestGetJWKS(t *testing.T) {
 	})
 }
 
-// TestGetJWKS_NoSigningKeys verifies that GetJWKS returns an error when no
+// TestGetJWKS_NoSigningKeys verifies that GetJwks returns an error when no
 // signing keys are configured for the service.
 func TestGetJWKS_NoSigningKeys(t *testing.T) {
 	t.Parallel()
@@ -235,8 +235,8 @@ func TestGetJWKS_NoSigningKeys(t *testing.T) {
 	)
 
 	pub := service.NewPublic(svc.Verifier(), pv, &ratelimit.NoopLimiter{})
-	resp, err := pub.GetJWKS(ctx, &talosv2alpha1.GetJWKSRequest{})
-	require.Error(t, err, "GetJWKS should return an error when no signing keys are configured")
+	resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
+	require.Error(t, err, "GetJwks should return an error when no signing keys are configured")
 	assert.Nil(t, resp)
 }
 

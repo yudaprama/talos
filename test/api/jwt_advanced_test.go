@@ -303,7 +303,7 @@ func (s *APIKeyE2ETestSuite) TestStatelessTokenVerification() {
 
 		// This should fail because parent is revoked
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*req).Execute()
+		_, httpResp, err := apiClient.ApiKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*req).Execute()
 		if httpResp != nil && httpResp.Body != nil {
 			_ = httpResp.Body.Close()
 		}
@@ -364,7 +364,7 @@ func (s *APIKeyE2ETestSuite) TestDerivedTokenReDerivationPrevented() {
 		reReq.SetTtl("3600s")
 
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
+		_, httpResp, err := apiClient.ApiKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
 		// Spec: derived tokens must be rejected with HTTP 400 (bad_request errdef code).
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
@@ -385,7 +385,7 @@ func (s *APIKeyE2ETestSuite) TestDerivedTokenReDerivationPrevented() {
 		reReq.SetTtl("3600s")
 
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
+		_, httpResp, err := apiClient.ApiKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
 		// Spec: derived tokens must be rejected with HTTP 400 (bad_request errdef code).
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
@@ -550,14 +550,14 @@ func (s *APIKeyE2ETestSuite) TestHMACSecretNonExposure() {
 
 	s.Run("HMAC signing secret is never exposed via API", func() {
 		// Issue an API key and capture the secret returned at creation time.
-		issueReq := client.NewIssueAPIKeyRequest()
+		issueReq := client.NewIssueApiKeyRequest()
 		issueReq.SetName("HMAC Non-Exposure Test")
 		issueReq.SetActorId("hmac-test-user")
 		issueReq.SetScopes([]string{"read", "write"})
 		issueResp := s.sdkIssueAPIKey(ctx, issueReq)
 		secret := issueResp.GetSecret()
 		keyID := issueResp.IssuedApiKey.GetKeyId()
-		s.NotEmpty(secret, "IssueAPIKey must return a secret on creation")
+		s.NotEmpty(secret, "IssueApiKey must return a secret on creation")
 
 		// GET single issued key must not contain the secret.
 		getResp := s.sdkGetIssuedAPIKey(ctx, keyID)
@@ -614,7 +614,7 @@ func (s *APIKeyE2ETestSuite) TestDerivedTokenReDerivationPreventedCrossAlgorithm
 		reReq.SetTtl("3600s")
 
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
+		_, httpResp, err := apiClient.ApiKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
 
@@ -636,7 +636,7 @@ func (s *APIKeyE2ETestSuite) TestDerivedTokenReDerivationPreventedCrossAlgorithm
 		reReq.SetTtl("3600s")
 
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
+		_, httpResp, err := apiClient.ApiKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*reReq).Execute()
 		s.requireHTTPError(err, httpResp, http.StatusBadRequest)
 	})
 }
@@ -679,7 +679,7 @@ func (s *APIKeyE2ETestSuite) TestMacaroonScopeEscalationPrevention() {
 		req.SetScopes([]string{"delete"})
 
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*req).Execute()
+		_, httpResp, err := apiClient.ApiKeysAPI.AdminDeriveToken(ctx).DeriveTokenRequest(*req).Execute()
 		s.Require().Error(err, "deriving with out-of-parent scope must fail")
 		s.Require().NotNil(httpResp, "HTTP response should not be nil")
 		s.closeBody(httpResp)
@@ -865,7 +865,7 @@ func (s *APIKeyE2ETestSuite) TestJWTKidHintSelectsConfiguredKey() {
 	req.SetCredential(secret)
 	req.SetAlgorithm(client.TOKENALGORITHM_TOKEN_ALGORITHM_JWT)
 	req.SetTtl("3600s")
-	tokenResp, httpResp, err := apiClient.APIKeysAPI.
+	tokenResp, httpResp, err := apiClient.ApiKeysAPI.
 		AdminDeriveToken(ctx).
 		DeriveTokenRequest(*req).
 		Execute()

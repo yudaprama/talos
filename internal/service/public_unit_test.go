@@ -143,7 +143,7 @@ func TestApplyRateLimiting(t *testing.T) {
 			err: errors.New("limiter must not be called"),
 		})
 
-		resp := &talosv2alpha1.VerifyAPIKeyResponse{IsValid: true}
+		resp := &talosv2alpha1.VerifyApiKeyResponse{IsValid: true}
 		srv.applyRateLimiting(t.Context(), "key-1", resp, trace.SpanFromContext(t.Context()))
 
 		assert.True(t, resp.IsValid, "response must stay active when no policy is present")
@@ -163,7 +163,7 @@ func TestApplyRateLimiting(t *testing.T) {
 			},
 		})
 
-		resp := &talosv2alpha1.VerifyAPIKeyResponse{IsValid: true, RateLimitPolicy: policy}
+		resp := &talosv2alpha1.VerifyApiKeyResponse{IsValid: true, RateLimitPolicy: policy}
 		srv.applyRateLimiting(t.Context(), "key-2", resp, trace.SpanFromContext(t.Context()))
 
 		assert.False(t, resp.IsValid)
@@ -182,7 +182,7 @@ func TestApplyRateLimiting(t *testing.T) {
 			err: errors.New("redis connection refused"),
 		})
 
-		resp := &talosv2alpha1.VerifyAPIKeyResponse{IsValid: true, RateLimitPolicy: policy}
+		resp := &talosv2alpha1.VerifyApiKeyResponse{IsValid: true, RateLimitPolicy: policy}
 		srv.applyRateLimiting(t.Context(), "key-3", resp, trace.SpanFromContext(t.Context()))
 
 		assert.True(t, resp.IsValid, "fail-open: response must remain active on limiter error")
@@ -202,7 +202,7 @@ func TestApplyRateLimiting(t *testing.T) {
 			},
 		})
 
-		resp := &talosv2alpha1.VerifyAPIKeyResponse{IsValid: true, RateLimitPolicy: policy}
+		resp := &talosv2alpha1.VerifyApiKeyResponse{IsValid: true, RateLimitPolicy: policy}
 		srv.applyRateLimiting(t.Context(), "key-4", resp, trace.SpanFromContext(t.Context()))
 
 		assert.True(t, resp.IsValid)
@@ -228,8 +228,8 @@ func TestBatchVerifyAPIKeys_Validation(t *testing.T) {
 	t.Run("empty request list is rejected by proto validation", func(t *testing.T) {
 		t.Parallel()
 
-		req := &talosv2alpha1.BatchVerifyAPIKeysRequest{
-			Requests: []*talosv2alpha1.VerifyAPIKeyRequest{},
+		req := &talosv2alpha1.BatchVerifyApiKeysRequest{
+			Requests: []*talosv2alpha1.VerifyApiKeyRequest{},
 		}
 
 		_, err := srv.BatchVerifyAPIKeys(t.Context(), req)
@@ -240,8 +240,8 @@ func TestBatchVerifyAPIKeys_Validation(t *testing.T) {
 	t.Run("item with empty credential is rejected by proto validation", func(t *testing.T) {
 		t.Parallel()
 
-		req := &talosv2alpha1.BatchVerifyAPIKeysRequest{
-			Requests: []*talosv2alpha1.VerifyAPIKeyRequest{
+		req := &talosv2alpha1.BatchVerifyApiKeysRequest{
+			Requests: []*talosv2alpha1.VerifyApiKeyRequest{
 				{Credential: ""},
 			},
 		}

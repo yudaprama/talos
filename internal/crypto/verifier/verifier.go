@@ -29,7 +29,9 @@ func NewVerifier(keyService *internalcrypto.KeyService) *Verifier {
 
 // VerifyJWT verifies a JWT token using keys from KeyService and validates issuer.
 // allowedIssuers is the list of accepted issuer URLs (current + retired).
-func (v *Verifier) VerifyJWT(ctx context.Context, tokenString string, allowedIssuers []string) (*token.Claims, error) {
+// clockSkew is the tolerance applied to time-based claims (exp, nbf, iat),
+// mirroring the leeway VerifyMacaroon applies to nbf.
+func (v *Verifier) VerifyJWT(ctx context.Context, tokenString string, allowedIssuers []string, clockSkew time.Duration) (*token.Claims, error) {
 	keySet, err := v.keyService.ListActiveSigningKeys(ctx)
 	if err != nil {
 		return nil, errdef.ErrServiceUnavailable().WithReasonf("get signing keys").WithWrap(errors.WithStack(err))
@@ -39,7 +41,7 @@ func (v *Verifier) VerifyJWT(ctx context.Context, tokenString string, allowedIss
 		return nil, errdef.ErrServiceUnavailable().WithReasonf("no active signing keys available")
 	}
 
-	return token.VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, allowedIssuers)
+	return token.VerifyJWTWithKeySetAndIssuer(ctx, tokenString, keySet, allowedIssuers, clockSkew)
 }
 
 // VerifyMacaroon verifies a macaroon token using the provided HMAC secrets

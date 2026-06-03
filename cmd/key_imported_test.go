@@ -30,14 +30,14 @@ func TestIssuedKeyListTable(t *testing.T) {
 	t.Run("single key", func(t *testing.T) {
 		t.Parallel()
 
-		key := client.NewIssuedAPIKey()
+		key := client.NewIssuedApiKey()
 		key.SetKeyId("key_1")
 		key.SetName("test-key")
 		key.SetActorId("user_1")
 		key.SetScopes([]string{"read"})
 		key.SetStatus(client.KEYSTATUS_KEY_STATUS_ACTIVE)
 
-		tbl := issuedKeyListTable([]client.IssuedAPIKey{*key}, nil)
+		tbl := issuedKeyListTable([]client.IssuedApiKey{*key}, nil)
 		assert.Len(t, tbl.Table(), 1)
 		assert.Equal(t, 1, tbl.Len())
 		row := tbl.Table()[0]
@@ -51,21 +51,21 @@ func TestIssuedKeyListTable(t *testing.T) {
 	t.Run("multiple keys", func(t *testing.T) {
 		t.Parallel()
 
-		k1 := client.NewIssuedAPIKey()
+		k1 := client.NewIssuedApiKey()
 		k1.SetKeyId("key_1")
 		k1.SetName("first")
 		k1.SetActorId("user_1")
 		k1.SetScopes([]string{"read", "write"})
 		k1.SetStatus(client.KEYSTATUS_KEY_STATUS_ACTIVE)
 
-		k2 := client.NewIssuedAPIKey()
+		k2 := client.NewIssuedApiKey()
 		k2.SetKeyId("key_2")
 		k2.SetName("second")
 		k2.SetActorId("user_2")
 		k2.SetScopes([]string{"admin"})
 		k2.SetStatus(client.KEYSTATUS_KEY_STATUS_REVOKED)
 
-		tbl := issuedKeyListTable([]client.IssuedAPIKey{*k1, *k2}, nil)
+		tbl := issuedKeyListTable([]client.IssuedApiKey{*k1, *k2}, nil)
 		assert.Equal(t, 2, tbl.Len())
 		rows := tbl.Table()
 		assert.Len(t, rows, 2)
@@ -125,16 +125,16 @@ func TestBatchImportTable(t *testing.T) {
 	t.Run("successful import", func(t *testing.T) {
 		t.Parallel()
 
-		importedKey := client.NewImportedAPIKey()
+		importedKey := client.NewImportedApiKey()
 		importedKey.SetKeyId("key_1")
 		importedKey.SetName("test-key")
 
-		result := client.NewBatchImportResult()
+		result := client.NewBatchCreateImportedApiKeysResult()
 		result.SetIndex(0)
 		result.SetImportedApiKey(*importedKey)
 
-		resp := client.NewBatchImportAPIKeysResponse()
-		resp.SetResults([]client.BatchImportResult{*result})
+		resp := client.NewBatchCreateImportedApiKeysResponse()
+		resp.SetResults([]client.BatchCreateImportedApiKeysResult{*result})
 		resp.SetSuccessCount(1)
 		resp.SetFailureCount(0)
 
@@ -194,13 +194,13 @@ func TestImportAPIKeyCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key imported.")
 
-		var importedKey client.ImportedAPIKey
+		var importedKey client.ImportedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &importedKey))
 		require.NotEmpty(t, importedKey.GetKeyId())
 
 		// Verify via SDK that IP restriction was set
-		resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-			AdminGetImportedAPIKey(t.Context(), importedKey.GetKeyId()).
+		resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+			AdminGetImportedApiKey(t.Context(), importedKey.GetKeyId()).
 			Execute()
 		if httpResp != nil {
 			defer httpResp.Body.Close()
@@ -245,7 +245,7 @@ func TestBatchImportAPIKeysCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "Imported 2 keys (0 failed).")
 
-		var resp client.BatchImportAPIKeysResponse
+		var resp client.BatchCreateImportedApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp), "output should be valid JSON")
 		results := resp.GetResults()
 		require.Len(t, results, 2)
@@ -269,7 +269,7 @@ func TestBatchImportAPIKeysCmd(t *testing.T) {
 		require.NoError(t, err)
 		assert.Contains(t, stderr, "Imported 1 keys (0 failed).")
 
-		var resp client.BatchImportAPIKeysResponse
+		var resp client.BatchCreateImportedApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp), "output should be valid JSON")
 		require.Len(t, resp.GetResults(), 1)
 	})
@@ -313,7 +313,7 @@ func TestBatchImportAPIKeysCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "Imported 1 keys (2 failed).")
 
-		var resp client.BatchImportAPIKeysResponse
+		var resp client.BatchCreateImportedApiKeysResponse
 		require.NoError(t, json.Unmarshal([]byte(stdout), &resp), "output should be valid JSON")
 		results := resp.GetResults()
 		require.Len(t, results, 3)
@@ -526,7 +526,7 @@ func TestImportedAPIKeyLifecycle(t *testing.T) {
 	)
 	assert.Contains(t, stderr, "API key imported.")
 
-	var importedKey client.ImportedAPIKey
+	var importedKey client.ImportedApiKey
 	require.NoError(t, json.Unmarshal([]byte(stdout), &importedKey), "import output should be valid JSON")
 	keyID := importedKey.GetKeyId()
 	require.NotEmpty(t, keyID, "key ID should not be empty")
@@ -736,7 +736,7 @@ func TestUpdateImportedAPIKeyCmd(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key updated.")
 
-		var output client.ImportedAPIKey
+		var output client.ImportedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse update output: %s", stdout)
 		assert.Equal(t, keyID, output.GetKeyId())
@@ -766,13 +766,13 @@ func TestUpdateImportedAPIKeyCmd_UpdateMask(t *testing.T) {
 
 		assert.Contains(t, stderr, "API key updated.")
 
-		var output client.ImportedAPIKey
+		var output client.ImportedApiKey
 		require.NoError(t, json.Unmarshal([]byte(stdout), &output),
 			"parse update output: %s", stdout)
 		assert.Empty(t, output.GetName(), "name should be cleared")
 
-		resp, httpResp, err := tc.sdkClient().APIKeysAPI.
-			AdminGetImportedAPIKey(t.Context(), keyID).
+		resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+			AdminGetImportedApiKey(t.Context(), keyID).
 			Execute()
 		if httpResp != nil {
 			defer httpResp.Body.Close()

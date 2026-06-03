@@ -14,7 +14,7 @@ import (
 	talosv2alpha1 "github.com/ory/talos/pkg/api/talos/v2alpha1"
 )
 
-func dbKeyToVerifyResponseT(t *testing.T, dbKey *db.IssuedApiKey) *talosv2alpha1.VerifyAPIKeyResponse {
+func dbKeyToVerifyResponseT(t *testing.T, dbKey *db.IssuedApiKey) *talosv2alpha1.VerifyApiKeyResponse {
 	t.Helper()
 	response, err := dbKeyToVerifyResponse(t.Context(), dbKey)
 	require.NoError(t, err)
@@ -172,7 +172,7 @@ func TestDbKeyToVerifyResponse_AllFields(t *testing.T) {
 	t.Parallel()
 
 	t.Run("key with allowed_cidrs still returns active response", func(t *testing.T) {
-		// VerifyAPIKeyResponse does not carry IP restriction data.
+		// VerifyApiKeyResponse does not carry IP restriction data.
 		// IP enforcement happens in the verifier layer before dbKeyToVerifyResponse is called.
 		// This test asserts the mapper does not fail on a key that has AllowedCidrs set.
 		t.Parallel()
@@ -277,7 +277,7 @@ func TestDbKeyToVerifyResponse_JSONRoundTrip(t *testing.T) {
 		}`, string(data))
 
 		// Unmarshal back and verify fields match
-		roundTripped := &talosv2alpha1.VerifyAPIKeyResponse{}
+		roundTripped := &talosv2alpha1.VerifyApiKeyResponse{}
 		err = protojson.Unmarshal(data, roundTripped)
 		require.NoError(t, err)
 

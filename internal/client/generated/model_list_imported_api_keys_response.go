@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -14,39 +14,39 @@ import (
 	"encoding/json"
 )
 
-// checks if the ListImportedAPIKeysResponse type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ListImportedAPIKeysResponse{}
+// checks if the ListImportedApiKeysResponse type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ListImportedApiKeysResponse{}
 
-// ListImportedAPIKeysResponse struct for ListImportedAPIKeysResponse
-type ListImportedAPIKeysResponse struct {
-	ImportedApiKeys      []ImportedAPIKey `json:"imported_api_keys,omitempty"`
+// ListImportedApiKeysResponse struct for ListImportedApiKeysResponse
+type ListImportedApiKeysResponse struct {
+	ImportedApiKeys      []ImportedApiKey `json:"imported_api_keys,omitempty"`
 	NextPageToken        *string          `json:"next_page_token,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _ListImportedAPIKeysResponse ListImportedAPIKeysResponse
+type _ListImportedApiKeysResponse ListImportedApiKeysResponse
 
-// NewListImportedAPIKeysResponse instantiates a new ListImportedAPIKeysResponse object
+// NewListImportedApiKeysResponse instantiates a new ListImportedApiKeysResponse object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewListImportedAPIKeysResponse() *ListImportedAPIKeysResponse {
-	this := ListImportedAPIKeysResponse{}
+func NewListImportedApiKeysResponse() *ListImportedApiKeysResponse {
+	this := ListImportedApiKeysResponse{}
 	return &this
 }
 
-// NewListImportedAPIKeysResponseWithDefaults instantiates a new ListImportedAPIKeysResponse object
+// NewListImportedApiKeysResponseWithDefaults instantiates a new ListImportedApiKeysResponse object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewListImportedAPIKeysResponseWithDefaults() *ListImportedAPIKeysResponse {
-	this := ListImportedAPIKeysResponse{}
+func NewListImportedApiKeysResponseWithDefaults() *ListImportedApiKeysResponse {
+	this := ListImportedApiKeysResponse{}
 	return &this
 }
 
 // GetImportedApiKeys returns the ImportedApiKeys field value if set, zero value otherwise.
-func (o *ListImportedAPIKeysResponse) GetImportedApiKeys() []ImportedAPIKey {
+func (o *ListImportedApiKeysResponse) GetImportedApiKeys() []ImportedApiKey {
 	if o == nil || IsNil(o.ImportedApiKeys) {
-		var ret []ImportedAPIKey
+		var ret []ImportedApiKey
 		return ret
 	}
 	return o.ImportedApiKeys
@@ -54,7 +54,7 @@ func (o *ListImportedAPIKeysResponse) GetImportedApiKeys() []ImportedAPIKey {
 
 // GetImportedApiKeysOk returns a tuple with the ImportedApiKeys field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ListImportedAPIKeysResponse) GetImportedApiKeysOk() ([]ImportedAPIKey, bool) {
+func (o *ListImportedApiKeysResponse) GetImportedApiKeysOk() ([]ImportedApiKey, bool) {
 	if o == nil || IsNil(o.ImportedApiKeys) {
 		return nil, false
 	}
@@ -62,7 +62,7 @@ func (o *ListImportedAPIKeysResponse) GetImportedApiKeysOk() ([]ImportedAPIKey, 
 }
 
 // HasImportedApiKeys returns a boolean if a field has been set.
-func (o *ListImportedAPIKeysResponse) HasImportedApiKeys() bool {
+func (o *ListImportedApiKeysResponse) HasImportedApiKeys() bool {
 	if o != nil && !IsNil(o.ImportedApiKeys) {
 		return true
 	}
@@ -70,13 +70,13 @@ func (o *ListImportedAPIKeysResponse) HasImportedApiKeys() bool {
 	return false
 }
 
-// SetImportedApiKeys gets a reference to the given []ImportedAPIKey and assigns it to the ImportedApiKeys field.
-func (o *ListImportedAPIKeysResponse) SetImportedApiKeys(v []ImportedAPIKey) {
+// SetImportedApiKeys gets a reference to the given []ImportedApiKey and assigns it to the ImportedApiKeys field.
+func (o *ListImportedApiKeysResponse) SetImportedApiKeys(v []ImportedApiKey) {
 	o.ImportedApiKeys = v
 }
 
 // GetNextPageToken returns the NextPageToken field value if set, zero value otherwise.
-func (o *ListImportedAPIKeysResponse) GetNextPageToken() string {
+func (o *ListImportedApiKeysResponse) GetNextPageToken() string {
 	if o == nil || IsNil(o.NextPageToken) {
 		var ret string
 		return ret
@@ -86,7 +86,7 @@ func (o *ListImportedAPIKeysResponse) GetNextPageToken() string {
 
 // GetNextPageTokenOk returns a tuple with the NextPageToken field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ListImportedAPIKeysResponse) GetNextPageTokenOk() (*string, bool) {
+func (o *ListImportedApiKeysResponse) GetNextPageTokenOk() (*string, bool) {
 	if o == nil || IsNil(o.NextPageToken) {
 		return nil, false
 	}
@@ -94,7 +94,7 @@ func (o *ListImportedAPIKeysResponse) GetNextPageTokenOk() (*string, bool) {
 }
 
 // HasNextPageToken returns a boolean if a field has been set.
-func (o *ListImportedAPIKeysResponse) HasNextPageToken() bool {
+func (o *ListImportedApiKeysResponse) HasNextPageToken() bool {
 	if o != nil && !IsNil(o.NextPageToken) {
 		return true
 	}
@@ -103,11 +103,11 @@ func (o *ListImportedAPIKeysResponse) HasNextPageToken() bool {
 }
 
 // SetNextPageToken gets a reference to the given string and assigns it to the NextPageToken field.
-func (o *ListImportedAPIKeysResponse) SetNextPageToken(v string) {
+func (o *ListImportedApiKeysResponse) SetNextPageToken(v string) {
 	o.NextPageToken = &v
 }
 
-func (o ListImportedAPIKeysResponse) MarshalJSON() ([]byte, error) {
+func (o ListImportedApiKeysResponse) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -115,7 +115,7 @@ func (o ListImportedAPIKeysResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o ListImportedAPIKeysResponse) ToMap() (map[string]interface{}, error) {
+func (o ListImportedApiKeysResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.ImportedApiKeys) {
 		toSerialize["imported_api_keys"] = o.ImportedApiKeys
@@ -131,16 +131,16 @@ func (o ListImportedAPIKeysResponse) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *ListImportedAPIKeysResponse) UnmarshalJSON(data []byte) (err error) {
-	varListImportedAPIKeysResponse := _ListImportedAPIKeysResponse{}
+func (o *ListImportedApiKeysResponse) UnmarshalJSON(data []byte) (err error) {
+	varListImportedApiKeysResponse := _ListImportedApiKeysResponse{}
 
-	err = json.Unmarshal(data, &varListImportedAPIKeysResponse)
+	err = json.Unmarshal(data, &varListImportedApiKeysResponse)
 
 	if err != nil {
 		return err
 	}
 
-	*o = ListImportedAPIKeysResponse(varListImportedAPIKeysResponse)
+	*o = ListImportedApiKeysResponse(varListImportedApiKeysResponse)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -153,38 +153,38 @@ func (o *ListImportedAPIKeysResponse) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableListImportedAPIKeysResponse struct {
-	value *ListImportedAPIKeysResponse
+type NullableListImportedApiKeysResponse struct {
+	value *ListImportedApiKeysResponse
 	isSet bool
 }
 
-func (v NullableListImportedAPIKeysResponse) Get() *ListImportedAPIKeysResponse {
+func (v NullableListImportedApiKeysResponse) Get() *ListImportedApiKeysResponse {
 	return v.value
 }
 
-func (v *NullableListImportedAPIKeysResponse) Set(val *ListImportedAPIKeysResponse) {
+func (v *NullableListImportedApiKeysResponse) Set(val *ListImportedApiKeysResponse) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableListImportedAPIKeysResponse) IsSet() bool {
+func (v NullableListImportedApiKeysResponse) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableListImportedAPIKeysResponse) Unset() {
+func (v *NullableListImportedApiKeysResponse) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableListImportedAPIKeysResponse(val *ListImportedAPIKeysResponse) *NullableListImportedAPIKeysResponse {
-	return &NullableListImportedAPIKeysResponse{value: val, isSet: true}
+func NewNullableListImportedApiKeysResponse(val *ListImportedApiKeysResponse) *NullableListImportedApiKeysResponse {
+	return &NullableListImportedApiKeysResponse{value: val, isSet: true}
 }
 
-func (v NullableListImportedAPIKeysResponse) MarshalJSON() ([]byte, error) {
+func (v NullableListImportedApiKeysResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableListImportedAPIKeysResponse) UnmarshalJSON(src []byte) error {
+func (v *NullableListImportedApiKeysResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

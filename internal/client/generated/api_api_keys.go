@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -19,17 +19,17 @@ import (
 	"strings"
 )
 
-type APIKeysAPI interface {
+type ApiKeysAPI interface {
 
 	/*
-			AdminBatchImportAPIKeys Batch Import API Keys
+			AdminBatchCreateImportedApiKeys Batch Import API Keys
 
 			Imports up to 1000 external API keys in one request. Returns per-item
 		results. If at least one item succeeds, response is 200 OK. If all items
 		fail, the endpoint returns a non-200 error.
 
 		```http
-		POST /v2alpha1/admin/importedApiKeys:batchImport
+		POST /v2alpha1/admin/importedApiKeys:batchCreate
 		{
 		  "requests": [
 		    {"raw_key": "sk_live_abc", "name": "Stripe key", "actor_id": "user_1"},
@@ -39,16 +39,16 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminBatchImportAPIKeysRequest
+			@return ApiKeysAPIAdminBatchCreateImportedApiKeysRequest
 	*/
-	AdminBatchImportAPIKeys(ctx context.Context) APIKeysAPIAdminBatchImportAPIKeysRequest
+	AdminBatchCreateImportedApiKeys(ctx context.Context) ApiKeysAPIAdminBatchCreateImportedApiKeysRequest
 
-	// AdminBatchImportAPIKeysExecute executes the request
-	//  @return BatchImportAPIKeysResponse
-	AdminBatchImportAPIKeysExecute(r APIKeysAPIAdminBatchImportAPIKeysRequest) (*BatchImportAPIKeysResponse, *http.Response, error)
+	// AdminBatchCreateImportedApiKeysExecute executes the request
+	//  @return BatchCreateImportedApiKeysResponse
+	AdminBatchCreateImportedApiKeysExecute(r ApiKeysAPIAdminBatchCreateImportedApiKeysRequest) (*BatchCreateImportedApiKeysResponse, *http.Response, error)
 
 	/*
-			AdminBatchVerifyAPIKeys Batch Verify API Keys
+			AdminBatchVerifyApiKeys Batch Verify API Keys
 
 			Verifies multiple credentials in a single request. Efficiently verifies up
 		to 100 credentials in parallel. Each credential is verified independently;
@@ -72,19 +72,19 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminBatchVerifyAPIKeysRequest
+			@return ApiKeysAPIAdminBatchVerifyApiKeysRequest
 	*/
-	AdminBatchVerifyAPIKeys(ctx context.Context) APIKeysAPIAdminBatchVerifyAPIKeysRequest
+	AdminBatchVerifyApiKeys(ctx context.Context) ApiKeysAPIAdminBatchVerifyApiKeysRequest
 
-	// AdminBatchVerifyAPIKeysExecute executes the request
-	//  @return BatchVerifyAPIKeysResponse
-	AdminBatchVerifyAPIKeysExecute(r APIKeysAPIAdminBatchVerifyAPIKeysRequest) (*BatchVerifyAPIKeysResponse, *http.Response, error)
+	// AdminBatchVerifyApiKeysExecute executes the request
+	//  @return BatchVerifyApiKeysResponse
+	AdminBatchVerifyApiKeysExecute(r ApiKeysAPIAdminBatchVerifyApiKeysRequest) (*BatchVerifyApiKeysResponse, *http.Response, error)
 
 	/*
-			AdminDeleteImportedAPIKey Delete Imported API Key
+			AdminDeleteImportedApiKey Delete Imported API Key
 
 			Permanently deletes an imported key (hard delete). The key is removed from
-		the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
+		the database. Use AdminRevokeImportedApiKey for soft deletion (recommended).
 
 		```http
 		DELETE /v2alpha1/admin/importedApiKeys/{key_id}
@@ -92,13 +92,13 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param keyId SHA512/256 hash of the imported key (REQUIRED)
-			@return APIKeysAPIAdminDeleteImportedAPIKeyRequest
+			@return ApiKeysAPIAdminDeleteImportedApiKeyRequest
 	*/
-	AdminDeleteImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminDeleteImportedAPIKeyRequest
+	AdminDeleteImportedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminDeleteImportedApiKeyRequest
 
-	// AdminDeleteImportedAPIKeyExecute executes the request
+	// AdminDeleteImportedApiKeyExecute executes the request
 	//  @return map[string]interface{}
-	AdminDeleteImportedAPIKeyExecute(r APIKeysAPIAdminDeleteImportedAPIKeyRequest) (map[string]interface{}, *http.Response, error)
+	AdminDeleteImportedApiKeyExecute(r ApiKeysAPIAdminDeleteImportedApiKeyRequest) (map[string]interface{}, *http.Response, error)
 
 	/*
 			AdminDeriveToken Derive Token
@@ -116,16 +116,16 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminDeriveTokenRequest
+			@return ApiKeysAPIAdminDeriveTokenRequest
 	*/
-	AdminDeriveToken(ctx context.Context) APIKeysAPIAdminDeriveTokenRequest
+	AdminDeriveToken(ctx context.Context) ApiKeysAPIAdminDeriveTokenRequest
 
 	// AdminDeriveTokenExecute executes the request
 	//  @return DeriveTokenResponse
-	AdminDeriveTokenExecute(r APIKeysAPIAdminDeriveTokenRequest) (*DeriveTokenResponse, *http.Response, error)
+	AdminDeriveTokenExecute(r ApiKeysAPIAdminDeriveTokenRequest) (*DeriveTokenResponse, *http.Response, error)
 
 	/*
-			AdminGetImportedAPIKey Get Imported API Key
+			AdminGetImportedApiKey Get Imported API Key
 
 			Retrieves details about a specific imported key. Returns metadata about
 		the imported key. The original raw key is never returned.
@@ -136,16 +136,16 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param keyId SHA512/256 hash of the imported key (REQUIRED)
-			@return APIKeysAPIAdminGetImportedAPIKeyRequest
+			@return ApiKeysAPIAdminGetImportedApiKeyRequest
 	*/
-	AdminGetImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminGetImportedAPIKeyRequest
+	AdminGetImportedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminGetImportedApiKeyRequest
 
-	// AdminGetImportedAPIKeyExecute executes the request
-	//  @return ImportedAPIKey
-	AdminGetImportedAPIKeyExecute(r APIKeysAPIAdminGetImportedAPIKeyRequest) (*ImportedAPIKey, *http.Response, error)
+	// AdminGetImportedApiKeyExecute executes the request
+	//  @return ImportedApiKey
+	AdminGetImportedApiKeyExecute(r ApiKeysAPIAdminGetImportedApiKeyRequest) (*ImportedApiKey, *http.Response, error)
 
 	/*
-			AdminGetIssuedAPIKey Get Issued API Key
+			AdminGetIssuedApiKey Get Issued API Key
 
 			Retrieves details about a specific issued API key including its status,
 		scopes, expiration, and usage statistics. The secret is never returned.
@@ -156,16 +156,16 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param keyId
-			@return APIKeysAPIAdminGetIssuedAPIKeyRequest
+			@return ApiKeysAPIAdminGetIssuedApiKeyRequest
 	*/
-	AdminGetIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminGetIssuedAPIKeyRequest
+	AdminGetIssuedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminGetIssuedApiKeyRequest
 
-	// AdminGetIssuedAPIKeyExecute executes the request
-	//  @return IssuedAPIKey
-	AdminGetIssuedAPIKeyExecute(r APIKeysAPIAdminGetIssuedAPIKeyRequest) (*IssuedAPIKey, *http.Response, error)
+	// AdminGetIssuedApiKeyExecute executes the request
+	//  @return IssuedApiKey
+	AdminGetIssuedApiKeyExecute(r ApiKeysAPIAdminGetIssuedApiKeyRequest) (*IssuedApiKey, *http.Response, error)
 
 	/*
-			AdminImportAPIKey Import API Key
+			AdminImportApiKey Import API Key
 
 			Imports an external API key into the system. Allows importing keys from
 		legacy systems or external providers. The raw key is hashed and stored
@@ -182,16 +182,16 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminImportAPIKeyRequest
+			@return ApiKeysAPIAdminImportApiKeyRequest
 	*/
-	AdminImportAPIKey(ctx context.Context) APIKeysAPIAdminImportAPIKeyRequest
+	AdminImportApiKey(ctx context.Context) ApiKeysAPIAdminImportApiKeyRequest
 
-	// AdminImportAPIKeyExecute executes the request
-	//  @return ImportedAPIKey
-	AdminImportAPIKeyExecute(r APIKeysAPIAdminImportAPIKeyRequest) (*ImportedAPIKey, *http.Response, error)
+	// AdminImportApiKeyExecute executes the request
+	//  @return ImportedApiKey
+	AdminImportApiKeyExecute(r ApiKeysAPIAdminImportApiKeyRequest) (*ImportedApiKey, *http.Response, error)
 
 	/*
-			AdminIssueAPIKey Issue API Key
+			AdminIssueApiKey Issue API Key
 
 			Creates a new API key for a given actor. The secret is returned only once
 		in the response and cannot be retrieved later. Keys can be scoped with
@@ -208,16 +208,16 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminIssueAPIKeyRequest
+			@return ApiKeysAPIAdminIssueApiKeyRequest
 	*/
-	AdminIssueAPIKey(ctx context.Context) APIKeysAPIAdminIssueAPIKeyRequest
+	AdminIssueApiKey(ctx context.Context) ApiKeysAPIAdminIssueApiKeyRequest
 
-	// AdminIssueAPIKeyExecute executes the request
-	//  @return IssueAPIKeyResponse
-	AdminIssueAPIKeyExecute(r APIKeysAPIAdminIssueAPIKeyRequest) (*IssueAPIKeyResponse, *http.Response, error)
+	// AdminIssueApiKeyExecute executes the request
+	//  @return IssueApiKeyResponse
+	AdminIssueApiKeyExecute(r ApiKeysAPIAdminIssueApiKeyRequest) (*IssueApiKeyResponse, *http.Response, error)
 
 	/*
-			AdminListImportedAPIKeys List Imported API Keys
+			AdminListImportedApiKeys List Imported API Keys
 
 			Lists all imported keys with filtering. Returns imported keys only (not
 		issued keys). Supports pagination and AIP-160 filter expressions.
@@ -227,36 +227,36 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminListImportedAPIKeysRequest
+			@return ApiKeysAPIAdminListImportedApiKeysRequest
 	*/
-	AdminListImportedAPIKeys(ctx context.Context) APIKeysAPIAdminListImportedAPIKeysRequest
+	AdminListImportedApiKeys(ctx context.Context) ApiKeysAPIAdminListImportedApiKeysRequest
 
-	// AdminListImportedAPIKeysExecute executes the request
-	//  @return ListImportedAPIKeysResponse
-	AdminListImportedAPIKeysExecute(r APIKeysAPIAdminListImportedAPIKeysRequest) (*ListImportedAPIKeysResponse, *http.Response, error)
+	// AdminListImportedApiKeysExecute executes the request
+	//  @return ListImportedApiKeysResponse
+	AdminListImportedApiKeysExecute(r ApiKeysAPIAdminListImportedApiKeysRequest) (*ListImportedApiKeysResponse, *http.Response, error)
 
 	/*
-			AdminListIssuedAPIKeys List Issued API Keys
+			AdminListIssuedApiKeys List Issued API Keys
 
 			Lists issued API keys with optional filtering. Supports cursor-based
 		pagination and AIP-160 filter expressions. Returns only issued
-		(generated) API keys; use ListImportedAPIKeys for imported keys.
+		(generated) API keys; use ListImportedApiKeys for imported keys.
 
 		```http
 		GET /v2alpha1/admin/issuedApiKeys?page_size=50&filter=actor_id%3D%22user_123%22
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminListIssuedAPIKeysRequest
+			@return ApiKeysAPIAdminListIssuedApiKeysRequest
 	*/
-	AdminListIssuedAPIKeys(ctx context.Context) APIKeysAPIAdminListIssuedAPIKeysRequest
+	AdminListIssuedApiKeys(ctx context.Context) ApiKeysAPIAdminListIssuedApiKeysRequest
 
-	// AdminListIssuedAPIKeysExecute executes the request
-	//  @return ListIssuedAPIKeysResponse
-	AdminListIssuedAPIKeysExecute(r APIKeysAPIAdminListIssuedAPIKeysRequest) (*ListIssuedAPIKeysResponse, *http.Response, error)
+	// AdminListIssuedApiKeysExecute executes the request
+	//  @return ListIssuedApiKeysResponse
+	AdminListIssuedApiKeysExecute(r ApiKeysAPIAdminListIssuedApiKeysRequest) (*ListIssuedApiKeysResponse, *http.Response, error)
 
 	/*
-			AdminRevokeImportedAPIKey Revoke Imported API Key
+			AdminRevokeImportedApiKey Revoke Imported API Key
 
 			Immediately revokes an imported API key. Once revoked, the key can no longer
 		be used for authentication. This operation is irreversible. Revoked keys
@@ -271,16 +271,16 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param keyId SHA-512/256 hash of the imported key (REQUIRED)
-			@return APIKeysAPIAdminRevokeImportedAPIKeyRequest
+			@return ApiKeysAPIAdminRevokeImportedApiKeyRequest
 	*/
-	AdminRevokeImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeImportedAPIKeyRequest
+	AdminRevokeImportedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminRevokeImportedApiKeyRequest
 
-	// AdminRevokeImportedAPIKeyExecute executes the request
+	// AdminRevokeImportedApiKeyExecute executes the request
 	//  @return map[string]interface{}
-	AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRevokeImportedAPIKeyRequest) (map[string]interface{}, *http.Response, error)
+	AdminRevokeImportedApiKeyExecute(r ApiKeysAPIAdminRevokeImportedApiKeyRequest) (map[string]interface{}, *http.Response, error)
 
 	/*
-			AdminRevokeIssuedAPIKey Revoke Issued API Key
+			AdminRevokeIssuedApiKey Revoke Issued API Key
 
 			Immediately revokes an issued API key. Once revoked, the key can no longer
 		be used for authentication. This operation is irreversible. Revoked keys
@@ -295,26 +295,26 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param keyId UUID of the issued key (REQUIRED)
-			@return APIKeysAPIAdminRevokeIssuedAPIKeyRequest
+			@return ApiKeysAPIAdminRevokeIssuedApiKeyRequest
 	*/
-	AdminRevokeIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeIssuedAPIKeyRequest
+	AdminRevokeIssuedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminRevokeIssuedApiKeyRequest
 
-	// AdminRevokeIssuedAPIKeyExecute executes the request
+	// AdminRevokeIssuedApiKeyExecute executes the request
 	//  @return map[string]interface{}
-	AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) (map[string]interface{}, *http.Response, error)
+	AdminRevokeIssuedApiKeyExecute(r ApiKeysAPIAdminRevokeIssuedApiKeyRequest) (map[string]interface{}, *http.Response, error)
 
 	/*
-			AdminRotateIssuedAPIKey Rotate Issued API Key
+			AdminRotateIssuedApiKey Rotate Issued API Key
 
 			Generates a new secret for an issued API key. Creates a new API key with a
 		new key_id and secret, and immediately revokes the old key. This is the
 		recommended way to update scopes, metadata, or rotate credentials.
 
 		For zero-downtime rotation, use this workflow instead:
-		  1. IssueAPIKey with new credentials
+		  1. IssueApiKey with new credentials
 		  2. Deploy new secret to all services
 		  3. Verify new secret works everywhere
-		  4. AdminRevokeIssuedAPIKey to remove the old key
+		  4. AdminRevokeIssuedApiKey to remove the old key
 
 		```http
 		POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -325,16 +325,16 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param keyId key_id is the ID of the existing API key to rotate
-			@return APIKeysAPIAdminRotateIssuedAPIKeyRequest
+			@return ApiKeysAPIAdminRotateIssuedApiKeyRequest
 	*/
-	AdminRotateIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRotateIssuedAPIKeyRequest
+	AdminRotateIssuedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminRotateIssuedApiKeyRequest
 
-	// AdminRotateIssuedAPIKeyExecute executes the request
-	//  @return RotateIssuedAPIKeyResponse
-	AdminRotateIssuedAPIKeyExecute(r APIKeysAPIAdminRotateIssuedAPIKeyRequest) (*RotateIssuedAPIKeyResponse, *http.Response, error)
+	// AdminRotateIssuedApiKeyExecute executes the request
+	//  @return RotateIssuedApiKeyResponse
+	AdminRotateIssuedApiKeyExecute(r ApiKeysAPIAdminRotateIssuedApiKeyRequest) (*RotateIssuedApiKeyResponse, *http.Response, error)
 
 	/*
-			AdminUpdateImportedAPIKey Update Imported API Key
+			AdminUpdateImportedApiKey Update Imported API Key
 
 			Updates metadata, scopes, or rate limits of an imported key. Supports
 		partial updates via the update_mask query parameter (AIP-134). Omitting
@@ -354,21 +354,21 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param importedApiKeyKeyId SHA-512/256 hash of credential
-			@return APIKeysAPIAdminUpdateImportedAPIKeyRequest
+			@return ApiKeysAPIAdminUpdateImportedApiKeyRequest
 	*/
-	AdminUpdateImportedAPIKey(ctx context.Context, importedApiKeyKeyId string) APIKeysAPIAdminUpdateImportedAPIKeyRequest
+	AdminUpdateImportedApiKey(ctx context.Context, importedApiKeyKeyId string) ApiKeysAPIAdminUpdateImportedApiKeyRequest
 
-	// AdminUpdateImportedAPIKeyExecute executes the request
-	//  @return ImportedAPIKey
-	AdminUpdateImportedAPIKeyExecute(r APIKeysAPIAdminUpdateImportedAPIKeyRequest) (*ImportedAPIKey, *http.Response, error)
+	// AdminUpdateImportedApiKeyExecute executes the request
+	//  @return ImportedApiKey
+	AdminUpdateImportedApiKeyExecute(r ApiKeysAPIAdminUpdateImportedApiKeyRequest) (*ImportedApiKey, *http.Response, error)
 
 	/*
-			AdminUpdateIssuedAPIKey Update Issued API Key
+			AdminUpdateIssuedApiKey Update Issued API Key
 
 			Updates metadata, scopes, or rate limits of an issued key without rotating
-		the secret. Use RotateIssuedAPIKey to change the secret.
+		the secret. Use RotateIssuedApiKey to change the secret.
 
-		Follows AIP-134: the request body is the IssuedAPIKey resource itself,
+		Follows AIP-134: the request body is the IssuedApiKey resource itself,
 		and the update_mask query parameter names the subset of fields to apply.
 		Omitting update_mask is equivalent to a mask of every populated field
 		in the body. To clear a field to its zero value, list it explicitly in
@@ -386,16 +386,16 @@ type APIKeysAPI interface {
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param issuedApiKeyKeyId
-			@return APIKeysAPIAdminUpdateIssuedAPIKeyRequest
+			@return ApiKeysAPIAdminUpdateIssuedApiKeyRequest
 	*/
-	AdminUpdateIssuedAPIKey(ctx context.Context, issuedApiKeyKeyId string) APIKeysAPIAdminUpdateIssuedAPIKeyRequest
+	AdminUpdateIssuedApiKey(ctx context.Context, issuedApiKeyKeyId string) ApiKeysAPIAdminUpdateIssuedApiKeyRequest
 
-	// AdminUpdateIssuedAPIKeyExecute executes the request
-	//  @return IssuedAPIKey
-	AdminUpdateIssuedAPIKeyExecute(r APIKeysAPIAdminUpdateIssuedAPIKeyRequest) (*IssuedAPIKey, *http.Response, error)
+	// AdminUpdateIssuedApiKeyExecute executes the request
+	//  @return IssuedApiKey
+	AdminUpdateIssuedApiKeyExecute(r ApiKeysAPIAdminUpdateIssuedApiKeyRequest) (*IssuedApiKey, *http.Response, error)
 
 	/*
-			AdminVerifyAPIKey Verify API Key
+			AdminVerifyApiKey Verify API Key
 
 			Verifies a single API key or derived token. Validates the credential's
 		signature, expiration, and revocation status. Works with any credential
@@ -415,16 +415,16 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIAdminVerifyAPIKeyRequest
+			@return ApiKeysAPIAdminVerifyApiKeyRequest
 	*/
-	AdminVerifyAPIKey(ctx context.Context) APIKeysAPIAdminVerifyAPIKeyRequest
+	AdminVerifyApiKey(ctx context.Context) ApiKeysAPIAdminVerifyApiKeyRequest
 
-	// AdminVerifyAPIKeyExecute executes the request
-	//  @return VerifyAPIKeyResponse
-	AdminVerifyAPIKeyExecute(r APIKeysAPIAdminVerifyAPIKeyRequest) (*VerifyAPIKeyResponse, *http.Response, error)
+	// AdminVerifyApiKeyExecute executes the request
+	//  @return VerifyApiKeyResponse
+	AdminVerifyApiKeyExecute(r ApiKeysAPIAdminVerifyApiKeyRequest) (*VerifyApiKeyResponse, *http.Response, error)
 
 	/*
-			GetJWKS Get JWKS
+			GetJwks Get JWKS
 
 			Returns the JSON Web Key Set for token verification. Provides the public
 		keys needed to verify JWT tokens issued by this service. Keys are loaded
@@ -436,20 +436,20 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIGetJWKSRequest
+			@return ApiKeysAPIGetJwksRequest
 	*/
-	GetJWKS(ctx context.Context) APIKeysAPIGetJWKSRequest
+	GetJwks(ctx context.Context) ApiKeysAPIGetJwksRequest
 
-	// GetJWKSExecute executes the request
+	// GetJwksExecute executes the request
 	//  @return GetJWKSResponse
-	GetJWKSExecute(r APIKeysAPIGetJWKSRequest) (*GetJWKSResponse, *http.Response, error)
+	GetJwksExecute(r ApiKeysAPIGetJwksRequest) (*GetJWKSResponse, *http.Response, error)
 
 	/*
-			RevokeAPIKey Revoke API Key (self-service)
+			RevokeApiKey Revoke API Key (self-service)
 
 			Proof-of-possession variant of revocation. The `Self*` prefix on the
 		request/response messages disambiguates from the admin variants
-		(`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
+		(`AdminRevokeIssuedApiKey` / `AdminRevokeImportedApiKey`).
 
 		Allows an API key holder to revoke their own key. The caller must provide
 		the full API key secret as proof of possession. Supports issued API keys
@@ -468,43 +468,43 @@ type APIKeysAPI interface {
 		```
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return APIKeysAPIRevokeAPIKeyRequest
+			@return ApiKeysAPIRevokeApiKeyRequest
 	*/
-	RevokeAPIKey(ctx context.Context) APIKeysAPIRevokeAPIKeyRequest
+	RevokeApiKey(ctx context.Context) ApiKeysAPIRevokeApiKeyRequest
 
-	// RevokeAPIKeyExecute executes the request
+	// RevokeApiKeyExecute executes the request
 	//  @return map[string]interface{}
-	RevokeAPIKeyExecute(r APIKeysAPIRevokeAPIKeyRequest) (map[string]interface{}, *http.Response, error)
+	RevokeApiKeyExecute(r ApiKeysAPIRevokeApiKeyRequest) (map[string]interface{}, *http.Response, error)
 }
 
-// APIKeysAPIService APIKeysAPI service
-type APIKeysAPIService service
+// ApiKeysAPIService ApiKeysAPI service
+type ApiKeysAPIService service
 
-type APIKeysAPIAdminBatchImportAPIKeysRequest struct {
-	ctx                       context.Context
-	ApiService                APIKeysAPI
-	batchImportAPIKeysRequest *BatchImportAPIKeysRequest
+type ApiKeysAPIAdminBatchCreateImportedApiKeysRequest struct {
+	ctx                               context.Context
+	ApiService                        ApiKeysAPI
+	batchCreateImportedApiKeysRequest *BatchCreateImportedApiKeysRequest
 }
 
-// BatchImportAPIKeysRequest imports multiple external API keys in one request. The maximum batch size is 1000 keys.
-func (r APIKeysAPIAdminBatchImportAPIKeysRequest) BatchImportAPIKeysRequest(batchImportAPIKeysRequest BatchImportAPIKeysRequest) APIKeysAPIAdminBatchImportAPIKeysRequest {
-	r.batchImportAPIKeysRequest = &batchImportAPIKeysRequest
+// BatchCreateImportedApiKeysRequest imports multiple external API keys in one request. The maximum batch size is 1000 keys.
+func (r ApiKeysAPIAdminBatchCreateImportedApiKeysRequest) BatchCreateImportedApiKeysRequest(batchCreateImportedApiKeysRequest BatchCreateImportedApiKeysRequest) ApiKeysAPIAdminBatchCreateImportedApiKeysRequest {
+	r.batchCreateImportedApiKeysRequest = &batchCreateImportedApiKeysRequest
 	return r
 }
 
-func (r APIKeysAPIAdminBatchImportAPIKeysRequest) Execute() (*BatchImportAPIKeysResponse, *http.Response, error) {
-	return r.ApiService.AdminBatchImportAPIKeysExecute(r)
+func (r ApiKeysAPIAdminBatchCreateImportedApiKeysRequest) Execute() (*BatchCreateImportedApiKeysResponse, *http.Response, error) {
+	return r.ApiService.AdminBatchCreateImportedApiKeysExecute(r)
 }
 
 /*
-AdminBatchImportAPIKeys Batch Import API Keys
+AdminBatchCreateImportedApiKeys Batch Import API Keys
 
 Imports up to 1000 external API keys in one request. Returns per-item
 results. If at least one item succeeds, response is 200 OK. If all items
 fail, the endpoint returns a non-200 error.
 
 ```http
-POST /v2alpha1/admin/importedApiKeys:batchImport
+POST /v2alpha1/admin/importedApiKeys:batchCreate
 
 	{
 	  "requests": [
@@ -516,10 +516,10 @@ POST /v2alpha1/admin/importedApiKeys:batchImport
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminBatchImportAPIKeysRequest
+	@return ApiKeysAPIAdminBatchCreateImportedApiKeysRequest
 */
-func (a *APIKeysAPIService) AdminBatchImportAPIKeys(ctx context.Context) APIKeysAPIAdminBatchImportAPIKeysRequest {
-	return APIKeysAPIAdminBatchImportAPIKeysRequest{
+func (a *ApiKeysAPIService) AdminBatchCreateImportedApiKeys(ctx context.Context) ApiKeysAPIAdminBatchCreateImportedApiKeysRequest {
+	return ApiKeysAPIAdminBatchCreateImportedApiKeysRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -527,27 +527,27 @@ func (a *APIKeysAPIService) AdminBatchImportAPIKeys(ctx context.Context) APIKeys
 
 // Execute executes the request
 //
-//	@return BatchImportAPIKeysResponse
-func (a *APIKeysAPIService) AdminBatchImportAPIKeysExecute(r APIKeysAPIAdminBatchImportAPIKeysRequest) (*BatchImportAPIKeysResponse, *http.Response, error) {
+//	@return BatchCreateImportedApiKeysResponse
+func (a *ApiKeysAPIService) AdminBatchCreateImportedApiKeysExecute(r ApiKeysAPIAdminBatchCreateImportedApiKeysRequest) (*BatchCreateImportedApiKeysResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *BatchImportAPIKeysResponse
+		localVarReturnValue *BatchCreateImportedApiKeysResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminBatchImportAPIKeys")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminBatchCreateImportedApiKeys")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2alpha1/admin/importedApiKeys:batchImport"
+	localVarPath := localBasePath + "/v2alpha1/admin/importedApiKeys:batchCreate"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.batchImportAPIKeysRequest == nil {
-		return localVarReturnValue, nil, reportError("batchImportAPIKeysRequest is required and must be specified")
+	if r.batchCreateImportedApiKeysRequest == nil {
+		return localVarReturnValue, nil, reportError("batchCreateImportedApiKeysRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -568,7 +568,7 @@ func (a *APIKeysAPIService) AdminBatchImportAPIKeysExecute(r APIKeysAPIAdminBatc
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.batchImportAPIKeysRequest
+	localVarPostBody = r.batchCreateImportedApiKeysRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -614,37 +614,37 @@ func (a *APIKeysAPIService) AdminBatchImportAPIKeysExecute(r APIKeysAPIAdminBatc
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminBatchVerifyAPIKeysRequest struct {
+type ApiKeysAPIAdminBatchVerifyApiKeysRequest struct {
 	ctx                       context.Context
-	ApiService                APIKeysAPI
-	batchVerifyAPIKeysRequest *BatchVerifyAPIKeysRequest
+	ApiService                ApiKeysAPI
+	batchVerifyApiKeysRequest *BatchVerifyApiKeysRequest
 	cacheControl              *string
 	pragma                    *string
 }
 
-func (r APIKeysAPIAdminBatchVerifyAPIKeysRequest) BatchVerifyAPIKeysRequest(batchVerifyAPIKeysRequest BatchVerifyAPIKeysRequest) APIKeysAPIAdminBatchVerifyAPIKeysRequest {
-	r.batchVerifyAPIKeysRequest = &batchVerifyAPIKeysRequest
+func (r ApiKeysAPIAdminBatchVerifyApiKeysRequest) BatchVerifyApiKeysRequest(batchVerifyApiKeysRequest BatchVerifyApiKeysRequest) ApiKeysAPIAdminBatchVerifyApiKeysRequest {
+	r.batchVerifyApiKeysRequest = &batchVerifyApiKeysRequest
 	return r
 }
 
 // Cache-directive controlling the verifier cache. &#x60;no-cache&#x60; forces a fresh database lookup (cache read is bypassed). &#x60;no-store&#x60; additionally prevents the result from being written to the cache. Any other value is ignored.
-func (r APIKeysAPIAdminBatchVerifyAPIKeysRequest) CacheControl(cacheControl string) APIKeysAPIAdminBatchVerifyAPIKeysRequest {
+func (r ApiKeysAPIAdminBatchVerifyApiKeysRequest) CacheControl(cacheControl string) ApiKeysAPIAdminBatchVerifyApiKeysRequest {
 	r.cacheControl = &cacheControl
 	return r
 }
 
 // HTTP/1.0 alias for &#x60;Cache-Control: no-cache&#x60;. Behaves identically when set to &#x60;no-cache&#x60;; ignored otherwise.
-func (r APIKeysAPIAdminBatchVerifyAPIKeysRequest) Pragma(pragma string) APIKeysAPIAdminBatchVerifyAPIKeysRequest {
+func (r ApiKeysAPIAdminBatchVerifyApiKeysRequest) Pragma(pragma string) ApiKeysAPIAdminBatchVerifyApiKeysRequest {
 	r.pragma = &pragma
 	return r
 }
 
-func (r APIKeysAPIAdminBatchVerifyAPIKeysRequest) Execute() (*BatchVerifyAPIKeysResponse, *http.Response, error) {
-	return r.ApiService.AdminBatchVerifyAPIKeysExecute(r)
+func (r ApiKeysAPIAdminBatchVerifyApiKeysRequest) Execute() (*BatchVerifyApiKeysResponse, *http.Response, error) {
+	return r.ApiService.AdminBatchVerifyApiKeysExecute(r)
 }
 
 /*
-AdminBatchVerifyAPIKeys Batch Verify API Keys
+AdminBatchVerifyApiKeys Batch Verify API Keys
 
 Verifies multiple credentials in a single request. Efficiently verifies up
 to 100 credentials in parallel. Each credential is verified independently;
@@ -670,10 +670,10 @@ POST /v2alpha1/admin/apiKeys:batchVerify
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminBatchVerifyAPIKeysRequest
+	@return ApiKeysAPIAdminBatchVerifyApiKeysRequest
 */
-func (a *APIKeysAPIService) AdminBatchVerifyAPIKeys(ctx context.Context) APIKeysAPIAdminBatchVerifyAPIKeysRequest {
-	return APIKeysAPIAdminBatchVerifyAPIKeysRequest{
+func (a *ApiKeysAPIService) AdminBatchVerifyApiKeys(ctx context.Context) ApiKeysAPIAdminBatchVerifyApiKeysRequest {
+	return ApiKeysAPIAdminBatchVerifyApiKeysRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -681,16 +681,16 @@ func (a *APIKeysAPIService) AdminBatchVerifyAPIKeys(ctx context.Context) APIKeys
 
 // Execute executes the request
 //
-//	@return BatchVerifyAPIKeysResponse
-func (a *APIKeysAPIService) AdminBatchVerifyAPIKeysExecute(r APIKeysAPIAdminBatchVerifyAPIKeysRequest) (*BatchVerifyAPIKeysResponse, *http.Response, error) {
+//	@return BatchVerifyApiKeysResponse
+func (a *ApiKeysAPIService) AdminBatchVerifyApiKeysExecute(r ApiKeysAPIAdminBatchVerifyApiKeysRequest) (*BatchVerifyApiKeysResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *BatchVerifyAPIKeysResponse
+		localVarReturnValue *BatchVerifyApiKeysResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminBatchVerifyAPIKeys")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminBatchVerifyApiKeys")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -700,8 +700,8 @@ func (a *APIKeysAPIService) AdminBatchVerifyAPIKeysExecute(r APIKeysAPIAdminBatc
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.batchVerifyAPIKeysRequest == nil {
-		return localVarReturnValue, nil, reportError("batchVerifyAPIKeysRequest is required and must be specified")
+	if r.batchVerifyApiKeysRequest == nil {
+		return localVarReturnValue, nil, reportError("batchVerifyApiKeysRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -728,7 +728,7 @@ func (a *APIKeysAPIService) AdminBatchVerifyAPIKeysExecute(r APIKeysAPIAdminBatc
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "Pragma", r.pragma, "simple", "")
 	}
 	// body params
-	localVarPostBody = r.batchVerifyAPIKeysRequest
+	localVarPostBody = r.batchVerifyApiKeysRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -774,21 +774,21 @@ func (a *APIKeysAPIService) AdminBatchVerifyAPIKeysExecute(r APIKeysAPIAdminBatc
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminDeleteImportedAPIKeyRequest struct {
+type ApiKeysAPIAdminDeleteImportedApiKeyRequest struct {
 	ctx        context.Context
-	ApiService APIKeysAPI
+	ApiService ApiKeysAPI
 	keyId      string
 }
 
-func (r APIKeysAPIAdminDeleteImportedAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
-	return r.ApiService.AdminDeleteImportedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminDeleteImportedApiKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
+	return r.ApiService.AdminDeleteImportedApiKeyExecute(r)
 }
 
 /*
-AdminDeleteImportedAPIKey Delete Imported API Key
+AdminDeleteImportedApiKey Delete Imported API Key
 
 Permanently deletes an imported key (hard delete). The key is removed from
-the database. Use AdminRevokeImportedAPIKey for soft deletion (recommended).
+the database. Use AdminRevokeImportedApiKey for soft deletion (recommended).
 
 ```http
 DELETE /v2alpha1/admin/importedApiKeys/{key_id}
@@ -796,10 +796,10 @@ DELETE /v2alpha1/admin/importedApiKeys/{key_id}
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param keyId SHA512/256 hash of the imported key (REQUIRED)
-	@return APIKeysAPIAdminDeleteImportedAPIKeyRequest
+	@return ApiKeysAPIAdminDeleteImportedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminDeleteImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminDeleteImportedAPIKeyRequest {
-	return APIKeysAPIAdminDeleteImportedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminDeleteImportedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminDeleteImportedApiKeyRequest {
+	return ApiKeysAPIAdminDeleteImportedApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -809,7 +809,7 @@ func (a *APIKeysAPIService) AdminDeleteImportedAPIKey(ctx context.Context, keyId
 // Execute executes the request
 //
 //	@return map[string]interface{}
-func (a *APIKeysAPIService) AdminDeleteImportedAPIKeyExecute(r APIKeysAPIAdminDeleteImportedAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
+func (a *ApiKeysAPIService) AdminDeleteImportedApiKeyExecute(r ApiKeysAPIAdminDeleteImportedApiKeyRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
@@ -817,7 +817,7 @@ func (a *APIKeysAPIService) AdminDeleteImportedAPIKeyExecute(r APIKeysAPIAdminDe
 		localVarReturnValue map[string]interface{}
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminDeleteImportedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminDeleteImportedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -891,18 +891,18 @@ func (a *APIKeysAPIService) AdminDeleteImportedAPIKeyExecute(r APIKeysAPIAdminDe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminDeriveTokenRequest struct {
+type ApiKeysAPIAdminDeriveTokenRequest struct {
 	ctx                context.Context
-	ApiService         APIKeysAPI
+	ApiService         ApiKeysAPI
 	deriveTokenRequest *DeriveTokenRequest
 }
 
-func (r APIKeysAPIAdminDeriveTokenRequest) DeriveTokenRequest(deriveTokenRequest DeriveTokenRequest) APIKeysAPIAdminDeriveTokenRequest {
+func (r ApiKeysAPIAdminDeriveTokenRequest) DeriveTokenRequest(deriveTokenRequest DeriveTokenRequest) ApiKeysAPIAdminDeriveTokenRequest {
 	r.deriveTokenRequest = &deriveTokenRequest
 	return r
 }
 
-func (r APIKeysAPIAdminDeriveTokenRequest) Execute() (*DeriveTokenResponse, *http.Response, error) {
+func (r ApiKeysAPIAdminDeriveTokenRequest) Execute() (*DeriveTokenResponse, *http.Response, error) {
 	return r.ApiService.AdminDeriveTokenExecute(r)
 }
 
@@ -924,10 +924,10 @@ POST /v2alpha1/admin/apiKeys:derive
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminDeriveTokenRequest
+	@return ApiKeysAPIAdminDeriveTokenRequest
 */
-func (a *APIKeysAPIService) AdminDeriveToken(ctx context.Context) APIKeysAPIAdminDeriveTokenRequest {
-	return APIKeysAPIAdminDeriveTokenRequest{
+func (a *ApiKeysAPIService) AdminDeriveToken(ctx context.Context) ApiKeysAPIAdminDeriveTokenRequest {
+	return ApiKeysAPIAdminDeriveTokenRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -936,7 +936,7 @@ func (a *APIKeysAPIService) AdminDeriveToken(ctx context.Context) APIKeysAPIAdmi
 // Execute executes the request
 //
 //	@return DeriveTokenResponse
-func (a *APIKeysAPIService) AdminDeriveTokenExecute(r APIKeysAPIAdminDeriveTokenRequest) (*DeriveTokenResponse, *http.Response, error) {
+func (a *ApiKeysAPIService) AdminDeriveTokenExecute(r ApiKeysAPIAdminDeriveTokenRequest) (*DeriveTokenResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -944,7 +944,7 @@ func (a *APIKeysAPIService) AdminDeriveTokenExecute(r APIKeysAPIAdminDeriveToken
 		localVarReturnValue *DeriveTokenResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminDeriveToken")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminDeriveToken")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1022,18 +1022,18 @@ func (a *APIKeysAPIService) AdminDeriveTokenExecute(r APIKeysAPIAdminDeriveToken
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminGetImportedAPIKeyRequest struct {
+type ApiKeysAPIAdminGetImportedApiKeyRequest struct {
 	ctx        context.Context
-	ApiService APIKeysAPI
+	ApiService ApiKeysAPI
 	keyId      string
 }
 
-func (r APIKeysAPIAdminGetImportedAPIKeyRequest) Execute() (*ImportedAPIKey, *http.Response, error) {
-	return r.ApiService.AdminGetImportedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminGetImportedApiKeyRequest) Execute() (*ImportedApiKey, *http.Response, error) {
+	return r.ApiService.AdminGetImportedApiKeyExecute(r)
 }
 
 /*
-AdminGetImportedAPIKey Get Imported API Key
+AdminGetImportedApiKey Get Imported API Key
 
 Retrieves details about a specific imported key. Returns metadata about
 the imported key. The original raw key is never returned.
@@ -1044,10 +1044,10 @@ GET /v2alpha1/admin/importedApiKeys/{key_id}
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param keyId SHA512/256 hash of the imported key (REQUIRED)
-	@return APIKeysAPIAdminGetImportedAPIKeyRequest
+	@return ApiKeysAPIAdminGetImportedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminGetImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminGetImportedAPIKeyRequest {
-	return APIKeysAPIAdminGetImportedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminGetImportedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminGetImportedApiKeyRequest {
+	return ApiKeysAPIAdminGetImportedApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -1056,16 +1056,16 @@ func (a *APIKeysAPIService) AdminGetImportedAPIKey(ctx context.Context, keyId st
 
 // Execute executes the request
 //
-//	@return ImportedAPIKey
-func (a *APIKeysAPIService) AdminGetImportedAPIKeyExecute(r APIKeysAPIAdminGetImportedAPIKeyRequest) (*ImportedAPIKey, *http.Response, error) {
+//	@return ImportedApiKey
+func (a *ApiKeysAPIService) AdminGetImportedApiKeyExecute(r ApiKeysAPIAdminGetImportedApiKeyRequest) (*ImportedApiKey, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ImportedAPIKey
+		localVarReturnValue *ImportedApiKey
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminGetImportedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminGetImportedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1139,18 +1139,18 @@ func (a *APIKeysAPIService) AdminGetImportedAPIKeyExecute(r APIKeysAPIAdminGetIm
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminGetIssuedAPIKeyRequest struct {
+type ApiKeysAPIAdminGetIssuedApiKeyRequest struct {
 	ctx        context.Context
-	ApiService APIKeysAPI
+	ApiService ApiKeysAPI
 	keyId      string
 }
 
-func (r APIKeysAPIAdminGetIssuedAPIKeyRequest) Execute() (*IssuedAPIKey, *http.Response, error) {
-	return r.ApiService.AdminGetIssuedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminGetIssuedApiKeyRequest) Execute() (*IssuedApiKey, *http.Response, error) {
+	return r.ApiService.AdminGetIssuedApiKeyExecute(r)
 }
 
 /*
-AdminGetIssuedAPIKey Get Issued API Key
+AdminGetIssuedApiKey Get Issued API Key
 
 Retrieves details about a specific issued API key including its status,
 scopes, expiration, and usage statistics. The secret is never returned.
@@ -1161,10 +1161,10 @@ GET /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param keyId
-	@return APIKeysAPIAdminGetIssuedAPIKeyRequest
+	@return ApiKeysAPIAdminGetIssuedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminGetIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminGetIssuedAPIKeyRequest {
-	return APIKeysAPIAdminGetIssuedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminGetIssuedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminGetIssuedApiKeyRequest {
+	return ApiKeysAPIAdminGetIssuedApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -1173,16 +1173,16 @@ func (a *APIKeysAPIService) AdminGetIssuedAPIKey(ctx context.Context, keyId stri
 
 // Execute executes the request
 //
-//	@return IssuedAPIKey
-func (a *APIKeysAPIService) AdminGetIssuedAPIKeyExecute(r APIKeysAPIAdminGetIssuedAPIKeyRequest) (*IssuedAPIKey, *http.Response, error) {
+//	@return IssuedApiKey
+func (a *ApiKeysAPIService) AdminGetIssuedApiKeyExecute(r ApiKeysAPIAdminGetIssuedApiKeyRequest) (*IssuedApiKey, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *IssuedAPIKey
+		localVarReturnValue *IssuedApiKey
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminGetIssuedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminGetIssuedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1256,24 +1256,24 @@ func (a *APIKeysAPIService) AdminGetIssuedAPIKeyExecute(r APIKeysAPIAdminGetIssu
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminImportAPIKeyRequest struct {
+type ApiKeysAPIAdminImportApiKeyRequest struct {
 	ctx                 context.Context
-	ApiService          APIKeysAPI
-	importAPIKeyRequest *ImportAPIKeyRequest
+	ApiService          ApiKeysAPI
+	importApiKeyRequest *ImportApiKeyRequest
 }
 
 // Example:   {     \&quot;raw_key\&quot;: \&quot;sk_live_abc123xyz789\&quot;,     \&quot;name\&quot;: \&quot;Stripe Production Key\&quot;,     \&quot;actor_id\&quot;: \&quot;payment-processor\&quot;,     \&quot;scopes\&quot;: [\&quot;read\&quot;, \&quot;write\&quot;],     \&quot;ttl\&quot;: \&quot;8760h\&quot;,  // 1 year (also accepts: 31536000s)     \&quot;metadata\&quot;: {\&quot;source\&quot;: \&quot;stripe\&quot;, \&quot;environment\&quot;: \&quot;production\&quot;}   }
-func (r APIKeysAPIAdminImportAPIKeyRequest) ImportAPIKeyRequest(importAPIKeyRequest ImportAPIKeyRequest) APIKeysAPIAdminImportAPIKeyRequest {
-	r.importAPIKeyRequest = &importAPIKeyRequest
+func (r ApiKeysAPIAdminImportApiKeyRequest) ImportApiKeyRequest(importApiKeyRequest ImportApiKeyRequest) ApiKeysAPIAdminImportApiKeyRequest {
+	r.importApiKeyRequest = &importApiKeyRequest
 	return r
 }
 
-func (r APIKeysAPIAdminImportAPIKeyRequest) Execute() (*ImportedAPIKey, *http.Response, error) {
-	return r.ApiService.AdminImportAPIKeyExecute(r)
+func (r ApiKeysAPIAdminImportApiKeyRequest) Execute() (*ImportedApiKey, *http.Response, error) {
+	return r.ApiService.AdminImportApiKeyExecute(r)
 }
 
 /*
-AdminImportAPIKey Import API Key
+AdminImportApiKey Import API Key
 
 Imports an external API key into the system. Allows importing keys from
 legacy systems or external providers. The raw key is hashed and stored
@@ -1292,10 +1292,10 @@ POST /v2alpha1/admin/importedApiKeys
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminImportAPIKeyRequest
+	@return ApiKeysAPIAdminImportApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminImportAPIKey(ctx context.Context) APIKeysAPIAdminImportAPIKeyRequest {
-	return APIKeysAPIAdminImportAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminImportApiKey(ctx context.Context) ApiKeysAPIAdminImportApiKeyRequest {
+	return ApiKeysAPIAdminImportApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -1303,16 +1303,16 @@ func (a *APIKeysAPIService) AdminImportAPIKey(ctx context.Context) APIKeysAPIAdm
 
 // Execute executes the request
 //
-//	@return ImportedAPIKey
-func (a *APIKeysAPIService) AdminImportAPIKeyExecute(r APIKeysAPIAdminImportAPIKeyRequest) (*ImportedAPIKey, *http.Response, error) {
+//	@return ImportedApiKey
+func (a *ApiKeysAPIService) AdminImportApiKeyExecute(r ApiKeysAPIAdminImportApiKeyRequest) (*ImportedApiKey, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ImportedAPIKey
+		localVarReturnValue *ImportedApiKey
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminImportAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminImportApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1322,8 +1322,8 @@ func (a *APIKeysAPIService) AdminImportAPIKeyExecute(r APIKeysAPIAdminImportAPIK
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.importAPIKeyRequest == nil {
-		return localVarReturnValue, nil, reportError("importAPIKeyRequest is required and must be specified")
+	if r.importApiKeyRequest == nil {
+		return localVarReturnValue, nil, reportError("importApiKeyRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1344,7 +1344,7 @@ func (a *APIKeysAPIService) AdminImportAPIKeyExecute(r APIKeysAPIAdminImportAPIK
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.importAPIKeyRequest
+	localVarPostBody = r.importApiKeyRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1390,23 +1390,23 @@ func (a *APIKeysAPIService) AdminImportAPIKeyExecute(r APIKeysAPIAdminImportAPIK
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminIssueAPIKeyRequest struct {
+type ApiKeysAPIAdminIssueApiKeyRequest struct {
 	ctx                context.Context
-	ApiService         APIKeysAPI
-	issueAPIKeyRequest *IssueAPIKeyRequest
+	ApiService         ApiKeysAPI
+	issueApiKeyRequest *IssueApiKeyRequest
 }
 
-func (r APIKeysAPIAdminIssueAPIKeyRequest) IssueAPIKeyRequest(issueAPIKeyRequest IssueAPIKeyRequest) APIKeysAPIAdminIssueAPIKeyRequest {
-	r.issueAPIKeyRequest = &issueAPIKeyRequest
+func (r ApiKeysAPIAdminIssueApiKeyRequest) IssueApiKeyRequest(issueApiKeyRequest IssueApiKeyRequest) ApiKeysAPIAdminIssueApiKeyRequest {
+	r.issueApiKeyRequest = &issueApiKeyRequest
 	return r
 }
 
-func (r APIKeysAPIAdminIssueAPIKeyRequest) Execute() (*IssueAPIKeyResponse, *http.Response, error) {
-	return r.ApiService.AdminIssueAPIKeyExecute(r)
+func (r ApiKeysAPIAdminIssueApiKeyRequest) Execute() (*IssueApiKeyResponse, *http.Response, error) {
+	return r.ApiService.AdminIssueApiKeyExecute(r)
 }
 
 /*
-AdminIssueAPIKey Issue API Key
+AdminIssueApiKey Issue API Key
 
 Creates a new API key for a given actor. The secret is returned only once
 in the response and cannot be retrieved later. Keys can be scoped with
@@ -1425,10 +1425,10 @@ POST /v2alpha1/admin/issuedApiKeys
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminIssueAPIKeyRequest
+	@return ApiKeysAPIAdminIssueApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminIssueAPIKey(ctx context.Context) APIKeysAPIAdminIssueAPIKeyRequest {
-	return APIKeysAPIAdminIssueAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminIssueApiKey(ctx context.Context) ApiKeysAPIAdminIssueApiKeyRequest {
+	return ApiKeysAPIAdminIssueApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -1436,16 +1436,16 @@ func (a *APIKeysAPIService) AdminIssueAPIKey(ctx context.Context) APIKeysAPIAdmi
 
 // Execute executes the request
 //
-//	@return IssueAPIKeyResponse
-func (a *APIKeysAPIService) AdminIssueAPIKeyExecute(r APIKeysAPIAdminIssueAPIKeyRequest) (*IssueAPIKeyResponse, *http.Response, error) {
+//	@return IssueApiKeyResponse
+func (a *ApiKeysAPIService) AdminIssueApiKeyExecute(r ApiKeysAPIAdminIssueApiKeyRequest) (*IssueApiKeyResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *IssueAPIKeyResponse
+		localVarReturnValue *IssueApiKeyResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminIssueAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminIssueApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1455,8 +1455,8 @@ func (a *APIKeysAPIService) AdminIssueAPIKeyExecute(r APIKeysAPIAdminIssueAPIKey
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.issueAPIKeyRequest == nil {
-		return localVarReturnValue, nil, reportError("issueAPIKeyRequest is required and must be specified")
+	if r.issueApiKeyRequest == nil {
+		return localVarReturnValue, nil, reportError("issueApiKeyRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1477,7 +1477,7 @@ func (a *APIKeysAPIService) AdminIssueAPIKeyExecute(r APIKeysAPIAdminIssueAPIKey
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.issueAPIKeyRequest
+	localVarPostBody = r.issueApiKeyRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1523,38 +1523,38 @@ func (a *APIKeysAPIService) AdminIssueAPIKeyExecute(r APIKeysAPIAdminIssueAPIKey
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminListImportedAPIKeysRequest struct {
+type ApiKeysAPIAdminListImportedApiKeysRequest struct {
 	ctx        context.Context
-	ApiService APIKeysAPI
+	ApiService ApiKeysAPI
 	pageSize   *int32
 	pageToken  *string
 	filter     *string
 }
 
 // Number of items per page (default: 50, max: 1000)
-func (r APIKeysAPIAdminListImportedAPIKeysRequest) PageSize(pageSize int32) APIKeysAPIAdminListImportedAPIKeysRequest {
+func (r ApiKeysAPIAdminListImportedApiKeysRequest) PageSize(pageSize int32) ApiKeysAPIAdminListImportedApiKeysRequest {
 	r.pageSize = &pageSize
 	return r
 }
 
 // Cursor token for pagination (OPTIONAL)
-func (r APIKeysAPIAdminListImportedAPIKeysRequest) PageToken(pageToken string) APIKeysAPIAdminListImportedAPIKeysRequest {
+func (r ApiKeysAPIAdminListImportedApiKeysRequest) PageToken(pageToken string) ApiKeysAPIAdminListImportedApiKeysRequest {
 	r.pageToken = &pageToken
 	return r
 }
 
 // filter is an AIP-160 expression. Indexed fields (efficient at any scale):   actor_id, status. Other fields are not indexed and may be rejected. Examples:   actor_id&#x3D;\&quot;user_123\&quot;   status&#x3D;KEY_STATUS_ACTIVE   actor_id&#x3D;\&quot;user_123\&quot; AND status&#x3D;KEY_STATUS_ACTIVE
-func (r APIKeysAPIAdminListImportedAPIKeysRequest) Filter(filter string) APIKeysAPIAdminListImportedAPIKeysRequest {
+func (r ApiKeysAPIAdminListImportedApiKeysRequest) Filter(filter string) ApiKeysAPIAdminListImportedApiKeysRequest {
 	r.filter = &filter
 	return r
 }
 
-func (r APIKeysAPIAdminListImportedAPIKeysRequest) Execute() (*ListImportedAPIKeysResponse, *http.Response, error) {
-	return r.ApiService.AdminListImportedAPIKeysExecute(r)
+func (r ApiKeysAPIAdminListImportedApiKeysRequest) Execute() (*ListImportedApiKeysResponse, *http.Response, error) {
+	return r.ApiService.AdminListImportedApiKeysExecute(r)
 }
 
 /*
-AdminListImportedAPIKeys List Imported API Keys
+AdminListImportedApiKeys List Imported API Keys
 
 Lists all imported keys with filtering. Returns imported keys only (not
 issued keys). Supports pagination and AIP-160 filter expressions.
@@ -1564,10 +1564,10 @@ GET /v2alpha1/admin/importedApiKeys?page_size=50&filter=status%3DKEY_STATUS_ACTI
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminListImportedAPIKeysRequest
+	@return ApiKeysAPIAdminListImportedApiKeysRequest
 */
-func (a *APIKeysAPIService) AdminListImportedAPIKeys(ctx context.Context) APIKeysAPIAdminListImportedAPIKeysRequest {
-	return APIKeysAPIAdminListImportedAPIKeysRequest{
+func (a *ApiKeysAPIService) AdminListImportedApiKeys(ctx context.Context) ApiKeysAPIAdminListImportedApiKeysRequest {
+	return ApiKeysAPIAdminListImportedApiKeysRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -1575,16 +1575,16 @@ func (a *APIKeysAPIService) AdminListImportedAPIKeys(ctx context.Context) APIKey
 
 // Execute executes the request
 //
-//	@return ListImportedAPIKeysResponse
-func (a *APIKeysAPIService) AdminListImportedAPIKeysExecute(r APIKeysAPIAdminListImportedAPIKeysRequest) (*ListImportedAPIKeysResponse, *http.Response, error) {
+//	@return ListImportedApiKeysResponse
+func (a *ApiKeysAPIService) AdminListImportedApiKeysExecute(r ApiKeysAPIAdminListImportedApiKeysRequest) (*ListImportedApiKeysResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ListImportedAPIKeysResponse
+		localVarReturnValue *ListImportedApiKeysResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminListImportedAPIKeys")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminListImportedApiKeys")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1666,52 +1666,52 @@ func (a *APIKeysAPIService) AdminListImportedAPIKeysExecute(r APIKeysAPIAdminLis
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminListIssuedAPIKeysRequest struct {
+type ApiKeysAPIAdminListIssuedApiKeysRequest struct {
 	ctx        context.Context
-	ApiService APIKeysAPI
+	ApiService ApiKeysAPI
 	pageSize   *int32
 	pageToken  *string
 	filter     *string
 }
 
 // Number of items per page (default: 50, max: 1000)
-func (r APIKeysAPIAdminListIssuedAPIKeysRequest) PageSize(pageSize int32) APIKeysAPIAdminListIssuedAPIKeysRequest {
+func (r ApiKeysAPIAdminListIssuedApiKeysRequest) PageSize(pageSize int32) ApiKeysAPIAdminListIssuedApiKeysRequest {
 	r.pageSize = &pageSize
 	return r
 }
 
 // Cursor token for pagination
-func (r APIKeysAPIAdminListIssuedAPIKeysRequest) PageToken(pageToken string) APIKeysAPIAdminListIssuedAPIKeysRequest {
+func (r ApiKeysAPIAdminListIssuedApiKeysRequest) PageToken(pageToken string) ApiKeysAPIAdminListIssuedApiKeysRequest {
 	r.pageToken = &pageToken
 	return r
 }
 
 // filter is an AIP-160 expression. Indexed fields (efficient at any scale):   actor_id, status. Other fields are not indexed and may be rejected. Examples:   actor_id&#x3D;\&quot;user_123\&quot;   status&#x3D;KEY_STATUS_ACTIVE   actor_id&#x3D;\&quot;user_123\&quot; AND status&#x3D;KEY_STATUS_ACTIVE
-func (r APIKeysAPIAdminListIssuedAPIKeysRequest) Filter(filter string) APIKeysAPIAdminListIssuedAPIKeysRequest {
+func (r ApiKeysAPIAdminListIssuedApiKeysRequest) Filter(filter string) ApiKeysAPIAdminListIssuedApiKeysRequest {
 	r.filter = &filter
 	return r
 }
 
-func (r APIKeysAPIAdminListIssuedAPIKeysRequest) Execute() (*ListIssuedAPIKeysResponse, *http.Response, error) {
-	return r.ApiService.AdminListIssuedAPIKeysExecute(r)
+func (r ApiKeysAPIAdminListIssuedApiKeysRequest) Execute() (*ListIssuedApiKeysResponse, *http.Response, error) {
+	return r.ApiService.AdminListIssuedApiKeysExecute(r)
 }
 
 /*
-AdminListIssuedAPIKeys List Issued API Keys
+AdminListIssuedApiKeys List Issued API Keys
 
 Lists issued API keys with optional filtering. Supports cursor-based
 pagination and AIP-160 filter expressions. Returns only issued
-(generated) API keys; use ListImportedAPIKeys for imported keys.
+(generated) API keys; use ListImportedApiKeys for imported keys.
 
 ```http
 GET /v2alpha1/admin/issuedApiKeys?page_size=50&filter=actor_id%3D%22user_123%22
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminListIssuedAPIKeysRequest
+	@return ApiKeysAPIAdminListIssuedApiKeysRequest
 */
-func (a *APIKeysAPIService) AdminListIssuedAPIKeys(ctx context.Context) APIKeysAPIAdminListIssuedAPIKeysRequest {
-	return APIKeysAPIAdminListIssuedAPIKeysRequest{
+func (a *ApiKeysAPIService) AdminListIssuedApiKeys(ctx context.Context) ApiKeysAPIAdminListIssuedApiKeysRequest {
+	return ApiKeysAPIAdminListIssuedApiKeysRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -1719,16 +1719,16 @@ func (a *APIKeysAPIService) AdminListIssuedAPIKeys(ctx context.Context) APIKeysA
 
 // Execute executes the request
 //
-//	@return ListIssuedAPIKeysResponse
-func (a *APIKeysAPIService) AdminListIssuedAPIKeysExecute(r APIKeysAPIAdminListIssuedAPIKeysRequest) (*ListIssuedAPIKeysResponse, *http.Response, error) {
+//	@return ListIssuedApiKeysResponse
+func (a *ApiKeysAPIService) AdminListIssuedApiKeysExecute(r ApiKeysAPIAdminListIssuedApiKeysRequest) (*ListIssuedApiKeysResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ListIssuedAPIKeysResponse
+		localVarReturnValue *ListIssuedApiKeysResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminListIssuedAPIKeys")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminListIssuedApiKeys")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1810,24 +1810,24 @@ func (a *APIKeysAPIService) AdminListIssuedAPIKeysExecute(r APIKeysAPIAdminListI
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminRevokeImportedAPIKeyRequest struct {
+type ApiKeysAPIAdminRevokeImportedApiKeyRequest struct {
 	ctx                           context.Context
-	ApiService                    APIKeysAPI
+	ApiService                    ApiKeysAPI
 	keyId                         string
-	adminRevokeImportedAPIKeyBody *AdminRevokeImportedAPIKeyBody
+	adminRevokeImportedApiKeyBody *AdminRevokeImportedApiKeyBody
 }
 
-func (r APIKeysAPIAdminRevokeImportedAPIKeyRequest) AdminRevokeImportedAPIKeyBody(adminRevokeImportedAPIKeyBody AdminRevokeImportedAPIKeyBody) APIKeysAPIAdminRevokeImportedAPIKeyRequest {
-	r.adminRevokeImportedAPIKeyBody = &adminRevokeImportedAPIKeyBody
+func (r ApiKeysAPIAdminRevokeImportedApiKeyRequest) AdminRevokeImportedApiKeyBody(adminRevokeImportedApiKeyBody AdminRevokeImportedApiKeyBody) ApiKeysAPIAdminRevokeImportedApiKeyRequest {
+	r.adminRevokeImportedApiKeyBody = &adminRevokeImportedApiKeyBody
 	return r
 }
 
-func (r APIKeysAPIAdminRevokeImportedAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
-	return r.ApiService.AdminRevokeImportedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminRevokeImportedApiKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
+	return r.ApiService.AdminRevokeImportedApiKeyExecute(r)
 }
 
 /*
-AdminRevokeImportedAPIKey Revoke Imported API Key
+AdminRevokeImportedApiKey Revoke Imported API Key
 
 Immediately revokes an imported API key. Once revoked, the key can no longer
 be used for authentication. This operation is irreversible. Revoked keys
@@ -1844,10 +1844,10 @@ POST /v2alpha1/admin/importedApiKeys/9a3f051b2c7e8d4f1a6b9c0e5f2d8a3b:revoke
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param keyId SHA-512/256 hash of the imported key (REQUIRED)
-	@return APIKeysAPIAdminRevokeImportedAPIKeyRequest
+	@return ApiKeysAPIAdminRevokeImportedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminRevokeImportedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeImportedAPIKeyRequest {
-	return APIKeysAPIAdminRevokeImportedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminRevokeImportedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminRevokeImportedApiKeyRequest {
+	return ApiKeysAPIAdminRevokeImportedApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -1857,7 +1857,7 @@ func (a *APIKeysAPIService) AdminRevokeImportedAPIKey(ctx context.Context, keyId
 // Execute executes the request
 //
 //	@return map[string]interface{}
-func (a *APIKeysAPIService) AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRevokeImportedAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
+func (a *ApiKeysAPIService) AdminRevokeImportedApiKeyExecute(r ApiKeysAPIAdminRevokeImportedApiKeyRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -1865,7 +1865,7 @@ func (a *APIKeysAPIService) AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRe
 		localVarReturnValue map[string]interface{}
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminRevokeImportedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminRevokeImportedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -1876,8 +1876,8 @@ func (a *APIKeysAPIService) AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRe
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.adminRevokeImportedAPIKeyBody == nil {
-		return localVarReturnValue, nil, reportError("adminRevokeImportedAPIKeyBody is required and must be specified")
+	if r.adminRevokeImportedApiKeyBody == nil {
+		return localVarReturnValue, nil, reportError("adminRevokeImportedApiKeyBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1898,7 +1898,7 @@ func (a *APIKeysAPIService) AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRe
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.adminRevokeImportedAPIKeyBody
+	localVarPostBody = r.adminRevokeImportedApiKeyBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1944,24 +1944,24 @@ func (a *APIKeysAPIService) AdminRevokeImportedAPIKeyExecute(r APIKeysAPIAdminRe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminRevokeIssuedAPIKeyRequest struct {
+type ApiKeysAPIAdminRevokeIssuedApiKeyRequest struct {
 	ctx                         context.Context
-	ApiService                  APIKeysAPI
+	ApiService                  ApiKeysAPI
 	keyId                       string
-	adminRevokeIssuedAPIKeyBody *AdminRevokeIssuedAPIKeyBody
+	adminRevokeIssuedApiKeyBody *AdminRevokeIssuedApiKeyBody
 }
 
-func (r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) AdminRevokeIssuedAPIKeyBody(adminRevokeIssuedAPIKeyBody AdminRevokeIssuedAPIKeyBody) APIKeysAPIAdminRevokeIssuedAPIKeyRequest {
-	r.adminRevokeIssuedAPIKeyBody = &adminRevokeIssuedAPIKeyBody
+func (r ApiKeysAPIAdminRevokeIssuedApiKeyRequest) AdminRevokeIssuedApiKeyBody(adminRevokeIssuedApiKeyBody AdminRevokeIssuedApiKeyBody) ApiKeysAPIAdminRevokeIssuedApiKeyRequest {
+	r.adminRevokeIssuedApiKeyBody = &adminRevokeIssuedApiKeyBody
 	return r
 }
 
-func (r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
-	return r.ApiService.AdminRevokeIssuedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminRevokeIssuedApiKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
+	return r.ApiService.AdminRevokeIssuedApiKeyExecute(r)
 }
 
 /*
-AdminRevokeIssuedAPIKey Revoke Issued API Key
+AdminRevokeIssuedApiKey Revoke Issued API Key
 
 Immediately revokes an issued API key. Once revoked, the key can no longer
 be used for authentication. This operation is irreversible. Revoked keys
@@ -1978,10 +1978,10 @@ POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param keyId UUID of the issued key (REQUIRED)
-	@return APIKeysAPIAdminRevokeIssuedAPIKeyRequest
+	@return ApiKeysAPIAdminRevokeIssuedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminRevokeIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRevokeIssuedAPIKeyRequest {
-	return APIKeysAPIAdminRevokeIssuedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminRevokeIssuedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminRevokeIssuedApiKeyRequest {
+	return ApiKeysAPIAdminRevokeIssuedApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -1991,7 +1991,7 @@ func (a *APIKeysAPIService) AdminRevokeIssuedAPIKey(ctx context.Context, keyId s
 // Execute executes the request
 //
 //	@return map[string]interface{}
-func (a *APIKeysAPIService) AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevokeIssuedAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
+func (a *ApiKeysAPIService) AdminRevokeIssuedApiKeyExecute(r ApiKeysAPIAdminRevokeIssuedApiKeyRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -1999,7 +1999,7 @@ func (a *APIKeysAPIService) AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevo
 		localVarReturnValue map[string]interface{}
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminRevokeIssuedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminRevokeIssuedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2010,8 +2010,8 @@ func (a *APIKeysAPIService) AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevo
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.adminRevokeIssuedAPIKeyBody == nil {
-		return localVarReturnValue, nil, reportError("adminRevokeIssuedAPIKeyBody is required and must be specified")
+	if r.adminRevokeIssuedApiKeyBody == nil {
+		return localVarReturnValue, nil, reportError("adminRevokeIssuedApiKeyBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2032,7 +2032,7 @@ func (a *APIKeysAPIService) AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevo
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.adminRevokeIssuedAPIKeyBody
+	localVarPostBody = r.adminRevokeIssuedApiKeyBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2078,34 +2078,34 @@ func (a *APIKeysAPIService) AdminRevokeIssuedAPIKeyExecute(r APIKeysAPIAdminRevo
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminRotateIssuedAPIKeyRequest struct {
+type ApiKeysAPIAdminRotateIssuedApiKeyRequest struct {
 	ctx                         context.Context
-	ApiService                  APIKeysAPI
+	ApiService                  ApiKeysAPI
 	keyId                       string
-	adminRotateIssuedAPIKeyBody *AdminRotateIssuedAPIKeyBody
+	adminRotateIssuedApiKeyBody *AdminRotateIssuedApiKeyBody
 }
 
-func (r APIKeysAPIAdminRotateIssuedAPIKeyRequest) AdminRotateIssuedAPIKeyBody(adminRotateIssuedAPIKeyBody AdminRotateIssuedAPIKeyBody) APIKeysAPIAdminRotateIssuedAPIKeyRequest {
-	r.adminRotateIssuedAPIKeyBody = &adminRotateIssuedAPIKeyBody
+func (r ApiKeysAPIAdminRotateIssuedApiKeyRequest) AdminRotateIssuedApiKeyBody(adminRotateIssuedApiKeyBody AdminRotateIssuedApiKeyBody) ApiKeysAPIAdminRotateIssuedApiKeyRequest {
+	r.adminRotateIssuedApiKeyBody = &adminRotateIssuedApiKeyBody
 	return r
 }
 
-func (r APIKeysAPIAdminRotateIssuedAPIKeyRequest) Execute() (*RotateIssuedAPIKeyResponse, *http.Response, error) {
-	return r.ApiService.AdminRotateIssuedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminRotateIssuedApiKeyRequest) Execute() (*RotateIssuedApiKeyResponse, *http.Response, error) {
+	return r.ApiService.AdminRotateIssuedApiKeyExecute(r)
 }
 
 /*
-AdminRotateIssuedAPIKey Rotate Issued API Key
+AdminRotateIssuedApiKey Rotate Issued API Key
 
 Generates a new secret for an issued API key. Creates a new API key with a
 new key_id and secret, and immediately revokes the old key. This is the
 recommended way to update scopes, metadata, or rotate credentials.
 
 For zero-downtime rotation, use this workflow instead:
- 1. IssueAPIKey with new credentials
+ 1. IssueApiKey with new credentials
  2. Deploy new secret to all services
  3. Verify new secret works everywhere
- 4. AdminRevokeIssuedAPIKey to remove the old key
+ 4. AdminRevokeIssuedApiKey to remove the old key
 
 ```http
 POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
@@ -2118,10 +2118,10 @@ POST /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:rotate
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param keyId key_id is the ID of the existing API key to rotate
-	@return APIKeysAPIAdminRotateIssuedAPIKeyRequest
+	@return ApiKeysAPIAdminRotateIssuedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminRotateIssuedAPIKey(ctx context.Context, keyId string) APIKeysAPIAdminRotateIssuedAPIKeyRequest {
-	return APIKeysAPIAdminRotateIssuedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminRotateIssuedApiKey(ctx context.Context, keyId string) ApiKeysAPIAdminRotateIssuedApiKeyRequest {
+	return ApiKeysAPIAdminRotateIssuedApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 		keyId:      keyId,
@@ -2130,16 +2130,16 @@ func (a *APIKeysAPIService) AdminRotateIssuedAPIKey(ctx context.Context, keyId s
 
 // Execute executes the request
 //
-//	@return RotateIssuedAPIKeyResponse
-func (a *APIKeysAPIService) AdminRotateIssuedAPIKeyExecute(r APIKeysAPIAdminRotateIssuedAPIKeyRequest) (*RotateIssuedAPIKeyResponse, *http.Response, error) {
+//	@return RotateIssuedApiKeyResponse
+func (a *ApiKeysAPIService) AdminRotateIssuedApiKeyExecute(r ApiKeysAPIAdminRotateIssuedApiKeyRequest) (*RotateIssuedApiKeyResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *RotateIssuedAPIKeyResponse
+		localVarReturnValue *RotateIssuedApiKeyResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminRotateIssuedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminRotateIssuedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2150,8 +2150,8 @@ func (a *APIKeysAPIService) AdminRotateIssuedAPIKeyExecute(r APIKeysAPIAdminRota
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.adminRotateIssuedAPIKeyBody == nil {
-		return localVarReturnValue, nil, reportError("adminRotateIssuedAPIKeyBody is required and must be specified")
+	if r.adminRotateIssuedApiKeyBody == nil {
+		return localVarReturnValue, nil, reportError("adminRotateIssuedApiKeyBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2172,7 +2172,7 @@ func (a *APIKeysAPIService) AdminRotateIssuedAPIKeyExecute(r APIKeysAPIAdminRota
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.adminRotateIssuedAPIKeyBody
+	localVarPostBody = r.adminRotateIssuedApiKeyBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2218,31 +2218,31 @@ func (a *APIKeysAPIService) AdminRotateIssuedAPIKeyExecute(r APIKeysAPIAdminRota
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminUpdateImportedAPIKeyRequest struct {
+type ApiKeysAPIAdminUpdateImportedApiKeyRequest struct {
 	ctx                              context.Context
-	ApiService                       APIKeysAPI
+	ApiService                       ApiKeysAPI
 	importedApiKeyKeyId              string
-	adminUpdateImportedAPIKeyRequest *AdminUpdateImportedAPIKeyRequest
+	adminUpdateImportedApiKeyRequest *AdminUpdateImportedApiKeyRequest
 	updateMask                       *string
 }
 
-func (r APIKeysAPIAdminUpdateImportedAPIKeyRequest) AdminUpdateImportedAPIKeyRequest(adminUpdateImportedAPIKeyRequest AdminUpdateImportedAPIKeyRequest) APIKeysAPIAdminUpdateImportedAPIKeyRequest {
-	r.adminUpdateImportedAPIKeyRequest = &adminUpdateImportedAPIKeyRequest
+func (r ApiKeysAPIAdminUpdateImportedApiKeyRequest) AdminUpdateImportedApiKeyRequest(adminUpdateImportedApiKeyRequest AdminUpdateImportedApiKeyRequest) ApiKeysAPIAdminUpdateImportedApiKeyRequest {
+	r.adminUpdateImportedApiKeyRequest = &adminUpdateImportedApiKeyRequest
 	return r
 }
 
 // The list of fields to update. See AIP-134.
-func (r APIKeysAPIAdminUpdateImportedAPIKeyRequest) UpdateMask(updateMask string) APIKeysAPIAdminUpdateImportedAPIKeyRequest {
+func (r ApiKeysAPIAdminUpdateImportedApiKeyRequest) UpdateMask(updateMask string) ApiKeysAPIAdminUpdateImportedApiKeyRequest {
 	r.updateMask = &updateMask
 	return r
 }
 
-func (r APIKeysAPIAdminUpdateImportedAPIKeyRequest) Execute() (*ImportedAPIKey, *http.Response, error) {
-	return r.ApiService.AdminUpdateImportedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminUpdateImportedApiKeyRequest) Execute() (*ImportedApiKey, *http.Response, error) {
+	return r.ApiService.AdminUpdateImportedApiKeyExecute(r)
 }
 
 /*
-AdminUpdateImportedAPIKey Update Imported API Key
+AdminUpdateImportedApiKey Update Imported API Key
 
 Updates metadata, scopes, or rate limits of an imported key. Supports
 partial updates via the update_mask query parameter (AIP-134). Omitting
@@ -2264,10 +2264,10 @@ PATCH /v2alpha1/admin/importedApiKeys/{key_id}?update_mask=name
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param importedApiKeyKeyId SHA-512/256 hash of credential
-	@return APIKeysAPIAdminUpdateImportedAPIKeyRequest
+	@return ApiKeysAPIAdminUpdateImportedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminUpdateImportedAPIKey(ctx context.Context, importedApiKeyKeyId string) APIKeysAPIAdminUpdateImportedAPIKeyRequest {
-	return APIKeysAPIAdminUpdateImportedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminUpdateImportedApiKey(ctx context.Context, importedApiKeyKeyId string) ApiKeysAPIAdminUpdateImportedApiKeyRequest {
+	return ApiKeysAPIAdminUpdateImportedApiKeyRequest{
 		ApiService:          a,
 		ctx:                 ctx,
 		importedApiKeyKeyId: importedApiKeyKeyId,
@@ -2276,16 +2276,16 @@ func (a *APIKeysAPIService) AdminUpdateImportedAPIKey(ctx context.Context, impor
 
 // Execute executes the request
 //
-//	@return ImportedAPIKey
-func (a *APIKeysAPIService) AdminUpdateImportedAPIKeyExecute(r APIKeysAPIAdminUpdateImportedAPIKeyRequest) (*ImportedAPIKey, *http.Response, error) {
+//	@return ImportedApiKey
+func (a *ApiKeysAPIService) AdminUpdateImportedApiKeyExecute(r ApiKeysAPIAdminUpdateImportedApiKeyRequest) (*ImportedApiKey, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ImportedAPIKey
+		localVarReturnValue *ImportedApiKey
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminUpdateImportedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminUpdateImportedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2296,8 +2296,8 @@ func (a *APIKeysAPIService) AdminUpdateImportedAPIKeyExecute(r APIKeysAPIAdminUp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.adminUpdateImportedAPIKeyRequest == nil {
-		return localVarReturnValue, nil, reportError("adminUpdateImportedAPIKeyRequest is required and must be specified")
+	if r.adminUpdateImportedApiKeyRequest == nil {
+		return localVarReturnValue, nil, reportError("adminUpdateImportedApiKeyRequest is required and must be specified")
 	}
 
 	if r.updateMask != nil {
@@ -2321,7 +2321,7 @@ func (a *APIKeysAPIService) AdminUpdateImportedAPIKeyExecute(r APIKeysAPIAdminUp
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.adminUpdateImportedAPIKeyRequest
+	localVarPostBody = r.adminUpdateImportedApiKeyRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2367,36 +2367,36 @@ func (a *APIKeysAPIService) AdminUpdateImportedAPIKeyExecute(r APIKeysAPIAdminUp
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminUpdateIssuedAPIKeyRequest struct {
+type ApiKeysAPIAdminUpdateIssuedApiKeyRequest struct {
 	ctx                            context.Context
-	ApiService                     APIKeysAPI
+	ApiService                     ApiKeysAPI
 	issuedApiKeyKeyId              string
-	adminUpdateIssuedAPIKeyRequest *AdminUpdateIssuedAPIKeyRequest
+	adminUpdateIssuedApiKeyRequest *AdminUpdateIssuedApiKeyRequest
 	updateMask                     *string
 }
 
-func (r APIKeysAPIAdminUpdateIssuedAPIKeyRequest) AdminUpdateIssuedAPIKeyRequest(adminUpdateIssuedAPIKeyRequest AdminUpdateIssuedAPIKeyRequest) APIKeysAPIAdminUpdateIssuedAPIKeyRequest {
-	r.adminUpdateIssuedAPIKeyRequest = &adminUpdateIssuedAPIKeyRequest
+func (r ApiKeysAPIAdminUpdateIssuedApiKeyRequest) AdminUpdateIssuedApiKeyRequest(adminUpdateIssuedApiKeyRequest AdminUpdateIssuedApiKeyRequest) ApiKeysAPIAdminUpdateIssuedApiKeyRequest {
+	r.adminUpdateIssuedApiKeyRequest = &adminUpdateIssuedApiKeyRequest
 	return r
 }
 
 // The list of fields to update. See AIP-134.
-func (r APIKeysAPIAdminUpdateIssuedAPIKeyRequest) UpdateMask(updateMask string) APIKeysAPIAdminUpdateIssuedAPIKeyRequest {
+func (r ApiKeysAPIAdminUpdateIssuedApiKeyRequest) UpdateMask(updateMask string) ApiKeysAPIAdminUpdateIssuedApiKeyRequest {
 	r.updateMask = &updateMask
 	return r
 }
 
-func (r APIKeysAPIAdminUpdateIssuedAPIKeyRequest) Execute() (*IssuedAPIKey, *http.Response, error) {
-	return r.ApiService.AdminUpdateIssuedAPIKeyExecute(r)
+func (r ApiKeysAPIAdminUpdateIssuedApiKeyRequest) Execute() (*IssuedApiKey, *http.Response, error) {
+	return r.ApiService.AdminUpdateIssuedApiKeyExecute(r)
 }
 
 /*
-AdminUpdateIssuedAPIKey Update Issued API Key
+AdminUpdateIssuedApiKey Update Issued API Key
 
 Updates metadata, scopes, or rate limits of an issued key without rotating
-the secret. Use RotateIssuedAPIKey to change the secret.
+the secret. Use RotateIssuedApiKey to change the secret.
 
-Follows AIP-134: the request body is the IssuedAPIKey resource itself,
+Follows AIP-134: the request body is the IssuedApiKey resource itself,
 and the update_mask query parameter names the subset of fields to apply.
 Omitting update_mask is equivalent to a mask of every populated field
 in the body. To clear a field to its zero value, list it explicitly in
@@ -2416,10 +2416,10 @@ PATCH /v2alpha1/admin/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ?update_mask=scope
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param issuedApiKeyKeyId
-	@return APIKeysAPIAdminUpdateIssuedAPIKeyRequest
+	@return ApiKeysAPIAdminUpdateIssuedApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminUpdateIssuedAPIKey(ctx context.Context, issuedApiKeyKeyId string) APIKeysAPIAdminUpdateIssuedAPIKeyRequest {
-	return APIKeysAPIAdminUpdateIssuedAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminUpdateIssuedApiKey(ctx context.Context, issuedApiKeyKeyId string) ApiKeysAPIAdminUpdateIssuedApiKeyRequest {
+	return ApiKeysAPIAdminUpdateIssuedApiKeyRequest{
 		ApiService:        a,
 		ctx:               ctx,
 		issuedApiKeyKeyId: issuedApiKeyKeyId,
@@ -2428,16 +2428,16 @@ func (a *APIKeysAPIService) AdminUpdateIssuedAPIKey(ctx context.Context, issuedA
 
 // Execute executes the request
 //
-//	@return IssuedAPIKey
-func (a *APIKeysAPIService) AdminUpdateIssuedAPIKeyExecute(r APIKeysAPIAdminUpdateIssuedAPIKeyRequest) (*IssuedAPIKey, *http.Response, error) {
+//	@return IssuedApiKey
+func (a *ApiKeysAPIService) AdminUpdateIssuedApiKeyExecute(r ApiKeysAPIAdminUpdateIssuedApiKeyRequest) (*IssuedApiKey, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *IssuedAPIKey
+		localVarReturnValue *IssuedApiKey
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminUpdateIssuedAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminUpdateIssuedApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2448,8 +2448,8 @@ func (a *APIKeysAPIService) AdminUpdateIssuedAPIKeyExecute(r APIKeysAPIAdminUpda
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.adminUpdateIssuedAPIKeyRequest == nil {
-		return localVarReturnValue, nil, reportError("adminUpdateIssuedAPIKeyRequest is required and must be specified")
+	if r.adminUpdateIssuedApiKeyRequest == nil {
+		return localVarReturnValue, nil, reportError("adminUpdateIssuedApiKeyRequest is required and must be specified")
 	}
 
 	if r.updateMask != nil {
@@ -2473,7 +2473,7 @@ func (a *APIKeysAPIService) AdminUpdateIssuedAPIKeyExecute(r APIKeysAPIAdminUpda
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.adminUpdateIssuedAPIKeyRequest
+	localVarPostBody = r.adminUpdateIssuedApiKeyRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2519,37 +2519,37 @@ func (a *APIKeysAPIService) AdminUpdateIssuedAPIKeyExecute(r APIKeysAPIAdminUpda
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIAdminVerifyAPIKeyRequest struct {
+type ApiKeysAPIAdminVerifyApiKeyRequest struct {
 	ctx                 context.Context
-	ApiService          APIKeysAPI
-	verifyAPIKeyRequest *VerifyAPIKeyRequest
+	ApiService          ApiKeysAPI
+	verifyApiKeyRequest *VerifyApiKeyRequest
 	cacheControl        *string
 	pragma              *string
 }
 
-func (r APIKeysAPIAdminVerifyAPIKeyRequest) VerifyAPIKeyRequest(verifyAPIKeyRequest VerifyAPIKeyRequest) APIKeysAPIAdminVerifyAPIKeyRequest {
-	r.verifyAPIKeyRequest = &verifyAPIKeyRequest
+func (r ApiKeysAPIAdminVerifyApiKeyRequest) VerifyApiKeyRequest(verifyApiKeyRequest VerifyApiKeyRequest) ApiKeysAPIAdminVerifyApiKeyRequest {
+	r.verifyApiKeyRequest = &verifyApiKeyRequest
 	return r
 }
 
 // Cache-directive controlling the verifier cache. &#x60;no-cache&#x60; forces a fresh database lookup (cache read is bypassed). &#x60;no-store&#x60; additionally prevents the result from being written to the cache. Any other value is ignored.
-func (r APIKeysAPIAdminVerifyAPIKeyRequest) CacheControl(cacheControl string) APIKeysAPIAdminVerifyAPIKeyRequest {
+func (r ApiKeysAPIAdminVerifyApiKeyRequest) CacheControl(cacheControl string) ApiKeysAPIAdminVerifyApiKeyRequest {
 	r.cacheControl = &cacheControl
 	return r
 }
 
 // HTTP/1.0 alias for &#x60;Cache-Control: no-cache&#x60;. Behaves identically when set to &#x60;no-cache&#x60;; ignored otherwise.
-func (r APIKeysAPIAdminVerifyAPIKeyRequest) Pragma(pragma string) APIKeysAPIAdminVerifyAPIKeyRequest {
+func (r ApiKeysAPIAdminVerifyApiKeyRequest) Pragma(pragma string) ApiKeysAPIAdminVerifyApiKeyRequest {
 	r.pragma = &pragma
 	return r
 }
 
-func (r APIKeysAPIAdminVerifyAPIKeyRequest) Execute() (*VerifyAPIKeyResponse, *http.Response, error) {
-	return r.ApiService.AdminVerifyAPIKeyExecute(r)
+func (r ApiKeysAPIAdminVerifyApiKeyRequest) Execute() (*VerifyApiKeyResponse, *http.Response, error) {
+	return r.ApiService.AdminVerifyApiKeyExecute(r)
 }
 
 /*
-AdminVerifyAPIKey Verify API Key
+AdminVerifyApiKey Verify API Key
 
 Verifies a single API key or derived token. Validates the credential's
 signature, expiration, and revocation status. Works with any credential
@@ -2571,10 +2571,10 @@ POST /v2alpha1/admin/apiKeys:verify
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIAdminVerifyAPIKeyRequest
+	@return ApiKeysAPIAdminVerifyApiKeyRequest
 */
-func (a *APIKeysAPIService) AdminVerifyAPIKey(ctx context.Context) APIKeysAPIAdminVerifyAPIKeyRequest {
-	return APIKeysAPIAdminVerifyAPIKeyRequest{
+func (a *ApiKeysAPIService) AdminVerifyApiKey(ctx context.Context) ApiKeysAPIAdminVerifyApiKeyRequest {
+	return ApiKeysAPIAdminVerifyApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -2582,16 +2582,16 @@ func (a *APIKeysAPIService) AdminVerifyAPIKey(ctx context.Context) APIKeysAPIAdm
 
 // Execute executes the request
 //
-//	@return VerifyAPIKeyResponse
-func (a *APIKeysAPIService) AdminVerifyAPIKeyExecute(r APIKeysAPIAdminVerifyAPIKeyRequest) (*VerifyAPIKeyResponse, *http.Response, error) {
+//	@return VerifyApiKeyResponse
+func (a *ApiKeysAPIService) AdminVerifyApiKeyExecute(r ApiKeysAPIAdminVerifyApiKeyRequest) (*VerifyApiKeyResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *VerifyAPIKeyResponse
+		localVarReturnValue *VerifyApiKeyResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.AdminVerifyAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.AdminVerifyApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2601,8 +2601,8 @@ func (a *APIKeysAPIService) AdminVerifyAPIKeyExecute(r APIKeysAPIAdminVerifyAPIK
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.verifyAPIKeyRequest == nil {
-		return localVarReturnValue, nil, reportError("verifyAPIKeyRequest is required and must be specified")
+	if r.verifyApiKeyRequest == nil {
+		return localVarReturnValue, nil, reportError("verifyApiKeyRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2629,7 +2629,7 @@ func (a *APIKeysAPIService) AdminVerifyAPIKeyExecute(r APIKeysAPIAdminVerifyAPIK
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "Pragma", r.pragma, "simple", "")
 	}
 	// body params
-	localVarPostBody = r.verifyAPIKeyRequest
+	localVarPostBody = r.verifyApiKeyRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2675,17 +2675,17 @@ func (a *APIKeysAPIService) AdminVerifyAPIKeyExecute(r APIKeysAPIAdminVerifyAPIK
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIGetJWKSRequest struct {
+type ApiKeysAPIGetJwksRequest struct {
 	ctx        context.Context
-	ApiService APIKeysAPI
+	ApiService ApiKeysAPI
 }
 
-func (r APIKeysAPIGetJWKSRequest) Execute() (*GetJWKSResponse, *http.Response, error) {
-	return r.ApiService.GetJWKSExecute(r)
+func (r ApiKeysAPIGetJwksRequest) Execute() (*GetJWKSResponse, *http.Response, error) {
+	return r.ApiService.GetJwksExecute(r)
 }
 
 /*
-GetJWKS Get JWKS
+GetJwks Get JWKS
 
 Returns the JSON Web Key Set for token verification. Provides the public
 keys needed to verify JWT tokens issued by this service. Keys are loaded
@@ -2697,10 +2697,10 @@ GET /v2alpha1/derivedKeys/jwks.json
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIGetJWKSRequest
+	@return ApiKeysAPIGetJwksRequest
 */
-func (a *APIKeysAPIService) GetJWKS(ctx context.Context) APIKeysAPIGetJWKSRequest {
-	return APIKeysAPIGetJWKSRequest{
+func (a *ApiKeysAPIService) GetJwks(ctx context.Context) ApiKeysAPIGetJwksRequest {
+	return ApiKeysAPIGetJwksRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -2709,7 +2709,7 @@ func (a *APIKeysAPIService) GetJWKS(ctx context.Context) APIKeysAPIGetJWKSReques
 // Execute executes the request
 //
 //	@return GetJWKSResponse
-func (a *APIKeysAPIService) GetJWKSExecute(r APIKeysAPIGetJWKSRequest) (*GetJWKSResponse, *http.Response, error) {
+func (a *ApiKeysAPIService) GetJwksExecute(r ApiKeysAPIGetJwksRequest) (*GetJWKSResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -2717,7 +2717,7 @@ func (a *APIKeysAPIService) GetJWKSExecute(r APIKeysAPIGetJWKSRequest) (*GetJWKS
 		localVarReturnValue *GetJWKSResponse
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.GetJWKS")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.GetJwks")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2790,28 +2790,28 @@ func (a *APIKeysAPIService) GetJWKSExecute(r APIKeysAPIGetJWKSRequest) (*GetJWKS
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type APIKeysAPIRevokeAPIKeyRequest struct {
+type ApiKeysAPIRevokeApiKeyRequest struct {
 	ctx                     context.Context
-	ApiService              APIKeysAPI
-	selfRevokeAPIKeyRequest *SelfRevokeAPIKeyRequest
+	ApiService              ApiKeysAPI
+	selfRevokeApiKeyRequest *SelfRevokeApiKeyRequest
 }
 
-// SelfRevokeAPIKeyRequest allows an API key holder to revoke their own key by providing the full key secret as proof of possession.
-func (r APIKeysAPIRevokeAPIKeyRequest) SelfRevokeAPIKeyRequest(selfRevokeAPIKeyRequest SelfRevokeAPIKeyRequest) APIKeysAPIRevokeAPIKeyRequest {
-	r.selfRevokeAPIKeyRequest = &selfRevokeAPIKeyRequest
+// SelfRevokeApiKeyRequest allows an API key holder to revoke their own key by providing the full key secret as proof of possession.
+func (r ApiKeysAPIRevokeApiKeyRequest) SelfRevokeApiKeyRequest(selfRevokeApiKeyRequest SelfRevokeApiKeyRequest) ApiKeysAPIRevokeApiKeyRequest {
+	r.selfRevokeApiKeyRequest = &selfRevokeApiKeyRequest
 	return r
 }
 
-func (r APIKeysAPIRevokeAPIKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
-	return r.ApiService.RevokeAPIKeyExecute(r)
+func (r ApiKeysAPIRevokeApiKeyRequest) Execute() (map[string]interface{}, *http.Response, error) {
+	return r.ApiService.RevokeApiKeyExecute(r)
 }
 
 /*
-RevokeAPIKey Revoke API Key (self-service)
+RevokeApiKey Revoke API Key (self-service)
 
 Proof-of-possession variant of revocation. The `Self*` prefix on the
 request/response messages disambiguates from the admin variants
-(`AdminRevokeIssuedAPIKey` / `AdminRevokeImportedAPIKey`).
+(`AdminRevokeIssuedApiKey` / `AdminRevokeImportedApiKey`).
 
 Allows an API key holder to revoke their own key. The caller must provide
 the full API key secret as proof of possession. Supports issued API keys
@@ -2832,10 +2832,10 @@ POST /v2alpha1/apiKeys:selfRevoke
 ```
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return APIKeysAPIRevokeAPIKeyRequest
+	@return ApiKeysAPIRevokeApiKeyRequest
 */
-func (a *APIKeysAPIService) RevokeAPIKey(ctx context.Context) APIKeysAPIRevokeAPIKeyRequest {
-	return APIKeysAPIRevokeAPIKeyRequest{
+func (a *ApiKeysAPIService) RevokeApiKey(ctx context.Context) ApiKeysAPIRevokeApiKeyRequest {
+	return ApiKeysAPIRevokeApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -2844,7 +2844,7 @@ func (a *APIKeysAPIService) RevokeAPIKey(ctx context.Context) APIKeysAPIRevokeAP
 // Execute executes the request
 //
 //	@return map[string]interface{}
-func (a *APIKeysAPIService) RevokeAPIKeyExecute(r APIKeysAPIRevokeAPIKeyRequest) (map[string]interface{}, *http.Response, error) {
+func (a *ApiKeysAPIService) RevokeApiKeyExecute(r ApiKeysAPIRevokeApiKeyRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -2852,7 +2852,7 @@ func (a *APIKeysAPIService) RevokeAPIKeyExecute(r APIKeysAPIRevokeAPIKeyRequest)
 		localVarReturnValue map[string]interface{}
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.RevokeAPIKey")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiKeysAPIService.RevokeApiKey")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -2862,8 +2862,8 @@ func (a *APIKeysAPIService) RevokeAPIKeyExecute(r APIKeysAPIRevokeAPIKeyRequest)
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.selfRevokeAPIKeyRequest == nil {
-		return localVarReturnValue, nil, reportError("selfRevokeAPIKeyRequest is required and must be specified")
+	if r.selfRevokeApiKeyRequest == nil {
+		return localVarReturnValue, nil, reportError("selfRevokeApiKeyRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2884,7 +2884,7 @@ func (a *APIKeysAPIService) RevokeAPIKeyExecute(r APIKeysAPIRevokeAPIKeyRequest)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.selfRevokeAPIKeyRequest
+	localVarPostBody = r.selfRevokeApiKeyRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

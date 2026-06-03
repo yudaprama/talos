@@ -22,21 +22,21 @@ func TestRotateIssuedAPIKey_RejectsRevokedKey(t *testing.T) {
 	svc, _, ctx := setupTestService(t)
 
 	// Issue a key, then revoke it.
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Key to Revoke Then Rotate",
 		ActorId: "owner-revoke-rotate",
 	})
 	require.NoError(t, err)
 	keyID := issueResp.IssuedApiKey.KeyId
 
-	_, err = svc.RevokeIssuedAPIKey(ctx, &talosv2alpha1.RevokeIssuedAPIKeyRequest{
+	_, err = svc.RevokeIssuedApiKey(ctx, &talosv2alpha1.RevokeIssuedApiKeyRequest{
 		KeyId:  keyID,
 		Reason: talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE,
 	})
 	require.NoError(t, err)
 
 	// Attempt to rotate the revoked key — must fail.
-	_, err = svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+	_, err = svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 		KeyId: keyID,
 	})
 	require.Error(t, err, "rotating a revoked key must fail")
@@ -55,7 +55,7 @@ func TestRotateIssuedAPIKey_ConcurrentDoubleRotation(t *testing.T) {
 	svc, _, ctx := setupTestService(t)
 
 	// Issue a key to rotate.
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:    "Key for Concurrent Rotation",
 		ActorId: "owner-concurrent",
 	})
@@ -64,7 +64,7 @@ func TestRotateIssuedAPIKey_ConcurrentDoubleRotation(t *testing.T) {
 
 	const goroutines = 5
 	type result struct {
-		resp *talosv2alpha1.RotateIssuedAPIKeyResponse
+		resp *talosv2alpha1.RotateIssuedApiKeyResponse
 		err  error
 	}
 
@@ -76,7 +76,7 @@ func TestRotateIssuedAPIKey_ConcurrentDoubleRotation(t *testing.T) {
 	for i := range goroutines {
 		go func() {
 			defer wg.Done()
-			resp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+			resp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 				KeyId: keyID,
 			})
 			results[i] = result{resp: resp, err: err}
@@ -108,7 +108,7 @@ func TestRotateIssuedAPIKey_MultiFieldUpdate(t *testing.T) {
 	initialMeta, err := structpb.NewStruct(map[string]any{"env": "staging"})
 	require.NoError(t, err)
 
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:     "Original Name",
 		ActorId:  "owner-multifield",
 		Scopes:   []string{"read"},
@@ -120,7 +120,7 @@ func TestRotateIssuedAPIKey_MultiFieldUpdate(t *testing.T) {
 	newMeta, err := structpb.NewStruct(map[string]any{"env": "production", "version": "2"})
 	require.NoError(t, err)
 
-	rotateResp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+	rotateResp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 		KeyId:    oldKeyID,
 		Name:     new("Updated Name"),
 		Scopes:   []string{"read", "write", "admin"},
@@ -156,7 +156,7 @@ func TestRotateIssuedAPIKey_PreservesUntouchedFields(t *testing.T) {
 	initialMeta, err := structpb.NewStruct(map[string]any{"service": "billing", "tier": "premium"})
 	require.NoError(t, err)
 
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:     "Preserve Fields Key",
 		ActorId:  "owner-preserve",
 		Scopes:   []string{"invoices:read", "payments:read"},
@@ -166,7 +166,7 @@ func TestRotateIssuedAPIKey_PreservesUntouchedFields(t *testing.T) {
 	oldKey := issueResp.IssuedApiKey
 
 	// Rotate with only a name override — all other fields must be inherited.
-	rotateResp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+	rotateResp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 		KeyId: oldKey.KeyId,
 		Name:  new("Renamed Key"),
 	})
@@ -195,7 +195,7 @@ func TestRotateIssuedAPIKey_NameAndScopesOverride(t *testing.T) {
 	initialMeta, err := structpb.NewStruct(map[string]any{"region": "us-east-1"})
 	require.NoError(t, err)
 
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:     "Original Service Key",
 		ActorId:  "owner-namescopes",
 		Scopes:   []string{"metrics:read"},
@@ -204,7 +204,7 @@ func TestRotateIssuedAPIKey_NameAndScopesOverride(t *testing.T) {
 	require.NoError(t, err)
 	oldKey := issueResp.IssuedApiKey
 
-	rotateResp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+	rotateResp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 		KeyId:  oldKey.KeyId,
 		Name:   new("Rotated Service Key"),
 		Scopes: []string{"metrics:read", "logs:read"},
@@ -238,7 +238,7 @@ func TestRotateIssuedAPIKey_EmptyMetadataClears(t *testing.T) {
 	initialMeta, err := structpb.NewStruct(map[string]any{"keep": "me"})
 	require.NoError(t, err)
 
-	issueResp, err := svc.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+	issueResp, err := svc.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 		Name:     "Key With Metadata",
 		ActorId:  "owner-empty-meta",
 		Metadata: initialMeta,
@@ -250,7 +250,7 @@ func TestRotateIssuedAPIKey_EmptyMetadataClears(t *testing.T) {
 	emptyMeta, err := structpb.NewStruct(map[string]any{})
 	require.NoError(t, err)
 
-	rotateResp, err := svc.RotateIssuedAPIKey(ctx, &talosv2alpha1.RotateIssuedAPIKeyRequest{
+	rotateResp, err := svc.RotateIssuedApiKey(ctx, &talosv2alpha1.RotateIssuedApiKeyRequest{
 		KeyId:    oldKeyID,
 		Metadata: emptyMeta,
 	})

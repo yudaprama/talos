@@ -657,10 +657,12 @@ func (v *Verifier) verifyDerivedJWT(ctx context.Context, tokenString string) (_ 
 	// any of the allowed issuers from getTokenIssuers (current + retired).
 	//
 	// Expiry: validated by jwt.Parse with jwt.WithValidate(true) inside verifyJWTWithKeySet
-	// (token/jwt.go). The lestrrat-go/jwx library checks exp and nbf before returning claims.
+	// (token/jwt.go). The lestrrat-go/jwx library checks exp and nbf, applying the
+	// configured clock skew as acceptable leeway so minor clock drift between nodes
+	// does not cause spurious "not yet valid" rejections.
 
 	// Verify the token signature and claims using shared verifier
-	claims, err := v.verifier.VerifyJWT(ctx, tokenString, v.getTokenIssuers(ctx))
+	claims, err := v.verifier.VerifyJWT(ctx, tokenString, v.getTokenIssuers(ctx), v.clockSkew(ctx))
 	if err != nil {
 		return nil, errdef.ErrSignatureInvalid().WithWrap(err)
 	}

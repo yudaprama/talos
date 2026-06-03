@@ -29,9 +29,9 @@ func (s *APIKeyE2ETestSuite) closeBody(httpResp *http.Response) {
 	}
 }
 
-// newImportReq creates a ImportAPIKeyRequest with required fields for batch import tests.
-func newImportReq(rawKey, name, actorID string) client.ImportAPIKeyRequest {
-	req := client.NewImportAPIKeyRequest()
+// newImportReq creates a ImportApiKeyRequest with required fields for batch import tests.
+func newImportReq(rawKey, name, actorID string) client.ImportApiKeyRequest {
+	req := client.NewImportApiKeyRequest()
 	req.SetRawKey(rawKey)
 	req.SetName(name)
 	req.SetActorId(actorID)
@@ -48,13 +48,13 @@ func (s *APIKeyE2ETestSuite) setupSDKClient() *client.APIClient {
 }
 
 // sdkIssueAPIKey creates an API key using the SDK
-func (s *APIKeyE2ETestSuite) sdkIssueAPIKey(ctx context.Context, req *client.IssueAPIKeyRequest) *client.IssueAPIKeyResponse {
+func (s *APIKeyE2ETestSuite) sdkIssueAPIKey(ctx context.Context, req *client.IssueApiKeyRequest) *client.IssueApiKeyResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminIssueAPIKey(ctx).
-		IssueAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminIssueApiKey(ctx).
+		IssueApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -64,16 +64,16 @@ func (s *APIKeyE2ETestSuite) sdkIssueAPIKey(ctx context.Context, req *client.Iss
 }
 
 // sdkVerify verifies a credential using the SDK
-func (s *APIKeyE2ETestSuite) sdkVerify(ctx context.Context, credential string) *client.VerifyAPIKeyResponse {
+func (s *APIKeyE2ETestSuite) sdkVerify(ctx context.Context, credential string) *client.VerifyApiKeyResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	req := client.NewVerifyAPIKeyRequest()
+	req := client.NewVerifyApiKeyRequest()
 	req.SetCredential(credential)
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminVerifyAPIKey(ctx).
-		VerifyAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminVerifyApiKey(ctx).
+		VerifyApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -85,18 +85,18 @@ func (s *APIKeyE2ETestSuite) sdkVerify(ctx context.Context, credential string) *
 
 // sdkVerifyNoCache verifies a credential with cache bypass (Cache-Control: no-cache).
 // Use this after revocation to ensure fresh DB lookup instead of cached results.
-func (s *APIKeyE2ETestSuite) sdkVerifyNoCache(ctx context.Context, credential string) *client.VerifyAPIKeyResponse {
+func (s *APIKeyE2ETestSuite) sdkVerifyNoCache(ctx context.Context, credential string) *client.VerifyApiKeyResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
 	apiClient.GetConfig().AddDefaultHeader("Cache-Control", "no-cache")
 
-	req := client.NewVerifyAPIKeyRequest()
+	req := client.NewVerifyApiKeyRequest()
 	req.SetCredential(credential)
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminVerifyAPIKey(ctx).
-		VerifyAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminVerifyApiKey(ctx).
+		VerifyApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -106,25 +106,25 @@ func (s *APIKeyE2ETestSuite) sdkVerifyNoCache(ctx context.Context, credential st
 }
 
 // sdkBatchVerify performs batch verification using the SDK
-func (s *APIKeyE2ETestSuite) sdkBatchVerify(ctx context.Context, credentials []string) *client.BatchVerifyAPIKeysResponse {
+func (s *APIKeyE2ETestSuite) sdkBatchVerify(ctx context.Context, credentials []string) *client.BatchVerifyApiKeysResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
 
 	// Build array of verify requests
-	requests := make([]client.VerifyAPIKeyRequest, len(credentials))
+	requests := make([]client.VerifyApiKeyRequest, len(credentials))
 	for i, cred := range credentials {
-		req := client.NewVerifyAPIKeyRequest()
+		req := client.NewVerifyApiKeyRequest()
 		req.SetCredential(cred)
 		requests[i] = *req
 	}
 
-	batchReq := client.NewBatchVerifyAPIKeysRequest()
+	batchReq := client.NewBatchVerifyApiKeysRequest()
 	batchReq.Requests = requests
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminBatchVerifyAPIKeys(ctx).
-		BatchVerifyAPIKeysRequest(*batchReq).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminBatchVerifyApiKeys(ctx).
+		BatchVerifyApiKeysRequest(*batchReq).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -134,12 +134,12 @@ func (s *APIKeyE2ETestSuite) sdkBatchVerify(ctx context.Context, credentials []s
 }
 
 // sdkGetIssuedAPIKey retrieves an API key by ID using the SDK
-func (s *APIKeyE2ETestSuite) sdkGetIssuedAPIKey(ctx context.Context, keyID string) *client.IssuedAPIKey {
+func (s *APIKeyE2ETestSuite) sdkGetIssuedAPIKey(ctx context.Context, keyID string) *client.IssuedApiKey {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminGetIssuedAPIKey(ctx, keyID).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminGetIssuedApiKey(ctx, keyID).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -161,11 +161,11 @@ func buildIssuedKeysFilter(actorID *string, status *string) string {
 }
 
 // sdkListIssuedAPIKeys lists API keys using the SDK
-func (s *APIKeyE2ETestSuite) sdkListIssuedAPIKeys(ctx context.Context, pageSize *int32, pageToken *string, actorID *string, status *string) *client.ListIssuedAPIKeysResponse {
+func (s *APIKeyE2ETestSuite) sdkListIssuedAPIKeys(ctx context.Context, pageSize *int32, pageToken *string, actorID *string, status *string) *client.ListIssuedApiKeysResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	req := apiClient.APIKeysAPI.AdminListIssuedAPIKeys(ctx)
+	req := apiClient.ApiKeysAPI.AdminListIssuedApiKeys(ctx)
 
 	if pageSize != nil {
 		req = req.PageSize(*pageSize)
@@ -186,12 +186,12 @@ func (s *APIKeyE2ETestSuite) sdkListIssuedAPIKeys(ctx context.Context, pageSize 
 }
 
 // sdkRotateIssuedAPIKey rotates an API key using the SDK
-func (s *APIKeyE2ETestSuite) sdkRotateIssuedAPIKey(ctx context.Context, keyID string, name *string, scopes []string, metadata map[string]any) *client.RotateIssuedAPIKeyResponse {
+func (s *APIKeyE2ETestSuite) sdkRotateIssuedAPIKey(ctx context.Context, keyID string, name *string, scopes []string, metadata map[string]any) *client.RotateIssuedApiKeyResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
 
-	body := client.NewAdminRotateIssuedAPIKeyBody()
+	body := client.NewAdminRotateIssuedApiKeyBody()
 	if name != nil {
 		body.SetName(*name)
 	}
@@ -202,9 +202,9 @@ func (s *APIKeyE2ETestSuite) sdkRotateIssuedAPIKey(ctx context.Context, keyID st
 		body.SetMetadata(metadata)
 	}
 
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminRotateIssuedAPIKey(ctx, keyID).
-		AdminRotateIssuedAPIKeyBody(*body).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRotateIssuedApiKey(ctx, keyID).
+		AdminRotateIssuedApiKeyBody(*body).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -218,7 +218,7 @@ func (s *APIKeyE2ETestSuite) sdkDeriveToken(ctx context.Context, req *client.Der
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
+	resp, httpResp, err := apiClient.ApiKeysAPI.
 		AdminDeriveToken(ctx).
 		DeriveTokenRequest(*req).
 		Execute()
@@ -230,13 +230,13 @@ func (s *APIKeyE2ETestSuite) sdkDeriveToken(ctx context.Context, req *client.Der
 }
 
 // sdkImportAPIKey imports an external API key using the SDK
-func (s *APIKeyE2ETestSuite) sdkImportAPIKey(ctx context.Context, req *client.ImportAPIKeyRequest) *client.ImportedAPIKey {
+func (s *APIKeyE2ETestSuite) sdkImportAPIKey(ctx context.Context, req *client.ImportApiKeyRequest) *client.ImportedApiKey {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminImportAPIKey(ctx).
-		ImportAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminImportApiKey(ctx).
+		ImportApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -246,13 +246,13 @@ func (s *APIKeyE2ETestSuite) sdkImportAPIKey(ctx context.Context, req *client.Im
 	return resp
 }
 
-func (s *APIKeyE2ETestSuite) sdkBatchImportAPIKeys(ctx context.Context, req *client.BatchImportAPIKeysRequest) *client.BatchImportAPIKeysResponse {
+func (s *APIKeyE2ETestSuite) sdkBatchImportAPIKeys(ctx context.Context, req *client.BatchCreateImportedApiKeysRequest) *client.BatchCreateImportedApiKeysResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminBatchImportAPIKeys(ctx).
-		BatchImportAPIKeysRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminBatchCreateImportedApiKeys(ctx).
+		BatchCreateImportedApiKeysRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -263,12 +263,12 @@ func (s *APIKeyE2ETestSuite) sdkBatchImportAPIKeys(ctx context.Context, req *cli
 }
 
 // sdkGetImportedAPIKey retrieves an imported API key by ID using the SDK
-func (s *APIKeyE2ETestSuite) sdkGetImportedAPIKey(ctx context.Context, keyID string) *client.ImportedAPIKey {
+func (s *APIKeyE2ETestSuite) sdkGetImportedAPIKey(ctx context.Context, keyID string) *client.ImportedApiKey {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminGetImportedAPIKey(ctx, keyID).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminGetImportedApiKey(ctx, keyID).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -278,11 +278,11 @@ func (s *APIKeyE2ETestSuite) sdkGetImportedAPIKey(ctx context.Context, keyID str
 }
 
 // sdkListImportedAPIKeys lists imported API keys using the SDK
-func (s *APIKeyE2ETestSuite) sdkListImportedAPIKeys(ctx context.Context, pageSize *int32, pageToken *string, actorID *string, statusFilter ...string) *client.ListImportedAPIKeysResponse {
+func (s *APIKeyE2ETestSuite) sdkListImportedAPIKeys(ctx context.Context, pageSize *int32, pageToken *string, actorID *string, statusFilter ...string) *client.ListImportedApiKeysResponse {
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	req := apiClient.APIKeysAPI.AdminListImportedAPIKeys(ctx)
+	req := apiClient.ApiKeysAPI.AdminListImportedApiKeys(ctx)
 
 	if pageSize != nil {
 		req = req.PageSize(*pageSize)
@@ -314,8 +314,8 @@ func (s *APIKeyE2ETestSuite) sdkDeleteImportedAPIKey(ctx context.Context, keyID 
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminDeleteImportedAPIKey(ctx, keyID).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminDeleteImportedApiKey(ctx, keyID).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -327,8 +327,8 @@ func (s *APIKeyE2ETestSuite) sdkGetJWKS(ctx context.Context) *client.GetJWKSResp
 	s.T().Helper()
 
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		GetJWKS(ctx).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		GetJwks(ctx).
 		Execute()
 	s.closeBody(httpResp)
 
@@ -340,58 +340,58 @@ func (s *APIKeyE2ETestSuite) sdkGetJWKS(ctx context.Context) *client.GetJWKSResp
 func (s *APIKeyE2ETestSuite) sdkSelfRevoke(ctx context.Context, credential string, reason client.RevocationReason) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	req := client.NewSelfRevokeAPIKeyRequest()
+	req := client.NewSelfRevokeApiKeyRequest()
 	req.SetCredential(credential)
 	req.SetReason(reason)
-	_, httpResp, err := apiClient.APIKeysAPI.
-		RevokeAPIKey(ctx).
-		SelfRevokeAPIKeyRequest(*req).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		RevokeApiKey(ctx).
+		SelfRevokeApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 	s.Require().NoError(err, "self-revoke API key")
 }
 
-func (s *APIKeyE2ETestSuite) sdkIssueAPIKeyExpectError(ctx context.Context, req *client.IssueAPIKeyRequest) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkIssueAPIKeyExpectError(ctx context.Context, req *client.IssueApiKeyRequest) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminIssueAPIKey(ctx).
-		IssueAPIKeyRequest(*req).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminIssueApiKey(ctx).
+		IssueApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyExpectError(ctx context.Context, keyID string, body client.AdminRevokeIssuedAPIKeyBody) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyExpectError(ctx context.Context, keyID string, body client.AdminRevokeIssuedApiKeyBody) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeIssuedAPIKey(ctx, keyID).
-		AdminRevokeIssuedAPIKeyBody(body).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRevokeIssuedApiKey(ctx, keyID).
+		AdminRevokeIssuedApiKeyBody(body).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkSelfRevokeExpectError(ctx context.Context, req *client.SelfRevokeAPIKeyRequest) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkSelfRevokeExpectError(ctx context.Context, req *client.SelfRevokeApiKeyRequest) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		RevokeAPIKey(ctx).
-		SelfRevokeAPIKeyRequest(*req).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		RevokeApiKey(ctx).
+		SelfRevokeApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkVerifyExpectError(ctx context.Context, credential string) (*client.VerifyAPIKeyResponse, *http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkVerifyExpectError(ctx context.Context, credential string) (*client.VerifyApiKeyResponse, *http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	req := client.NewVerifyAPIKeyRequest()
+	req := client.NewVerifyApiKeyRequest()
 	req.SetCredential(credential)
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminVerifyAPIKey(ctx).
-		VerifyAPIKeyRequest(*req).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminVerifyApiKey(ctx).
+		VerifyApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 	return resp, httpResp, err
@@ -400,19 +400,19 @@ func (s *APIKeyE2ETestSuite) sdkVerifyExpectError(ctx context.Context, credentia
 func (s *APIKeyE2ETestSuite) sdkGetIssuedAPIKeyExpectError(ctx context.Context, keyID string) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminGetIssuedAPIKey(ctx, keyID).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminGetIssuedApiKey(ctx, keyID).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkRotateIssuedAPIKeyExpectError(ctx context.Context, keyID string, body client.AdminRotateIssuedAPIKeyBody) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkRotateIssuedAPIKeyExpectError(ctx context.Context, keyID string, body client.AdminRotateIssuedApiKeyBody) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRotateIssuedAPIKey(ctx, keyID).
-		AdminRotateIssuedAPIKeyBody(body).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRotateIssuedApiKey(ctx, keyID).
+		AdminRotateIssuedApiKeyBody(body).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -421,7 +421,7 @@ func (s *APIKeyE2ETestSuite) sdkRotateIssuedAPIKeyExpectError(ctx context.Contex
 func (s *APIKeyE2ETestSuite) sdkListIssuedAPIKeysExpectError(ctx context.Context, pageSize *int32, pageToken *string, actorID *string, statusFilter *string) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	req := apiClient.APIKeysAPI.AdminListIssuedAPIKeys(ctx)
+	req := apiClient.ApiKeysAPI.AdminListIssuedApiKeys(ctx)
 	if pageSize != nil {
 		req = req.PageSize(*pageSize)
 	}
@@ -436,23 +436,23 @@ func (s *APIKeyE2ETestSuite) sdkListIssuedAPIKeysExpectError(ctx context.Context
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkImportAPIKeyExpectError(ctx context.Context, req *client.ImportAPIKeyRequest) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkImportAPIKeyExpectError(ctx context.Context, req *client.ImportApiKeyRequest) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminImportAPIKey(ctx).
-		ImportAPIKeyRequest(*req).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminImportApiKey(ctx).
+		ImportApiKeyRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
 }
 
-func (s *APIKeyE2ETestSuite) sdkBatchImportAPIKeysExpectError(ctx context.Context, req *client.BatchImportAPIKeysRequest) (*http.Response, error) {
+func (s *APIKeyE2ETestSuite) sdkBatchImportAPIKeysExpectError(ctx context.Context, req *client.BatchCreateImportedApiKeysRequest) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminBatchImportAPIKeys(ctx).
-		BatchImportAPIKeysRequest(*req).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminBatchCreateImportedApiKeys(ctx).
+		BatchCreateImportedApiKeysRequest(*req).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -461,8 +461,8 @@ func (s *APIKeyE2ETestSuite) sdkBatchImportAPIKeysExpectError(ctx context.Contex
 func (s *APIKeyE2ETestSuite) sdkGetImportedAPIKeyExpectError(ctx context.Context, keyID string) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminGetImportedAPIKey(ctx, keyID).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminGetImportedApiKey(ctx, keyID).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -471,9 +471,9 @@ func (s *APIKeyE2ETestSuite) sdkGetImportedAPIKeyExpectError(ctx context.Context
 func (s *APIKeyE2ETestSuite) sdkRevokeImportedAPIKeyExpectError(ctx context.Context, keyID string) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeImportedAPIKey(ctx, keyID).
-		AdminRevokeImportedAPIKeyBody(client.AdminRevokeImportedAPIKeyBody{}).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRevokeImportedApiKey(ctx, keyID).
+		AdminRevokeImportedApiKeyBody(client.AdminRevokeImportedApiKeyBody{}).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -482,8 +482,8 @@ func (s *APIKeyE2ETestSuite) sdkRevokeImportedAPIKeyExpectError(ctx context.Cont
 func (s *APIKeyE2ETestSuite) sdkDeleteImportedAPIKeyExpectError(ctx context.Context, keyID string) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminDeleteImportedAPIKey(ctx, keyID).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminDeleteImportedApiKey(ctx, keyID).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -492,7 +492,7 @@ func (s *APIKeyE2ETestSuite) sdkDeleteImportedAPIKeyExpectError(ctx context.Cont
 func (s *APIKeyE2ETestSuite) sdkDeriveTokenExpectError(ctx context.Context, req *client.DeriveTokenRequest) error {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	_, httpResp, err := apiClient.APIKeysAPI.
+	_, httpResp, err := apiClient.ApiKeysAPI.
 		AdminDeriveToken(ctx).
 		DeriveTokenRequest(*req).
 		Execute()
@@ -531,14 +531,14 @@ func (s *APIKeyE2ETestSuite) requireHTTPErrorContains(err error, httpResp *http.
 func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyWithReason(ctx context.Context, keyID string, reason client.RevocationReason, reasonText ...string) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	body := client.NewAdminRevokeIssuedAPIKeyBody()
+	body := client.NewAdminRevokeIssuedApiKeyBody()
 	body.SetReason(reason)
 	if len(reasonText) > 0 {
 		body.SetDescription(reasonText[0])
 	}
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeIssuedAPIKey(ctx, keyID).
-		AdminRevokeIssuedAPIKeyBody(*body).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRevokeIssuedApiKey(ctx, keyID).
+		AdminRevokeIssuedApiKeyBody(*body).
 		Execute()
 	s.closeBody(httpResp)
 	s.Require().NoError(err, "revoke issued API key")
@@ -549,14 +549,14 @@ func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyWithReason(ctx context.Context
 func (s *APIKeyE2ETestSuite) sdkRevokeImportedAPIKeyWithReason(ctx context.Context, keyID string, reason client.RevocationReason, reasonText ...string) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	body := client.NewAdminRevokeImportedAPIKeyBody()
+	body := client.NewAdminRevokeImportedApiKeyBody()
 	body.SetReason(reason)
 	if len(reasonText) > 0 {
 		body.SetDescription(reasonText[0])
 	}
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeImportedAPIKey(ctx, keyID).
-		AdminRevokeImportedAPIKeyBody(*body).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRevokeImportedApiKey(ctx, keyID).
+		AdminRevokeImportedApiKeyBody(*body).
 		Execute()
 	s.closeBody(httpResp)
 	s.Require().NoError(err, "revoke imported API key")
@@ -565,12 +565,12 @@ func (s *APIKeyE2ETestSuite) sdkRevokeImportedAPIKeyWithReason(ctx context.Conte
 func (s *APIKeyE2ETestSuite) sdkRevokeIssuedAPIKeyWithReasonAndTextExpectError(ctx context.Context, keyID string, reason client.RevocationReason, reasonText string) (*http.Response, error) {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	body := client.NewAdminRevokeIssuedAPIKeyBody()
+	body := client.NewAdminRevokeIssuedApiKeyBody()
 	body.SetReason(reason)
 	body.SetDescription(reasonText)
-	_, httpResp, err := apiClient.APIKeysAPI.
-		AdminRevokeIssuedAPIKey(ctx, keyID).
-		AdminRevokeIssuedAPIKeyBody(*body).
+	_, httpResp, err := apiClient.ApiKeysAPI.
+		AdminRevokeIssuedApiKey(ctx, keyID).
+		AdminRevokeIssuedApiKeyBody(*body).
 		Execute()
 	s.closeBody(httpResp)
 	return httpResp, err
@@ -594,12 +594,12 @@ func (s *APIKeyE2ETestSuite) sdkVerifyRaw(ctx context.Context, credential string
 	return resp
 }
 
-func (s *APIKeyE2ETestSuite) sdkUpdateIssuedAPIKey(ctx context.Context, keyID string, body client.AdminUpdateIssuedAPIKeyRequest) *client.IssuedAPIKey {
+func (s *APIKeyE2ETestSuite) sdkUpdateIssuedAPIKey(ctx context.Context, keyID string, body client.AdminUpdateIssuedApiKeyRequest) *client.IssuedApiKey {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminUpdateIssuedAPIKey(ctx, keyID).
-		AdminUpdateIssuedAPIKeyRequest(body).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminUpdateIssuedApiKey(ctx, keyID).
+		AdminUpdateIssuedApiKeyRequest(body).
 		Execute()
 	s.closeBody(httpResp)
 	s.Require().NoError(err, "update issued API key")
@@ -607,12 +607,12 @@ func (s *APIKeyE2ETestSuite) sdkUpdateIssuedAPIKey(ctx context.Context, keyID st
 	return resp
 }
 
-func (s *APIKeyE2ETestSuite) sdkUpdateImportedAPIKey(ctx context.Context, keyID string, body client.AdminUpdateImportedAPIKeyRequest) *client.ImportedAPIKey {
+func (s *APIKeyE2ETestSuite) sdkUpdateImportedAPIKey(ctx context.Context, keyID string, body client.AdminUpdateImportedApiKeyRequest) *client.ImportedApiKey {
 	s.T().Helper()
 	apiClient := s.setupSDKClient()
-	resp, httpResp, err := apiClient.APIKeysAPI.
-		AdminUpdateImportedAPIKey(ctx, keyID).
-		AdminUpdateImportedAPIKeyRequest(body).
+	resp, httpResp, err := apiClient.ApiKeysAPI.
+		AdminUpdateImportedApiKey(ctx, keyID).
+		AdminUpdateImportedApiKeyRequest(body).
 		Execute()
 	s.closeBody(httpResp)
 	s.Require().NoError(err, "update imported API key")

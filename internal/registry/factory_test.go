@@ -106,7 +106,7 @@ func TestCreateAdmin(t *testing.T) {
 		require.NotNil(t, admin)
 
 		// Admin service should be functional - test by creating an API key
-		resp, err := admin.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := admin.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Test Key",
 			ActorId: "test-user",
 		})
@@ -310,7 +310,7 @@ func TestFactoryIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		// Use admin to create a key
-		resp, err := admin.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := admin.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Integration Test Key",
 			ActorId: "test-user-123",
 		})
@@ -331,7 +331,7 @@ func TestFactoryIntegration(t *testing.T) {
 		admin, err := factory.CreateAdmin(ctx)
 		require.NoError(t, err)
 
-		resp, err := admin.IssueAPIKey(ctx, &talosv2alpha1.IssueAPIKeyRequest{
+		resp, err := admin.IssueApiKey(ctx, &talosv2alpha1.IssueApiKeyRequest{
 			Name:    "Verifier Test Key",
 			ActorId: "verify-user",
 		})

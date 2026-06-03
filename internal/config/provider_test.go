@@ -116,6 +116,29 @@ credentials:
 	})
 }
 
+// TestImmutableKeysAreRealConfigKeys guards against the phantom-key regression:
+// the hot-reload immutability guard previously watched "tls.key" (no such key)
+// and "redis.password" (the real key is "cache.redis.password"), so rotating the
+// Redis password at runtime was silently accepted while the live connection kept
+// the old value. The immutables are now the typed key constants; this test
+// asserts they resolve to the real, addressable schema paths.
+func TestImmutableKeysAreRealConfigKeys(t *testing.T) {
+	t.Parallel()
+
+	// Lock the immutable set's key paths so a rename can't reintroduce a phantom.
+	assert.Equal(t, "db.dsn", KeyDBDSN.String())
+	assert.Equal(t, "cache.redis.password", KeyCacheRedisPassword.String())
+
+	// Prove cache.redis.password is a real, readable key (not phantom) by setting
+	// it via config and reading it back through the typed constant.
+	provider, ctx := setupProviderWithConfig(t, `
+cache:
+  redis:
+    password: "s3cret-rotation-value"
+`)
+	assert.Equal(t, "s3cret-rotation-value", provider.String(ctx, KeyCacheRedisPassword))
+}
+
 func TestProvider_String(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()

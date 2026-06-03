@@ -14,7 +14,7 @@ func (s *APIKeyE2ETestSuite) TestImportAPIKey() {
 	ctx := s.T().Context()
 
 	s.Run("import external key", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("sk_live_51O9abc123xyz456def789ghi012jkl345mno678pqr901stu234vwx567yza890")
 		req.SetName("Legacy Stripe Production Key")
 		req.SetActorId("payment-service")
@@ -38,7 +38,7 @@ func (s *APIKeyE2ETestSuite) TestImportAPIKey() {
 	})
 
 	s.Run("import GitHub PAT", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("ghp_abcdefghijklmnopqrstuvwxyz0123456789ABCD")
 		req.SetName("GitHub PAT for CI/CD")
 		req.SetActorId("ci-cd-pipeline")
@@ -53,7 +53,7 @@ func (s *APIKeyE2ETestSuite) TestImportAPIKey() {
 	})
 
 	s.Run("import key with missing required fields returns error", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("test_key_missing_fields")
 		// Missing name and actor_id
 		httpResp, err := s.sdkImportAPIKeyExpectError(ctx, req)
@@ -63,7 +63,7 @@ func (s *APIKeyE2ETestSuite) TestImportAPIKey() {
 	s.Run("verify imported key works", func() {
 		rawKey := "test_verify_imported_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Verify Test Imported Key")
 		req.SetActorId("verify-test-user")
@@ -79,7 +79,7 @@ func (s *APIKeyE2ETestSuite) TestImportAPIKey() {
 	s.Run("import key with scopes", func() {
 		rawKey := "test_scopes_imported_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Imported Key with Scopes")
 		req.SetActorId("scoped-service")
@@ -105,7 +105,7 @@ func (s *APIKeyE2ETestSuite) TestImportAPIKey() {
 	s.Run("import key without scopes defaults to empty", func() {
 		rawKey := "test_no_scopes_imported_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Imported Key without Scopes")
 		req.SetActorId("no-scopes-user")
@@ -126,7 +126,7 @@ func (s *APIKeyE2ETestSuite) TestGetImportedAPIKey() {
 	s.Run("get imported key", func() {
 		rawKey := "test_get_imported_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Get Test Imported Key")
 		req.SetActorId("test-service")
@@ -153,7 +153,7 @@ func (s *APIKeyE2ETestSuite) TestListImportedAPIKeys() {
 		actorID := "list-imported-test-" + time.Now().Format("20060102150405")
 
 		for i := range 3 {
-			req := client.NewImportAPIKeyRequest()
+			req := client.NewImportApiKeyRequest()
 			req.SetRawKey(fmt.Sprintf("test_list_%s_%d", actorID, i))
 			req.SetName(fmt.Sprintf("Imported Key %d", i))
 			req.SetActorId(actorID)
@@ -173,7 +173,7 @@ func (s *APIKeyE2ETestSuite) TestListImportedAPIKeys() {
 		actorID := "list-status-imported-" + time.Now().Format("20060102150405")
 
 		// Import and revoke a key
-		importReq := client.NewImportAPIKeyRequest()
+		importReq := client.NewImportApiKeyRequest()
 		importReq.SetRawKey(fmt.Sprintf("test_revoke_%s", actorID))
 		importReq.SetName("To Be Revoked Imported")
 		importReq.SetActorId(actorID)
@@ -184,7 +184,7 @@ func (s *APIKeyE2ETestSuite) TestListImportedAPIKeys() {
 			client.REVOCATIONREASON_REVOCATION_REASON_KEY_COMPROMISE)
 
 		// Import an active key
-		activeReq := client.NewImportAPIKeyRequest()
+		activeReq := client.NewImportApiKeyRequest()
 		activeReq.SetRawKey(fmt.Sprintf("test_active_%s", actorID))
 		activeReq.SetName("Active Imported Key")
 		activeReq.SetActorId(actorID)
@@ -209,7 +209,7 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKey() {
 	s.Run("revoke imported key", func() {
 		rawKey := "test_revoke_imported_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Revoke Test Imported Key")
 		req.SetActorId("revoke-test-user")
@@ -240,7 +240,7 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKey() {
 	s.Run("double revocation returns conflict", func() {
 		rawKey := "test_double_revoke_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Double Revoke Test")
 		req.SetActorId("double-revoke-user")
@@ -262,7 +262,7 @@ func (s *APIKeyE2ETestSuite) TestDeleteImportedAPIKey() {
 	s.Run("delete imported key", func() {
 		rawKey := "test_delete_imported_" + time.Now().Format("20060102150405")
 
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey(rawKey)
 		req.SetName("Delete Test Imported Key")
 		req.SetActorId("delete-test-user")
@@ -295,7 +295,7 @@ func (s *APIKeyE2ETestSuite) TestMigrationCoexistence() {
 		rawKey := fmt.Sprintf("test_migration_%s", actorID)
 
 		// Phase 1: Import legacy key
-		importReq := client.NewImportAPIKeyRequest()
+		importReq := client.NewImportApiKeyRequest()
 		importReq.SetRawKey(rawKey)
 		importReq.SetName("Legacy Imported Key")
 		importReq.SetActorId(actorID)
@@ -306,7 +306,7 @@ func (s *APIKeyE2ETestSuite) TestMigrationCoexistence() {
 		importResp := s.sdkImportAPIKey(ctx, importReq)
 
 		// Phase 2: Create issued replacement key
-		createReq := client.NewIssueAPIKeyRequest()
+		createReq := client.NewIssueApiKeyRequest()
 		createReq.SetName("Issued Replacement Key")
 		createReq.SetActorId(actorID)
 		createReq.SetScopes([]string{"payments:read", "payments:write"})
@@ -349,7 +349,7 @@ func (s *APIKeyE2ETestSuite) TestImport_RateLimitPolicy() {
 	ctx := s.T().Context()
 
 	s.Run("import key with rate limit policy", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("test_import_rl_key_" + time.Now().Format("20060102150405.000"))
 		req.SetName("Rate Limited Import")
 		req.SetActorId("user-rl-import-1")
@@ -365,7 +365,7 @@ func (s *APIKeyE2ETestSuite) TestImport_RateLimitPolicy() {
 	})
 
 	s.Run("import key without rate limit policy", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("test_import_no_rl_key_" + time.Now().Format("20060102150405.000"))
 		req.SetName("No Rate Limit Import")
 		req.SetActorId("user-no-rl-import-1")
@@ -375,7 +375,7 @@ func (s *APIKeyE2ETestSuite) TestImport_RateLimitPolicy() {
 	})
 
 	s.Run("get imported key returns rate limit policy", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("test_import_rl_get_key_" + time.Now().Format("20060102150405.000"))
 		req.SetName("Rate Limited Import for Get")
 		req.SetActorId("user-rl-import-get-1")
@@ -393,7 +393,7 @@ func (s *APIKeyE2ETestSuite) TestImport_RateLimitPolicy() {
 	})
 
 	s.Run("error - import with invalid rate limit quota", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("test_import_invalid_quota_" + time.Now().Format("20060102150405.000"))
 		req.SetName("Invalid Quota Import")
 		req.SetActorId("user-invalid-quota-1")
@@ -407,7 +407,7 @@ func (s *APIKeyE2ETestSuite) TestImport_RateLimitPolicy() {
 	})
 
 	s.Run("error - import with invalid rate limit window", func() {
-		req := client.NewImportAPIKeyRequest()
+		req := client.NewImportApiKeyRequest()
 		req.SetRawKey("test_import_invalid_window_" + time.Now().Format("20060102150405.000"))
 		req.SetName("Invalid Window Import")
 		req.SetActorId("user-invalid-window-1")
@@ -425,7 +425,7 @@ func (s *APIKeyE2ETestSuite) TestUpdateImportedAPIKey() {
 	ctx := s.T().Context()
 
 	// Import a key to update
-	req := client.NewImportAPIKeyRequest()
+	req := client.NewImportApiKeyRequest()
 	req.SetRawKey("update_imported_e2e_key_" + time.Now().Format("20060102150405.000"))
 	req.SetName("Original Import Name")
 	req.SetActorId("update-test-owner")
@@ -436,12 +436,12 @@ func (s *APIKeyE2ETestSuite) TestUpdateImportedAPIKey() {
 
 	s.Run("PATCH name via update_mask", func() {
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateImportedAPIKeyRequest()
+		body := client.NewAdminUpdateImportedApiKeyRequest()
 		body.SetName("Updated Import Name")
 
-		updated, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateImportedAPIKey(ctx, keyID).
-			AdminUpdateImportedAPIKeyRequest(*body).
+		updated, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateImportedApiKey(ctx, keyID).
+			AdminUpdateImportedApiKeyRequest(*body).
 			Execute()
 		s.closeBody(httpResp)
 
@@ -458,13 +458,13 @@ func (s *APIKeyE2ETestSuite) TestUpdateImportedAPIKey() {
 
 	s.Run("PATCH scopes and metadata", func() {
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateImportedAPIKeyRequest()
+		body := client.NewAdminUpdateImportedApiKeyRequest()
 		body.SetScopes([]string{"read", "write"})
 		body.SetMetadata(map[string]any{"env": "production"})
 
-		updated, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateImportedAPIKey(ctx, keyID).
-			AdminUpdateImportedAPIKeyRequest(*body).
+		updated, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateImportedApiKey(ctx, keyID).
+			AdminUpdateImportedApiKeyRequest(*body).
 			Execute()
 		s.closeBody(httpResp)
 
@@ -475,12 +475,12 @@ func (s *APIKeyE2ETestSuite) TestUpdateImportedAPIKey() {
 
 	s.Run("404 for non-existent hash", func() {
 		apiClient := s.setupSDKClient()
-		body := client.NewAdminUpdateImportedAPIKeyRequest()
+		body := client.NewAdminUpdateImportedApiKeyRequest()
 		body.SetName("ghost key")
 
-		_, httpResp, err := apiClient.APIKeysAPI.
-			AdminUpdateImportedAPIKey(ctx, "nonexistenthash00000000000000000").
-			AdminUpdateImportedAPIKeyRequest(*body).
+		_, httpResp, err := apiClient.ApiKeysAPI.
+			AdminUpdateImportedApiKey(ctx, "nonexistenthash00000000000000000").
+			AdminUpdateImportedApiKeyRequest(*body).
 			Execute()
 
 		s.requireHTTPError(err, httpResp, http.StatusNotFound)
@@ -493,7 +493,7 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKeyLifecycle() {
 	ctx := s.T().Context()
 
 	// Import a key
-	req := client.NewImportAPIKeyRequest()
+	req := client.NewImportApiKeyRequest()
 	req.SetRawKey("revoke_unified_e2e_key_" + time.Now().Format("20060102150405.000"))
 	req.SetName("Unified Revoke Test Key")
 	req.SetActorId("unified-revoke-owner")
@@ -517,18 +517,18 @@ func (s *APIKeyE2ETestSuite) TestRevokeImportedAPIKeyLifecycle() {
 
 	s.Run("404 for non-existent hash - not 500", func() {
 		apiClient := s.setupSDKClient()
-		_, httpResp, err := apiClient.APIKeysAPI.
-			AdminRevokeImportedAPIKey(ctx, "nonexistenthash00000000000000000").
-			AdminRevokeImportedAPIKeyBody(client.AdminRevokeImportedAPIKeyBody{}).
+		_, httpResp, err := apiClient.ApiKeysAPI.
+			AdminRevokeImportedApiKey(ctx, "nonexistenthash00000000000000000").
+			AdminRevokeImportedApiKeyBody(client.AdminRevokeImportedApiKeyBody{}).
 			Execute()
 		s.requireHTTPError(err, httpResp, http.StatusNotFound)
 	})
 }
 
 // importKeyForDerive is a helper that imports a key with scopes and a 24h TTL, suitable for derive-token tests.
-func (s *APIKeyE2ETestSuite) importKeyForDerive(ctx context.Context, rawKey, name, actorID string, scopes []string) *client.ImportedAPIKey {
+func (s *APIKeyE2ETestSuite) importKeyForDerive(ctx context.Context, rawKey, name, actorID string, scopes []string) *client.ImportedApiKey {
 	s.T().Helper()
-	importReq := client.NewImportAPIKeyRequest()
+	importReq := client.NewImportApiKeyRequest()
 	importReq.SetRawKey(rawKey)
 	importReq.SetName(name)
 	importReq.SetActorId(actorID)

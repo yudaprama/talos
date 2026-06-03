@@ -1,7 +1,7 @@
 /*
 Ory Talos API
 
-Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeAPIKey` RPC is authenticated by proof of possession (the raw credential secret).
+Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.  `Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by proof of possession (the raw credential secret).
 
 API version: v2alpha1
 */
@@ -48,7 +48,7 @@ type APIClient struct {
 
 	// API Services
 
-	APIKeysAPI APIKeysAPI
+	ApiKeysAPI ApiKeysAPI
 }
 
 type service struct {
@@ -67,7 +67,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.common.client = c
 
 	// API Services
-	c.APIKeysAPI = (*APIKeysAPIService)(&c.common)
+	c.ApiKeysAPI = (*ApiKeysAPIService)(&c.common)
 
 	return c
 }

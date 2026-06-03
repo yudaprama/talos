@@ -85,7 +85,7 @@ func BenchmarkJWT_Verify_EdDSA(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 	for b.Loop() {
-		_, err := verifyJWTWithKeySet(ctx, token, keySet)
+		_, err := verifyJWTWithKeySet(ctx, token, keySet, 0)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -183,7 +183,7 @@ func BenchmarkJWT_Verify_EdDSA_Parallel(b *testing.B) {
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_, err := verifyJWTWithKeySet(ctx, token, keySet)
+			_, err := verifyJWTWithKeySet(ctx, token, keySet, 0)
 			if err != nil {
 				b.Fatal(err)
 			}

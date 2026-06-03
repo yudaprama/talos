@@ -60,7 +60,7 @@ func apiKeyRow(raw any, k apiKeyLike) rawRow {
 
 // secretKeyRow builds a rawRow for responses that contain a key + secret (issue, rotate).
 // raw is the original SDK response used for JSON/YAML output.
-func secretKeyRow(issuedKey client.IssuedAPIKey, secret string, raw any) rawRow {
+func secretKeyRow(issuedKey client.IssuedApiKey, secret string, raw any) rawRow {
 	return rawRow{
 		raw:     raw,
 		header:  slices.Concat(apiKeyHeader, []string{"SECRET"}),
@@ -69,7 +69,7 @@ func secretKeyRow(issuedKey client.IssuedAPIKey, secret string, raw any) rawRow 
 }
 
 // verifyRow builds a rawRow for a verify API key response.
-func verifyRow(resp *client.VerifyAPIKeyResponse) rawRow {
+func verifyRow(resp *client.VerifyApiKeyResponse) rawRow {
 	return rawRow{
 		raw:    resp,
 		header: []string{"KEY ID", "IS VALID", "STATUS", "ACTOR ID", "SCOPES"},
@@ -98,7 +98,7 @@ func tokenRow(resp *client.DeriveTokenResponse) rawRow {
 }
 
 // batchVerifyTable builds a rawTable for a batch verify response.
-func batchVerifyTable(resp *client.BatchVerifyAPIKeysResponse) rawTable {
+func batchVerifyTable(resp *client.BatchVerifyApiKeysResponse) rawTable {
 	results := resp.GetResults()
 	rows := make([][]string, len(results))
 	for i, r := range results {
@@ -130,8 +130,8 @@ type revokeAPIKeyCmdConfig struct {
 	successMessage string
 	revokeError    string
 	getError       string
-	revoke         func(context.Context, client.APIKeysAPI, string, client.RevocationReason, string) revokeAPIKeyRequest
-	get            func(context.Context, client.APIKeysAPI, string) (any, apiKeyLike, error)
+	revoke         func(context.Context, client.ApiKeysAPI, string, client.RevocationReason, string) revokeAPIKeyRequest
+	get            func(context.Context, client.ApiKeysAPI, string) (any, apiKeyLike, error)
 }
 
 type revokeAPIKeyRequest interface {
@@ -197,13 +197,13 @@ func newRevokeAPIKeyCmd(cfg revokeAPIKeyCmdConfig) *cobra.Command {
 			defer cancel()
 
 			sdkClient := newSDKClient(serverAddr)
-			if err := executeRevokeAPIKey(cfg.revoke(ctx, sdkClient.APIKeysAPI, keyID, reasonEnum, reasonText)); err != nil {
+			if err := executeRevokeAPIKey(cfg.revoke(ctx, sdkClient.ApiKeysAPI, keyID, reasonEnum, reasonText)); err != nil {
 				return failAPIError(cmd, err, cfg.revokeError)
 			}
 
 			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), cfg.successMessage)
 
-			raw, apiKey, err := cfg.get(ctx, sdkClient.APIKeysAPI, keyID)
+			raw, apiKey, err := cfg.get(ctx, sdkClient.ApiKeysAPI, keyID)
 			if err != nil {
 				return failAPIError(cmd, err, cfg.getError)
 			}
@@ -220,7 +220,7 @@ func newRevokeAPIKeyCmd(cfg revokeAPIKeyCmdConfig) *cobra.Command {
 	return cmd
 }
 
-// apiKeyLike is the common getter interface shared by IssuedAPIKey and ImportedAPIKey.
+// apiKeyLike is the common getter interface shared by IssuedApiKey and ImportedApiKey.
 type apiKeyLike interface {
 	GetKeyId() string
 	GetName() string
@@ -231,8 +231,8 @@ type apiKeyLike interface {
 }
 
 // keyPolicySetter is the common setter interface for metadata, IP restrictions, and rate limit
-// policies. Satisfied by IssueAPIKeyRequest, ImportAPIKeyRequest,
-// AdminUpdateIssuedAPIKeyBody, and AdminRotateIssuedAPIKeyBody.
+// policies. Satisfied by IssueApiKeyRequest, ImportApiKeyRequest,
+// AdminUpdateIssuedAPIKeyBody, and AdminRotateIssuedApiKeyBody.
 type keyPolicySetter interface {
 	SetMetadata(v map[string]any)
 	SetIpRestriction(v client.IPRestriction)
@@ -380,7 +380,7 @@ func newIssueAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			req := client.IssueAPIKeyRequest{}
+			req := client.IssueApiKeyRequest{}
 			req.SetName(name)
 			req.SetActorId(actorID)
 			req.SetScopes(parseScopes(scopesStr))
@@ -393,9 +393,9 @@ func newIssueAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				AdminIssueAPIKey(ctx).
-				IssueAPIKeyRequest(req).
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				AdminIssueApiKey(ctx).
+				IssueApiKeyRequest(req).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -478,7 +478,7 @@ func newDeriveTokenCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
+			resp, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
 				AdminDeriveToken(ctx).
 				DeriveTokenRequest(req).
 				Execute()
@@ -523,7 +523,7 @@ func newVerifyAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			req := client.VerifyAPIKeyRequest{}
+			req := client.VerifyApiKeyRequest{}
 			req.SetCredential(credential)
 
 			sdkClient := newSDKClient(serverAddr)
@@ -534,9 +534,9 @@ func newVerifyAPIKeyCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := sdkClient.APIKeysAPI.
-				AdminVerifyAPIKey(ctx).
-				VerifyAPIKeyRequest(req).
+			resp, httpResp, err := sdkClient.ApiKeysAPI.
+				AdminVerifyApiKey(ctx).
+				VerifyApiKeyRequest(req).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -596,16 +596,16 @@ func newSelfRevokeAPIKeyCmd() *cobra.Command {
 				return err
 			}
 
-			req := client.SelfRevokeAPIKeyRequest{}
+			req := client.SelfRevokeApiKeyRequest{}
 			req.SetCredential(credential)
 			req.SetReason(reasonEnum)
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			_, httpResp, err := newSDKClient(serverAddr).APIKeysAPI.
-				RevokeAPIKey(ctx).
-				SelfRevokeAPIKeyRequest(req).
+			_, httpResp, err := newSDKClient(serverAddr).ApiKeysAPI.
+				RevokeApiKey(ctx).
+				SelfRevokeApiKeyRequest(req).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
@@ -639,14 +639,14 @@ func newBatchVerifyAPIKeysCmd() *cobra.Command {
 				return err
 			}
 
-			requests := make([]client.VerifyAPIKeyRequest, len(args))
+			requests := make([]client.VerifyApiKeyRequest, len(args))
 			for i, cred := range args {
-				req := client.VerifyAPIKeyRequest{}
+				req := client.VerifyApiKeyRequest{}
 				req.SetCredential(cred)
 				requests[i] = req
 			}
 
-			batchReq := client.BatchVerifyAPIKeysRequest{}
+			batchReq := client.BatchVerifyApiKeysRequest{}
 			batchReq.SetRequests(requests)
 
 			sdkClient := newSDKClient(serverAddr)
@@ -657,9 +657,9 @@ func newBatchVerifyAPIKeysCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 10*time.Second)
 			defer cancel()
 
-			resp, httpResp, err := sdkClient.APIKeysAPI.
-				AdminBatchVerifyAPIKeys(ctx).
-				BatchVerifyAPIKeysRequest(batchReq).
+			resp, httpResp, err := sdkClient.ApiKeysAPI.
+				AdminBatchVerifyApiKeys(ctx).
+				BatchVerifyApiKeysRequest(batchReq).
 				Execute()
 			if httpResp != nil {
 				defer httpResp.Body.Close()
