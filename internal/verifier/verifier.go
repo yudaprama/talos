@@ -394,6 +394,35 @@ func (v *Verifier) validateIPRestriction(ctx context.Context, key *db.IssuedApiK
 	return nil
 }
 
+// cacheLookupKey authenticates the raw credential and returns the cache key
+// (its key_id) to look up. ok is false when the credential must not be served
+// from cache: derived tokens (verified statelessly, never cached) or a failed
+// secret proof. Authenticating here — checksum-verifying an issued key, hashing
+// an imported key — means a cache hit already proves possession of the secret,
+// so the hit site needs no second check. The cache is keyed by key_id, which is
+// public for issued keys; for imported keys the key_id is a tenant-scoped hash
+// of the whole secret, so computing it proves possession.
+func (v *Verifier) cacheLookupKey(ctx context.Context, route crypto.CredentialRoute, credential string) (lookupID string, ok bool) {
+	switch route.Type {
+	case crypto.CredentialTypeIssued:
+		hmacSecrets, err := v.getHMACSecrets(ctx)
+		if err != nil {
+			return "", false
+		}
+		if _, err := crypto.VerifyAPIKeyChecksum(credential, hmacSecrets); err != nil {
+			return "", false
+		}
+		return route.LookupKey, true // UUID key_id parsed from the public identifier.
+	case crypto.CredentialTypeImported:
+		return crypto.HashImportedAPIKey(credential, contextx.NetworkIDFromContext(ctx).String()), true
+	case crypto.CredentialTypeDerivedJWT, crypto.CredentialTypeDerivedMacaroon:
+		// Derived tokens are verified statelessly and are never cached by key_id.
+		return "", false
+	default:
+		return "", false
+	}
+}
+
 // VerifyAPIKey verifies any credential type (API key v1, imported key, JWT, or macaroon).
 // Returns the verified key and the cache outcome. The caller is responsible for
 // propagating the CacheStatus to any response layer (e.g. HTTP headers).
@@ -420,13 +449,22 @@ func (v *Verifier) VerifyAPIKey(ctx context.Context, credential string) (_ *db.I
 	// revoked tokens to appear valid until the cache entry expires.
 	isDerived := route.Type == crypto.CredentialTypeDerivedJWT || route.Type == crypto.CredentialTypeDerivedMacaroon
 
+	// lookupID is the cache key for this credential — the key_id, not the raw
+	// secret — so admin and self-revoke paths can invalidate by key_id.
+	// cacheable is false for credential types that are not cached
+	// (derived/unknown) or whose secret proof failed.
+	lookupID, cacheable := v.cacheLookupKey(ctx, route, credential)
+
 	dbCacheStatus := cachecontrol.CacheMiss
 	switch {
 	case isDerived:
 		dbCacheStatus = cachecontrol.CacheSkip
 		span.SetAttributes(attribute.String("cache_bypass", "derived-token"))
-	case !cachecontrol.ShouldBypassCache(ctx):
-		cachedKey, found, cacheErr := v.cache.Get(ctx, credential)
+	case cacheable && !cachecontrol.ShouldBypassCache(ctx):
+		// cacheLookupKey already proved possession of the secret (checksum for
+		// issued keys, whole-key hash for imported keys), so a hit can be served
+		// without a second check.
+		cachedKey, found, cacheErr := v.cache.Get(ctx, lookupID)
 		switch {
 		case cacheErr != nil:
 			span.SetAttributes(attribute.Bool("cache_read_error", true))
@@ -494,7 +532,7 @@ func (v *Verifier) VerifyAPIKey(ctx context.Context, credential string) (_ *db.I
 		cacheTTL, cacheable := v.getCacheTTL(ctx, dbKey.ExpiresAt)
 		cc := cachecontrol.FromContext(ctx)
 		if cacheable && !cc.NoStore {
-			if cacheErr := v.cache.Set(ctx, credential, *dbKey, cacheTTL); cacheErr != nil {
+			if cacheErr := v.cache.Set(ctx, dbKey.KeyID, *dbKey, cacheTTL); cacheErr != nil {
 				span.SetAttributes(attribute.Bool("cache_write_error", true))
 				v.metrics.CacheErrors.WithLabelValues("write").Inc()
 				slog.WarnContext(ctx, "write verification result to cache",
@@ -775,13 +813,13 @@ func (v *Verifier) SelfRevokeAPIKey(ctx context.Context, credential string, reas
 }
 
 // completeSelfRevocation performs post-revocation housekeeping: cache invalidation,
-// metrics recording, and audit event emission. The cacheKey is the raw credential
-// used as cache key, keyID is the key identifier, eventType is the revocation event
-// to emit (issued vs. imported), and eventPrefix is "" for native keys or "imported"
-// for imported keys.
-func (v *Verifier) completeSelfRevocation(ctx context.Context, span trace.Span, cacheKey, keyID string, eventType events.EventType, eventPrefix string, reason int32) {
-	// Invalidate cache (cache is keyed by full credential, not key ID)
-	if cacheErr := v.cache.Delete(ctx, cacheKey); cacheErr != nil {
+// metrics recording, and audit event emission. keyID is the key identifier,
+// eventType is the revocation event to emit (issued vs. imported), and eventPrefix
+// is "" for native keys or "imported" for imported keys.
+func (v *Verifier) completeSelfRevocation(ctx context.Context, span trace.Span, keyID string, eventType events.EventType, eventPrefix string, reason int32) {
+	// Invalidate the cached verification result by key_id; the cache is keyed
+	// by key_id, so the raw credential is not needed.
+	if cacheErr := v.cache.Delete(ctx, keyID); cacheErr != nil {
 		span.SetAttributes(attribute.Bool("cache_delete_error", true))
 		slog.WarnContext(ctx, "invalidate cache entry",
 			slog.String("key_id", keyID),
@@ -837,7 +875,7 @@ func (v *Verifier) selfRevokeIssuedKey(ctx context.Context, fullKey, keyID strin
 		return errdef.InternalError("revoke key").WithWrap(errors.WithStack(err))
 	}
 
-	v.completeSelfRevocation(ctx, span, fullKey, keyID, events.EventIssuedAPIKeyRevoked, "", reason)
+	v.completeSelfRevocation(ctx, span, keyID, events.EventIssuedAPIKeyRevoked, "", reason)
 	return nil
 }
 
@@ -874,7 +912,7 @@ func (v *Verifier) selfRevokeImportedKey(ctx context.Context, credential string,
 		return errdef.InternalError("revoke imported key").WithWrap(errors.WithStack(err))
 	}
 
-	v.completeSelfRevocation(ctx, span, credential, importedKey.KeyID, events.EventImportedAPIKeyRevoked, "imported", reason)
+	v.completeSelfRevocation(ctx, span, importedKey.KeyID, events.EventImportedAPIKeyRevoked, "imported", reason)
 	return nil
 }
 
@@ -906,12 +944,10 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 	type issuedEntry struct {
 		idx   int
 		keyID string
-		cred  string
 	}
 	type importedEntry struct {
 		idx  int
 		hash string
-		cred string
 	}
 
 	hmacSecrets, err := v.getHMACSecrets(ctx)
@@ -936,7 +972,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 			continue
 		case crypto.CredentialTypeImported:
 			hash := crypto.HashImportedAPIKey(cred, nidStr)
-			importedEntries = append(importedEntries, importedEntry{idx: i, hash: hash, cred: cred})
+			importedEntries = append(importedEntries, importedEntry{idx: i, hash: hash})
 
 		case crypto.CredentialTypeIssued:
 			components, checksumErr := crypto.VerifyAPIKeyChecksum(cred, hmacSecrets)
@@ -958,7 +994,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 				continue
 			}
 
-			issuedEntries = append(issuedEntries, issuedEntry{idx: i, keyID: route.LookupKey, cred: cred})
+			issuedEntries = append(issuedEntries, issuedEntry{idx: i, keyID: route.LookupKey})
 		}
 	}
 
@@ -1002,7 +1038,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 			cacheTTL, cacheable := v.getCacheTTL(ctx, dbKey.ExpiresAt)
 			cc := cachecontrol.FromContext(ctx)
 			if cacheable && !cc.NoStore {
-				if cacheErr := v.cache.Set(ctx, e.cred, dbKey, cacheTTL); cacheErr != nil {
+				if cacheErr := v.cache.Set(ctx, dbKey.KeyID, dbKey, cacheTTL); cacheErr != nil {
 					slog.WarnContext(ctx, "write batch verification result to cache",
 						slog.String("key_id", dbKey.KeyID),
 						slog.Any("error", cacheErr))
@@ -1060,7 +1096,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 			cacheTTL, cacheable := v.getCacheTTL(ctx, apiKey.ExpiresAt)
 			cc := cachecontrol.FromContext(ctx)
 			if cacheable && !cc.NoStore {
-				if cacheErr := v.cache.Set(ctx, e.cred, apiKey, cacheTTL); cacheErr != nil {
+				if cacheErr := v.cache.Set(ctx, apiKey.KeyID, apiKey, cacheTTL); cacheErr != nil {
 					slog.WarnContext(ctx, "write batch verification result to cache",
 						slog.String("key_id", apiKey.KeyID),
 						slog.Any("error", cacheErr))

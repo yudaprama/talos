@@ -32,10 +32,23 @@ type Cache[T any] interface {
 	// or (zero, false, error) on failure.
 	Get(ctx context.Context, key string) (T, bool, error)
 
-	// Set stores a value. If ttl is 0, the cache's default TTL is used.
+	// Set stores a value under key. If ttl is 0, the cache's default TTL is
+	// used.
+	//
+	// key is the value's stable identifier — the API key's key_id. Keying by
+	// key_id (rather than the raw secret) lets callers that hold only the
+	// key_id — admin mutations and the self-revoke path never have the raw
+	// secret — invalidate the entry via Delete.
 	Set(ctx context.Context, key string, value T, ttl time.Duration) error
 
+	// Delete removes the value previously stored under key. Delete on an
+	// unknown key is a no-op (returns nil).
+	//
+	// Invalidation is immediate with a shared backing store (redis) and on the
+	// local replica for an in-memory store. Cross-replica in-memory eviction is
+	// not possible without pub/sub; such entries expire at their TTL.
 	Delete(ctx context.Context, key string) error
+
 	Close() error
 	Metrics() Metrics
 

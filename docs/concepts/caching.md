@@ -18,15 +18,38 @@ requests within the cache TTL are served from cache without a database lookup.
 | Memory | Per-process | Single node or per-instance caching |
 | Redis  | Shared      | Multi-instance deployments          |
 
-## Eventual consistency
+## Invalidation on admin changes
 
-Caching introduces eventual consistency for revocation:
+Admin mutations invalidate the cached verification result for the affected key immediately, so a
+change takes effect without waiting for the cache TTL. This covers revoke, update, rotate, and
+delete of both issued and imported keys.
+
+How immediate the change is depends on the cache backend:
+
+| Backend  | Invalidation scope                                                                     |
+| -------- | -------------------------------------------------------------------------------------- |
+| `redis`  | Cluster-wide and immediate — every instance shares the same store.                     |
+| `memory` | Immediate on the instance that processed the change; other instances wait for the TTL. |
+
+For a multi-instance deployment that needs immediate admin revocation across all instances, use the
+shared `redis` backend. With the per-process `memory` backend, a revoked key can still verify on
+other instances until their cached entry expires (bounded by `cache.ttl`).
+
+Self-service revocation uses the same invalidation path as admin changes: the cached entry is
+evicted by `key_id`, so the same backend scope applies — immediate on the instance that handles it
+and cluster-wide with `redis`, bounded by the TTL on other instances with the `memory` backend.
+
+## Eventual consistency with the memory backend
+
+With the `memory` backend across multiple instances, revocation is still bounded by the cache TTL on
+instances other than the one that processed the change:
 
 1. Admin revokes a key via `POST /v2alpha1/admin/issuedApiKeys/{id}:revoke` (or
    `POST /v2alpha1/admin/importedApiKeys/{id}:revoke` for imported keys)
 2. The revocation takes effect in the database immediately
-3. Cached verification results for that key remain valid until the cache entry expires
-4. After TTL expiry, the next verification hits the database and returns `active: false`
+3. The instance that processed the request evicts its cached entry immediately
+4. Other instances keep their own cached result until the entry expires
+5. After TTL expiry, the next verification hits the database and returns `active: false`
 
 ## Cache bypass
 

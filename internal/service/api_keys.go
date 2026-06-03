@@ -430,6 +430,10 @@ func (s *Admin) RotateIssuedApiKey(ctx context.Context, req *talosv2alpha1.Rotat
 	// Use the old key as read inside the transaction (authoritative post-revoke state).
 	rotateResult.OldKey.Status = int32(talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED)
 
+	// Invalidate the rotated-out key's cache entry. The new key has not been
+	// cached yet, so only the old key_id needs eviction.
+	s.invalidateVerifierCache(ctx, req.KeyId)
+
 	// Emit audit events — use the new key returned from the transaction as the source of truth.
 	rotateEvent := eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyRotated).
 		WithKeyID(newKeyID).
@@ -603,6 +607,8 @@ func (s *Admin) RevokeIssuedApiKey(ctx context.Context, req *talosv2alpha1.Revok
 		return nil, handleDBError(err, apiKeyKindIssued, "revoke API key")
 	}
 
+	s.invalidateVerifierCache(ctx, req.KeyId)
+
 	s.emitRevocationEvent(ctx, req.KeyId, req.Reason, revocationEventContext{
 		eventType:  events.EventIssuedAPIKeyRevoked,
 		actorID:    sqlutil.Deref(currentKey.ActorID),
@@ -653,6 +659,10 @@ func (s *Admin) RevokeImportedApiKey(ctx context.Context, req *talosv2alpha1.Rev
 		return nil, handleDBError(err, apiKeyKindImported, "revoke imported API key")
 	}
 
+	// req.KeyId is the imported key's hash, which is also its key_id and the id
+	// the verifier registered the cache entry under.
+	s.invalidateVerifierCache(ctx, req.KeyId)
+
 	s.emitRevocationEvent(ctx, req.KeyId, req.Reason, revocationEventContext{
 		eventType:  events.EventImportedAPIKeyRevoked,
 		actorID:    sqlutil.Deref(importedKey.ActorID),
@@ -686,6 +696,23 @@ func (s *Admin) emitRevocationEvent(ctx context.Context, keyID string, reason ta
 	}
 
 	builder.Emit(ctx, s.emitter)
+}
+
+// invalidateVerifierCache evicts the verifier cache entry for keyID after an
+// admin mutation changes the key's validity or policy (revoke, update, rotate,
+// delete). The verifier cache is keyed by key_id, so admin handlers can evict
+// the entry without the raw secret they never see.
+//
+// The database is already authoritative, so an eviction failure is logged but
+// not fatal — the stale entry expires on its own at cache.ttl. Invalidation is
+// immediate on a shared cache (redis) and on the local replica for an in-memory
+// cache; cross-replica in-memory eviction is bounded by cache.ttl.
+func (s *Admin) invalidateVerifierCache(ctx context.Context, keyID string) {
+	if err := s.cache.Delete(ctx, keyID); err != nil {
+		slog.WarnContext(ctx, "invalidate verifier cache after admin mutation",
+			slog.String("key_id", keyID),
+			slog.Any("error", err))
+	}
 }
 
 // extractRateLimitPolicy returns the final quota and window to write to the DB,
@@ -808,6 +835,8 @@ func (s *Admin) UpdateIssuedAPIKey(ctx context.Context, req *talosv2alpha1.Updat
 	if err != nil {
 		return nil, handleDBError(err, apiKeyKindIssued, "update issued API key")
 	}
+
+	s.invalidateVerifierCache(ctx, keyID)
 
 	eventcontext.NewFromContext(ctx, events.EventIssuedAPIKeyUpdated).
 		WithKeyID(keyID).
@@ -1664,6 +1693,8 @@ func (s *Admin) UpdateImportedAPIKey(ctx context.Context, req *talosv2alpha1.Upd
 		return nil, handleDBError(err, apiKeyKindImported, "update imported API key")
 	}
 
+	s.invalidateVerifierCache(ctx, keyID)
+
 	eventcontext.NewFromContext(ctx, events.EventImportedAPIKeyUpdated).
 		WithKeyID(keyID).
 		WithActor(sqlutil.Deref(updatedKey.ActorID)).
@@ -1701,6 +1732,8 @@ func (s *Admin) DeleteImportedAPIKey(ctx context.Context, req *talosv2alpha1.Del
 	if err != nil {
 		return nil, handleDBError(err, apiKeyKindImported, "delete imported key")
 	}
+
+	s.invalidateVerifierCache(ctx, req.KeyId)
 
 	eventcontext.NewFromContext(ctx, events.EventImportedAPIKeyDeleted).
 		WithKeyID(req.KeyId).

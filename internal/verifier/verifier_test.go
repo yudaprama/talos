@@ -144,7 +144,8 @@ func mustCreateImportedKey(ctx context.Context, t *testing.T, driver *sqlite.Dri
 	return importedKeyID
 }
 
-// testCache is a simple in-memory cache for testing
+// testCache is a simple in-memory cache for testing. It keys values by key_id
+// with NID-based isolation, mirroring the production memory/redis backends.
 type testCache struct {
 	data map[string]db.IssuedApiKey
 }
@@ -157,20 +158,17 @@ func newTestCache() *testCache {
 
 func (c *testCache) Get(ctx context.Context, key string) (db.IssuedApiKey, bool, error) {
 	// Build full key with NID prefix (simulating real cache behavior)
-	fullKey := c.buildKey(ctx, key)
-	val, ok := c.data[fullKey]
+	val, ok := c.data[c.buildKey(ctx, key)]
 	return val, ok, nil
 }
 
 func (c *testCache) Set(ctx context.Context, key string, value db.IssuedApiKey, _ time.Duration) error {
-	fullKey := c.buildKey(ctx, key)
-	c.data[fullKey] = value
+	c.data[c.buildKey(ctx, key)] = value
 	return nil
 }
 
 func (c *testCache) Delete(ctx context.Context, key string) error {
-	fullKey := c.buildKey(ctx, key)
-	delete(c.data, fullKey)
+	delete(c.data, c.buildKey(ctx, key))
 	return nil
 }
 
@@ -621,13 +619,53 @@ func TestVerifyAPIKey_CacheInvalidationRevoked(t *testing.T) {
 	require.NoError(t, err)
 
 	// Manually invalidate cache to simulate cache expiry
-	err = testCacheInst.Delete(ctx, fullKey)
+	err = testCacheInst.Delete(ctx, keyID)
 	require.NoError(t, err)
 
 	// Third verification - cache miss, DB lookup returns revoked key
 	_, _, err = env.verifier.VerifyAPIKey(ctx, fullKey)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, errdef.ErrAPIKeyRevoked()))
+}
+
+// TestVerifyAPIKey_CacheHitRequiresValidChecksum verifies that an issued key's
+// key_id (the public part of the credential) is not enough to be served from
+// the cache: a credential with a valid key_id but a wrong HMAC checksum must
+// fall through to the DB path and fail, even after the real key was cached.
+// This is the invariant that makes keying the cache by key_id safe.
+func TestVerifyAPIKey_CacheHitRequiresValidChecksum(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	const hmacSecret = "test-hmac-secret-for-checksum-gate-32char"
+	testCacheInst := newTestCache()
+	env := newTestVerifierWithCache(ctx, t, testCacheInst)
+	configureProviderForAPIKeys(ctx, t, env.provider, hmacSecret)
+
+	fullKey, keyID := mustGenerateAndCreateAPIKey(ctx, t, env.driver, hmacSecret, "checksum-gate", "owner-1", []string{"read"})
+
+	// Verify the real key to populate the cache, keyed by key_id.
+	_, _, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.NoError(t, err)
+
+	_, found, err := testCacheInst.Get(ctx, keyID)
+	require.NoError(t, err)
+	require.True(t, found, "real key must be cached under its key_id")
+
+	// Forge a credential with the same identifier (hence the same key_id and
+	// cache key) but a different checksum by flipping the last character.
+	repl := byte('A')
+	if fullKey[len(fullKey)-1] == 'A' {
+		repl = 'B'
+	}
+	forged := fullKey[:len(fullKey)-1] + string(repl)
+	require.NotEqual(t, fullKey, forged)
+
+	// The forged credential must not be served from cache: the checksum gate
+	// fails, so it falls through to the DB path and returns NOT_FOUND.
+	_, _, err = env.verifier.VerifyAPIKey(ctx, forged)
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, errdef.ErrAPIKeyNotFound()), "forged checksum must not be served from cache")
 }
 
 // Cache hit/miss verification: tests below use a real cache and verify behavior
@@ -675,7 +713,7 @@ func TestVerifyAPIKey_CacheInvalidationExpired(t *testing.T) {
 	expiredKey.ExpiresAt = &pastTime
 
 	// Set the expired key in cache
-	err = testCacheInst.Set(ctx, fullKey, expiredKey, 5*time.Minute)
+	err = testCacheInst.Set(ctx, expiredKey.KeyID, expiredKey, 5*time.Minute)
 	require.NoError(t, err)
 
 	// Verification with expired cached key - isActiveAndNotExpired check should fail
@@ -1226,8 +1264,8 @@ func TestSelfRevokeAPIKey_UnitTests(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, int32(talosv2alpha1.KeyStatus_KEY_STATUS_ACTIVE), result.Status)
 
-		// Verify it's in cache
-		cachedKey, found, err := testCacheInst.Get(ctx, fullKey)
+		// Verify it's in cache (keyed by key_id)
+		cachedKey, found, err := testCacheInst.Get(ctx, keyID)
 		require.NoError(t, err)
 		assert.True(t, found)
 		assert.Equal(t, keyID, cachedKey.KeyID)
