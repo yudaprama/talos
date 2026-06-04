@@ -137,4 +137,34 @@ func TestComputeCacheTTL(t *testing.T) {
 	})
 }
 
+func TestParseHeader(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name  string
+		value string
+		want  cachecontrol.Directives
+	}{
+		{name: "empty", value: "", want: cachecontrol.Directives{}},
+		{name: "no-store", value: "no-store", want: cachecontrol.Directives{NoStore: true}},
+		{name: "no-cache", value: "no-cache", want: cachecontrol.Directives{NoCache: true}},
+		{name: "private", value: "private", want: cachecontrol.Directives{Private: true}},
+		{name: "mixed case", value: "No-Store", want: cachecontrol.Directives{NoStore: true}},
+		{name: "upper case", value: "NO-STORE", want: cachecontrol.Directives{NoStore: true}},
+		{name: "max-age only", value: "max-age=3600", want: cachecontrol.Directives{}},
+		{name: "public only", value: "public", want: cachecontrol.Directives{}},
+		{name: "max-age then no-cache", value: "max-age=0, no-cache", want: cachecontrol.Directives{NoCache: true}},
+		{name: "no-store and private", value: "no-store, private", want: cachecontrol.Directives{NoStore: true, Private: true}},
+		{name: "surrounding spaces", value: "  no-store  ", want: cachecontrol.Directives{NoStore: true}},
+		{name: "quoted argument", value: `no-cache="set-cookie"`, want: cachecontrol.Directives{NoCache: true}},
+		{name: "no-store substring is not a directive", value: "x-no-store-hint", want: cachecontrol.Directives{}},
+		{name: "private substring is not a directive", value: "x-private-cache", want: cachecontrol.Directives{}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, cachecontrol.ParseHeader(tc.value))
+		})
+	}
+}
+
 // reviewed - @aeneasr - 2026-03-25

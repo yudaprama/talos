@@ -20,14 +20,16 @@ import (
 // set at construction time. It covers the three applyRateLimiting paths:
 // allowed, denied, and error.
 type controlledLimiter struct {
-	result *ratelimit.Result
-	err    error
+	result  *ratelimit.Result
+	err     error
+	enabled bool
 }
 
 func (c *controlledLimiter) Allow(_ context.Context, _ string, _ *talosv2alpha1.RateLimitPolicy) (*ratelimit.Result, error) {
 	return c.result, c.err
 }
-func (c *controlledLimiter) Close() error { return nil }
+func (c *controlledLimiter) Enabled() bool { return c.enabled }
+func (c *controlledLimiter) Close() error  { return nil }
 
 // newPV creates a protovalidate.Validator for use in tests.
 func newPV(t *testing.T) protovalidate.Validator {

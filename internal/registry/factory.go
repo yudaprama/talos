@@ -227,6 +227,14 @@ func (l *enableCheckLimiter) Allow(ctx context.Context, keyID string, policy *ta
 	return l.delegate.Allow(ctx, keyID, policy)
 }
 
+// Enabled reports whether the underlying limiter enforces quotas. It reflects
+// the backend (real vs no-op), not the hot-reloadable rate_limit.enabled flag:
+// callers use this to decide cache safety, and keeping responses non-storable
+// whenever an enforcing backend is configured is the conservative, safe choice.
+func (l *enableCheckLimiter) Enabled() bool {
+	return l.delegate.Enabled()
+}
+
 // Close releases resources held by the underlying limiter.
 func (l *enableCheckLimiter) Close() error {
 	return l.delegate.Close()

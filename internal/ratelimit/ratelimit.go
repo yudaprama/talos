@@ -24,6 +24,8 @@ type Limiter interface {
 	// Allow checks if a request is allowed under the key's rate limit policy.
 	// If policy is nil, always returns allowed (no enforcement).
 	Allow(ctx context.Context, keyID string, policy *talosv2alpha1.RateLimitPolicy) (*Result, error)
+	// Enabled reports whether this limiter enforces quotas (false for the OSS no-op).
+	Enabled() bool
 	// Close releases any resources held by the limiter.
 	Close() error
 }
@@ -36,6 +38,9 @@ type NoopLimiter struct{}
 func (n *NoopLimiter) Allow(_ context.Context, _ string, _ *talosv2alpha1.RateLimitPolicy) (*Result, error) {
 	return &Result{Allowed: true}, nil
 }
+
+// Enabled reports false: the no-op limiter performs no enforcement.
+func (n *NoopLimiter) Enabled() bool { return false }
 
 // Close is a no-op.
 func (n *NoopLimiter) Close() error { return nil }

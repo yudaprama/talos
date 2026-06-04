@@ -3,6 +3,7 @@ package cachecontrol
 
 import (
 	"context"
+	"strings"
 	"time"
 )
 
@@ -24,6 +25,39 @@ const (
 	// CacheSkip indicates the cache was bypassed via the Cache-Control header.
 	CacheSkip CacheStatus = "SKIP"
 )
+
+// Directives holds the Cache-Control directives the proxy and verifier act on.
+// Only these directives are tracked; unknown directives are ignored.
+type Directives struct {
+	NoStore bool // no-store: must not be stored in any cache.
+	NoCache bool // no-cache: a stored response must be revalidated before reuse.
+	Private bool // private: shared caches must not store the response.
+}
+
+// ParseHeader parses an HTTP Cache-Control header value into the directives we
+// act on. Directive names are case-insensitive (RFC 7234 §5.2). Argument forms
+// (no-cache="field", max-age=0) are recognized by directive name only; we need
+// presence, not the argument value, so quoted arguments are not fully parsed.
+//
+// Splitting on "," is safe for presence detection even when an argument carries
+// a quoted comma (no-cache="a, b"): the part before "=" is still the directive
+// name. This deliberately avoids matching substrings like x-no-store-hint that
+// a strings.Contains check would wrongly treat as directives.
+func ParseHeader(value string) Directives {
+	var d Directives
+	for part := range strings.SplitSeq(value, ",") {
+		name, _, _ := strings.Cut(strings.TrimSpace(part), "=")
+		switch strings.ToLower(strings.TrimSpace(name)) {
+		case "no-store":
+			d.NoStore = true
+		case "no-cache":
+			d.NoCache = true
+		case "private":
+			d.Private = true
+		}
+	}
+	return d
+}
 
 // CacheControl represents cache control directives extracted from HTTP headers.
 type CacheControl struct {

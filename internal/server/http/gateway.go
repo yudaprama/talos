@@ -72,7 +72,7 @@ func (s *GatewayServer) Setup(ctx context.Context) error {
 		runtime.WithErrorHandler(s.customErrorHandler),
 		runtime.WithForwardResponseOption(forwardRateLimitHeaders),
 		runtime.WithForwardResponseOption(forwardHTTPStatusCode),
-		runtime.WithOutgoingHeaderMatcher(cacheStatusHeaderMatcher),
+		runtime.WithOutgoingHeaderMatcher(verifyResponseHeaderMatcher),
 		runtime.WithMiddlewares(GetDefaultMetrics().GatewayMiddleware()),
 	)
 
@@ -114,11 +114,10 @@ func (s *GatewayServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx, span := tracing.Start(r.Context(), "http.gateway.serve")
 	defer span.End()
 
-	// Lowercase per RFC 7234 §5.2: Cache-Control directives are case-insensitive.
-	cc := strings.ToLower(r.Header.Get("Cache-Control"))
+	d := cachecontrol.ParseHeader(r.Header.Get("Cache-Control"))
 	ctx = cachecontrol.WithCacheControl(ctx, cachecontrol.CacheControl{
-		NoCache: strings.Contains(cc, "no-cache") || strings.EqualFold(r.Header.Get("Pragma"), "no-cache"),
-		NoStore: strings.Contains(cc, "no-store"),
+		NoCache: d.NoCache || strings.EqualFold(r.Header.Get("Pragma"), "no-cache"),
+		NoStore: d.NoStore,
 	})
 	ctx = clientip.WithRequestInfo(ctx, r)
 
@@ -170,11 +169,19 @@ func (s *GatewayServer) effectiveHost(ctx context.Context, r *http.Request) stri
 	return r.Host
 }
 
-// cacheStatusHeaderMatcher forwards the ory-talos-cache gRPC response metadata
-// header set by the VerifyAPIKey handler as the Ory-Talos-Cache HTTP response header.
-func cacheStatusHeaderMatcher(key string) (string, bool) {
-	if textproto.CanonicalMIMEHeaderKey(key) == "Ory-Talos-Cache" {
+// verifyResponseHeaderMatcher forwards gRPC response metadata set by the
+// VerifyAPIKey handler as standard HTTP response headers. Without it the
+// default matcher would prefix these as Grpc-Metadata-* headers.
+//
+//   - ory-talos-cache → Ory-Talos-Cache (cache HIT/MISS/SKIP status)
+//   - cache-control   → Cache-Control (no-store for IP-restricted keys, so the
+//     edge proxy does not cache and replay responses past allowed_cidrs)
+func verifyResponseHeaderMatcher(key string) (string, bool) {
+	switch textproto.CanonicalMIMEHeaderKey(key) {
+	case "Ory-Talos-Cache":
 		return "Ory-Talos-Cache", true
+	case "Cache-Control":
+		return "Cache-Control", true
 	}
 	return runtime.DefaultHeaderMatcher(key)
 }

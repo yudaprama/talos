@@ -17,6 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/ory/talos/internal/cachecontrol"
+	"github.com/ory/talos/internal/clientip"
 	"github.com/ory/talos/internal/errdef"
 	db "github.com/ory/talos/internal/persistence/sqlc/generated"
 	"github.com/ory/talos/internal/persistence/sqlutil"
@@ -194,6 +195,22 @@ func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyApiK
 	response.Issuer = s.apiKeyVerifier.GetTokenIssuer(ctx)
 	s.applyRateLimiting(ctx, dbKey.KeyID, response, span)
 
+	// The edge proxy caches verification responses on host+credential only.
+	// A cached "valid" response would bypass two per-request checks:
+	//   - IP allowlist enforcement (allowed_cidrs), keyed to the caller's IP, and
+	//   - rate limit enforcement, which must decrement quota on every request.
+	// Signal the proxy not to store these responses, keeping enforcement upstream.
+	// Rate limiting only enforces in commercial builds; the OSS no-op limiter
+	// reports Enabled() == false, so OSS emits no spurious header (and has no edge
+	// proxy anyway).
+	ipRestricted := clientip.HasRestriction(dbKey.AllowedCidrs)
+	rateLimited := s.rateLimiter.Enabled() && response.RateLimitPolicy != nil
+	if ipRestricted || rateLimited {
+		if err := grpc.SetHeader(ctx, metadata.Pairs("cache-control", "no-store")); err != nil {
+			slog.WarnContext(ctx, "failed to set cache-control header", slog.Any("error", err))
+		}
+	}
+
 	return response, nil
 }
 
@@ -271,6 +288,14 @@ func (s *Public) BatchVerifyAPIKeys(ctx context.Context, req *talosv2alpha1.Batc
 		}
 	}
 
+	// Unlike VerifyApiKey, we emit no Cache-Control: no-store here because the
+	// edge proxy does not cache batch responses (isVerifyEndpoint matches only
+	// apiKeys:verify, and TestProxyHandler_BatchVerifyProxiedWithoutCaching pins
+	// that). If batch ever becomes edge-cacheable, the per-request IP allowlist
+	// and rate-limit checks would be bypassed silently. A single response carries
+	// many results, so the fix is response-level: emit no-store when ANY result
+	// is IP-restricted or rate-limited (Cache-Control is per response, not per
+	// result).
 	return &talosv2alpha1.BatchVerifyApiKeysResponse{
 		Results: results,
 	}, nil

@@ -284,16 +284,28 @@ func TestForwardRateLimitHeaders(t *testing.T) {
 	})
 }
 
-func TestCacheStatusHeaderMatcher(t *testing.T) {
+func TestVerifyResponseHeaderMatcher(t *testing.T) {
 	t.Parallel()
 
 	// Verify all case variants of ory-talos-cache are forwarded as Ory-Talos-Cache.
 	for _, key := range []string{"ory-talos-cache", "Ory-Talos-Cache", "ORY-TALOS-CACHE"} {
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()
-			out, match := cacheStatusHeaderMatcher(key)
+			out, match := verifyResponseHeaderMatcher(key)
 			assert.True(t, match)
 			assert.Equal(t, "Ory-Talos-Cache", out)
+		})
+	}
+
+	// All case variants of cache-control are forwarded as the standard
+	// Cache-Control HTTP header so the edge proxy can honor no-store for
+	// IP-restricted keys instead of receiving Grpc-Metadata-Cache-Control.
+	for _, key := range []string{"cache-control", "Cache-Control", "CACHE-CONTROL"} {
+		t.Run(key, func(t *testing.T) {
+			t.Parallel()
+			out, match := verifyResponseHeaderMatcher(key)
+			assert.True(t, match)
+			assert.Equal(t, "Cache-Control", out)
 		})
 	}
 
@@ -301,8 +313,9 @@ func TestCacheStatusHeaderMatcher(t *testing.T) {
 	for _, key := range []string{"x-custom-internal", "unrelated-header"} {
 		t.Run(key, func(t *testing.T) {
 			t.Parallel()
-			out, match := cacheStatusHeaderMatcher(key)
+			out, match := verifyResponseHeaderMatcher(key)
 			assert.NotEqual(t, "Ory-Talos-Cache", out)
+			assert.NotEqual(t, "Cache-Control", out)
 			_ = match // delegated to DefaultHeaderMatcher; not our concern to test here
 		})
 	}
