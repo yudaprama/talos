@@ -38,7 +38,7 @@ Each event carries the following OTEL span event attributes:
 
 | OTEL Key       | Struct Field | Type              | Required | Description                                                                                   |
 | -------------- | ------------ | ----------------- | -------- | --------------------------------------------------------------------------------------------- |
-| ``             | `NetworkID`  | uuid.UUID         | Required | AttrNetworkID uses the shared semconv NID key so the analytics pipeline can route by project. |
+| `ProjectID`    | `NetworkID`  | uuid.UUID         | Required | AttrNetworkID uses the shared semconv NID key so the analytics pipeline can route by project. |
 | `APIKeyID`     | `KeyID`      | string            | Optional | Key identification (present for key-related events)                                           |
 | `APIKeyPrefix` | `Prefix`     | string            | Optional |                                                                                               |
 | `KeyType`      | `KeyType`    | string            | Optional | Key origin (present for created/rotated events)                                               |

@@ -262,9 +262,48 @@ func applyKeyPolicies(dest keyPolicySetter, metadataStr, allowedCIDRs string, ra
 			return errors.Wrap(err, "invalid rate limit window")
 		}
 		dest.SetRateLimitPolicy(buildRateLimitPolicy(rateLimitQuota, windowSeconds))
+	} else if rateLimitWindow != "" {
+		return errors.New("--rate-limit-window requires --rate-limit-quota to be set")
 	}
 
 	return nil
+}
+
+// rateLimitPolicySetter is satisfied by the issued and imported update request
+// bodies, both of which expose SetRateLimitPolicy.
+type rateLimitPolicySetter interface {
+	SetRateLimitPolicy(v client.RateLimitPolicy)
+}
+
+// applyRateLimitUpdate sets the rate limit policy on an update body from the
+// --rate-limit-quota and --rate-limit-window flags. It reports whether the body
+// was modified.
+//
+// A rate limit policy is a full {quota, window} object, so a window alone is
+// meaningless and the helper reads both flags together:
+//
+//   - quota > 0: set the policy from quota + window (window is required).
+//   - only --rate-limit-window changed: error (window without quota is invalid).
+//   - quota == 0: error (the server rejects a zero quota; clearing a policy is
+//     done with --update-mask rate_limit_policy).
+func applyRateLimitUpdate(cmd *cobra.Command, dest rateLimitPolicySetter, quota int64, window string) (bool, error) {
+	quotaChanged := cmd.Flags().Changed("rate-limit-quota")
+	windowChanged := cmd.Flags().Changed("rate-limit-window")
+	if !quotaChanged && !windowChanged {
+		return false, nil
+	}
+	if quota > 0 {
+		windowSeconds, err := parseDurationToSeconds(window)
+		if err != nil {
+			return false, errors.Wrap(err, "invalid rate limit window")
+		}
+		dest.SetRateLimitPolicy(buildRateLimitPolicy(quota, windowSeconds))
+		return true, nil
+	}
+	if !quotaChanged {
+		return false, errors.New("--rate-limit-window requires --rate-limit-quota to be set")
+	}
+	return false, errors.New("--rate-limit-quota must be greater than 0; to remove a rate limit, run update with --update-mask rate_limit_policy")
 }
 
 // cmdEndpoint reads the --endpoint flag from the command.

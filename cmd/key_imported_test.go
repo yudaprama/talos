@@ -751,6 +751,84 @@ func TestUpdateImportedAPIKeyCmd(t *testing.T) {
 	})
 }
 
+func TestUpdateImportedAPIKeyCmd_RateLimit(t *testing.T) {
+	// Not parallel: see TestImportAPIKeyCmd for explanation.
+
+	tc := setupTestServer(t)
+
+	t.Run("sets quota and window", func(t *testing.T) {
+		keyID := tc.importAPIKey(t, "imported-rl-set", "sk_live_imported_rl_set_key")
+
+		_, stderr := tc.execNoErr(t, "keys", "imported", "update", keyID,
+			"--rate-limit-quota", "100",
+			"--rate-limit-window", "5m",
+			"--format", "json")
+		assert.Contains(t, stderr, "API key updated.")
+
+		policy := tc.getImportedRateLimitPolicy(t, keyID)
+		require.NotNil(t, policy, "rate limit policy should be set")
+		assert.Equal(t, "100", policy.GetQuota())
+		assert.Equal(t, "300s", policy.GetWindow())
+	})
+
+	t.Run("window without quota is rejected", func(t *testing.T) {
+		keyID := tc.importAPIKey(t, "imported-rl-window-only", "sk_live_imported_rl_window_only")
+
+		_, _, err := tc.exec(t, "keys", "imported", "update", keyID,
+			"--rate-limit-window", "5m")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "requires --rate-limit-quota")
+	})
+
+	t.Run("quota zero is rejected with guidance", func(t *testing.T) {
+		keyID := tc.importAPIKey(t, "imported-rl-zero", "sk_live_imported_rl_zero_key")
+
+		_, _, err := tc.exec(t, "keys", "imported", "update", keyID,
+			"--rate-limit-quota", "0")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "--update-mask rate_limit_policy")
+	})
+
+	t.Run("update mask clears the policy", func(t *testing.T) {
+		keyID := tc.importAPIKey(t, "imported-rl-clear", "sk_live_imported_rl_clear_key")
+
+		tc.execNoErr(t, "keys", "imported", "update", keyID,
+			"--rate-limit-quota", "100",
+			"--rate-limit-window", "5m")
+		require.NotNil(t, tc.getImportedRateLimitPolicy(t, keyID))
+
+		_, stderr := tc.execNoErr(t, "keys", "imported", "update", keyID,
+			"--update-mask", "rate_limit_policy")
+		assert.Contains(t, stderr, "API key updated.")
+
+		assert.Nil(t, tc.getImportedRateLimitPolicy(t, keyID), "policy should be cleared")
+	})
+}
+
+func TestUpdateImportedAPIKeyCmd_Metadata(t *testing.T) {
+	// Not parallel: see TestImportAPIKeyCmd for explanation.
+
+	tc := setupTestServer(t)
+
+	t.Run("bare empty metadata is rejected", func(t *testing.T) {
+		keyID := tc.importAPIKey(t, "imported-md-empty", "sk_live_imported_md_empty_key")
+
+		_, _, err := tc.exec(t, "keys", "imported", "update", keyID,
+			"--metadata", "")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "{}")
+	})
+
+	t.Run("empty object clears metadata", func(t *testing.T) {
+		keyID := tc.importAPIKey(t, "imported-md-clear", "sk_live_imported_md_clear_key")
+
+		_, stderr := tc.execNoErr(t, "keys", "imported", "update", keyID,
+			"--metadata", "{}",
+			"--format", "json")
+		assert.Contains(t, stderr, "API key updated.")
+	})
+}
+
 func TestUpdateImportedAPIKeyCmd_UpdateMask(t *testing.T) {
 	// Not parallel: see TestImportAPIKeyCmd for explanation.
 

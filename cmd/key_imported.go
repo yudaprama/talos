@@ -436,13 +436,14 @@ func newUpdateImportedAPIKeyCmd() *cobra.Command {
 				anyChanged = true
 			}
 			if cmd.Flags().Changed("metadata") {
+				if metadataStr == "" {
+					return errors.New(`--metadata requires a JSON object; use '{}' to clear metadata`)
+				}
 				metadata, err := parseJSONMap(metadataStr, "metadata")
 				if err != nil {
 					return err
 				}
-				if metadata != nil {
-					body.SetMetadata(metadata)
-				}
+				body.SetMetadata(metadata)
 				anyChanged = true
 			}
 
@@ -453,18 +454,11 @@ func newUpdateImportedAPIKeyCmd() *cobra.Command {
 				anyChanged = true
 			}
 
-			if cmd.Flags().Changed("rate-limit-quota") {
-				if rateLimitQuota > 0 {
-					windowSeconds, err := parseDurationToSeconds(rateLimitWindow)
-					if err != nil {
-						return errors.Wrap(err, "invalid rate limit window")
-					}
-					body.SetRateLimitPolicy(buildRateLimitPolicy(rateLimitQuota, windowSeconds))
-				} else {
-					body.SetRateLimitPolicy(client.RateLimitPolicy{})
-				}
-				anyChanged = true
+			rlChanged, err := applyRateLimitUpdate(cmd, &body, rateLimitQuota, rateLimitWindow)
+			if err != nil {
+				return err
 			}
+			anyChanged = anyChanged || rlChanged
 
 			useMask := cmd.Flags().Changed("update-mask")
 			if !useMask && !anyChanged {
@@ -503,8 +497,8 @@ func newUpdateImportedAPIKeyCmd() *cobra.Command {
 	cmd.Flags().StringVar(&scopesStr, "scopes", "", "Comma-separated list of scopes")
 	cmd.Flags().StringVar(&metadataStr, "metadata", "", "JSON metadata for the imported API key")
 	cmd.Flags().StringVar(&allowedCIDRs, "allowed-cidrs", "", "Comma-separated CIDR ranges for IP restriction (empty string removes restrictions)")
-	cmd.Flags().Int64Var(&rateLimitQuota, "rate-limit-quota", 0, "Maximum requests allowed per window (0 = no limit)")
-	cmd.Flags().StringVar(&rateLimitWindow, "rate-limit-window", "", "Rate limit window duration (e.g., 60s, 5m)")
+	cmd.Flags().Int64Var(&rateLimitQuota, "rate-limit-quota", 0, "Maximum requests allowed per window (must be > 0; to remove a rate limit, use --update-mask rate_limit_policy)")
+	cmd.Flags().StringVar(&rateLimitWindow, "rate-limit-window", "", "Rate limit window duration, required with --rate-limit-quota (e.g., 60s, 5m)")
 	cmd.Flags().StringVar(&updateMask, "update-mask", "", "Comma-separated AIP-134 field-mask paths (e.g., name,scopes). When set, the listed fields are written; fields omitted from the request body are cleared to their zero value.")
 
 	return cmd

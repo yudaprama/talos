@@ -249,6 +249,73 @@ func TestIssueAPIKeyCmd(t *testing.T) {
 	})
 }
 
+func TestIssueAPIKeyCmd_RateLimit(t *testing.T) {
+	// Not parallel: see TestIssueAPIKeyCmd for explanation.
+
+	tc := setupTestServer(t)
+
+	t.Run("window without quota is rejected", func(t *testing.T) {
+		_, _, err := tc.exec(t, "keys", "issue", "issue-rl-window-only",
+			"--actor", "user-rl",
+			"--rate-limit-window", "5m")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "requires --rate-limit-quota")
+	})
+
+	t.Run("quota and window set a policy", func(t *testing.T) {
+		stdout, _ := tc.execNoErr(t, "keys", "issue", "issue-rl-both",
+			"--actor", "user-rl",
+			"--rate-limit-quota", "100",
+			"--rate-limit-window", "5m",
+			"--format", "json")
+
+		var output client.IssueApiKeyResponse
+		require.NoError(t, json.Unmarshal([]byte(stdout), &output))
+		issuedKey := output.GetIssuedApiKey()
+		keyID := issuedKey.GetKeyId()
+		require.NotEmpty(t, keyID)
+
+		policy := tc.getIssuedRateLimitPolicy(t, keyID)
+		require.NotNil(t, policy, "rate limit policy should be set")
+		assert.Equal(t, "100", policy.GetQuota())
+		assert.Equal(t, "300s", policy.GetWindow())
+	})
+}
+
+func TestImportAPIKeyCmd_RateLimit(t *testing.T) {
+	// Not parallel: see TestIssueAPIKeyCmd for explanation.
+
+	tc := setupTestServer(t)
+
+	t.Run("window without quota is rejected", func(t *testing.T) {
+		_, _, err := tc.exec(t, "keys", "imported", "import", "import-rl-window-only",
+			"--raw-key", "sk_live_import_rl_window_only",
+			"--actor", "user-rl",
+			"--rate-limit-window", "5m")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "requires --rate-limit-quota")
+	})
+
+	t.Run("quota and window set a policy", func(t *testing.T) {
+		stdout, _ := tc.execNoErr(t, "keys", "imported", "import", "import-rl-both",
+			"--raw-key", "sk_live_import_rl_both_key",
+			"--actor", "user-rl",
+			"--rate-limit-quota", "100",
+			"--rate-limit-window", "5m",
+			"--format", "json")
+
+		var output client.ImportedApiKey
+		require.NoError(t, json.Unmarshal([]byte(stdout), &output))
+		keyID := output.GetKeyId()
+		require.NotEmpty(t, keyID)
+
+		policy := tc.getImportedRateLimitPolicy(t, keyID)
+		require.NotNil(t, policy, "rate limit policy should be set")
+		assert.Equal(t, "100", policy.GetQuota())
+		assert.Equal(t, "300s", policy.GetWindow())
+	})
+}
+
 func TestRevokeAPIKeyCmd(t *testing.T) {
 	// Not parallel: see TestIssueAPIKeyCmd for explanation.
 

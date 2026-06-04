@@ -12,12 +12,22 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/constant"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"os"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/go/packages"
 )
+
+// eventsPackagePath is the import path of the package that defines the audit
+// event attribute constants. It is used to type-check constant values that AST
+// literal extraction cannot resolve (e.g. cross-package references). Using the
+// full import path lets the loader work regardless of the caller's directory.
+const eventsPackagePath = "github.com/ory/talos/internal/events"
 
 // EventTypeConst represents an extracted EventType constant.
 type EventTypeConst struct {
@@ -61,6 +71,22 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing attributes.go: %v\n", err)
 		os.Exit(1)
+	}
+
+	// Some attribute constants are defined as cross-package references (e.g.
+	// AttrNetworkID = semconv.AttributeKeyNID) rather than string literals, so
+	// AST extraction yields "". Fall back to type-checked constant values.
+	constValues, err := loadConstStringValues(eventsPackagePath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error type-checking %s: %v\n", eventsPackagePath, err)
+		os.Exit(1)
+	}
+	for i := range attrs {
+		if attrs[i].Value == "" {
+			if v, ok := constValues[attrs[i].Name]; ok {
+				attrs[i].Value = v
+			}
+		}
 	}
 
 	if len(eventTypes) == 0 {
@@ -170,6 +196,37 @@ func parseAttributesFile(path string) ([]AttrConst, error) {
 	}
 
 	return attrs, nil
+}
+
+// loadConstStringValues type-checks the given package and returns the resolved
+// values of its string-typed constants, keyed by constant name. This resolves
+// constants whose value is another constant reference (which AST literal
+// extraction cannot follow) to their final string value.
+func loadConstStringValues(pkgPath string) (map[string]string, error) {
+	cfg := &packages.Config{
+		Mode: packages.NeedName | packages.NeedTypes | packages.NeedTypesInfo |
+			packages.NeedSyntax | packages.NeedImports | packages.NeedDeps,
+	}
+	pkgs, err := packages.Load(cfg, pkgPath)
+	if err != nil {
+		return nil, fmt.Errorf("loading %s: %w", pkgPath, err)
+	}
+
+	values := make(map[string]string)
+	for _, pkg := range pkgs {
+		if len(pkg.Errors) > 0 {
+			return nil, fmt.Errorf("type-checking %s: %w", pkg.PkgPath, pkg.Errors[0])
+		}
+		scope := pkg.Types.Scope()
+		for _, name := range scope.Names() {
+			c, ok := scope.Lookup(name).(*types.Const)
+			if !ok || c.Val().Kind() != constant.String {
+				continue
+			}
+			values[name] = constant.StringVal(c.Val())
+		}
+	}
+	return values, nil
 }
 
 // resolveTypeName extracts the type name from a ValueSpec.

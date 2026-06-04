@@ -155,6 +155,87 @@ func TestUpdateIssuedAPIKeyCmd(t *testing.T) {
 	})
 }
 
+func TestUpdateIssuedAPIKeyCmd_RateLimit(t *testing.T) {
+	// Not parallel: see TestGetIssuedAPIKeyCmd for explanation.
+
+	tc := setupTestServer(t)
+
+	t.Run("sets quota and window", func(t *testing.T) {
+		keyID, _ := tc.createAPIKey(t, "rl-set-key")
+
+		_, stderr := tc.execNoErr(t, "keys", "issued", "update", keyID,
+			"--rate-limit-quota", "100",
+			"--rate-limit-window", "5m",
+			"--format", "json")
+		assert.Contains(t, stderr, "API key updated.")
+
+		policy := tc.getIssuedRateLimitPolicy(t, keyID)
+		require.NotNil(t, policy, "rate limit policy should be set")
+		assert.Equal(t, "100", policy.GetQuota())
+		assert.Equal(t, "300s", policy.GetWindow())
+	})
+
+	t.Run("window without quota is rejected", func(t *testing.T) {
+		keyID, _ := tc.createAPIKey(t, "rl-window-only-key")
+
+		_, stderr, err := tc.exec(t, "keys", "issued", "update", keyID,
+			"--rate-limit-window", "5m")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "requires --rate-limit-quota")
+		_ = stderr
+	})
+
+	t.Run("quota zero is rejected with guidance", func(t *testing.T) {
+		keyID, _ := tc.createAPIKey(t, "rl-zero-key")
+
+		_, _, err := tc.exec(t, "keys", "issued", "update", keyID,
+			"--rate-limit-quota", "0")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "--update-mask rate_limit_policy")
+	})
+
+	t.Run("update mask clears the policy", func(t *testing.T) {
+		keyID, _ := tc.createAPIKey(t, "rl-clear-key")
+
+		// First set a policy.
+		tc.execNoErr(t, "keys", "issued", "update", keyID,
+			"--rate-limit-quota", "100",
+			"--rate-limit-window", "5m")
+		require.NotNil(t, tc.getIssuedRateLimitPolicy(t, keyID))
+
+		// Then clear it via the AIP-134 update mask.
+		_, stderr := tc.execNoErr(t, "keys", "issued", "update", keyID,
+			"--update-mask", "rate_limit_policy")
+		assert.Contains(t, stderr, "API key updated.")
+
+		assert.Nil(t, tc.getIssuedRateLimitPolicy(t, keyID), "policy should be cleared")
+	})
+}
+
+func TestUpdateIssuedAPIKeyCmd_Metadata(t *testing.T) {
+	// Not parallel: see TestGetIssuedAPIKeyCmd for explanation.
+
+	tc := setupTestServer(t)
+
+	t.Run("bare empty metadata is rejected", func(t *testing.T) {
+		keyID, _ := tc.createAPIKey(t, "md-empty-key")
+
+		_, _, err := tc.exec(t, "keys", "issued", "update", keyID,
+			"--metadata", "")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "{}")
+	})
+
+	t.Run("empty object clears metadata", func(t *testing.T) {
+		keyID, _ := tc.createAPIKey(t, "md-clear-key")
+
+		_, stderr := tc.execNoErr(t, "keys", "issued", "update", keyID,
+			"--metadata", "{}",
+			"--format", "json")
+		assert.Contains(t, stderr, "API key updated.")
+	})
+}
+
 func TestRotateIssuedAPIKeyCmd(t *testing.T) {
 	// Not parallel: see TestGetIssuedAPIKeyCmd for explanation.
 

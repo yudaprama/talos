@@ -201,6 +201,40 @@ func (tc *testContext) revokeImportedAPIKey(t *testing.T, keyID string) {
 	tc.execNoErr(t, "keys", "imported", "revoke", keyID, "--reason", "key_compromise")
 }
 
+// getIssuedRateLimitPolicy fetches an issued key via the SDK and returns its
+// rate limit policy, or nil if none is set.
+func (tc *testContext) getIssuedRateLimitPolicy(t *testing.T, keyID string) *client.RateLimitPolicy {
+	t.Helper()
+
+	resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+		AdminGetIssuedApiKey(t.Context(), keyID).
+		Execute()
+	if httpResp != nil {
+		defer httpResp.Body.Close()
+	}
+	require.NoError(t, err, "get issued key %s", keyID)
+
+	policy, _ := resp.GetRateLimitPolicyOk()
+	return policy
+}
+
+// getImportedRateLimitPolicy fetches an imported key via the SDK and returns its
+// rate limit policy, or nil if none is set.
+func (tc *testContext) getImportedRateLimitPolicy(t *testing.T, keyID string) *client.RateLimitPolicy {
+	t.Helper()
+
+	resp, httpResp, err := tc.sdkClient().ApiKeysAPI.
+		AdminGetImportedApiKey(t.Context(), keyID).
+		Execute()
+	if httpResp != nil {
+		defer httpResp.Body.Close()
+	}
+	require.NoError(t, err, "get imported key %s", keyID)
+
+	policy, _ := resp.GetRateLimitPolicyOk()
+	return policy
+}
+
 // sdkClient returns an OpenAPI SDK client pointing at the test server.
 // Use this for verification assertions that cannot be done through CLI commands.
 func (tc *testContext) sdkClient() *client.APIClient {
