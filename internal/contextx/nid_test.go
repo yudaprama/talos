@@ -7,10 +7,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNetworkIDFromContext_Default(t *testing.T) {
@@ -57,41 +55,4 @@ func TestNetworkIDFromContext_WrongType(t *testing.T) {
 	// the function falls back to uuid.Nil.
 	ctx := context.WithValue(t.Context(), NIDKey{}, "not-a-uuid")
 	assert.Equal(t, uuid.Nil, NetworkIDFromContext(ctx))
-}
-
-func TestRequiredNetworkIDFromContext_Success(t *testing.T) {
-	t.Parallel()
-
-	customNID := uuid.Must(uuid.FromString("12345678-1234-1234-1234-123456789012"))
-	ctx := context.WithValue(t.Context(), NIDKey{}, customNID)
-
-	nid, err := RequiredNetworkIDFromContext(ctx)
-	require.NoError(t, err)
-	assert.Equal(t, customNID, nid)
-}
-
-func TestRequiredNetworkIDFromContext_ExplicitNilAllowed(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.WithValue(t.Context(), NIDKey{}, uuid.Nil)
-	nid, err := RequiredNetworkIDFromContext(ctx)
-	require.NoError(t, err)
-	assert.Equal(t, uuid.Nil, nid)
-}
-
-func TestRequiredNetworkIDFromContext_Missing(t *testing.T) {
-	t.Parallel()
-
-	_, err := RequiredNetworkIDFromContext(t.Context())
-	require.Error(t, err)
-	assert.True(t, errors.Is(err, ErrMissingNetworkID))
-}
-
-func TestRequiredNetworkIDFromContext_WrongType(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.WithValue(t.Context(), NIDKey{}, "not-a-uuid")
-	_, err := RequiredNetworkIDFromContext(ctx)
-	require.Error(t, err)
-	assert.True(t, errors.Is(err, ErrInvalidNetworkIDType))
 }

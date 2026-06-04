@@ -14,7 +14,8 @@ import (
 // This provides a common abstraction over SQLite, PostgreSQL, MySQL, and CockroachDB.
 //
 // Network ID (NID) is extracted from context internally by each driver implementation.
-// OSS uses hardcoded uuid.Nil (single-tenant); commercial drivers use contextx.NetworkIDFromContext.
+// OSS uses hardcoded uuid.Nil (single-tenant); commercial drivers require the NID via
+// contextx.RequiredNetworkIDFromContext, which fails loud when the NID is missing.
 type Persister interface {
 	// Issued API Key operations
 

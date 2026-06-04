@@ -209,7 +209,7 @@ func TestGetJWKS(t *testing.T) {
 func TestGetJWKS_NoSigningKeys(t *testing.T) {
 	t.Parallel()
 
-	ctx := t.Context()
+	ctx := testCtx(t)
 
 	// Build a service with no signing key URLs in the provider.
 	driver, err := testutil.InitDriver(t, "")

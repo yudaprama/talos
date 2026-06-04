@@ -85,7 +85,7 @@ func (p *corruptScopesPersister) ListIssuedAPIKeysByNetwork(ctx context.Context,
 
 func setupPersistedScopesFailureEnv(t *testing.T) (*corruptScopesPersister, *service.Admin, *service.Public, context.Context) {
 	t.Helper()
-	ctx := t.Context()
+	ctx := testCtx(t)
 
 	driver, err := testutil.InitDriver(t, "")
 	require.NoError(t, err)

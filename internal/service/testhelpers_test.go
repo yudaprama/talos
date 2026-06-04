@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"buf.build/go/protovalidate"
+	"github.com/gofrs/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
 
@@ -15,6 +16,7 @@ import (
 
 	"github.com/ory/talos/internal/cache"
 	"github.com/ory/talos/internal/config"
+	"github.com/ory/talos/internal/contextx"
 	"github.com/ory/talos/internal/crypto"
 	"github.com/ory/talos/internal/events"
 	"github.com/ory/talos/internal/lastused"
@@ -24,6 +26,14 @@ import (
 	"github.com/ory/talos/internal/testutil"
 	"github.com/ory/talos/internal/verifier"
 )
+
+// testCtx returns a context carrying an explicit nil network ID so the strict
+// NID accessors on storage and pagination paths resolve identically in OSS and
+// commercial builds. In production the contextualizer middleware sets the NID.
+func testCtx(t *testing.T) context.Context {
+	t.Helper()
+	return context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
+}
 
 // baseTestConfig returns the config values shared by all service test setups.
 func baseTestConfig() map[string]any {
@@ -43,7 +53,7 @@ func baseTestConfig() map[string]any {
 // can be verified by the other.
 func setupTestService(t *testing.T) (*service.Admin, *verifier.Verifier, context.Context) {
 	t.Helper()
-	ctx := t.Context()
+	ctx := testCtx(t)
 
 	driver, err := testutil.InitDriver(t, "")
 	require.NoError(t, err)
@@ -75,7 +85,7 @@ func setupTestService(t *testing.T) (*service.Admin, *verifier.Verifier, context
 // non-default settings.
 func setupTestServiceWithConfig(t *testing.T, overrides map[string]any) (*service.Admin, context.Context) {
 	t.Helper()
-	ctx := t.Context()
+	ctx := testCtx(t)
 
 	driver, err := testutil.InitDriver(t, "")
 	require.NoError(t, err)
@@ -107,7 +117,7 @@ func setupTestServiceWithConfig(t *testing.T, overrides map[string]any) (*servic
 // setupTestAdminWithPublicPrefix creates a test Admin with a public key prefix configured.
 func setupTestAdminWithPublicPrefix(t *testing.T, publicPrefix string) (*service.Admin, context.Context) {
 	t.Helper()
-	ctx := t.Context()
+	ctx := testCtx(t)
 
 	driver, err := testutil.InitDriver(t, "")
 	require.NoError(t, err)

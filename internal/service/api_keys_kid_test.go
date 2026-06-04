@@ -57,7 +57,7 @@ func TestDeriveToken_KIDHintRoutesToConfiguredKey(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := t.Context()
+			ctx := testCtx(t)
 
 			driver, err := testutil.InitDriver(t, "")
 			require.NoError(t, err)

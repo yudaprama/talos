@@ -957,7 +957,8 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 	macaroonPrefixes := v.getMacaroonPrefixes(ctx)
 	maxAge := v.provider.Duration(ctx, talosconfig.KeyCredentialsAPIKeysMaxTTL)
 	clockSkew := v.clockSkew(ctx)
-	nidStr := contextx.NetworkIDFromContext(ctx).String()
+	nid := contextx.NetworkIDFromContext(ctx)
+	nidStr := nid.String()
 
 	routes := make([]crypto.CredentialRoute, len(credentials))
 	var issuedEntries []issuedEntry
@@ -1046,7 +1047,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 			}
 
 			if persistence.ShouldUpdateLastUsed(dbKey.LastUsedAt, time.Now().UTC()) {
-				v.tracker.Publish(dbKey.KeyID, contextx.NetworkIDFromContext(ctx), false)
+				v.tracker.Publish(dbKey.KeyID, nid, false)
 			}
 
 			keyCopy := dbKey

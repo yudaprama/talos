@@ -61,7 +61,11 @@ func (p *paginationHelper) prepareListQuery(ctx context.Context, filter string, 
 		if err != nil {
 			return listQueryParams{}, errdef.BadRequest("invalid page token").WithWrap(errors.WithStack(err))
 		}
-		if cursor.NID != contextx.NetworkIDFromContext(ctx).String() {
+		nid, err := contextx.RequiredNetworkIDFromContext(ctx)
+		if err != nil {
+			return listQueryParams{}, errdef.InternalError("extract network id from context").WithWrap(errors.WithStack(err))
+		}
+		if cursor.NID != nid.String() {
 			return listQueryParams{}, errdef.BadRequest("page token network mismatch")
 		}
 		cursorKeyID = cursor.ID
@@ -86,7 +90,11 @@ func (p *paginationHelper) nextPageToken(ctx context.Context, originalCount int,
 		return "", errdef.InternalError("derive pagination key").WithWrap(errors.WithStack(err))
 	}
 	key := crypto.DerivePaginationKey(secret)
-	token, err := pagination.EncodeCursor(key, keyID, contextx.NetworkIDFromContext(ctx).String())
+	nid, err := contextx.RequiredNetworkIDFromContext(ctx)
+	if err != nil {
+		return "", errdef.InternalError("extract network id from context").WithWrap(errors.WithStack(err))
+	}
+	token, err := pagination.EncodeCursor(key, keyID, nid.String())
 	if err != nil {
 		return "", errdef.InternalError("encode pagination cursor").WithWrap(errors.WithStack(err))
 	}

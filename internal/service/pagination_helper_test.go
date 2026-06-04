@@ -72,7 +72,9 @@ func TestPaginationHelper_PrepareListQuery(t *testing.T) {
 		config.KeySecretsHMACCurrent.String(): testSecret,
 	}))
 	helper := &paginationHelper{provider: mockProvider}
-	ctx := t.Context()
+	// Required because prepareListQuery uses the strict RequiredNetworkIDFromContext,
+	// which errors in commercial builds when the context has no NID.
+	ctx := context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
 	testKey := crypto.DerivePaginationKey(testSecret)
 
 	t.Run("empty token returns empty cursor key", func(t *testing.T) {
@@ -91,20 +93,9 @@ func TestPaginationHelper_PrepareListQuery(t *testing.T) {
 		assert.Equal(t, "item-123", params.cursorKey)
 	})
 
-	t.Run("cross-tenant token returns bad request", func(t *testing.T) {
-		tenant1Ctx := context.WithValue(ctx, contextx.NIDKey{}, uuid.Must(uuid.FromString("11111111-1111-1111-1111-111111111111")))
-		tenant2Ctx := context.WithValue(ctx, contextx.NIDKey{}, uuid.Must(uuid.FromString("22222222-2222-2222-2222-222222222222")))
-
-		token, err := pagination.EncodeCursor(testKey, "item-123", contextx.NetworkIDFromContext(tenant1Ctx).String())
-		require.NoError(t, err)
-
-		_, err = helper.prepareListQuery(tenant2Ctx, "", 10, token)
-		require.Error(t, err)
-		var herodotErr *herodot.DefaultError
-		require.True(t, errors.As(err, &herodotErr))
-		assert.Equal(t, 400, herodotErr.StatusCode())
-		assert.Contains(t, herodotErr.Reason(), "network mismatch")
-	})
+	// Cross-tenant token rejection is a multi-tenant (commercial) concern: in OSS
+	// the network ID is always uuid.Nil, so there is no cross-tenant boundary to
+	// enforce. See pagination_helper_commercial_test.go for that coverage.
 
 	t.Run("invalid token returns bad request", func(t *testing.T) {
 		_, err := helper.prepareListQuery(ctx, "", 10, "invalid-token")
@@ -122,7 +113,7 @@ func TestPaginationHelper_OSSMode(t *testing.T) {
 		config.KeySecretsHMACCurrent.String(): "test-secret-at-least-32-bytes-long",
 	}))
 	helper := &paginationHelper{provider: mockProvider}
-	ctx := t.Context()
+	ctx := context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
 
 	// nextPageToken encodes a cursor using the nil UUID NID from context.
 	nextToken, err := helper.nextPageToken(ctx, 11, 10, "last-item-id")
@@ -148,7 +139,7 @@ func TestPaginationHelper_HMACRotation(t *testing.T) {
 		config.KeySecretsHMACRetired.String(): []string{oldSecret},
 	}))
 	helper := &paginationHelper{provider: mockProvider}
-	ctx := t.Context()
+	ctx := context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
 
 	// Encode a token using the OLD key (simulating a token issued before rotation).
 	oldKey := crypto.DerivePaginationKey(oldSecret)
@@ -205,7 +196,7 @@ func TestPaginationHelper_PrepareListQuery_Adversarial(t *testing.T) {
 		config.KeySecretsHMACCurrent.String(): testSecret,
 	}))
 	helper := &paginationHelper{provider: mockProvider}
-	ctx := t.Context()
+	ctx := context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
 	testKey := crypto.DerivePaginationKey(testSecret)
 
 	t.Run("page size boundaries", func(t *testing.T) {
@@ -322,7 +313,7 @@ func TestPaginationHelper_NextPageToken(t *testing.T) {
 		config.KeySecretsHMACCurrent.String(): testSecret,
 	}))
 	helper := &paginationHelper{provider: mockProvider}
-	ctx := t.Context()
+	ctx := context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
 
 	t.Run("no next page when count equals page size", func(t *testing.T) {
 		token, err := helper.nextPageToken(ctx, 10, 10, "last-id")

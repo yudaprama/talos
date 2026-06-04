@@ -956,7 +956,7 @@ func TestDeriveToken_IssuedKeyCustomACLCannotOverride(t *testing.T) {
 func TestDeriveToken_UsesConfiguredIssuer(t *testing.T) {
 	t.Parallel()
 
-	ctx := t.Context()
+	ctx := testCtx(t)
 	driver, err := testutil.InitDriver(t, "")
 	require.NoError(t, err)
 

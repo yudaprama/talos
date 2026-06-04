@@ -14,8 +14,11 @@ import (
 	"github.com/ory/talos/internal/contextx"
 )
 
-// recorder is a test Flusher that records all batch calls. It reads NID from
-// the context the tracker injects, mirroring the production driver contract.
+// recorder is a test Flusher that records all batch calls. It reads the NID the
+// tracker injects into context via the best-effort accessor, which reflects the
+// injected value in both editions (the strict accessor always resolves to
+// uuid.Nil in OSS). This verifies the tracker's multi-tenant propagation
+// contract.
 type recorder struct {
 	mu       sync.Mutex
 	issued   map[string][]string // nid -> deduplicated key IDs across all flushes
@@ -31,10 +34,7 @@ func newRecorder() *recorder {
 }
 
 func (r *recorder) BatchUpdateIssuedAPIKeyLastUsed(ctx context.Context, keyIDs []string) error {
-	nid, err := contextx.RequiredNetworkIDFromContext(ctx)
-	if err != nil {
-		return err
-	}
+	nid := contextx.NetworkIDFromContext(ctx)
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.calls.Add(1)
@@ -43,10 +43,7 @@ func (r *recorder) BatchUpdateIssuedAPIKeyLastUsed(ctx context.Context, keyIDs [
 }
 
 func (r *recorder) BatchUpdateImportedAPIKeyLastUsed(ctx context.Context, keyIDs []string) error {
-	nid, err := contextx.RequiredNetworkIDFromContext(ctx)
-	if err != nil {
-		return err
-	}
+	nid := contextx.NetworkIDFromContext(ctx)
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.calls.Add(1)
@@ -272,19 +269,17 @@ func TestTracker_FlushInjectsNIDIntoContext(t *testing.T) {
 	)
 	stub := flusherFunc{
 		issued: func(ctx context.Context, _ []string) error {
-			nid, err := contextx.RequiredNetworkIDFromContext(ctx)
 			mu.Lock()
 			defer mu.Unlock()
-			seenNIDs = append(seenNIDs, nid)
+			seenNIDs = append(seenNIDs, contextx.NetworkIDFromContext(ctx))
 			seenContextSet = ctx != nil
-			return err
+			return nil
 		},
 		imported: func(ctx context.Context, _ []string) error {
-			nid, err := contextx.RequiredNetworkIDFromContext(ctx)
 			mu.Lock()
 			defer mu.Unlock()
-			seenNIDs = append(seenNIDs, nid)
-			return err
+			seenNIDs = append(seenNIDs, contextx.NetworkIDFromContext(ctx))
+			return nil
 		},
 	}
 
