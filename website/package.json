@@ -36,11 +36,11 @@
   },
   "overrides": {
     "ajv": "8.18.0",
-    "brace-expansion": "5.0.5",
+    "brace-expansion": "5.0.6",
     "dompurify": "3.4.0",
     "follow-redirects": "1.16.0",
     "gray-matter": {
-      "js-yaml": "3.14.1"
+      "js-yaml": "3.14.2"
     },
     "immutable": "5.1.5",
     "js-yaml": "4.1.1",
@@ -52,7 +52,8 @@
     "svgo": "4.0.1",
     "undici": "8.1.0",
     "uuid": "14.0.0",
-    "yaml": "2.8.3"
+    "yaml": "2.8.3",
+    "qs": "6.15.2"
   },
   "browserslist": {
     "production": [
