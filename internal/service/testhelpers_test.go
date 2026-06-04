@@ -44,6 +44,7 @@ func baseTestConfig() map[string]any {
 		config.KeyCredentialsDerivedTokensDefaultTTL.String():            "1h",
 		config.KeyCredentialsAPIKeysPrefixCurrent.String():               "talos",
 		config.KeyCredentialsDerivedTokensMacaroonPrefixCurrent.String(): "mc",
+		config.KeyCacheEnabled.String():                                  true,
 		config.KeyCacheTTL.String():                                      "5m",
 	}
 }

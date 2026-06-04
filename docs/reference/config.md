@@ -61,6 +61,7 @@ Cache configuration.
 
 | Key                              | Type                      | Default              | Env Var                                | Description                                                                                   |
 | -------------------------------- | ------------------------- | -------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `cache.enabled`                  | boolean                   | `false`              | `TALOS_CACHE_ENABLED`                  | Enable API key verification caching. (Commercial)                                             |
 | `cache.memory.max_size`          | integer                   | `104857600`          | `TALOS_CACHE_MEMORY_MAX_SIZE`          | Maximum memory usage in bytes. (restart required, Commercial)                                 |
 | `cache.memory.num_counters`      | integer                   | `10000`              | `TALOS_CACHE_MEMORY_NUM_COUNTERS`      | Number of counters for frequency estimation. (restart required, Commercial)                   |
 | `cache.redis.addrs`              | string[]                  | `["localhost:6379"]` | `TALOS_CACHE_REDIS_ADDRS`              | Redis server addresses (supports cluster/sentinel). (restart required, Commercial)            |

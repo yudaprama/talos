@@ -82,6 +82,7 @@ func createMockProviderForTestServer(t *testing.T, extraOpts ...configx.OptionMo
 		config.KeySecretsHMACCurrent.String():                            "test-hmac-secret-for-api-key-checksum-validation-32chars",
 		config.KeyCredentialsAPIKeysDefaultTTL.String():                  "24h",
 		config.KeyCredentialsAPIKeysMaxTTL.String():                      "8760h", // 365*24*time.Hour
+		config.KeyCacheEnabled.String():                                  true,
 		config.KeyCacheTTL.String():                                      "5m",
 		config.KeyCredentialsAPIKeysPrefixCurrent.String():               "talos",
 		config.KeyCredentialsDerivedTokensDefaultTTL.String():            "1h",

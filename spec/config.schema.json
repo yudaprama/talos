@@ -356,9 +356,14 @@
           "default": "noop",
           "x-immutable": true
         },
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable API key verification caching. Hot-reloadable and tenant-configurable: changes take effect on the next request without restart.",
+          "default": false
+        },
         "ttl": {
           "type": "string",
-          "description": "Default cache TTL (duration string). Hot-reloadable and tenant-configurable: changes take effect on new cache writes without restart.",
+          "description": "Default cache TTL (duration string). Hot-reloadable and tenant-configurable: changes take effect on new cache writes without restart. Non-positive durations disable caching.",
           "pattern": "^(\\d+(\\.\\d+)?(ns|us|µs|ms|s|m|h))+$",
           "default": "5m"
         },

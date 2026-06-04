@@ -95,10 +95,14 @@ const (
 // ComputeCacheTTL returns the effective cache TTL as min(configTTL, timeUntilExpiry),
 // together with whether the entry should be cached at all.
 // It guards against caching already-expired or imminently-expiring entries:
+//   - configTTL <= 0 → 0, false (caching disabled by configuration, do not cache)
 //   - expiresAt == nil → configTTL, true (no expiry set, cache for the full configured duration)
 //   - timeUntilExpiry < minCacheDuration → 0, false (already expired or expiring very soon, do not cache)
 //   - otherwise → min(configTTL, timeUntilExpiry), true
 func ComputeCacheTTL(configTTL time.Duration, expiresAt *time.Time) (time.Duration, bool) {
+	if configTTL <= 0 {
+		return 0, false
+	}
 	if expiresAt == nil {
 		return configTTL, true
 	}

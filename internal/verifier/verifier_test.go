@@ -20,6 +20,7 @@ import (
 	"github.com/ory/x/httpx"
 
 	"github.com/ory/talos/internal/cache"
+	"github.com/ory/talos/internal/cachecontrol"
 	"github.com/ory/talos/internal/clientip"
 	"github.com/ory/talos/internal/config"
 	"github.com/ory/talos/internal/contextx"
@@ -71,6 +72,8 @@ func newTestVerifier(ctx context.Context, t *testing.T) testVerifierEnv {
 }
 
 // newTestVerifierWithCache creates a full verifier test environment with the given cache.
+// Caching is enabled (cache.enabled defaults to false) so cache-dependent tests
+// exercise the cache paths.
 func newTestVerifierWithCache(ctx context.Context, t *testing.T, c cache.Cache[db.IssuedApiKey]) testVerifierEnv {
 	t.Helper()
 
@@ -79,6 +82,7 @@ func newTestVerifierWithCache(ctx context.Context, t *testing.T, c cache.Cache[d
 	t.Cleanup(func() { _ = driver.Close() })
 
 	provider := testutil.NewTestProvider(t)
+	require.NoError(t, provider.Set(ctx, config.KeyCacheEnabled, true))
 
 	keyService, err := crypto.NewKeyService(ctx, provider, httpx.NewResilientClient(), crypto.NoopKeyServiceMetrics())
 	require.NoError(t, err)
@@ -547,6 +551,83 @@ func reasonFromHerodotError(t *testing.T, err error) string {
 	return herodotErr.ReasonField
 }
 
+// TestVerifyAPIKey_CacheDisabled verifies that cache.enabled=false bypasses the
+// cache entirely: no reads, no writes, and the SKIP status is reported. The
+// flag is read per request, so toggling it takes effect immediately.
+func TestVerifyAPIKey_CacheDisabled(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	const hmacSecret = "test-hmac-secret-for-disabled-test-32chars"
+	testCacheInst := newTestCache()
+	env := newTestVerifierWithCache(ctx, t, testCacheInst)
+	configureProviderForAPIKeys(ctx, t, env.provider, hmacSecret)
+	require.NoError(t, env.provider.Set(ctx, config.KeyCacheEnabled, false))
+
+	fullKey, keyID := mustGenerateAndCreateAPIKey(ctx, t, env.driver, hmacSecret, "test-key", "owner-1", []string{"read"})
+
+	// First verification: DB lookup succeeds, nothing is written to the cache,
+	// and the SKIP status is reported.
+	result1, status1, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.NoError(t, err)
+	require.NotNil(t, result1)
+	assert.Equal(t, keyID, result1.KeyID)
+	assert.Equal(t, cachecontrol.CacheSkip, status1)
+	assert.Empty(t, testCacheInst.data, "disabled cache must not be written to")
+
+	// Seed a tampered cache entry under the key_id (the production cache key):
+	// a disabled cache must never be read, so the verification result must
+	// come from the DB.
+	tampered := *result1
+	tampered.Name = "from-cache"
+	require.NoError(t, testCacheInst.Set(ctx, keyID, tampered, 5*time.Minute))
+
+	result2, status2, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.NoError(t, err)
+	assert.Equal(t, cachecontrol.CacheSkip, status2)
+	assert.NotEqual(t, "from-cache", result2.Name, "disabled cache must not be read")
+
+	// Revocation takes effect immediately: no stale cached entry can answer.
+	require.NoError(t, env.driver.RevokeIssuedAPIKey(ctx, persistencetypes.RevokeIssuedAPIKeyParams{
+		KeyID:  keyID,
+		Reason: int32(talosv2alpha1.RevocationReason_REVOCATION_REASON_KEY_COMPROMISE),
+	}))
+	_, status3, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, errdef.ErrAPIKeyRevoked()))
+	assert.Equal(t, cachecontrol.CacheSkip, status3)
+
+	// Re-enabling restores normal cache behavior on the next request: the
+	// seeded (still-active) entry is served again, demonstrating the
+	// eventual-consistency trade-off of enabled caching.
+	require.NoError(t, env.provider.Set(ctx, config.KeyCacheEnabled, true))
+	result4, status4, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.NoError(t, err)
+	assert.Equal(t, cachecontrol.CacheHit, status4)
+	assert.Equal(t, "from-cache", result4.Name, "seeded entry is read once caching is enabled again")
+}
+
+// TestVerifyAPIKey_CacheStatusEnabled verifies MISS then HIT statuses when
+// caching is enabled.
+func TestVerifyAPIKey_CacheStatusEnabled(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	const hmacSecret = "test-hmac-secret-for-status-test-32chars1"
+	env := newTestVerifierWithCache(ctx, t, newTestCache())
+	configureProviderForAPIKeys(ctx, t, env.provider, hmacSecret)
+
+	fullKey, _ := mustGenerateAndCreateAPIKey(ctx, t, env.driver, hmacSecret, "test-key", "owner-1", []string{"read"})
+
+	_, status1, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.NoError(t, err)
+	assert.Equal(t, cachecontrol.CacheMiss, status1)
+
+	_, status2, err := env.verifier.VerifyAPIKey(ctx, fullKey)
+	require.NoError(t, err)
+	assert.Equal(t, cachecontrol.CacheHit, status2)
+}
+
 // TestVerifyAPIKey_CacheKeyCollisionPrevention verifies that different credentials
 // are cached separately and don't collide.
 // Note: Multi-tenant NID-based isolation is tested in commercial edition.
@@ -814,6 +895,7 @@ func TestVerifyAPIKey_AllCredentialTypesUseCaching(t *testing.T) {
 		hmacSecret = "test-hmac-secret-for-caching-test-32chars"
 	)
 	configureProviderForAPIKeys(ctx, t, provider, hmacSecret)
+	require.NoError(t, provider.Set(ctx, config.KeyCacheEnabled, true))
 	require.NoError(t, provider.Set(ctx, config.KeyCredentialsIssuer, "talos-service"))
 	require.NoError(t, provider.Set(ctx, config.KeyCredentialsDerivedTokensMacaroonPrefixCurrent, "mc"))
 

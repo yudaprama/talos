@@ -74,6 +74,7 @@ type ConfigProvider interface {
 	String(ctx context.Context, key talosconfig.Key) string
 	Strings(ctx context.Context, key talosconfig.Key) []string
 	Duration(ctx context.Context, key talosconfig.Key) time.Duration
+	Bool(ctx context.Context, key talosconfig.Key) bool
 }
 
 const (
@@ -455,11 +456,19 @@ func (v *Verifier) VerifyAPIKey(ctx context.Context, credential string) (_ *db.I
 	// (derived/unknown) or whose secret proof failed.
 	lookupID, cacheable := v.cacheLookupKey(ctx, route, credential)
 
+	// cache.enabled is read per request so the flag is hot-reloadable and
+	// tenant-configurable. Disabled caching reports SKIP and never reads or
+	// writes the cache, so revocations take effect immediately.
+	cacheEnabled := v.provider.Bool(ctx, talosconfig.KeyCacheEnabled)
+
 	dbCacheStatus := cachecontrol.CacheMiss
 	switch {
 	case isDerived:
 		dbCacheStatus = cachecontrol.CacheSkip
 		span.SetAttributes(attribute.String("cache_bypass", "derived-token"))
+	case !cacheEnabled:
+		dbCacheStatus = cachecontrol.CacheSkip
+		span.SetAttributes(attribute.String("cache_bypass", "disabled"))
 	case cacheable && !cachecontrol.ShouldBypassCache(ctx):
 		// cacheLookupKey already proved possession of the secret (checksum for
 		// issued keys, whole-key hash for imported keys), so a hit can be served
@@ -528,7 +537,7 @@ func (v *Verifier) VerifyAPIKey(ctx context.Context, credential string) (_ *db.I
 		return nil, dbCacheStatus, errors.WithStack(errdef.InternalError("verification succeeded but dbKey is nil"))
 	}
 
-	if !isDerived {
+	if !isDerived && cacheEnabled {
 		cacheTTL, cacheable := v.getCacheTTL(ctx, dbKey.ExpiresAt)
 		cc := cachecontrol.FromContext(ctx)
 		if cacheable && !cc.NoStore {
@@ -957,6 +966,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 	macaroonPrefixes := v.getMacaroonPrefixes(ctx)
 	maxAge := v.provider.Duration(ctx, talosconfig.KeyCredentialsAPIKeysMaxTTL)
 	clockSkew := v.clockSkew(ctx)
+	cacheEnabled := v.provider.Bool(ctx, talosconfig.KeyCacheEnabled)
 	nid := contextx.NetworkIDFromContext(ctx)
 	nidStr := nid.String()
 
@@ -1038,7 +1048,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 
 			cacheTTL, cacheable := v.getCacheTTL(ctx, dbKey.ExpiresAt)
 			cc := cachecontrol.FromContext(ctx)
-			if cacheable && !cc.NoStore {
+			if cacheEnabled && cacheable && !cc.NoStore {
 				if cacheErr := v.cache.Set(ctx, dbKey.KeyID, dbKey, cacheTTL); cacheErr != nil {
 					slog.WarnContext(ctx, "write batch verification result to cache",
 						slog.String("key_id", dbKey.KeyID),
@@ -1096,7 +1106,7 @@ func (v *Verifier) BatchVerifyAPIKeys(ctx context.Context, credentials []string)
 
 			cacheTTL, cacheable := v.getCacheTTL(ctx, apiKey.ExpiresAt)
 			cc := cachecontrol.FromContext(ctx)
-			if cacheable && !cc.NoStore {
+			if cacheEnabled && cacheable && !cc.NoStore {
 				if cacheErr := v.cache.Set(ctx, apiKey.KeyID, apiKey, cacheTTL); cacheErr != nil {
 					slog.WarnContext(ctx, "write batch verification result to cache",
 						slog.String("key_id", apiKey.KeyID),

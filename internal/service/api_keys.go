@@ -72,6 +72,7 @@ type ConfigProvider interface {
 	Strings(ctx context.Context, key talosconfig.Key) []string
 	Duration(ctx context.Context, key talosconfig.Key) time.Duration
 	Int(ctx context.Context, key talosconfig.Key) int
+	Bool(ctx context.Context, key talosconfig.Key) bool
 }
 
 // Admin implements a simplified admin service

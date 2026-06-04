@@ -47,6 +47,10 @@ func (f *fakeConfigProvider) Int(_ context.Context, _ config.Key) int {
 	return 0
 }
 
+func (f *fakeConfigProvider) Bool(_ context.Context, _ config.Key) bool {
+	return false
+}
+
 func TestPaginationKeys_RequireHMACSecret(t *testing.T) {
 	t.Parallel()
 

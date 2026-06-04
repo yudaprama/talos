@@ -106,6 +106,8 @@ var (
 
 	// KeyCacheType is the cache backend type (noop, memory, redis).
 	KeyCacheType = Key{s: "cache.type"}
+	// KeyCacheEnabled enables API key verification caching. Hot-reloadable and tenant-configurable.
+	KeyCacheEnabled = Key{s: "cache.enabled"}
 	// KeyCacheTTL is the default cache entry time-to-live.
 	KeyCacheTTL = Key{s: "cache.ttl"}
 	// KeyCacheMemoryMaxSize is the in-memory cache size limit in bytes.

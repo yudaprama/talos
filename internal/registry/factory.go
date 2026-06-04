@@ -160,12 +160,17 @@ func (f *ServiceFactory) CreateVerifier(ctx context.Context) (*verifier.Verifier
 }
 
 // getOrCreateCache returns the API key cache, creating it if needed.
-// Cache is created once and reused (cache config is immutable at runtime).
+// The backend is created once and reused (backend type is immutable at
+// runtime). Cache enable/disable checks are handled by the verifier.
 // Uses sync.Once for safe concurrent initialization.
 func (f *ServiceFactory) getOrCreateCache(ctx context.Context) (cache.Cache[db.IssuedApiKey], error) {
 	f.cacheOnce.Do(func() {
 		cacheConfig := f.buildCacheConfig(ctx)
-		f.apiKeyCache, f.cacheErr = f.createCache(ctx, cacheConfig)
+		var err error
+		f.apiKeyCache, err = f.createCache(ctx, cacheConfig)
+		if err != nil {
+			f.cacheErr = err
+		}
 	})
 	return f.apiKeyCache, f.cacheErr
 }

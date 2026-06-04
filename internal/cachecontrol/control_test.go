@@ -135,6 +135,28 @@ func TestComputeCacheTTL(t *testing.T) {
 		assert.False(t, ok)
 		assert.Equal(t, time.Duration(0), got)
 	})
+
+	t.Run("zero configTTL is not cacheable", func(t *testing.T) {
+		t.Parallel()
+		got, ok := cachecontrol.ComputeCacheTTL(0, nil)
+		assert.False(t, ok)
+		assert.Equal(t, time.Duration(0), got)
+	})
+
+	t.Run("negative configTTL is not cacheable", func(t *testing.T) {
+		t.Parallel()
+		got, ok := cachecontrol.ComputeCacheTTL(-time.Second, nil)
+		assert.False(t, ok)
+		assert.Equal(t, time.Duration(0), got)
+	})
+
+	t.Run("zero configTTL with future expiry is not cacheable", func(t *testing.T) {
+		t.Parallel()
+		exp := time.Now().Add(30 * time.Minute)
+		got, ok := cachecontrol.ComputeCacheTTL(0, &exp)
+		assert.False(t, ok)
+		assert.Equal(t, time.Duration(0), got)
+	})
 }
 
 func TestParseHeader(t *testing.T) {
