@@ -9,7 +9,20 @@ custom_edit_url: null
 
 {{{markdown}}}
 
-### Quick Links
+### Getting started
+
+- [**Run Talos (open source)**](../../quickstart/open-source.mdx) — start a local server and issue your first key
+- [**Issue and verify keys**](../../integrate/issue-and-verify.mdx) — the core request flow end to end
+- [**Derive tokens**](../../integrate/derive-tokens.mdx) — mint short-lived JWTs and Macaroons from a key
+
+### Concepts and reference
+
+- [**Credential types**](../../concepts/credential-types.md) — issued keys, imported keys, and derived tokens
+- [**Token format**](../../concepts/token-format.md) — how API keys and tokens are structured
+- [**Security model**](../../concepts/security-model.md) — trust boundaries and the admin/self-service split
+- [**Error codes**](../error-codes.md) — `google.rpc.Status` codes returned by the API
+
+### API surfaces
 
 - [**Admin**](./admin-issue-api-key) — key lifecycle management (issue, rotate, revoke, import, derive tokens, JWKS) and verification (single and batch)
 - [**Self-service**](./revoke-api-key) — proof-of-possession self-revocation for credential holders

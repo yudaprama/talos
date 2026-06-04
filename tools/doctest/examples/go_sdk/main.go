@@ -3,8 +3,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 
@@ -156,8 +158,28 @@ func run() error {
 		AdminGetIssuedApiKey(ctx, "nonexistent-id").
 		Execute()
 	if err != nil {
-		if httpResp != nil {
-			fmt.Println("HTTP status:", httpResp.StatusCode)
+		var apiErr *client.GenericOpenAPIError
+		if errors.As(err, &apiErr) {
+			var status struct {
+				Code    int32  `json:"code"`
+				Message string `json:"message"`
+				Details []struct {
+					Type     string            `json:"@type"`
+					Reason   string            `json:"reason"`
+					Domain   string            `json:"domain"`
+					Metadata map[string]string `json:"metadata"`
+				} `json:"details"`
+			}
+			if jsonErr := json.Unmarshal(apiErr.Body(), &status); jsonErr == nil {
+				fmt.Println("gRPC code:", status.Code)           // 5 = NOT_FOUND
+				fmt.Println("HTTP status:", httpResp.StatusCode) // 404
+				fmt.Println("Message:", status.Message)
+				for _, d := range status.Details {
+					if strings.HasSuffix(d.Type, "ErrorInfo") {
+						fmt.Println("Reason:", d.Reason) // Stable; switch on this
+					}
+				}
+			}
 		}
 	}
 	// endregion: error-handling

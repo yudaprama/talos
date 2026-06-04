@@ -27,10 +27,51 @@ Ory Talos is a high-performance API key management service. It handles the full 
 issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and
 revoking access.
 
-`Admin*`-prefixed RPCs require admin authentication. The bare `RevokeApiKey` RPC is authenticated by
-proof of possession (the raw credential secret).
+## Authentication
 
-### Quick Links
+`Admin*`-prefixed RPCs require admin authentication: send a bearer token in the `Authorization`
+header. Talos does not bundle an identity provider for the admin surface, so deploy it behind your
+own authentication and authorization. The self-service `RevokeApiKey` RPC is the exception: it
+authenticates by proof of possession (the caller supplies the raw credential secret) and needs no
+admin token.
+
+## API surfaces
+
+Talos is a single binary with three deployment modes: **admin** (the full lifecycle and verification
+surface), **self-service** (only proof-of-possession self-revocation for credential holders), and
+**all-in-one** (both surfaces in one process). Run the admin and self-service surfaces separately to
+keep the privileged API off the public network.
+
+## Requests and responses
+
+The API speaks JSON over HTTP. All paths are versioned under `/v2alpha1/`. Errors use the standard
+`google.rpc.Status` shape with a numeric `code`, a human-readable `message`, and a `details` array
+for machine-readable context.
+
+## Versioning and stability
+
+This is `v2alpha1`. While the API is in alpha, request and response shapes may change without
+notice. Pin to a specific build and review the release notes before upgrading.
+
+### Getting started
+
+- [**Run Talos (open source)**](../../quickstart/open-source.mdx) — start a local server and issue
+  your first key
+- [**Issue and verify keys**](../../integrate/issue-and-verify.mdx) — the core request flow end to
+  end
+- [**Derive tokens**](../../integrate/derive-tokens.mdx) — mint short-lived JWTs and Macaroons from
+  a key
+
+### Concepts and reference
+
+- [**Credential types**](../../concepts/credential-types.md) — issued keys, imported keys, and
+  derived tokens
+- [**Token format**](../../concepts/token-format.md) — how API keys and tokens are structured
+- [**Security model**](../../concepts/security-model.md) — trust boundaries and the
+  admin/self-service split
+- [**Error codes**](../error-codes.md) — `google.rpc.Status` codes returned by the API
+
+### API surfaces
 
 - [**Admin**](./admin-issue-api-key) — key lifecycle management (issue, rotate, revoke, import,
   derive tokens, JWKS) and verification (single and batch)

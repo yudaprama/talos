@@ -2,10 +2,7 @@
 title: Database
 ---
 
-# Database
-
-Talos stores API key data in a relational database. The backend is determined by the DSN scheme in
-`db.dsn`.
+Talos stores API key data in a relational database. The `db.dsn` scheme selects the backend driver.
 
 ## Supported backends
 
@@ -16,8 +13,8 @@ Talos stores API key data in a relational database. The backend is determined by
 | [MySQL](mysql.md)             | Commercial | `mysql://`     | Production with MySQL infrastructure |
 | [CockroachDB](cockroachdb.md) | Commercial | `cockroach://` | Multi-region, distributed            |
 
-SQLite is also available as a backend in the commercial edition with multi-tenant isolation and
-support for concurrent reads during writes. See [SQLite](sqlite.md) for details.
+The commercial edition also offers SQLite with multi-tenant isolation and concurrent reads during
+writes. See [SQLite](sqlite.md) for details.
 
 ## Configuration
 

@@ -3,8 +3,6 @@ title: Reference
 description: API, configuration, and technical reference
 ---
 
-# Reference
-
 Technical reference documentation for Ory Talos.
 
 ## API
@@ -18,4 +16,9 @@ Technical reference documentation for Ory Talos.
 ## Technical details
 
 - [Error codes](error-codes.md) — HTTP and gRPC error codes returned by the API
-- [Token format](token-format.md) — API key and session token structure
+- [Token format](token-format.md) — API key and derived token structure
+- [Audit events](events.md) — emitted lifecycle and verification events
+
+## CLI
+
+- [`talos`](cli/talos.md) — root command and subcommand index

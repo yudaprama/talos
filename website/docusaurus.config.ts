@@ -125,7 +125,7 @@ const config: Config = {
         {
           title: "Get started",
           items: [
-            { label: "Quickstart", to: "/quickstart" },
+            { label: "Quickstart", to: "/quickstart/open-source" },
             { label: "Integrate", to: "/integrate" },
             { label: "Operate", to: "/operate" },
           ],

@@ -10,10 +10,16 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Quickstart",
+      label: "Quickstarts",
       collapsed: false,
-      link: { type: "doc", id: "quickstart/index" },
-      items: ["quickstart/docker-commercial"],
+      items: [
+        { type: "doc", id: "quickstart/open-source", label: "Open source" },
+        {
+          type: "doc",
+          id: "quickstart/docker-commercial",
+          label: "Enterprise",
+        },
+      ],
     },
     {
       type: "category",
@@ -63,7 +69,6 @@ const sidebars: SidebarsConfig = {
           link: { type: "doc", id: "operate/deploy/index" },
           items: [
             "operate/deploy/docker",
-            "operate/deploy/kubernetes",
             "operate/deploy/deployment-modes",
             "operate/deploy/edge-proxy",
           ],
@@ -103,7 +108,6 @@ const sidebars: SidebarsConfig = {
         "concepts/security-model",
         "concepts/caching",
         "concepts/rate-limiting",
-        "concepts/token-derivation-security",
       ],
     },
     {
