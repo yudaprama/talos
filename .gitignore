@@ -30,6 +30,7 @@ go.work.sum
 
 # Local config files
 config.yaml
+talos.yaml
 config/*.yaml
 !config.yaml.example
 !tools/doctest/testdata/config.yaml
