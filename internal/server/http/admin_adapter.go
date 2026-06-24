@@ -96,6 +96,11 @@ func (a *adminAdapter) AdminBatchVerifyApiKeys(ctx context.Context, req *talosv2
 	return a.public.BatchVerifyAPIKeys(ctx, req)
 }
 
+// AdminIngestUsage records usage and debits the actor's balance (metering fork).
+func (a *adminAdapter) AdminIngestUsage(ctx context.Context, req *talosv2alpha1.IngestUsageRequest) (*talosv2alpha1.IngestUsageResponse, error) {
+	return a.public.IngestUsage(ctx, req)
+}
+
 // RevokeApiKey is the proof-of-possession self-revocation variant. It delegates
 // to Public so the credential holder can revoke their own key without admin
 // privileges.

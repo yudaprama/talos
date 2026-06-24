@@ -181,6 +181,40 @@ func (q *Queries) CreateIssuedAPIKey(ctx context.Context, arg CreateIssuedAPIKey
 	return i, err
 }
 
+const DebitActorBalance = `-- name: DebitActorBalance :one
+UPDATE actor_balances
+SET remaining = remaining - ?1, updated_at = ?2
+WHERE nid = ?3 AND actor_id = ?4
+RETURNING quota, remaining
+`
+
+type DebitActorBalanceParams struct {
+	Amount    int64     `db:"amount" json:"amount"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	NID       string    `db:"nid" json:"nid"`
+	ActorID   string    `db:"actor_id" json:"actor_id"`
+}
+
+type DebitActorBalanceRow struct {
+	Quota     int64 `db:"quota" json:"quota"`
+	Remaining int64 `db:"remaining" json:"remaining"`
+}
+
+// Decrement the actor's remaining balance. The caller initializes the row first
+// (InsertActorBalanceIfAbsent) so the UPDATE always hits. Returns post-debit
+// quota/remaining.
+func (q *Queries) DebitActorBalance(ctx context.Context, arg DebitActorBalanceParams) (DebitActorBalanceRow, error) {
+	row := q.queryRow(ctx, q.debitActorBalanceStmt, DebitActorBalance,
+		arg.Amount,
+		arg.UpdatedAt,
+		arg.NID,
+		arg.ActorID,
+	)
+	var i DebitActorBalanceRow
+	err := row.Scan(&i.Quota, &i.Remaining)
+	return i, err
+}
+
 const DeleteImportedAPIKey = `-- name: DeleteImportedAPIKey :exec
 DELETE FROM imported_api_keys
 WHERE nid = ?1 AND key_id = ?2
@@ -265,6 +299,34 @@ func (q *Queries) GetActiveIssuedAPIKey(ctx context.Context, nID uuid.UUID, keyI
 		&i.AllowedCidrs,
 		&i.RequestID,
 		&i.Visibility,
+	)
+	return i, err
+}
+
+const GetActorBalance = `-- name: GetActorBalance :one
+
+
+SELECT nid, actor_id, quota, remaining, updated_at
+FROM actor_balances
+WHERE nid = ?1 AND actor_id = ?2
+LIMIT 1
+`
+
+// reviewed - @aeneasr - 2026-03-26
+// ============================================================================
+// Metering (fork): per-actor balance cache + append-only usage ledger.
+// Backs the VerifyApiKey balance pre-check and AdminIngestUsage.
+// ============================================================================
+// Read an actor's cached balance for the verify pre-check. No row = unlimited.
+func (q *Queries) GetActorBalance(ctx context.Context, nID string, actorID string) (ActorBalance, error) {
+	row := q.queryRow(ctx, q.getActorBalanceStmt, GetActorBalance, nID, actorID)
+	var i ActorBalance
+	err := row.Scan(
+		&i.NID,
+		&i.ActorID,
+		&i.Quota,
+		&i.Remaining,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -461,6 +523,98 @@ func (q *Queries) GetIssuedAPIKeyByRequestID(ctx context.Context, nID uuid.UUID,
 		&i.Visibility,
 	)
 	return i, err
+}
+
+const GetUsageByRequestID = `-- name: GetUsageByRequestID :one
+SELECT id, nid, actor_id, request_id, created_at
+FROM api_key_usage
+WHERE nid = ?1 AND request_id = ?2
+LIMIT 1
+`
+
+type GetUsageByRequestIDRow struct {
+	ID        int64     `db:"id" json:"id"`
+	NID       string    `db:"nid" json:"nid"`
+	ActorID   string    `db:"actor_id" json:"actor_id"`
+	RequestID *string   `db:"request_id" json:"request_id"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}
+
+// Idempotency check: has this usage event already been recorded?
+func (q *Queries) GetUsageByRequestID(ctx context.Context, nID string, requestID *string) (GetUsageByRequestIDRow, error) {
+	row := q.queryRow(ctx, q.getUsageByRequestIDStmt, GetUsageByRequestID, nID, requestID)
+	var i GetUsageByRequestIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.NID,
+		&i.ActorID,
+		&i.RequestID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const InsertActorBalanceIfAbsent = `-- name: InsertActorBalanceIfAbsent :exec
+INSERT INTO actor_balances (nid, actor_id, quota, remaining, updated_at)
+VALUES (?1, ?2, ?3, ?3, ?4)
+ON CONFLICT(nid, actor_id) DO NOTHING
+`
+
+type InsertActorBalanceIfAbsentParams struct {
+	NID       string    `db:"nid" json:"nid"`
+	ActorID   string    `db:"actor_id" json:"actor_id"`
+	Quota     int64     `db:"quota" json:"quota"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+// Initialize an actor's balance row with the full quota. No-op if the row exists.
+// (sqlc's SQLite engine does not expand sqlc.arg() inside ON CONFLICT ... DO
+// UPDATE SET, so initialization and debit are split into two statements.)
+func (q *Queries) InsertActorBalanceIfAbsent(ctx context.Context, arg InsertActorBalanceIfAbsentParams) error {
+	_, err := q.exec(ctx, q.insertActorBalanceIfAbsentStmt, InsertActorBalanceIfAbsent,
+		arg.NID,
+		arg.ActorID,
+		arg.Quota,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
+const InsertUsage = `-- name: InsertUsage :exec
+INSERT INTO api_key_usage (
+    nid, actor_id, key_id, usage_type, usage_amount, cost_micros, model, request_id, created_at
+) VALUES (
+    ?1, ?2, ?3, ?4,
+    ?5, ?6, ?7, ?8, ?9
+)
+`
+
+type InsertUsageParams struct {
+	NID         string    `db:"nid" json:"nid"`
+	ActorID     string    `db:"actor_id" json:"actor_id"`
+	KeyID       *string   `db:"key_id" json:"key_id"`
+	UsageType   string    `db:"usage_type" json:"usage_type"`
+	UsageAmount int64     `db:"usage_amount" json:"usage_amount"`
+	CostMicros  int64     `db:"cost_micros" json:"cost_micros"`
+	Model       string    `db:"model" json:"model"`
+	RequestID   *string   `db:"request_id" json:"request_id"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+}
+
+// Append one usage event to the ledger. key_id and request_id are nullable.
+func (q *Queries) InsertUsage(ctx context.Context, arg InsertUsageParams) error {
+	_, err := q.exec(ctx, q.insertUsageStmt, InsertUsage,
+		arg.NID,
+		arg.ActorID,
+		arg.KeyID,
+		arg.UsageType,
+		arg.UsageAmount,
+		arg.CostMicros,
+		arg.Model,
+		arg.RequestID,
+		arg.CreatedAt,
+	)
+	return err
 }
 
 const ListActiveImportedKeyIDsBounded = `-- name: ListActiveImportedKeyIDsBounded :many

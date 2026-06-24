@@ -102,6 +102,11 @@ func (s *GatewayServer) setupRoutes(gwmux *runtime.ServeMux) {
 	// Version endpoint - returns binary version info and config hash
 	s.mux.Handle("/version", metrics.Instrument(http.HandlerFunc(s.handleVersion), "/version"))
 
+	// Gateway-friendly verify: returns 401 on invalid credentials (unlike the
+	// standard /v2alpha1/admin/apiKeys:verify which always returns 200). Used by
+	// an Ory Oathkeeper remote_json authenticator as its verification backend.
+	s.mux.Handle(GatewayVerifyPath, metrics.Instrument(http.HandlerFunc(s.handleGatewayVerify), GatewayVerifyPath))
+
 	// Edition-specific routes (e.g. /revisions/talos in commercial builds).
 	s.registerEditionRoutes(metrics, gwmux)
 

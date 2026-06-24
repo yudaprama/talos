@@ -44,7 +44,7 @@ func newPV(t *testing.T) protovalidate.Validator {
 // verifier code path.
 func newPublicWithLimiter(t *testing.T, rl ratelimit.Limiter) *Public {
 	t.Helper()
-	return NewPublic(nil, newPV(t), rl)
+	return NewPublic(nil, newPV(t), rl, nil)
 }
 
 // TestMapErrorToVerificationCode verifies all eight switch branches in

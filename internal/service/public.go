@@ -19,6 +19,7 @@ import (
 	"github.com/ory/talos/internal/cachecontrol"
 	"github.com/ory/talos/internal/clientip"
 	"github.com/ory/talos/internal/errdef"
+	"github.com/ory/talos/internal/metering"
 	db "github.com/ory/talos/internal/persistence/sqlc/generated"
 	"github.com/ory/talos/internal/persistence/sqlutil"
 	"github.com/ory/talos/internal/ratelimit"
@@ -38,14 +39,21 @@ type Public struct {
 	apiKeyVerifier *verifier.Verifier
 	protoValidator protovalidate.Validator
 	rateLimiter    ratelimit.Limiter
+	meter          metering.Meter
 }
 
-// NewPublic creates a new Public server.
-func NewPublic(v *verifier.Verifier, pv protovalidate.Validator, rl ratelimit.Limiter) *Public {
+// NewPublic creates a new Public server. The meter drives the balance pre-check
+// in VerifyApiKey and backs AdminIngestUsage; pass metering.NoopMeter{} (or nil)
+// to disable metering.
+func NewPublic(v *verifier.Verifier, pv protovalidate.Validator, rl ratelimit.Limiter, m metering.Meter) *Public {
+	if m == nil {
+		m = metering.NoopMeter{}
+	}
 	return &Public{
 		apiKeyVerifier: v,
 		protoValidator: pv,
 		rateLimiter:    rl,
+		meter:          m,
 	}
 }
 
@@ -158,6 +166,58 @@ func (s *Public) applyRateLimiting(ctx context.Context, keyID string, response *
 	}
 }
 
+// applyMetering stamps the actor's balance on the response and, when metering is
+// enabled with a finite quota, denies verification once the balance is exhausted.
+// Mirrors applyRateLimiting. Fails open on metering errors (records, does not block).
+func (s *Public) applyMetering(ctx context.Context, actorID *string, response *talosv2alpha1.VerifyApiKeyResponse, span trace.Span) {
+	if !s.meter.Enabled() || actorID == nil || *actorID == "" {
+		return
+	}
+	bal, err := s.meter.Balance(ctx, *actorID)
+	if err != nil {
+		span.RecordError(err)
+		return
+	}
+	remaining, quota := bal.Remaining, bal.Quota
+	response.BalanceRemaining = &remaining
+	response.BalanceQuota = &quota
+	if !bal.Unlimited() && bal.Remaining <= 0 {
+		response.IsValid = false
+		code := talosv2alpha1.VerificationErrorCode_VERIFICATION_ERROR_BALANCE_EXHAUSTED
+		response.ErrorCode = &code
+		errMsg := "metering balance exhausted"
+		response.ErrorMessage = &errMsg
+	}
+}
+
+// IngestUsage records a usage event and debits the actor's balance (metering fork).
+// Reached via the AdminIngestUsage RPC, called by the external egent-metering service.
+func (s *Public) IngestUsage(ctx context.Context, req *talosv2alpha1.IngestUsageRequest) (*talosv2alpha1.IngestUsageResponse, error) {
+	if !s.meter.Enabled() {
+		return &talosv2alpha1.IngestUsageResponse{Accepted: false}, nil
+	}
+	if err := s.protoValidator.Validate(req); err != nil {
+		return nil, errdef.BadRequest(err.Error())
+	}
+	res, err := s.meter.Ingest(ctx, metering.IngestRequest{
+		ActorID:    req.GetActorId(),
+		KeyID:      req.GetKeyId(),
+		UsageType:  req.GetUsageType(),
+		Amount:     req.GetUsageAmount(),
+		CostMicros: req.GetCostMicros(),
+		Model:      req.GetModel(),
+		RequestID:  req.GetRequestId(),
+	})
+	if err != nil {
+		return nil, errdef.InternalError("ingest usage").WithWrap(errors.WithStack(err))
+	}
+	return &talosv2alpha1.IngestUsageResponse{
+		BalanceRemaining: res.Remaining,
+		BalanceQuota:     res.Quota,
+		Accepted:         res.Accepted,
+	}, nil
+}
+
 // VerifyAPIKey verifies a single credential (API key or derived token)
 func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyApiKeyRequest) (resp *talosv2alpha1.VerifyApiKeyResponse, err error) {
 	ctx, span := tracing.Start(ctx, "public.VerifyAPIKey")
@@ -194,6 +254,7 @@ func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyApiK
 	}
 	response.Issuer = s.apiKeyVerifier.GetTokenIssuer(ctx)
 	s.applyRateLimiting(ctx, dbKey.KeyID, response, span)
+	s.applyMetering(ctx, dbKey.ActorID, response, span)
 
 	// The edge proxy caches verification responses on host+credential only.
 	// A cached "valid" response would bypass two per-request checks:
