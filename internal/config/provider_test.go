@@ -174,6 +174,27 @@ func TestProvider_Int(t *testing.T) {
 	assert.Equal(t, 3600, provider.Int(ctx, KeyServeHTTPCORSMaxAge))
 }
 
+func TestProvider_MeteringDefaultQuotaMicros(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+
+	provider, err := createTestProvider(t)
+	require.NoError(t, err)
+
+	// Schema default: 0 means unlimited (gating inert).
+	assert.Equal(t, 0, provider.Int(ctx, KeyMeteringDefaultQuotaMicros))
+
+	// A configured value activates gating ($10 = 10_000_000 micros).
+	require.NoError(t, provider.Set(ctx, KeyMeteringDefaultQuotaMicros, 10_000_000))
+	assert.Equal(t, 10_000_000, provider.Int(ctx, KeyMeteringDefaultQuotaMicros))
+
+	// The YAML block planoctl renders (renderTalosConfig) must load cleanly.
+	fileProvider, _ := setupProviderWithConfig(t, `metering:
+  default_quota_micros: 5000000
+`)
+	assert.Equal(t, 5_000_000, fileProvider.Int(ctx, KeyMeteringDefaultQuotaMicros))
+}
+
 func TestProvider_Duration(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()

@@ -90,6 +90,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.revokeIssuedAPIKeyStmt, err = db.PrepareContext(ctx, RevokeIssuedAPIKey); err != nil {
 		return nil, fmt.Errorf("error preparing query RevokeIssuedAPIKey: %w", err)
 	}
+	if q.setActorBalanceStmt, err = db.PrepareContext(ctx, SetActorBalance); err != nil {
+		return nil, fmt.Errorf("error preparing query SetActorBalance: %w", err)
+	}
+	if q.topUpActorBalanceStmt, err = db.PrepareContext(ctx, TopUpActorBalance); err != nil {
+		return nil, fmt.Errorf("error preparing query TopUpActorBalance: %w", err)
+	}
 	if q.updateImportedAPIKeyLastUsedStmt, err = db.PrepareContext(ctx, UpdateImportedAPIKeyLastUsed); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateImportedAPIKeyLastUsed: %w", err)
 	}
@@ -217,6 +223,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing revokeIssuedAPIKeyStmt: %w", cerr)
 		}
 	}
+	if q.setActorBalanceStmt != nil {
+		if cerr := q.setActorBalanceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing setActorBalanceStmt: %w", cerr)
+		}
+	}
+	if q.topUpActorBalanceStmt != nil {
+		if cerr := q.topUpActorBalanceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing topUpActorBalanceStmt: %w", cerr)
+		}
+	}
 	if q.updateImportedAPIKeyLastUsedStmt != nil {
 		if cerr := q.updateImportedAPIKeyLastUsedStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateImportedAPIKeyLastUsedStmt: %w", cerr)
@@ -298,6 +314,8 @@ type Queries struct {
 	listIssuedAPIKeysByNetworkStmt      *sql.Stmt
 	revokeImportedAPIKeyStmt            *sql.Stmt
 	revokeIssuedAPIKeyStmt              *sql.Stmt
+	setActorBalanceStmt                 *sql.Stmt
+	topUpActorBalanceStmt               *sql.Stmt
 	updateImportedAPIKeyLastUsedStmt    *sql.Stmt
 	updateImportedAPIKeyMetadataStmt    *sql.Stmt
 	updateIssuedAPIKeyStmt              *sql.Stmt
@@ -330,6 +348,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		listIssuedAPIKeysByNetworkStmt:      q.listIssuedAPIKeysByNetworkStmt,
 		revokeImportedAPIKeyStmt:            q.revokeImportedAPIKeyStmt,
 		revokeIssuedAPIKeyStmt:              q.revokeIssuedAPIKeyStmt,
+		setActorBalanceStmt:                 q.setActorBalanceStmt,
+		topUpActorBalanceStmt:               q.topUpActorBalanceStmt,
 		updateImportedAPIKeyLastUsedStmt:    q.updateImportedAPIKeyLastUsedStmt,
 		updateImportedAPIKeyMetadataStmt:    q.updateImportedAPIKeyMetadataStmt,
 		updateIssuedAPIKeyStmt:              q.updateIssuedAPIKeyStmt,

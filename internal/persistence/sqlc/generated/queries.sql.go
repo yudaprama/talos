@@ -917,6 +917,76 @@ func (q *Queries) RevokeIssuedAPIKey(ctx context.Context, arg RevokeIssuedAPIKey
 	return err
 }
 
+const SetActorBalance = `-- name: SetActorBalance :one
+UPDATE actor_balances
+SET quota = ?1, remaining = ?2, updated_at = ?3
+WHERE nid = ?4 AND actor_id = ?5
+RETURNING quota, remaining
+`
+
+type SetActorBalanceParams struct {
+	Quota     int64     `db:"quota" json:"quota"`
+	Remaining int64     `db:"remaining" json:"remaining"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	NID       string    `db:"nid" json:"nid"`
+	ActorID   string    `db:"actor_id" json:"actor_id"`
+}
+
+type SetActorBalanceRow struct {
+	Quota     int64 `db:"quota" json:"quota"`
+	Remaining int64 `db:"remaining" json:"remaining"`
+}
+
+// Set the actor's quota and remaining to explicit values (admin set-quota). The
+// caller initializes the row first (InsertActorBalanceIfAbsent) so the UPDATE
+// always hits. Returns the new quota/remaining.
+func (q *Queries) SetActorBalance(ctx context.Context, arg SetActorBalanceParams) (SetActorBalanceRow, error) {
+	row := q.queryRow(ctx, q.setActorBalanceStmt, SetActorBalance,
+		arg.Quota,
+		arg.Remaining,
+		arg.UpdatedAt,
+		arg.NID,
+		arg.ActorID,
+	)
+	var i SetActorBalanceRow
+	err := row.Scan(&i.Quota, &i.Remaining)
+	return i, err
+}
+
+const TopUpActorBalance = `-- name: TopUpActorBalance :one
+UPDATE actor_balances
+SET remaining = remaining + ?1, updated_at = ?2
+WHERE nid = ?3 AND actor_id = ?4
+RETURNING quota, remaining
+`
+
+type TopUpActorBalanceParams struct {
+	Amount    int64     `db:"amount" json:"amount"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	NID       string    `db:"nid" json:"nid"`
+	ActorID   string    `db:"actor_id" json:"actor_id"`
+}
+
+type TopUpActorBalanceRow struct {
+	Quota     int64 `db:"quota" json:"quota"`
+	Remaining int64 `db:"remaining" json:"remaining"`
+}
+
+// Add credits to the actor's remaining balance without changing its quota (admin
+// top-up). The caller initializes the row first only when absent, so an existing
+// balance is not double-counted. Returns the post-top-up quota/remaining.
+func (q *Queries) TopUpActorBalance(ctx context.Context, arg TopUpActorBalanceParams) (TopUpActorBalanceRow, error) {
+	row := q.queryRow(ctx, q.topUpActorBalanceStmt, TopUpActorBalance,
+		arg.Amount,
+		arg.UpdatedAt,
+		arg.NID,
+		arg.ActorID,
+	)
+	var i TopUpActorBalanceRow
+	err := row.Scan(&i.Quota, &i.Remaining)
+	return i, err
+}
+
 const UpdateImportedAPIKeyLastUsed = `-- name: UpdateImportedAPIKeyLastUsed :exec
 UPDATE imported_api_keys
 SET last_used_at = ?1

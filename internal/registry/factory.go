@@ -287,12 +287,15 @@ func (f *ServiceFactory) GetOrCreateRateLimiter(ctx context.Context) (ratelimit.
 
 // GetOrCreateMeter returns the usage meter (metering fork). The OSS build wires
 // a DBMeter over the SQLite driver's connection; if the driver is not the OSS
-// SQLite driver it falls back to a no-op meter. defaultQuotaMicros is 0
-// (unlimited) until a quota source is configured.
+// SQLite driver it falls back to a no-op meter. The default quota grant (in
+// micros) is read from metering.default_quota_micros; 0 (the default) leaves
+// gating inert (usage is tracked but never denied) until an operator sets a
+// value > 0. Read once here — the key is immutable (server restart to change).
 func (f *ServiceFactory) GetOrCreateMeter(ctx context.Context) (metering.Meter, error) {
 	f.meterOnce.Do(func() {
 		if sd, ok := f.driver.(*sqlite.Driver); ok {
-			f.meter = metering.NewDBMeter(sd.Conn(), 0)
+			quotaMicros := int64(f.provider.Int(ctx, talosconfig.KeyMeteringDefaultQuotaMicros))
+			f.meter = metering.NewDBMeter(sd.Conn(), quotaMicros)
 		} else {
 			f.meter = metering.NoopMeter{}
 		}

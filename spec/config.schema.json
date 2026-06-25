@@ -679,6 +679,21 @@
       },
       "additionalProperties": false
     },
+    "metering": {
+      "type": "object",
+      "description": "Usage-metering fork configuration. Metering tracks per-actor token usage and cost (debited via AdminIngestUsage) and exposes the actor's balance on VerifyApiKey. Quota enforcement is inert until default_quota_micros is set > 0.",
+      "x-immutable": true,
+      "properties": {
+        "default_quota_micros": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Usage grant in integer micros (cost x 1_000_000) applied to an actor's balance on its first metered usage. 0 means unlimited: usage is tracked and the ledger is written, but the VerifyApiKey balance pre-check never denies. Set > 0 to activate gating; verification returns BALANCE_EXHAUSTED once the actor's remaining balance reaches 0. Immutable: read once when the meter is constructed (server restart required); only affects actor balances created after the change.",
+          "x-immutable": true
+        }
+      },
+      "additionalProperties": false
+    },
     "multitenancy": {
       "type": "object",
       "description": "Multi-tenancy configuration. Immutable: routing infrastructure is configured at startup and requires server restart to change. Requires Enterprise license.",

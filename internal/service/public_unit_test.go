@@ -12,9 +12,35 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ory/talos/internal/errdef"
+	"github.com/ory/talos/internal/metering"
 	"github.com/ory/talos/internal/ratelimit"
 	talosv2alpha1 "github.com/ory/talos/pkg/api/talos/v2alpha1"
 )
+
+// fakeMeter is a test-local metering.Meter that echoes the last write so the
+// service-layer mapping (request → meter call → ActorBalance) can be asserted.
+type fakeMeter struct {
+	bal       *metering.Balance
+	lastActor string
+	lastArg   int64
+}
+
+func (f *fakeMeter) Balance(_ context.Context, actorID string) (*metering.Balance, error) {
+	f.lastActor = actorID
+	return f.bal, nil
+}
+func (f *fakeMeter) Ingest(context.Context, metering.IngestRequest) (*metering.IngestResult, error) {
+	return &metering.IngestResult{Balance: f.bal, Accepted: true}, nil
+}
+func (f *fakeMeter) SetQuota(_ context.Context, actorID string, quotaMicros int64) (*metering.Balance, error) {
+	f.lastActor, f.lastArg = actorID, quotaMicros
+	return &metering.Balance{Quota: quotaMicros, Remaining: quotaMicros}, nil
+}
+func (f *fakeMeter) TopUp(_ context.Context, actorID string, amountMicros int64) (*metering.Balance, error) {
+	f.lastActor, f.lastArg = actorID, amountMicros
+	return &metering.Balance{Quota: 1000, Remaining: amountMicros}, nil
+}
+func (f *fakeMeter) Enabled() bool { return true }
 
 // controlledLimiter is a test-local ratelimit.Limiter whose behaviour is
 // set at construction time. It covers the three applyRateLimiting paths:
@@ -251,6 +277,60 @@ func TestBatchVerifyAPIKeys_Validation(t *testing.T) {
 		_, err := srv.BatchVerifyAPIKeys(t.Context(), req)
 
 		require.Error(t, err, "empty credential must be rejected before handler logic")
+	})
+}
+
+// TestActorBalanceAdmin covers the per-actor quota admin methods: proto
+// validation rejects bad input, and valid requests map the meter result onto
+// the ActorBalance response.
+func TestActorBalanceAdmin(t *testing.T) {
+	t.Parallel()
+
+	newSrv := func() (*Public, *fakeMeter) {
+		m := &fakeMeter{bal: &metering.Balance{Quota: 1000, Remaining: 250}}
+		return NewPublic(nil, newPV(t), &ratelimit.NoopLimiter{}, m), m
+	}
+
+	t.Run("SetActorQuota maps result and forwards args", func(t *testing.T) {
+		t.Parallel()
+		srv, m := newSrv()
+		resp, err := srv.SetActorQuota(t.Context(), &talosv2alpha1.SetActorQuotaRequest{ActorId: "u1", QuotaMicros: 5000})
+		require.NoError(t, err)
+		assert.Equal(t, "u1", resp.GetActorId())
+		assert.Equal(t, int64(5000), resp.GetQuotaMicros())
+		assert.Equal(t, int64(5000), resp.GetRemainingMicros())
+		assert.Equal(t, "u1", m.lastActor)
+		assert.Equal(t, int64(5000), m.lastArg)
+	})
+
+	t.Run("SetActorQuota allows zero (unlimited) but rejects empty actor", func(t *testing.T) {
+		t.Parallel()
+		srv, _ := newSrv()
+		_, err := srv.SetActorQuota(t.Context(), &talosv2alpha1.SetActorQuotaRequest{ActorId: "u1", QuotaMicros: 0})
+		require.NoError(t, err)
+		_, err = srv.SetActorQuota(t.Context(), &talosv2alpha1.SetActorQuotaRequest{ActorId: "", QuotaMicros: 100})
+		require.Error(t, err)
+	})
+
+	t.Run("TopUpBalance maps result and rejects non-positive amount", func(t *testing.T) {
+		t.Parallel()
+		srv, _ := newSrv()
+		resp, err := srv.TopUpBalance(t.Context(), &talosv2alpha1.TopUpBalanceRequest{ActorId: "u1", AmountMicros: 750})
+		require.NoError(t, err)
+		assert.Equal(t, int64(750), resp.GetRemainingMicros())
+		_, err = srv.TopUpBalance(t.Context(), &talosv2alpha1.TopUpBalanceRequest{ActorId: "u1", AmountMicros: 0})
+		require.Error(t, err, "amount must be > 0")
+	})
+
+	t.Run("GetActorBalance returns current balance and rejects empty actor", func(t *testing.T) {
+		t.Parallel()
+		srv, _ := newSrv()
+		resp, err := srv.GetActorBalance(t.Context(), &talosv2alpha1.GetActorBalanceRequest{ActorId: "u1"})
+		require.NoError(t, err)
+		assert.Equal(t, int64(1000), resp.GetQuotaMicros())
+		assert.Equal(t, int64(250), resp.GetRemainingMicros())
+		_, err = srv.GetActorBalance(t.Context(), &talosv2alpha1.GetActorBalanceRequest{ActorId: ""})
+		require.Error(t, err)
 	})
 }
 

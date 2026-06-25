@@ -80,6 +80,14 @@ type Querier interface {
 	// Revoke an API key by setting status to revoked (integer status code)
 	// SQLite version uses :exec (like MySQL) to ensure idempotent behavior
 	RevokeIssuedAPIKey(ctx context.Context, arg RevokeIssuedAPIKeyParams) error
+	// Set the actor's quota and remaining to explicit values (admin set-quota). The
+	// caller initializes the row first (InsertActorBalanceIfAbsent) so the UPDATE
+	// always hits. Returns the new quota/remaining.
+	SetActorBalance(ctx context.Context, arg SetActorBalanceParams) (SetActorBalanceRow, error)
+	// Add credits to the actor's remaining balance without changing its quota (admin
+	// top-up). The caller initializes the row first only when absent, so an existing
+	// balance is not double-counted. Returns the post-top-up quota/remaining.
+	TopUpActorBalance(ctx context.Context, arg TopUpActorBalanceParams) (TopUpActorBalanceRow, error)
 	// Application layer checks if update is needed before calling this
 	UpdateImportedAPIKeyLastUsed(ctx context.Context, lastUsedAt *time.Time, nID uuid.UUID, keyID string) error
 	UpdateImportedAPIKeyMetadata(ctx context.Context, arg UpdateImportedAPIKeyMetadataParams) (ImportedApiKey, error)

@@ -218,6 +218,56 @@ func (s *Public) IngestUsage(ctx context.Context, req *talosv2alpha1.IngestUsage
 	}, nil
 }
 
+// SetActorQuota sets an actor's metering quota and resets its remaining balance
+// to that value (a fresh grant — used to assign/change a plan/tier). Reached via
+// the AdminSetActorQuota RPC.
+func (s *Public) SetActorQuota(ctx context.Context, req *talosv2alpha1.SetActorQuotaRequest) (*talosv2alpha1.ActorBalance, error) {
+	if err := s.protoValidator.Validate(req); err != nil {
+		return nil, errdef.BadRequest(err.Error())
+	}
+	bal, err := s.meter.SetQuota(ctx, req.GetActorId(), req.GetQuotaMicros())
+	if err != nil {
+		return nil, errdef.InternalError("set actor quota").WithWrap(errors.WithStack(err))
+	}
+	return actorBalanceResponse(req.GetActorId(), bal), nil
+}
+
+// TopUpBalance adds credits to an actor's remaining balance without changing its
+// quota. Reached via the AdminTopUpBalance RPC.
+func (s *Public) TopUpBalance(ctx context.Context, req *talosv2alpha1.TopUpBalanceRequest) (*talosv2alpha1.ActorBalance, error) {
+	if err := s.protoValidator.Validate(req); err != nil {
+		return nil, errdef.BadRequest(err.Error())
+	}
+	bal, err := s.meter.TopUp(ctx, req.GetActorId(), req.GetAmountMicros())
+	if err != nil {
+		return nil, errdef.InternalError("top up balance").WithWrap(errors.WithStack(err))
+	}
+	return actorBalanceResponse(req.GetActorId(), bal), nil
+}
+
+// GetActorBalance reads an actor's current metering balance. A missing balance is
+// reported as unlimited (quota 0). Reached via the AdminGetActorBalance RPC.
+func (s *Public) GetActorBalance(ctx context.Context, req *talosv2alpha1.GetActorBalanceRequest) (*talosv2alpha1.ActorBalance, error) {
+	if err := s.protoValidator.Validate(req); err != nil {
+		return nil, errdef.BadRequest(err.Error())
+	}
+	bal, err := s.meter.Balance(ctx, req.GetActorId())
+	if err != nil {
+		return nil, errdef.InternalError("get actor balance").WithWrap(errors.WithStack(err))
+	}
+	return actorBalanceResponse(req.GetActorId(), bal), nil
+}
+
+// actorBalanceResponse maps a metering.Balance to the proto ActorBalance.
+func actorBalanceResponse(actorID string, bal *metering.Balance) *talosv2alpha1.ActorBalance {
+	resp := &talosv2alpha1.ActorBalance{ActorId: actorID}
+	if bal != nil {
+		resp.QuotaMicros = bal.Quota
+		resp.RemainingMicros = bal.Remaining
+	}
+	return resp
+}
+
 // VerifyAPIKey verifies a single credential (API key or derived token)
 func (s *Public) VerifyAPIKey(ctx context.Context, req *talosv2alpha1.VerifyApiKeyRequest) (resp *talosv2alpha1.VerifyApiKeyResponse, err error) {
 	ctx, span := tracing.Start(ctx, "public.VerifyAPIKey")

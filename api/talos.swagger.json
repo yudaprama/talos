@@ -18,6 +18,108 @@
     "application/json"
   ],
   "paths": {
+    "/v2alpha1/admin/actorBalances/{actor_id}": {
+      "get": {
+        "summary": "Get Actor Balance (fork)",
+        "description": "Reads an actor's current metering balance (quota + remaining). A missing\nbalance is reported as unlimited (quota 0, remaining 0). Admin access only.",
+        "operationId": "adminGetActorBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "actor_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
+    "/v2alpha1/admin/actorBalances:setQuota": {
+      "post": {
+        "summary": "Set Actor Quota (fork)",
+        "description": "Sets an actor's metering quota and resets its remaining balance to the same\nvalue (a fresh grant). Use to assign or change an actor's plan/tier (e.g.\nfree vs paid). Creates the balance row if absent. quota_micros 0 = unlimited\n(gating off for this actor). Admin access only.",
+        "operationId": "adminSetActorQuota",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SetActorQuotaRequest sets an actor's quota and resets remaining to it (fork).",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SetActorQuotaRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
+    "/v2alpha1/admin/actorBalances:topUp": {
+      "post": {
+        "summary": "Top Up Balance (fork)",
+        "description": "Adds credits to an actor's remaining balance without changing its quota.\nCreates the balance row if absent (quota and remaining both set to the\namount). Admin access only.",
+        "operationId": "adminTopUpBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "TopUpBalanceRequest adds credits to an actor's remaining balance (fork).",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TopUpBalanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
     "/v2alpha1/admin/apiKeys:batchVerify": {
       "post": {
         "summary": "Batch Verify API Keys",
@@ -889,6 +991,25 @@
     }
   },
   "definitions": {
+    "ActorBalance": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "quota_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "total grant (0 = unlimited)"
+        },
+        "remaining_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "remaining balance (micros); \u003c= 0 denies verify when quota \u003e 0"
+        }
+      },
+      "description": "ActorBalance is an actor's metering balance snapshot (fork)."
+    },
     "AdminRevokeImportedApiKeyBody": {
       "type": "object",
       "properties": {
@@ -1510,6 +1631,20 @@
       "type": "object",
       "description": "SelfRevokeApiKeyResponse is returned on successful self-revocation.\n\nEmpty on success"
     },
+    "SetActorQuotaRequest": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "quota_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "0 = unlimited"
+        }
+      },
+      "description": "SetActorQuotaRequest sets an actor's quota and resets remaining to it (fork)."
+    },
     "Status": {
       "type": "object",
       "properties": {
@@ -1563,6 +1698,20 @@
       "default": "TOKEN_ALGORITHM_UNSPECIFIED",
       "description": "- TOKEN_ALGORITHM_JWT: JWT with EdDSA (self-contained, signed)\n - TOKEN_ALGORITHM_MACAROON: Macaroon with HMAC (self-contained, caveat-based)",
       "title": "TokenAlgorithm specifies the cryptographic algorithm used for derived tokens\nNote: API keys (root tokens) are always opaque; this enum is only for DeriveToken"
+    },
+    "TopUpBalanceRequest": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "amount_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "credits to add (micros)"
+        }
+      },
+      "description": "TopUpBalanceRequest adds credits to an actor's remaining balance (fork)."
     },
     "VerificationErrorCode": {
       "type": "string",

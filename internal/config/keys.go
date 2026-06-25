@@ -169,6 +169,14 @@ var (
 	// may hold (issued + imported). Set by the platform config pipeline from the
 	// project's plan; absent for metered tiers. Hot-reloadable.
 	KeyQuotaAPIKeysMax = Key{s: "quota.api_keys_max"}
+
+	// KeyMeteringDefaultQuotaMicros is the usage grant (in integer micros, i.e.
+	// cost x 1_000_000) applied to an actor's balance on its first metered usage.
+	// 0 (the default) means unlimited: metering still tracks usage and writes the
+	// ledger, but the VerifyApiKey balance pre-check never denies. Set a value > 0
+	// to activate gating. Immutable: read once when the meter is constructed, so a
+	// change requires a server restart (and only affects balances created after).
+	KeyMeteringDefaultQuotaMicros = Key{s: "metering.default_quota_micros"}
 )
 
 // reviewed - @aeneasr - 2026-03-25

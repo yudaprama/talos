@@ -531,6 +531,50 @@ service ApiKeys {
     };
   }
 
+  // Set Actor Quota (fork)
+  //
+  // Sets an actor's metering quota and resets its remaining balance to the same
+  // value (a fresh grant). Use to assign or change an actor's plan/tier (e.g.
+  // free vs paid). Creates the balance row if absent. quota_micros 0 = unlimited
+  // (gating off for this actor). Admin access only.
+  rpc AdminSetActorQuota(SetActorQuotaRequest) returns (ActorBalance) {
+    option (google.api.http) = {
+      post: "/v2alpha1/admin/actorBalances:setQuota"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "adminSetActorQuota"
+    };
+  }
+
+  // Top Up Balance (fork)
+  //
+  // Adds credits to an actor's remaining balance without changing its quota.
+  // Creates the balance row if absent (quota and remaining both set to the
+  // amount). Admin access only.
+  rpc AdminTopUpBalance(TopUpBalanceRequest) returns (ActorBalance) {
+    option (google.api.http) = {
+      post: "/v2alpha1/admin/actorBalances:topUp"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "adminTopUpBalance"
+    };
+  }
+
+  // Get Actor Balance (fork)
+  //
+  // Reads an actor's current metering balance (quota + remaining). A missing
+  // balance is reported as unlimited (quota 0, remaining 0). Admin access only.
+  rpc AdminGetActorBalance(GetActorBalanceRequest) returns (ActorBalance) {
+    option (google.api.http) = {
+      get: "/v2alpha1/admin/actorBalances/{actor_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "adminGetActorBalance"
+    };
+  }
+
   // Batch Verify API Keys
   //
   // Verifies multiple credentials in a single request. Efficiently verifies up
@@ -1180,6 +1224,30 @@ message IngestUsageResponse {
   int64 balance_remaining = 1;             // post-debit remaining (micros)
   int64 balance_quota = 2;                 // total grant (0 = unlimited)
   bool accepted = 3;                       // false if a duplicate request_id was ignored
+}
+
+// SetActorQuotaRequest sets an actor's quota and resets remaining to it (fork).
+message SetActorQuotaRequest {
+  string actor_id = 1 [(buf.validate.field).string = {min_len: 1, max_len: 255}];
+  int64 quota_micros = 2 [(buf.validate.field).int64 = {gte: 0}];  // 0 = unlimited
+}
+
+// TopUpBalanceRequest adds credits to an actor's remaining balance (fork).
+message TopUpBalanceRequest {
+  string actor_id = 1 [(buf.validate.field).string = {min_len: 1, max_len: 255}];
+  int64 amount_micros = 2 [(buf.validate.field).int64 = {gt: 0}];  // credits to add (micros)
+}
+
+// GetActorBalanceRequest reads an actor's current balance (fork).
+message GetActorBalanceRequest {
+  string actor_id = 1 [(buf.validate.field).string = {min_len: 1, max_len: 255}];
+}
+
+// ActorBalance is an actor's metering balance snapshot (fork).
+message ActorBalance {
+  string actor_id = 1;
+  int64 quota_micros = 2;      // total grant (0 = unlimited)
+  int64 remaining_micros = 3;  // remaining balance (micros); <= 0 denies verify when quota > 0
 }
 
 // SelfRevokeApiKeyRequest allows an API key holder to revoke their own key

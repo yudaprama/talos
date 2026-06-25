@@ -251,3 +251,21 @@ UPDATE actor_balances
 SET remaining = remaining - sqlc.arg(amount), updated_at = sqlc.arg(updated_at)
 WHERE nid = sqlc.arg(nid) AND actor_id = sqlc.arg(actor_id)
 RETURNING quota, remaining;
+
+-- name: SetActorBalance :one
+-- Set the actor's quota and remaining to explicit values (admin set-quota). The
+-- caller initializes the row first (InsertActorBalanceIfAbsent) so the UPDATE
+-- always hits. Returns the new quota/remaining.
+UPDATE actor_balances
+SET quota = sqlc.arg(quota), remaining = sqlc.arg(remaining), updated_at = sqlc.arg(updated_at)
+WHERE nid = sqlc.arg(nid) AND actor_id = sqlc.arg(actor_id)
+RETURNING quota, remaining;
+
+-- name: TopUpActorBalance :one
+-- Add credits to the actor's remaining balance without changing its quota (admin
+-- top-up). The caller initializes the row first only when absent, so an existing
+-- balance is not double-counted. Returns the post-top-up quota/remaining.
+UPDATE actor_balances
+SET remaining = remaining + sqlc.arg(amount), updated_at = sqlc.arg(updated_at)
+WHERE nid = sqlc.arg(nid) AND actor_id = sqlc.arg(actor_id)
+RETURNING quota, remaining;

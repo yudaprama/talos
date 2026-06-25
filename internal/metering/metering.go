@@ -38,6 +38,14 @@ type Meter interface {
 	// Ingest records one usage event and atomically debits the actor's balance.
 	// Idempotent on RequestID (returns the current balance with Accepted=false).
 	Ingest(ctx context.Context, req IngestRequest) (*IngestResult, error)
+	// SetQuota sets the actor's quota and resets remaining to the same value (a
+	// fresh grant — assign/change a plan/tier). Creates the row if absent.
+	// quotaMicros 0 = unlimited. Returns the resulting balance.
+	SetQuota(ctx context.Context, actorID string, quotaMicros int64) (*Balance, error)
+	// TopUp adds credits to the actor's remaining balance without changing its
+	// quota. Creates the row if absent (quota and remaining set to amountMicros).
+	// Returns the resulting balance.
+	TopUp(ctx context.Context, actorID string, amountMicros int64) (*Balance, error)
 	// Enabled reports whether metering is active (false for the no-op).
 	Enabled() bool
 }
@@ -68,6 +76,16 @@ func (NoopMeter) Balance(context.Context, string) (*Balance, error) { return &Ba
 // Ingest reports acceptance without recording.
 func (NoopMeter) Ingest(context.Context, IngestRequest) (*IngestResult, error) {
 	return &IngestResult{Balance: &Balance{}, Accepted: true}, nil
+}
+
+// SetQuota records nothing and returns an unlimited balance.
+func (NoopMeter) SetQuota(context.Context, string, int64) (*Balance, error) {
+	return &Balance{}, nil
+}
+
+// TopUp records nothing and returns an unlimited balance.
+func (NoopMeter) TopUp(context.Context, string, int64) (*Balance, error) {
+	return &Balance{}, nil
 }
 
 // Enabled reports false: the no-op meter performs no tracking.
@@ -187,4 +205,93 @@ func (m *DBMeter) Ingest(ctx context.Context, req IngestRequest) (*IngestResult,
 		Balance:  &Balance{Quota: row.Quota, Remaining: row.Remaining},
 		Accepted: true,
 	}, nil
+}
+
+// SetQuota sets the actor's quota and resets remaining to the same value in a
+// single transaction. Initializes the row first (no-op if it exists), then
+// overwrites quota + remaining — the same split-statement pattern as Ingest,
+// because sqlc's SQLite engine cannot expand args inside ON CONFLICT DO UPDATE.
+func (m *DBMeter) SetQuota(ctx context.Context, actorID string, quotaMicros int64) (*Balance, error) {
+	nid := contextx.NetworkIDFromContext(ctx).String()
+	now := time.Now().UTC()
+
+	tx, err := m.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	qtx := m.q.WithTx(tx)
+
+	if err := qtx.InsertActorBalanceIfAbsent(ctx, db.InsertActorBalanceIfAbsentParams{
+		NID:       nid,
+		ActorID:   actorID,
+		Quota:     quotaMicros,
+		UpdatedAt: now,
+	}); err != nil {
+		return nil, err
+	}
+	row, err := qtx.SetActorBalance(ctx, db.SetActorBalanceParams{
+		NID:       nid,
+		ActorID:   actorID,
+		Quota:     quotaMicros,
+		Remaining: quotaMicros,
+		UpdatedAt: now,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return &Balance{Quota: row.Quota, Remaining: row.Remaining}, nil
+}
+
+// TopUp adds credits to the actor's remaining balance in a single transaction.
+// If the row is absent it is created with quota = remaining = amountMicros; if it
+// exists, only remaining is incremented (quota unchanged). The existence check
+// guards against double-counting the initial grant (mirrors Ingest).
+func (m *DBMeter) TopUp(ctx context.Context, actorID string, amountMicros int64) (*Balance, error) {
+	nid := contextx.NetworkIDFromContext(ctx).String()
+	now := time.Now().UTC()
+
+	tx, err := m.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	qtx := m.q.WithTx(tx)
+
+	if _, err := qtx.GetActorBalance(ctx, nid, actorID); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
+		// Absent: seed with quota = remaining = amount, then commit (no add — the
+		// seed already credits the full amount).
+		if err := qtx.InsertActorBalanceIfAbsent(ctx, db.InsertActorBalanceIfAbsentParams{
+			NID:       nid,
+			ActorID:   actorID,
+			Quota:     amountMicros,
+			UpdatedAt: now,
+		}); err != nil {
+			return nil, err
+		}
+		if err := tx.Commit(); err != nil {
+			return nil, err
+		}
+		return &Balance{Quota: amountMicros, Remaining: amountMicros}, nil
+	}
+
+	row, err := qtx.TopUpActorBalance(ctx, db.TopUpActorBalanceParams{
+		NID:       nid,
+		ActorID:   actorID,
+		Amount:    amountMicros,
+		UpdatedAt: now,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return &Balance{Quota: row.Quota, Remaining: row.Remaining}, nil
 }

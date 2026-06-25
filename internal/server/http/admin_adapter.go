@@ -101,6 +101,21 @@ func (a *adminAdapter) AdminIngestUsage(ctx context.Context, req *talosv2alpha1.
 	return a.public.IngestUsage(ctx, req)
 }
 
+// AdminSetActorQuota sets an actor's quota and resets remaining (metering fork).
+func (a *adminAdapter) AdminSetActorQuota(ctx context.Context, req *talosv2alpha1.SetActorQuotaRequest) (*talosv2alpha1.ActorBalance, error) {
+	return a.public.SetActorQuota(ctx, req)
+}
+
+// AdminTopUpBalance adds credits to an actor's remaining balance (metering fork).
+func (a *adminAdapter) AdminTopUpBalance(ctx context.Context, req *talosv2alpha1.TopUpBalanceRequest) (*talosv2alpha1.ActorBalance, error) {
+	return a.public.TopUpBalance(ctx, req)
+}
+
+// AdminGetActorBalance reads an actor's current balance (metering fork).
+func (a *adminAdapter) AdminGetActorBalance(ctx context.Context, req *talosv2alpha1.GetActorBalanceRequest) (*talosv2alpha1.ActorBalance, error) {
+	return a.public.GetActorBalance(ctx, req)
+}
+
 // RevokeApiKey is the proof-of-possession self-revocation variant. It delegates
 // to Public so the credential holder can revoke their own key without admin
 // privileges.

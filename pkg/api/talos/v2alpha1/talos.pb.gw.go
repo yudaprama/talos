@@ -685,6 +685,99 @@ func local_request_ApiKeys_AdminIngestUsage_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
+func request_ApiKeys_AdminSetActorQuota_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SetActorQuotaRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.AdminSetActorQuota(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ApiKeys_AdminSetActorQuota_0(ctx context.Context, marshaler runtime.Marshaler, server ApiKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SetActorQuotaRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.AdminSetActorQuota(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_ApiKeys_AdminTopUpBalance_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq TopUpBalanceRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.AdminTopUpBalance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ApiKeys_AdminTopUpBalance_0(ctx context.Context, marshaler runtime.Marshaler, server ApiKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq TopUpBalanceRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.AdminTopUpBalance(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_ApiKeys_AdminGetActorBalance_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetActorBalanceRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["actor_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "actor_id")
+	}
+	protoReq.ActorId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "actor_id", err)
+	}
+	msg, err := client.AdminGetActorBalance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ApiKeys_AdminGetActorBalance_0(ctx context.Context, marshaler runtime.Marshaler, server ApiKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetActorBalanceRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["actor_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "actor_id")
+	}
+	protoReq.ActorId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "actor_id", err)
+	}
+	msg, err := server.AdminGetActorBalance(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_ApiKeys_AdminBatchVerifyApiKeys_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq BatchVerifyApiKeysRequest
@@ -1078,6 +1171,66 @@ func RegisterApiKeysHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 		forward_ApiKeys_AdminIngestUsage_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminSetActorQuota_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/AdminSetActorQuota", runtime.WithHTTPPathPattern("/v2alpha1/admin/actorBalances:setQuota"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiKeys_AdminSetActorQuota_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_AdminSetActorQuota_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminTopUpBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/AdminTopUpBalance", runtime.WithHTTPPathPattern("/v2alpha1/admin/actorBalances:topUp"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiKeys_AdminTopUpBalance_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_AdminTopUpBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_ApiKeys_AdminGetActorBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/AdminGetActorBalance", runtime.WithHTTPPathPattern("/v2alpha1/admin/actorBalances/{actor_id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiKeys_AdminGetActorBalance_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_AdminGetActorBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminBatchVerifyApiKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1444,6 +1597,57 @@ func RegisterApiKeysHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 		forward_ApiKeys_AdminIngestUsage_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminSetActorQuota_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/AdminSetActorQuota", runtime.WithHTTPPathPattern("/v2alpha1/admin/actorBalances:setQuota"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiKeys_AdminSetActorQuota_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_AdminSetActorQuota_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminTopUpBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/AdminTopUpBalance", runtime.WithHTTPPathPattern("/v2alpha1/admin/actorBalances:topUp"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiKeys_AdminTopUpBalance_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_AdminTopUpBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_ApiKeys_AdminGetActorBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/AdminGetActorBalance", runtime.WithHTTPPathPattern("/v2alpha1/admin/actorBalances/{actor_id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiKeys_AdminGetActorBalance_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_AdminGetActorBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminBatchVerifyApiKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1483,6 +1687,9 @@ var (
 	pattern_ApiKeys_GetJwks_0                         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "derivedKeys", "jwks.json"}, ""))
 	pattern_ApiKeys_AdminVerifyApiKey_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "apiKeys"}, "verify"))
 	pattern_ApiKeys_AdminIngestUsage_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "usage"}, "ingest"))
+	pattern_ApiKeys_AdminSetActorQuota_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "actorBalances"}, "setQuota"))
+	pattern_ApiKeys_AdminTopUpBalance_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "actorBalances"}, "topUp"))
+	pattern_ApiKeys_AdminGetActorBalance_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "actorBalances", "actor_id"}, ""))
 	pattern_ApiKeys_AdminBatchVerifyApiKeys_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "apiKeys"}, "batchVerify"))
 )
 
@@ -1505,5 +1712,8 @@ var (
 	forward_ApiKeys_GetJwks_0                         = runtime.ForwardResponseMessage
 	forward_ApiKeys_AdminVerifyApiKey_0               = runtime.ForwardResponseMessage
 	forward_ApiKeys_AdminIngestUsage_0                = runtime.ForwardResponseMessage
+	forward_ApiKeys_AdminSetActorQuota_0              = runtime.ForwardResponseMessage
+	forward_ApiKeys_AdminTopUpBalance_0               = runtime.ForwardResponseMessage
+	forward_ApiKeys_AdminGetActorBalance_0            = runtime.ForwardResponseMessage
 	forward_ApiKeys_AdminBatchVerifyApiKeys_0         = runtime.ForwardResponseMessage
 )
