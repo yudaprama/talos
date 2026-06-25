@@ -1,5 +1,9 @@
 name: Build Binaries
 
+permissions:
+  contents: write
+  releases: write
+
 on:
   push:
     tags:
