@@ -1,27 +1,47 @@
-name: Build Binaries
+name: build
+
+# Build Talos binaries for Linux + macOS (amd64 & arm64) and publish a
+# GitHub Release whenever a `v*` tag is pushed.
+#
+# This replaces the upstream Ory CI (.github/workflows/ci.yaml), which cannot
+# run on this fork: it depends on commercial-only OpenAPI patches and on
+# Ory-internal release secrets (ORY_BOT_PAT, GORELEASER_KEY, ...). With CGO
+# disabled, a single Linux runner cross-compiles all four binaries, so no
+# secrets and no macOS runners are required.
 
 permissions:
   contents: write
-  releases: write
 
 on:
   push:
+    branches:
+      - master
     tags:
       - 'v*'
   workflow_dispatch:
 
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        arch: [amd64]
         include:
-          - os: macos-latest
-            arch: arm64
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -32,49 +52,58 @@ jobs:
           go-version: '1.26'
           cache: true
 
-      - name: Export version variables
-        id: vars
-        run: |
-          echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
-          echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "BUILD_TIME=$(date -u +'%Y-%m-%d_%H:%M:%S')" >> $GITHUB_OUTPUT
-        shell: bash
-
       - name: Build binary
         env:
           CGO_ENABLED: '0'
-          GOOS: ${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}
-          GOARCH: ${{ matrix.arch }}
-          VERSION: ${{ steps.vars.outputs.VERSION }}
-          COMMIT: ${{ steps.vars.outputs.COMMIT }}
-          BUILD_TIME: ${{ steps.vars.outputs.BUILD_TIME }}
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
         run: |
-          mkdir -p .bin
-          go build -ldflags="-w -s -X github.com/ory/talos/internal/version.Version=${VERSION} -X github.com/ory/talos/internal/version.Commit=${COMMIT} -X github.com/ory/talos/internal/version.BuildTime=${BUILD_TIME}" -o .bin/talos-${GOOS}-${GOARCH}
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          COMMIT="$(git rev-parse --short HEAD)"
+          BUILD_TIME="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          OUT="dist/talos-${GOOS}-${GOARCH}"
+          mkdir -p dist
+          go build -trimpath \
+            -ldflags="-s -w \
+              -X github.com/ory/talos/internal/version.Version=${VERSION} \
+              -X github.com/ory/talos/internal/version.Commit=${COMMIT} \
+              -X github.com/ory/talos/internal/version.BuildTime=${BUILD_TIME}" \
+            -o "${OUT}" .
+          echo "Built ${OUT}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: talos-${{ matrix.os }}-${{ matrix.arch }}
-          path: .bin/talos-${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}-${{ matrix.arch }}
+          name: talos-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/talos-${{ matrix.goos }}-${{ matrix.goarch }}
+          if-no-files-found: error
+          retention-days: 14
 
-      # Create or update GitHub release (only once per tag)
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.vars.outputs.VERSION }}
-          name: ${{ steps.vars.outputs.VERSION }}
-          body: "Release ${{ steps.vars.outputs.VERSION }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: dist/talos-*
+          body: |
+            Talos ${{ github.ref_name }}
 
-      # Upload the binary as a release asset
-      - name: Upload binary to Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.vars.outputs.VERSION }}
-          files: .bin/talos-${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}-${{ matrix.arch }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            Static binaries built with CGO disabled, cross-compiled for:
+            - `linux/amd64`
+            - `linux/arm64`
+            - `darwin/amd64`
+            - `darwin/arm64`
+          fail_on_unmatched_files: true
