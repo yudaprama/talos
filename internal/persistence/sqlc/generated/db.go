@@ -30,6 +30,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createIssuedAPIKeyStmt, err = db.PrepareContext(ctx, CreateIssuedAPIKey); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateIssuedAPIKey: %w", err)
 	}
+	if q.debitActorBalanceStmt, err = db.PrepareContext(ctx, DebitActorBalance); err != nil {
+		return nil, fmt.Errorf("error preparing query DebitActorBalance: %w", err)
+	}
 	if q.deleteImportedAPIKeyStmt, err = db.PrepareContext(ctx, DeleteImportedAPIKey); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteImportedAPIKey: %w", err)
 	}
@@ -41,6 +44,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getActiveIssuedAPIKeyStmt, err = db.PrepareContext(ctx, GetActiveIssuedAPIKey); err != nil {
 		return nil, fmt.Errorf("error preparing query GetActiveIssuedAPIKey: %w", err)
+	}
+	if q.getActorBalanceStmt, err = db.PrepareContext(ctx, GetActorBalance); err != nil {
+		return nil, fmt.Errorf("error preparing query GetActorBalance: %w", err)
 	}
 	if q.getExpiredIssuedAPIKeysStmt, err = db.PrepareContext(ctx, GetExpiredIssuedAPIKeys); err != nil {
 		return nil, fmt.Errorf("error preparing query GetExpiredIssuedAPIKeys: %w", err)
@@ -56,6 +62,15 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getIssuedAPIKeyByRequestIDStmt, err = db.PrepareContext(ctx, GetIssuedAPIKeyByRequestID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetIssuedAPIKeyByRequestID: %w", err)
+	}
+	if q.getUsageByRequestIDStmt, err = db.PrepareContext(ctx, GetUsageByRequestID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUsageByRequestID: %w", err)
+	}
+	if q.insertActorBalanceIfAbsentStmt, err = db.PrepareContext(ctx, InsertActorBalanceIfAbsent); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertActorBalanceIfAbsent: %w", err)
+	}
+	if q.insertUsageStmt, err = db.PrepareContext(ctx, InsertUsage); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertUsage: %w", err)
 	}
 	if q.listActiveImportedKeyIDsBoundedStmt, err = db.PrepareContext(ctx, ListActiveImportedKeyIDsBounded); err != nil {
 		return nil, fmt.Errorf("error preparing query ListActiveImportedKeyIDsBounded: %w", err)
@@ -102,6 +117,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createIssuedAPIKeyStmt: %w", cerr)
 		}
 	}
+	if q.debitActorBalanceStmt != nil {
+		if cerr := q.debitActorBalanceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing debitActorBalanceStmt: %w", cerr)
+		}
+	}
 	if q.deleteImportedAPIKeyStmt != nil {
 		if cerr := q.deleteImportedAPIKeyStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteImportedAPIKeyStmt: %w", cerr)
@@ -120,6 +140,11 @@ func (q *Queries) Close() error {
 	if q.getActiveIssuedAPIKeyStmt != nil {
 		if cerr := q.getActiveIssuedAPIKeyStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getActiveIssuedAPIKeyStmt: %w", cerr)
+		}
+	}
+	if q.getActorBalanceStmt != nil {
+		if cerr := q.getActorBalanceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getActorBalanceStmt: %w", cerr)
 		}
 	}
 	if q.getExpiredIssuedAPIKeysStmt != nil {
@@ -145,6 +170,21 @@ func (q *Queries) Close() error {
 	if q.getIssuedAPIKeyByRequestIDStmt != nil {
 		if cerr := q.getIssuedAPIKeyByRequestIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getIssuedAPIKeyByRequestIDStmt: %w", cerr)
+		}
+	}
+	if q.getUsageByRequestIDStmt != nil {
+		if cerr := q.getUsageByRequestIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUsageByRequestIDStmt: %w", cerr)
+		}
+	}
+	if q.insertActorBalanceIfAbsentStmt != nil {
+		if cerr := q.insertActorBalanceIfAbsentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertActorBalanceIfAbsentStmt: %w", cerr)
+		}
+	}
+	if q.insertUsageStmt != nil {
+		if cerr := q.insertUsageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertUsageStmt: %w", cerr)
 		}
 	}
 	if q.listActiveImportedKeyIDsBoundedStmt != nil {
@@ -238,15 +278,20 @@ type Queries struct {
 	tx                                  *sql.Tx
 	createImportedAPIKeyStmt            *sql.Stmt
 	createIssuedAPIKeyStmt              *sql.Stmt
+	debitActorBalanceStmt               *sql.Stmt
 	deleteImportedAPIKeyStmt            *sql.Stmt
 	deleteIssuedAPIKeyStmt              *sql.Stmt
 	expireIssuedAPIKeysStmt             *sql.Stmt
 	getActiveIssuedAPIKeyStmt           *sql.Stmt
+	getActorBalanceStmt                 *sql.Stmt
 	getExpiredIssuedAPIKeysStmt         *sql.Stmt
 	getImportedAPIKeyByHashStmt         *sql.Stmt
 	getImportedAPIKeyByRequestIDStmt    *sql.Stmt
 	getIssuedAPIKeyStmt                 *sql.Stmt
 	getIssuedAPIKeyByRequestIDStmt      *sql.Stmt
+	getUsageByRequestIDStmt             *sql.Stmt
+	insertActorBalanceIfAbsentStmt      *sql.Stmt
+	insertUsageStmt                     *sql.Stmt
 	listActiveImportedKeyIDsBoundedStmt *sql.Stmt
 	listActiveIssuedKeyIDsBoundedStmt   *sql.Stmt
 	listImportedAPIKeysStmt             *sql.Stmt
@@ -265,15 +310,20 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		tx:                                  tx,
 		createImportedAPIKeyStmt:            q.createImportedAPIKeyStmt,
 		createIssuedAPIKeyStmt:              q.createIssuedAPIKeyStmt,
+		debitActorBalanceStmt:               q.debitActorBalanceStmt,
 		deleteImportedAPIKeyStmt:            q.deleteImportedAPIKeyStmt,
 		deleteIssuedAPIKeyStmt:              q.deleteIssuedAPIKeyStmt,
 		expireIssuedAPIKeysStmt:             q.expireIssuedAPIKeysStmt,
 		getActiveIssuedAPIKeyStmt:           q.getActiveIssuedAPIKeyStmt,
+		getActorBalanceStmt:                 q.getActorBalanceStmt,
 		getExpiredIssuedAPIKeysStmt:         q.getExpiredIssuedAPIKeysStmt,
 		getImportedAPIKeyByHashStmt:         q.getImportedAPIKeyByHashStmt,
 		getImportedAPIKeyByRequestIDStmt:    q.getImportedAPIKeyByRequestIDStmt,
 		getIssuedAPIKeyStmt:                 q.getIssuedAPIKeyStmt,
 		getIssuedAPIKeyByRequestIDStmt:      q.getIssuedAPIKeyByRequestIDStmt,
+		getUsageByRequestIDStmt:             q.getUsageByRequestIDStmt,
+		insertActorBalanceIfAbsentStmt:      q.insertActorBalanceIfAbsentStmt,
+		insertUsageStmt:                     q.insertUsageStmt,
 		listActiveImportedKeyIDsBoundedStmt: q.listActiveImportedKeyIDsBoundedStmt,
 		listActiveIssuedKeyIDsBoundedStmt:   q.listActiveIssuedKeyIDsBoundedStmt,
 		listImportedAPIKeysStmt:             q.listImportedAPIKeysStmt,

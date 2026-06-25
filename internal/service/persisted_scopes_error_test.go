@@ -109,7 +109,7 @@ func setupPersistedScopesFailureEnv(t *testing.T) (*corruptScopesPersister, *ser
 	apiKeyCache := cache.NewNoopCache[db.IssuedApiKey]()
 	m := metrics.New(prometheus.NewRegistry())
 	cp := service.NewAdminFromProvider(persister, provider, events.NewNoopEmitter(), keyService, apiKeyCache, pv, m, tracker)
-	server := service.NewPublic(cp.Verifier(), pv, &ratelimit.NoopLimiter{})
+	server := service.NewPublic(cp.Verifier(), pv, &ratelimit.NoopLimiter{}, nil)
 
 	return persister, cp, server, ctx
 }

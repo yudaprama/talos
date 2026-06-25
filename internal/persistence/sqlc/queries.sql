@@ -206,3 +206,48 @@ WHERE nid = sqlc.arg(nid) AND request_id = sqlc.arg(request_id)
 LIMIT 1;
 
 -- reviewed - @aeneasr - 2026-03-26
+
+-- ============================================================================
+-- Metering (fork): per-actor balance cache + append-only usage ledger.
+-- Backs the VerifyApiKey balance pre-check and AdminIngestUsage.
+-- ============================================================================
+
+-- name: GetActorBalance :one
+-- Read an actor's cached balance for the verify pre-check. No row = unlimited.
+SELECT nid, actor_id, quota, remaining, updated_at
+FROM actor_balances
+WHERE nid = sqlc.arg(nid) AND actor_id = sqlc.arg(actor_id)
+LIMIT 1;
+
+-- name: GetUsageByRequestID :one
+-- Idempotency check: has this usage event already been recorded?
+SELECT id, nid, actor_id, request_id, created_at
+FROM api_key_usage
+WHERE nid = sqlc.arg(nid) AND request_id = sqlc.arg(request_id)
+LIMIT 1;
+
+-- name: InsertUsage :exec
+-- Append one usage event to the ledger. key_id and request_id are nullable.
+INSERT INTO api_key_usage (
+    nid, actor_id, key_id, usage_type, usage_amount, cost_micros, model, request_id, created_at
+) VALUES (
+    sqlc.arg(nid), sqlc.arg(actor_id), sqlc.narg(key_id), sqlc.arg(usage_type),
+    sqlc.arg(usage_amount), sqlc.arg(cost_micros), sqlc.arg(model), sqlc.narg(request_id), sqlc.arg(created_at)
+);
+
+-- name: InsertActorBalanceIfAbsent :exec
+-- Initialize an actor's balance row with the full quota. No-op if the row exists.
+-- (sqlc's SQLite engine does not expand sqlc.arg() inside ON CONFLICT ... DO
+-- UPDATE SET, so initialization and debit are split into two statements.)
+INSERT INTO actor_balances (nid, actor_id, quota, remaining, updated_at)
+VALUES (sqlc.arg(nid), sqlc.arg(actor_id), sqlc.arg(quota), sqlc.arg(quota), sqlc.arg(updated_at))
+ON CONFLICT(nid, actor_id) DO NOTHING;
+
+-- name: DebitActorBalance :one
+-- Decrement the actor's remaining balance. The caller initializes the row first
+-- (InsertActorBalanceIfAbsent) so the UPDATE always hits. Returns post-debit
+-- quota/remaining.
+UPDATE actor_balances
+SET remaining = remaining - sqlc.arg(amount), updated_at = sqlc.arg(updated_at)
+WHERE nid = sqlc.arg(nid) AND actor_id = sqlc.arg(actor_id)
+RETURNING quota, remaining;

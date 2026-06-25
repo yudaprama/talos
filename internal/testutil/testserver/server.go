@@ -153,7 +153,7 @@ func NewTestServer(t *testing.T, opts ...Option) *TestServer {
 	require.NoError(t, err, "create verifier")
 
 	// Build adapters with the (potentially custom) rate limiter.
-	publicSvc := service.NewPublic(verifier, factory.ProtoValidator(), cfg.limiter)
+	publicSvc := service.NewPublic(verifier, factory.ProtoValidator(), cfg.limiter, nil)
 	adminAdapter := httpserver.NewAllInOneAdapter(admin, publicSvc)
 
 	// Create health checker

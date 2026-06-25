@@ -11,6 +11,27 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+type ActorBalance struct {
+	NID       string    `db:"nid" json:"nid"`
+	ActorID   string    `db:"actor_id" json:"actor_id"`
+	Quota     int64     `db:"quota" json:"quota"`
+	Remaining int64     `db:"remaining" json:"remaining"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type ApiKeyUsage struct {
+	ID          int64     `db:"id" json:"id"`
+	NID         string    `db:"nid" json:"nid"`
+	ActorID     string    `db:"actor_id" json:"actor_id"`
+	KeyID       *string   `db:"key_id" json:"key_id"`
+	UsageType   string    `db:"usage_type" json:"usage_type"`
+	UsageAmount int64     `db:"usage_amount" json:"usage_amount"`
+	CostMicros  int64     `db:"cost_micros" json:"cost_micros"`
+	Model       string    `db:"model" json:"model"`
+	RequestID   *string   `db:"request_id" json:"request_id"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+}
+
 type ImportedApiKey struct {
 	NID                  uuid.UUID       `db:"nid" json:"nid"`
 	KeyID                string          `db:"key_id" json:"key_id"`

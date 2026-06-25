@@ -1,0 +1,52 @@
+name: Build Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        arch: [amd64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Export version variables
+        id: vars
+        run: |
+          echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "BUILD_TIME=$(date -u +'%Y-%m-%d_%H:%M:%S')" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Build binary
+        env:
+          CGO_ENABLED: '0'
+          GOOS: ${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}
+          GOARCH: ${{ matrix.arch }}
+          VERSION: ${{ steps.vars.outputs.VERSION }}
+          COMMIT: ${{ steps.vars.outputs.COMMIT }}
+          BUILD_TIME: ${{ steps.vars.outputs.BUILD_TIME }}
+        run: |
+          mkdir -p .bin
+          go build -ldflags="-w -s -X github.com/ory/talos/internal/version.Version=${VERSION} -X github.com/ory/talos/internal/version.Commit=${COMMIT} -X github.com/ory/talos/internal/version.BuildTime=${BUILD_TIME}" -o .bin/talos-${GOOS}-${GOARCH}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: talos-${{ matrix.os }}-${{ matrix.arch }}
+          path: .bin/talos-${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}-${{ matrix.arch }}

@@ -34,6 +34,10 @@ type Driver struct {
 	q    *db.Queries
 }
 
+// Conn returns the underlying connection. The metering fork's DBMeter uses it to
+// run usage/balance queries over the same SQLite database.
+func (d *Driver) Conn() *sqlx.DB { return d.conn }
+
 // NewDriver creates a new SQLite driver.
 func NewDriver(dsn string) (*Driver, error) {
 	if dsn == "" {

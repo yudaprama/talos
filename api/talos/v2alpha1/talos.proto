@@ -516,6 +516,21 @@ service ApiKeys {
     };
   }
 
+  // Ingest Usage (fork)
+  //
+  // Records token/cost usage for an actor and atomically debits the actor's
+  // balance. Called by the external egent-metering service after each LLM call.
+  // Idempotent via request_id. Admin access only.
+  rpc AdminIngestUsage(IngestUsageRequest) returns (IngestUsageResponse) {
+    option (google.api.http) = {
+      post: "/v2alpha1/admin/usage:ingest"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "adminIngestUsage"
+    };
+  }
+
   // Batch Verify API Keys
   //
   // Verifies multiple credentials in a single request. Efficiently verifies up
@@ -1096,6 +1111,7 @@ enum VerificationErrorCode {
   VERIFICATION_ERROR_INTERNAL = 6;          // Internal server error during verification
   VERIFICATION_ERROR_IP_NOT_ALLOWED = 7;    // Request IP is not in the key's allowed CIDR ranges
   VERIFICATION_ERROR_RATE_LIMITED = 8;      // Rate limit quota exhausted (commercial-only)
+  VERIFICATION_ERROR_BALANCE_EXHAUSTED = 9; // Metering balance exhausted (fork)
 }
 
 message VerifyApiKeyResponse {
@@ -1132,6 +1148,11 @@ message VerifyApiKeyResponse {
   // verification success (is_valid) from key status, which previously
   // overloaded a single boolean.
   KeyStatus status = 14;
+  // Metering balance remaining (micros). Set by the metering fork when a balance
+  // policy is active for the actor; absent otherwise. 0 with quota 0 = unlimited.
+  optional int64 balance_remaining = 15;
+  // Metering quota / total grant (micros). 0 means unlimited (fork).
+  optional int64 balance_quota = 16;
 }
 
 message BatchVerifyApiKeysRequest {
@@ -1140,6 +1161,25 @@ message BatchVerifyApiKeysRequest {
 
 message BatchVerifyApiKeysResponse {
   repeated VerifyApiKeyResponse results = 1;
+}
+
+// IngestUsageRequest records usage for an actor and debits its balance (fork).
+// Called by the external egent-metering service after each LLM call.
+message IngestUsageRequest {
+  string actor_id = 1 [(buf.validate.field).string = {min_len: 1, max_len: 255}];
+  string key_id = 2;                       // optional; derived/imported keys may omit
+  string usage_type = 3;                   // e.g. "tokens"
+  int64 usage_amount = 4;                  // e.g. prompt+completion token count
+  int64 cost_micros = 5;                   // cost x 1_000_000 (integer money)
+  string model = 6;
+  optional string request_id = 7;          // idempotency key (AIP-155)
+}
+
+// IngestUsageResponse reports the post-debit balance (fork).
+message IngestUsageResponse {
+  int64 balance_remaining = 1;             // post-debit remaining (micros)
+  int64 balance_quota = 2;                 // total grant (0 = unlimited)
+  bool accepted = 3;                       // false if a duplicate request_id was ignored
 }
 
 // SelfRevokeApiKeyRequest allows an API key holder to revoke their own key

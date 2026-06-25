@@ -34,7 +34,7 @@ func newPublicForTest(t *testing.T, v *verifier.Verifier) *service.Public {
 	t.Helper()
 	pv, err := protovalidate.New()
 	require.NoError(t, err)
-	return service.NewPublic(v, pv, &ratelimit.NoopLimiter{})
+	return service.NewPublic(v, pv, &ratelimit.NoopLimiter{}, nil)
 }
 
 // TestGetJWKS tests the GetJwks service method with various signing key configurations
@@ -234,7 +234,7 @@ func TestGetJWKS_NoSigningKeys(t *testing.T) {
 		keyService, cache.NewNoopCache[db.IssuedApiKey](), pv, metrics.New(prometheus.NewRegistry()), tracker,
 	)
 
-	pub := service.NewPublic(svc.Verifier(), pv, &ratelimit.NoopLimiter{})
+	pub := service.NewPublic(svc.Verifier(), pv, &ratelimit.NoopLimiter{}, nil)
 	resp, err := pub.GetJwks(ctx, &talosv2alpha1.GetJWKSRequest{})
 	require.Error(t, err, "GetJwks should return an error when no signing keys are configured")
 	assert.Nil(t, resp)

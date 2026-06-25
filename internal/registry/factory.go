@@ -16,8 +16,10 @@ import (
 	"github.com/ory/talos/internal/errdef"
 	"github.com/ory/talos/internal/events"
 	"github.com/ory/talos/internal/lastused"
+	"github.com/ory/talos/internal/metering"
 	"github.com/ory/talos/internal/metrics"
 	"github.com/ory/talos/internal/persistence"
+	"github.com/ory/talos/internal/persistence/sqlite"
 	db "github.com/ory/talos/internal/persistence/sqlc/generated"
 	"github.com/ory/talos/internal/ratelimit"
 	"github.com/ory/talos/internal/registrytypes"
@@ -55,6 +57,10 @@ type ServiceFactory struct {
 	rateLimiterOnce    sync.Once
 	rateLimiterErr     error
 	rateLimiterFactory registrytypes.RateLimiterFactory
+
+	// Usage meter (metering fork; initialized lazily on first use)
+	meter     metering.Meter
+	meterOnce sync.Once
 
 	// Metrics (created once at factory construction time)
 	metrics *metrics.Metrics
@@ -277,6 +283,21 @@ func (f *ServiceFactory) getOrCreateRateLimiter(ctx context.Context) (ratelimit.
 // GetOrCreateRateLimiter returns the rate limiter, creating it if needed.
 func (f *ServiceFactory) GetOrCreateRateLimiter(ctx context.Context) (ratelimit.Limiter, error) {
 	return f.getOrCreateRateLimiter(ctx)
+}
+
+// GetOrCreateMeter returns the usage meter (metering fork). The OSS build wires
+// a DBMeter over the SQLite driver's connection; if the driver is not the OSS
+// SQLite driver it falls back to a no-op meter. defaultQuotaMicros is 0
+// (unlimited) until a quota source is configured.
+func (f *ServiceFactory) GetOrCreateMeter(ctx context.Context) (metering.Meter, error) {
+	f.meterOnce.Do(func() {
+		if sd, ok := f.driver.(*sqlite.Driver); ok {
+			f.meter = metering.NewDBMeter(sd.Conn(), 0)
+		} else {
+			f.meter = metering.NoopMeter{}
+		}
+	})
+	return f.meter, nil
 }
 
 // ProtoValidator returns the shared proto validator instance.

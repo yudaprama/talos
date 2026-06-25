@@ -1,0 +1,4 @@
+-- Migration v2 test fixtures (SQLite dialect).
+-- v2 adds the metering tables (actor_balances, api_key_usage) but introduces no
+-- new fixture rows — the round-trip test only asserts on v1 keys. This file
+-- exists so LoadFixtures has a fixture for version 000002 (see migrations_test.go).

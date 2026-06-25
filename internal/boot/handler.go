@@ -141,7 +141,11 @@ func buildAdapters(ctx context.Context, deps *ServerDependencies) (talosv2alpha1
 	if err != nil {
 		return nil, errors.Wrap(err, "create rate limiter")
 	}
-	publicSvc := service.NewPublic(verifier, deps.Factory.ProtoValidator(), rateLimiter)
+	meter, err := deps.Factory.GetOrCreateMeter(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "create usage meter")
+	}
+	publicSvc := service.NewPublic(verifier, deps.Factory.ProtoValidator(), rateLimiter, meter)
 
 	switch deps.Mode {
 	case ModeAllInOne:

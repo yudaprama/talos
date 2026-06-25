@@ -18,6 +18,10 @@ type Querier interface {
 	// API Key Queries
 	// Create a new API key (v1 format - simplified schema)
 	CreateIssuedAPIKey(ctx context.Context, arg CreateIssuedAPIKeyParams) (IssuedApiKey, error)
+	// Decrement the actor's remaining balance. The caller initializes the row first
+	// (InsertActorBalanceIfAbsent) so the UPDATE always hits. Returns post-debit
+	// quota/remaining.
+	DebitActorBalance(ctx context.Context, arg DebitActorBalanceParams) (DebitActorBalanceRow, error)
 	DeleteImportedAPIKey(ctx context.Context, nID uuid.UUID, keyID string) error
 	DeleteIssuedAPIKey(ctx context.Context, nID uuid.UUID, keyID string) error
 	// Batched expiration for scalability (CockroachDB TTL-style)
@@ -27,6 +31,13 @@ type Querier interface {
 	// Lookup ACTIVE API key by key_id and nid (for verification hot path)
 	// Only returns active keys (revoked/expired keys are filtered out)
 	GetActiveIssuedAPIKey(ctx context.Context, nID uuid.UUID, keyID string, activeStatus int32) (IssuedApiKey, error)
+	// reviewed - @aeneasr - 2026-03-26
+	// ============================================================================
+	// Metering (fork): per-actor balance cache + append-only usage ledger.
+	// Backs the VerifyApiKey balance pre-check and AdminIngestUsage.
+	// ============================================================================
+	// Read an actor's cached balance for the verify pre-check. No row = unlimited.
+	GetActorBalance(ctx context.Context, nID string, actorID string) (ActorBalance, error)
 	// Batched selection for scalability (CockroachDB TTL-style)
 	// Returns up to LIMIT expired keys for incremental processing within a network
 	GetExpiredIssuedAPIKeys(ctx context.Context, nID uuid.UUID, activeStatus int32, batchLimit int64) ([]IssuedApiKey, error)
@@ -39,6 +50,14 @@ type Querier interface {
 	GetIssuedAPIKey(ctx context.Context, nID uuid.UUID, keyID string) (IssuedApiKey, error)
 	// Lookup issued API key by idempotency key (AIP-133)
 	GetIssuedAPIKeyByRequestID(ctx context.Context, nID uuid.UUID, requestID *string) (IssuedApiKey, error)
+	// Idempotency check: has this usage event already been recorded?
+	GetUsageByRequestID(ctx context.Context, nID string, requestID *string) (GetUsageByRequestIDRow, error)
+	// Initialize an actor's balance row with the full quota. No-op if the row exists.
+	// (sqlc's SQLite engine does not expand sqlc.arg() inside ON CONFLICT ... DO
+	// UPDATE SET, so initialization and debit are split into two statements.)
+	InsertActorBalanceIfAbsent(ctx context.Context, arg InsertActorBalanceIfAbsentParams) error
+	// Append one usage event to the ledger. key_id and request_id are nullable.
+	InsertUsage(ctx context.Context, arg InsertUsageParams) error
 	// Returns up to sqlc.arg(batch_limit) active imported API key IDs for the network.
 	// Used for cap enforcement (quota.api_keys_max). The query is bounded;
 	// callers count the returned rows. Never scans an unbounded set.
