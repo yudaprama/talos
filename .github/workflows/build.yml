@@ -53,3 +53,24 @@ jobs:
         with:
           name: talos-${{ matrix.os }}-${{ matrix.arch }}
           path: .bin/talos-${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}-${{ matrix.arch }}
+
+      # Create or update GitHub release (only once per tag)
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.VERSION }}
+          name: ${{ steps.vars.outputs.VERSION }}
+          body: "Release ${{ steps.vars.outputs.VERSION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload the binary as a release asset
+      - name: Upload binary to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.VERSION }}
+          files: .bin/talos-${{ matrix.os == 'macos-latest' && 'darwin' || 'linux' }}-${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
