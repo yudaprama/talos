@@ -61,9 +61,49 @@
 - Lint exclusions exist for generated protobuf (`*.pb.go`) and test helper patterns – respect them.
 
 ## 📦 CI / GitHub Actions
-- `ci.yaml` runs lint, test (OSS), Docker Compose verification, and a demo step.
-- Commercial docs are **not** built on the OSS mirror (see comments in `ci.yaml`).
-- Pull‑request validation uses the same `make verify` pipeline.
+- `build.yml` is the **only** workflow. It cross‑compiles `talos` for `linux`/`darwin` (amd64 + arm64) with `CGO_ENABLED=0` on a single `ubuntu-latest` runner — no macOS runners, no cgo, no secrets.
+- A push to `master` runs the 4 build jobs only (verifies the build stays green); **no release** is published.
+- Pushing a `v*` tag runs the same builds and then publishes a GitHub Release with all four binaries (see **Releasing** below).
+- The upstream Ory `ci.yaml` and `.github/actions/talos/` were **removed** — they required commercial OpenAPI patches and Ory‑internal secrets and could never pass on this fork.
+- `gh` resolves to the **upstream** `ory/talos` by default; always pass `-R yudaprama/talos` (or run `gh repo set-default yudaprama/talos`).
+
+## 🚀 Releasing (how to publish a new version)
+
+Releases are **tag‑driven and fully automatic**. The CI workflow builds the binaries and attaches them to a GitHub Release — there is **no** manual `gh release` / `goreleaser` step.
+
+> **This fork commits directly to `master` (no feature branches, no PRs)** — the upstream "Fork → branch → PR" workflow in the Development section above does **not** apply here.
+
+To release version `vX.Y.Z` (SemVer, `v` prefix required):
+
+1. Confirm every change is committed and pushed to `master`, and the automatic master build passed:
+   ```bash
+   gh run list -R yudaprama/talos --branch master --workflow build.yml --limit 1
+   ```
+2. Tag the `master` HEAD and push the tag. **Tag *after* pushing master** — a tag‑triggered workflow uses the workflow file present at the tagged commit:
+   ```bash
+   git tag -a vX.Y.Z -m "vX.Y.Z"
+   git push origin vX.Y.Z
+   ```
+3. Watch the tag build + release job until it completes green:
+   ```bash
+   RUN=$(gh run list -R yudaprama/talos --branch vX.Y.Z --workflow build.yml --limit 1 \
+         --json databaseId -q '.[0].databaseId')
+   gh run watch "$RUN" -R yudaprama/talos --exit-status
+   ```
+4. Verify the release and its four assets:
+   ```bash
+   gh release view vX.Y.Z -R yudaprama/talos
+   ```
+
+Result: a release at `https://github.com/yudaprama/talos/releases/tag/vX.Y.Z` (marked **Latest**) with `talos-{linux,darwin}-{amd64,arm64}`.
+
+Rules & gotchas:
+- `X.Y.Z` must follow SemVer and be **new** — reusing a tag fails the push. Never move or delete an already‑published tag.
+- Only `v*` tags publish a release. Branch pushes and `workflow_dispatch` build but do **not** release.
+- No secrets are needed — the workflow uses the built‑in `GITHUB_TOKEN` (`permissions: contents: write`).
+- Version metadata is injected via `-ldflags` into `internal/version` (`Version`, `Commit`, `BuildTime`); the version string is the tag with its leading `v` stripped (tag `v0.1.0` → `0.1.0`).
+- To change which platforms/architectures ship, edit the `matrix` in `.github/workflows/build.yml`.
+- Fork versioning starts at **`v0.1.0`** (2026‑06‑25). The `v26.x`/`v27.x` tags are upstream artifacts, not this fork's releases.
 
 ## ⚠️ Gotchas & non‑obvious patterns
 1. **Network ID injection** – commercial code crashes if the NID is missing; remember to call `contextx.WithNetworkID(ctx, nid)` in background workers.
