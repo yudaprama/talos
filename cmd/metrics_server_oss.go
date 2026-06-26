@@ -2,8 +2,16 @@
 
 package cmd
 
-import "net/http"
+import (
+	"net/http"
 
-// registerMetricsRoute is a no-op in OSS builds; Prometheus metrics scraping
-// requires the commercial edition.
-func registerMetricsRoute(_ *http.ServeMux) {}
+	"github.com/ory/x/prometheusx"
+)
+
+// registerMetricsRoute registers the Prometheus scrape endpoint on the metrics
+// HTTP server. Exposes the default Prometheus registry (Go runtime + Talos
+// collectors registered via the internal/metrics blank import) at
+// /metrics/prometheus for Alloy to scrape.
+func registerMetricsRoute(mux *http.ServeMux) {
+	prometheusx.SetMuxRoutes(mux)
+}

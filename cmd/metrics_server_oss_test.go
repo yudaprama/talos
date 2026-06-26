@@ -16,10 +16,9 @@ import (
 	"github.com/ory/talos/internal/health"
 )
 
-// TestOSSMetricsServerHasNoMetricsRoute verifies that the metrics HTTP server
-// does not expose the Prometheus /metrics endpoint in OSS builds. Scraping is
-// a commercial-only feature.
-func TestOSSMetricsServerHasNoMetricsRoute(t *testing.T) {
+// TestOSSMetricsServerExposesPrometheus verifies that the metrics HTTP server
+// exposes the Prometheus scrape endpoint (/metrics/prometheus) in OSS builds.
+func TestOSSMetricsServerExposesPrometheus(t *testing.T) {
 	t.Parallel()
 
 	writer := herodot.NewJSONWriter(nil)
@@ -31,11 +30,13 @@ func TestOSSMetricsServerHasNoMetricsRoute(t *testing.T) {
 	ts := httptest.NewServer(srv.Handler)
 	t.Cleanup(ts.Close)
 
-	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.URL+"/metrics", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.URL+"/metrics/prometheus", nil)
 	require.NoError(t, err)
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
-	_, _ = io.Copy(io.Discard, resp.Body)
-	assert.Equal(t, http.StatusNotFound, resp.StatusCode, "/metrics must not exist in OSS builds")
+	body, _ := io.ReadAll(resp.Body)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "/metrics/prometheus should be exposed in OSS builds")
+	assert.Contains(t, string(body), "# HELP", "response should contain Prometheus-formatted metrics")
 }

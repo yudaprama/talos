@@ -3,7 +3,9 @@
 package tracing_test
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -12,10 +14,10 @@ import (
 	"github.com/ory/talos/internal/tracing"
 )
 
-// TestInitTracerOSSIsNoop verifies that InitTracer is a no-op in OSS builds
-// even when tracing is enabled in the configuration. Tracing exporters are a
-// commercial-only feature.
-func TestInitTracerOSSIsNoop(t *testing.T) {
+// TestInitTracerOSSEnabled verifies that InitTracer builds a real OTLP/gRPC
+// TracerProvider when tracing is enabled in OSS builds. The gRPC exporter dials
+// lazily, so no live collector is required for construction to succeed.
+func TestInitTracerOSSEnabled(t *testing.T) {
 	t.Parallel()
 
 	ctx := t.Context()
@@ -26,5 +28,11 @@ func TestInitTracerOSSIsNoop(t *testing.T) {
 
 	tp, err := tracing.InitTracer(ctx, provider)
 	require.NoError(t, err)
-	require.Nil(t, tp, "OSS InitTracer must return nil even when tracing is enabled")
+	require.NotNil(t, tp, "OSS InitTracer must return a provider when tracing is enabled")
+
+	t.Cleanup(func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		_ = tp.Shutdown(shutdownCtx)
+	})
 }
