@@ -1,109 +1,63 @@
-name: build
+name: Build and Release
 
-# Build Talos binaries for Linux + macOS (amd64 & arm64) and publish a
-# GitHub Release whenever a `v*` tag is pushed.
-#
-# This replaces the upstream Ory CI (.github/workflows/ci.yaml), which cannot
-# run on this fork: it depends on commercial-only OpenAPI patches and on
-# Ory-internal release secrets (ORY_BOT_PAT, GORELEASER_KEY, ...). With CGO
-# disabled, a single Linux runner cross-compiles all four binaries, so no
-# secrets and no macOS runners are required.
+on:
+  push:
+    branches: [master]
 
 permissions:
   contents: write
 
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
-  workflow_dispatch:
-
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
-    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - goos: linux
-            goarch: amd64
-          - goos: linux
-            goarch: arm64
-          - goos: darwin
-            goarch: amd64
-          - goos: darwin
-            goarch: arm64
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.26'
+          go-version-file: go.mod
           cache: true
 
-      - name: Build binary
-        env:
-          CGO_ENABLED: '0'
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
+      - name: Determine version
+        id: ver
+        run: echo "version=v${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build linux-amd64
         run: |
-          set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
-          COMMIT="$(git rev-parse --short HEAD)"
-          BUILD_TIME="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          OUT="dist/talos-${GOOS}-${GOARCH}"
           mkdir -p dist
-          go build -trimpath \
-            -ldflags="-s -w \
-              -X github.com/ory/talos/internal/version.Version=${VERSION} \
-              -X github.com/ory/talos/internal/version.Commit=${COMMIT} \
-              -X github.com/ory/talos/internal/version.BuildTime=${BUILD_TIME}" \
-            -o "${OUT}" .
-          echo "Built ${OUT}"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath \
+            -ldflags="-s -w -X github.com/ory/talos/internal/version.Version=${{ github.run_number }}" \
+            -o dist/talos-linux-amd64 .
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: talos-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: dist/talos-${{ matrix.goos }}-${{ matrix.goarch }}
-          if-no-files-found: error
-          retention-days: 14
+      - name: Build linux-arm64
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath \
+            -ldflags="-s -w -X github.com/ory/talos/internal/version.Version=${{ github.run_number }}" \
+            -o dist/talos-linux-arm64 .
 
-  release:
-    name: Publish release
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Download all binaries
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-          merge-multiple: true
+      - name: Build darwin-amd64
+        run: |
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath \
+            -ldflags="-s -w -X github.com/ory/talos/internal/version.Version=${{ github.run_number }}" \
+            -o dist/talos-darwin-amd64 .
 
-      - name: Create GitHub Release
+      - name: Build darwin-arm64
+        run: |
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath \
+            -ldflags="-s -w -X github.com/ory/talos/internal/version.Version=${{ github.run_number }}" \
+            -o dist/talos-darwin-arm64 .
+
+      - name: Checksums
+        run: sha256sum dist/* > dist/CHECKSUMS.txt
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          files: dist/talos-*
-          body: |
-            Talos ${{ github.ref_name }}
-
-            Static binaries built with CGO disabled, cross-compiled for:
-            - `linux/amd64`
-            - `linux/arm64`
-            - `darwin/amd64`
-            - `darwin/arm64`
-          fail_on_unmatched_files: true
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
