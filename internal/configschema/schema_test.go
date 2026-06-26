@@ -66,7 +66,7 @@ func TestUnifiedSchemaContainsAllFeatures(t *testing.T) {
 	// All features should be present in unified schema
 	expectedFeatures := []string{
 		"serve", "db", "log", "credentials", "secrets", // OSS features
-		"cache", "multitenancy", "tracing", // Enterprise features
+		"cache", "multitenancy", "tracing", // tracing is OSS in this fork; cache/multitenancy Enterprise
 	}
 
 	for _, feature := range expectedFeatures {
@@ -85,8 +85,9 @@ func TestOSSFeaturesNotMarkedAsLicenseRequired(t *testing.T) {
 	properties, ok := schema["properties"].(map[string]any)
 	require.True(t, ok, "Schema should have properties")
 
-	// OSS features should not have x-license-required marker
-	ossFeatures := []string{"serve", "db", "log", "credentials", "secrets"}
+	// OSS features should not have x-license-required marker. tracing is OSS in
+	// this fork (see internal/tracing/tracer_oss.go).
+	ossFeatures := []string{"serve", "db", "log", "credentials", "secrets", "tracing"}
 	for _, feature := range ossFeatures {
 		prop, exists := properties[feature]
 		require.True(t, exists, "Schema should contain OSS feature: %s", feature)
@@ -98,10 +99,11 @@ func TestOSSFeaturesNotMarkedAsLicenseRequired(t *testing.T) {
 		assert.False(t, hasLicenseMarker, "OSS feature %s should not have x-license-required marker", feature)
 	}
 
-	// Commercial-only features (tracing, cache, multitenancy, rate_limit, serve.metrics)
-	// must carry the license marker so that documentation and tooling treat them as
-	// Enterprise-only.
-	commercialFeatures := []string{"tracing", "cache", "multitenancy", "rate_limit"}
+	// Commercial-only features (cache, multitenancy, rate_limit) must carry the
+	// license marker so that documentation and tooling treat them as Enterprise-only.
+	// NOTE: tracing and serve.metrics are OSS in this fork (see tracer_oss.go /
+	// metrics_server_oss.go) and intentionally lack the marker.
+	commercialFeatures := []string{"cache", "multitenancy", "rate_limit"}
 	for _, feature := range commercialFeatures {
 		prop, exists := properties[feature]
 		require.True(t, exists, "Schema should contain commercial feature: %s", feature)
@@ -113,15 +115,17 @@ func TestOSSFeaturesNotMarkedAsLicenseRequired(t *testing.T) {
 			"commercial feature %s should have x-license-required: true", feature)
 	}
 
-	// serve.metrics lives under serve; verify it is marked commercial as well.
+	// serve.metrics lives under serve and is OSS in this fork (metrics scrape is
+	// implemented by cmd/metrics_server_oss.go); verify it is NOT license-marked.
 	serveProp, ok := properties["serve"].(map[string]any)
 	require.True(t, ok)
 	serveProps, ok := serveProp["properties"].(map[string]any)
 	require.True(t, ok)
 	metricsProp, ok := serveProps["metrics"].(map[string]any)
 	require.True(t, ok, "serve.metrics must exist")
-	assert.Equal(t, true, metricsProp["x-license-required"],
-		"serve.metrics must have x-license-required: true")
+	_, hasMetricsLicenseMarker := metricsProp["x-license-required"]
+	assert.False(t, hasMetricsLicenseMarker,
+		"serve.metrics must NOT have x-license-required (OSS in this fork)")
 }
 
 func TestCacheRedisFieldsAreImmutable(t *testing.T) {

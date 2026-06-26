@@ -150,8 +150,7 @@
         },
         "metrics": {
           "type": "object",
-          "description": "Prometheus metrics server configuration. Server addresses are immutable (require restart). Requires Enterprise license.",
-          "x-license-required": true,
+          "description": "Prometheus metrics server configuration. Server addresses are immutable (require restart).",
           "x-immutable": true,
           "properties": {
             "host": {
@@ -587,8 +586,7 @@
     },
     "tracing": {
       "type": "object",
-      "description": "OpenTelemetry tracing configuration. Immutable: tracer is created at startup and requires server restart to change. Requires Enterprise license.",
-      "x-license-required": true,
+      "description": "OpenTelemetry tracing configuration. Immutable: tracer is created at startup and requires server restart to change.",
       "x-immutable": true,
       "properties": {
         "enabled": {
