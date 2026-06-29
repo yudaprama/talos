@@ -123,10 +123,34 @@ func (a *adminAdapter) RevokeApiKey(ctx context.Context, req *talosv2alpha1.Self
 	return a.public.RevokeApiKey(ctx, req)
 }
 
-// adminOnlyAdapter exposes all Admin* methods but leaves RevokeApiKey (the
-// proof-of-possession variant) wired to the embedded UnimplementedApiKeysServer,
-// which returns codes.Unimplemented → HTTP 404. Used when the server runs in
-// ModeAdmin.
+// SelfIssueApiKey is the X-User-Id-authenticated self-service issue variant.
+// Delegates to Public so a logged-in user can mint their own gateway key
+// without an admin token. The caller's actor_id is taken authoritatively
+// from the X-User-Id header inside the Public method.
+func (a *adminAdapter) SelfIssueApiKey(ctx context.Context, req *talosv2alpha1.SelfIssueApiKeyRequest) (*talosv2alpha1.IssueApiKeyResponse, error) {
+	return a.public.SelfIssueApiKey(ctx, req)
+}
+
+// SelfListIssuedApiKeys is the X-User-Id-authenticated self-service list
+// variant. The actor_id filter is forced server-side from the header.
+func (a *adminAdapter) SelfListIssuedApiKeys(ctx context.Context, req *talosv2alpha1.SelfListIssuedApiKeysRequest) (*talosv2alpha1.ListIssuedApiKeysResponse, error) {
+	return a.public.SelfListIssuedApiKeys(ctx, req)
+}
+
+// SelfRevokeIssuedApiKey is the X-User-Id-authenticated self-service revoke
+// variant. Ownership is verified inside the Public method before revocation.
+func (a *adminAdapter) SelfRevokeIssuedApiKey(ctx context.Context, req *talosv2alpha1.SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error) {
+	return a.public.SelfRevokeIssuedApiKey(ctx, req)
+}
+
+// adminOnlyAdapter exposes all Admin* methods but leaves the self-service
+// RPCs (proof-of-possession RevokeApiKey AND the X-User-Id-authenticated
+// SelfIssueApiKey / SelfListIssuedApiKeys / SelfRevokeIssuedApiKey) wired to
+// the embedded UnimplementedApiKeysServer, which returns codes.Unimplemented
+// → HTTP 404. Used when the server runs in ModeAdmin. The self-service
+// surface belongs on a separate listener (ModePublic or ModeAllInOne)
+// fronted by an edge proxy that injects X-User-Id; running it on the admin
+// listener would invite clients to send X-User-Id directly.
 type adminOnlyAdapter struct {
 	talosv2alpha1.UnimplementedApiKeysServer
 
@@ -215,6 +239,26 @@ type publicOnlyAdapter struct {
 
 func (a *publicOnlyAdapter) RevokeApiKey(ctx context.Context, req *talosv2alpha1.SelfRevokeApiKeyRequest) (*talosv2alpha1.SelfRevokeApiKeyResponse, error) {
 	return a.public.RevokeApiKey(ctx, req)
+}
+
+// SelfIssueApiKey mints a new key bound to the X-User-Id header's actor_id.
+// Exposed in ModePublic so a user-facing edge proxy (Ory Oathkeeper +
+// Kratos cookie_session) can offer key self-management without an admin
+// surface.
+func (a *publicOnlyAdapter) SelfIssueApiKey(ctx context.Context, req *talosv2alpha1.SelfIssueApiKeyRequest) (*talosv2alpha1.IssueApiKeyResponse, error) {
+	return a.public.SelfIssueApiKey(ctx, req)
+}
+
+// SelfListIssuedApiKeys lists the caller's keys; the actor_id filter is
+// forced server-side from the X-User-Id header.
+func (a *publicOnlyAdapter) SelfListIssuedApiKeys(ctx context.Context, req *talosv2alpha1.SelfListIssuedApiKeysRequest) (*talosv2alpha1.ListIssuedApiKeysResponse, error) {
+	return a.public.SelfListIssuedApiKeys(ctx, req)
+}
+
+// SelfRevokeIssuedApiKey revokes a key owned by the caller; ownership is
+// verified before revocation.
+func (a *publicOnlyAdapter) SelfRevokeIssuedApiKey(ctx context.Context, req *talosv2alpha1.SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error) {
+	return a.public.SelfRevokeIssuedApiKey(ctx, req)
 }
 
 func (a *publicOnlyAdapter) GetJwks(ctx context.Context, req *talosv2alpha1.GetJWKSRequest) (*talosv2alpha1.GetJWKSResponse, error) {

@@ -107,6 +107,10 @@ func TestHTTPHandlerFromDependencies_ModeIsolation(t *testing.T) {
 	// selfPath is the proof-of-possession revoke endpoint, present only in
 	// ModePublic and ModeAllInOne.
 	const selfPath = "/v2alpha1/apiKeys:selfRevoke"
+	// selfHeaderPath is the X-User-Id-authenticated self-service issue endpoint.
+	// Same exposure matrix as selfPath (ModePublic + ModeAllInOne), but
+	// authenticates via the X-User-Id header instead of proof-of-possession.
+	const selfHeaderPath = "/v2alpha1/self/issuedApiKeys"
 	// jwksPath is the public JWKS endpoint — wired in all three deployment modes.
 	const jwksPath = "/v2alpha1/derivedKeys/jwks.json"
 	// jwksLegacyPath is the pre-migration admin-tier path, which must no longer route.
@@ -117,6 +121,10 @@ func TestHTTPHandlerFromDependencies_ModeIsolation(t *testing.T) {
 	// selfBody is a minimal revoke request body (credential value is intentionally invalid;
 	// we only care about routing, not business-logic success).
 	const selfBody = `{"credential":"talos_invalid_credential"}`
+	// selfHeaderBody is a minimal self-issue request body. The actor_id is
+	// taken from the X-User-Id header (not the body), so an empty body is
+	// fine; without the header the service returns 401 (still 4xx, not 404).
+	const selfHeaderBody = `{}`
 
 	tests := []struct {
 		name string
@@ -186,6 +194,20 @@ func TestHTTPHandlerFromDependencies_ModeIsolation(t *testing.T) {
 			} else {
 				assert.Equal(t, http.StatusNotFound, selfResp.StatusCode,
 					"public endpoint should return 404 (Unimplemented→NotFound) in mode %d", tc.mode)
+			}
+
+			// Self-service (X-User-Id) endpoint: POST /v2alpha1/self/issuedApiKeys.
+			// Same exposure matrix as the proof-of-possession self endpoint.
+			// Active adapter: without the X-User-Id header the service returns
+			// 401 Unauthenticated (still 4xx, not 404).
+			// Inactive adapter: codes.Unimplemented → HTTP 404.
+			selfHeaderResp := post(t, ts, selfHeaderPath, selfHeaderBody)
+			if tc.wantSelfActive {
+				assert.Less(t, selfHeaderResp.StatusCode, 500,
+					"self-service endpoint should reach service logic (not Unimplemented) in mode %d", tc.mode)
+			} else {
+				assert.Equal(t, http.StatusNotFound, selfHeaderResp.StatusCode,
+					"self-service endpoint should return 404 (Unimplemented→NotFound) in mode %d", tc.mode)
 			}
 
 			// JWKS endpoint: GET /v2alpha1/derivedKeys/jwks.json. JWKS keys are

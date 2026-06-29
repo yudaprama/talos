@@ -148,6 +148,17 @@ func (s *GatewayServer) extractMetadata(ctx context.Context, r *http.Request) me
 		md["x-request-id"] = []string{reqID}
 	}
 
+	// X-User-Id is the trust-bound identity header for the self-service surface
+	// (SelfIssueApiKey / SelfListIssuedApiKeys / SelfRevokeIssuedApiKey). It MUST
+	// be injected by a trusted edge proxy (e.g. Ory Oathkeeper from a Kratos
+	// session); service methods that read it reject the request when it is
+	// absent. We forward it unconditionally so a misconfigured edge (one that
+	// forwards a client-supplied X-User-Id without overwriting it) fails closed
+	// at the service layer with Unauthenticated, not silently here.
+	if uid := r.Header.Get("X-User-Id"); uid != "" {
+		md["x-user-id"] = []string{uid}
+	}
+
 	// X-Forwarded-Host drives multi-tenancy routing (commercial edition).
 	// Only trust it when explicitly configured to prevent header-injection attacks.
 	if host := s.effectiveHost(ctx, r); host != "" {
@@ -230,8 +241,17 @@ func forwardRateLimitHeaders(_ context.Context, w http.ResponseWriter, resp prot
 func forwardHTTPStatusCode(ctx context.Context, w http.ResponseWriter, resp proto.Message) error {
 	switch r := resp.(type) {
 	case *talosv2alpha1.IssueApiKeyResponse:
+		// Location depends on which surface issued the key: the admin
+		// surface (/v2alpha1/admin/issuedApiKeys) for AdminIssueApiKey,
+		// the self-service surface (/v2alpha1/self/issuedApiKeys) for
+		// SelfIssueApiKey. Both produce the same IssueApiKeyResponse, so
+		// disambiguate via the gRPC method name annotated by grpc-gateway.
 		if r.GetIssuedApiKey() != nil && r.GetIssuedApiKey().GetKeyId() != "" {
-			w.Header().Set("Location", "/v2alpha1/admin/issuedApiKeys/"+r.GetIssuedApiKey().GetKeyId())
+			location := "/v2alpha1/admin/issuedApiKeys/" + r.GetIssuedApiKey().GetKeyId()
+			if method, ok := runtime.RPCMethod(ctx); ok && strings.HasSuffix(method, "/SelfIssueApiKey") {
+				location = "/v2alpha1/self/issuedApiKeys/" + r.GetIssuedApiKey().GetKeyId()
+			}
+			w.Header().Set("Location", location)
 		}
 		w.WriteHeader(http.StatusCreated)
 	case *talosv2alpha1.RotateIssuedApiKeyResponse:

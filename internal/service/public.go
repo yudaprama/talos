@@ -31,21 +31,29 @@ import (
 	"github.com/ory/x/otelx"
 )
 
-// Public implements proof-of-possession self-revocation and credential
-// verification. Verification helpers (VerifyAPIKey, BatchVerifyAPIKeys) are
-// admin-only and are reached through the admin adapter, which delegates to
-// this type.
+// Public implements proof-of-possession self-revocation, credential
+// verification, and the X-User-Id-authenticated self-service surface (issue,
+// list, revoke-by-id for the caller's own keys). Verification helpers
+// (VerifyAPIKey, BatchVerifyAPIKeys) are admin-only and are reached through
+// the admin adapter, which delegates to this type.
+//
+// The optional admin reference backs the Self* RPCs: they reuse the admin
+// service's persistence + crypto path with actor_id forced from the X-User-Id
+// header. When admin is nil (e.g. a test fixture), Self* methods return
+// Unimplemented.
 type Public struct {
 	apiKeyVerifier *verifier.Verifier
 	protoValidator protovalidate.Validator
 	rateLimiter    ratelimit.Limiter
 	meter          metering.Meter
+	admin          *Admin
 }
 
 // NewPublic creates a new Public server. The meter drives the balance pre-check
 // in VerifyApiKey and backs AdminIngestUsage; pass metering.NoopMeter{} (or nil)
-// to disable metering.
-func NewPublic(v *verifier.Verifier, pv protovalidate.Validator, rl ratelimit.Limiter, m metering.Meter) *Public {
+// to disable metering. Pass a non-nil admin to enable the X-User-Id-authenticated
+// Self* RPCs; pass nil to leave them Unimplemented.
+func NewPublic(v *verifier.Verifier, pv protovalidate.Validator, rl ratelimit.Limiter, m metering.Meter, admin *Admin) *Public {
 	if m == nil {
 		m = metering.NoopMeter{}
 	}
@@ -54,6 +62,7 @@ func NewPublic(v *verifier.Verifier, pv protovalidate.Validator, rl ratelimit.Li
 		protoValidator: pv,
 		rateLimiter:    rl,
 		meter:          m,
+		admin:          admin,
 	}
 }
 

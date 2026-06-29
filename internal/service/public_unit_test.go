@@ -70,7 +70,7 @@ func newPV(t *testing.T) protovalidate.Validator {
 // verifier code path.
 func newPublicWithLimiter(t *testing.T, rl ratelimit.Limiter) *Public {
 	t.Helper()
-	return NewPublic(nil, newPV(t), rl, nil)
+	return NewPublic(nil, newPV(t), rl, nil, nil)
 }
 
 // TestMapErrorToVerificationCode verifies all eight switch branches in
@@ -288,7 +288,7 @@ func TestActorBalanceAdmin(t *testing.T) {
 
 	newSrv := func() (*Public, *fakeMeter) {
 		m := &fakeMeter{bal: &metering.Balance{Quota: 1000, Remaining: 250}}
-		return NewPublic(nil, newPV(t), &ratelimit.NoopLimiter{}, m), m
+		return NewPublic(nil, newPV(t), &ratelimit.NoopLimiter{}, m, nil), m
 	}
 
 	t.Run("SetActorQuota maps result and forwards args", func(t *testing.T) {

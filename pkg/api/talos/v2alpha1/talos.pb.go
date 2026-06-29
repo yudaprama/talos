@@ -3221,6 +3221,208 @@ func (*SelfRevokeApiKeyResponse) Descriptor() ([]byte, []int) {
 	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{39}
 }
 
+// SelfIssueApiKeyRequest is the body of SelfIssueApiKey. The caller may only
+// set a display name, TTL, and an idempotency key — everything else
+// (actor_id, scopes, rate limits, IP restrictions, visibility) is either
+// derived from the header or defaulted by the server.
+type SelfIssueApiKeyRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// name is an optional display name for the key. When omitted the server
+	// substitutes a default (e.g. "self-issued").
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// ttl sets the expiry as a duration from now. Same encoding rules as
+	// IssueApiKeyRequest.ttl (Go-style accepted: "24h", "30m"; standard
+	// Duration: "3600s"). When unset, the project default TTL applies.
+	Ttl *durationpb.Duration `protobuf:"bytes,2,opt,name=ttl,proto3" json:"ttl,omitempty"`
+	// request_id is an optional idempotency key (AIP-155). Replaying a
+	// request with the same request_id returns the originally-issued key
+	// (without the secret).
+	RequestId     string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SelfIssueApiKeyRequest) Reset() {
+	*x = SelfIssueApiKeyRequest{}
+	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SelfIssueApiKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SelfIssueApiKeyRequest) ProtoMessage() {}
+
+func (x *SelfIssueApiKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SelfIssueApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*SelfIssueApiKeyRequest) Descriptor() ([]byte, []int) {
+	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *SelfIssueApiKeyRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SelfIssueApiKeyRequest) GetTtl() *durationpb.Duration {
+	if x != nil {
+		return x.Ttl
+	}
+	return nil
+}
+
+func (x *SelfIssueApiKeyRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+// SelfListIssuedApiKeysRequest is the body of SelfListIssuedApiKeys. The
+// actor_id filter is forced server-side from the X-User-Id header, so this
+// message deliberately omits the filter field present on
+// ListIssuedApiKeysRequest.
+type SelfListIssuedApiKeysRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// page_size is the maximum number of keys to return. The server clamps
+	// this to the configured maximum (default 50, max 1000).
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// page_token is the opaque cursor returned in the previous response's
+	// next_page_token.
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SelfListIssuedApiKeysRequest) Reset() {
+	*x = SelfListIssuedApiKeysRequest{}
+	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SelfListIssuedApiKeysRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SelfListIssuedApiKeysRequest) ProtoMessage() {}
+
+func (x *SelfListIssuedApiKeysRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SelfListIssuedApiKeysRequest.ProtoReflect.Descriptor instead.
+func (*SelfListIssuedApiKeysRequest) Descriptor() ([]byte, []int) {
+	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *SelfListIssuedApiKeysRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *SelfListIssuedApiKeysRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+// SelfRevokeIssuedApiKeyRequest is the body of SelfRevokeIssuedApiKey. The
+// key_id path parameter names the key to revoke; ownership is verified
+// server-side before revocation.
+type SelfRevokeIssuedApiKeyRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// key_id is the path parameter naming the key to revoke. The key must
+	// belong to the caller (X-User-Id header), otherwise 404 is returned.
+	KeyId string `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
+	// reason is the revocation reason. PRIVILEGE_WITHDRAWN is rejected here
+	// (admin-only) — self-revocation uses KEY_COMPROMISE, AFFILIATION_CHANGED,
+	// SUPERSEDED, or UNSPECIFIED.
+	Reason RevocationReason `protobuf:"varint,2,opt,name=reason,proto3,enum=talos.v2alpha1.RevocationReason" json:"reason,omitempty"`
+	// description is an optional free-text explanation. Mirrors the admin
+	// endpoint's documentation field.
+	Description   string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SelfRevokeIssuedApiKeyRequest) Reset() {
+	*x = SelfRevokeIssuedApiKeyRequest{}
+	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SelfRevokeIssuedApiKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SelfRevokeIssuedApiKeyRequest) ProtoMessage() {}
+
+func (x *SelfRevokeIssuedApiKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_talos_v2alpha1_talos_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SelfRevokeIssuedApiKeyRequest.ProtoReflect.Descriptor instead.
+func (*SelfRevokeIssuedApiKeyRequest) Descriptor() ([]byte, []int) {
+	return file_api_talos_v2alpha1_talos_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *SelfRevokeIssuedApiKeyRequest) GetKeyId() string {
+	if x != nil {
+		return x.KeyId
+	}
+	return ""
+}
+
+func (x *SelfRevokeIssuedApiKeyRequest) GetReason() RevocationReason {
+	if x != nil {
+		return x.Reason
+	}
+	return RevocationReason_REVOCATION_REASON_UNSPECIFIED
+}
+
+func (x *SelfRevokeIssuedApiKeyRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
 var File_api_talos_v2alpha1_talos_proto protoreflect.FileDescriptor
 
 const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
@@ -3503,7 +3705,21 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\xbaH\ar\x05\x10\x01\x18\x80 R\n" +
 	"credential\x128\n" +
 	"\x06reason\x18\x02 \x01(\x0e2 .talos.v2alpha1.RevocationReasonR\x06reason\"\x1a\n" +
-	"\x18SelfRevokeApiKeyResponse*n\n" +
+	"\x18SelfRevokeApiKeyResponse\"\xa2\x01\n" +
+	"\x16SelfIssueApiKeyRequest\x12\x1c\n" +
+	"\x04name\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x04name\x12B\n" +
+	"\x03ttl\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x15\xbaH\x12\xd8\x01\x01\xaa\x01\f\"\x06\b\x80\x86\xb0\x96\x012\x02\b\x01R\x03ttl\x12&\n" +
+	"\n" +
+	"request_id\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18$R\trequestId\"f\n" +
+	"\x1cSelfListIssuedApiKeysRequest\x12'\n" +
+	"\tpage_size\x18\x01 \x01(\x05B\n" +
+	"\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tR\tpageToken\"\xa5\x01\n" +
+	"\x1dSelfRevokeIssuedApiKeyRequest\x12\x1e\n" +
+	"\x06key_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05keyId\x128\n" +
+	"\x06reason\x18\x02 \x01(\x0e2 .talos.v2alpha1.RevocationReasonR\x06reason\x12*\n" +
+	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\bR\vdescription*n\n" +
 	"\tKeyStatus\x12\x1a\n" +
 	"\x16KEY_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11KEY_STATUS_ACTIVE\x10\x01\x12\x16\n" +
@@ -3540,7 +3756,7 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x1bVERIFICATION_ERROR_INTERNAL\x10\x06\x12%\n" +
 	"!VERIFICATION_ERROR_IP_NOT_ALLOWED\x10\a\x12#\n" +
 	"\x1fVERIFICATION_ERROR_RATE_LIMITED\x10\b\x12(\n" +
-	"$VERIFICATION_ERROR_BALANCE_EXHAUSTED\x10\t2\x83'\n" +
+	"$VERIFICATION_ERROR_BALANCE_EXHAUSTED\x10\t2\xd9+\n" +
 	"\aApiKeys\x12\xc1\x01\n" +
 	"\x10AdminIssueApiKey\x12\".talos.v2alpha1.IssueApiKeyRequest\x1a#.talos.v2alpha1.IssueApiKeyResponse\"d\x92A9*\x10adminIssueApiKeyJ%\n" +
 	"\x03201\x12\x1e\n" +
@@ -3569,7 +3785,14 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\x19AdminRevokeImportedApiKey\x12+.talos.v2alpha1.RevokeImportedApiKeyRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x92AC*\x19adminRevokeImportedApiKeyJ&\n" +
 	"\x03204\x12\x1f\n" +
 	"\x1dAPI key revoked successfully.\x82\xd3\xe4\x93\x024:\x01*\"//v2alpha1/admin/importedApiKeys/{key_id}:revoke\x12\x9b\x01\n" +
-	"\fRevokeApiKey\x12'.talos.v2alpha1.SelfRevokeApiKeyRequest\x1a(.talos.v2alpha1.SelfRevokeApiKeyResponse\"8\x92A\x0e*\frevokeApiKey\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v2alpha1/apiKeys:selfRevoke\x12\x9b\x01\n" +
+	"\fRevokeApiKey\x12'.talos.v2alpha1.SelfRevokeApiKeyRequest\x1a(.talos.v2alpha1.SelfRevokeApiKeyResponse\"8\x92A\x0e*\frevokeApiKey\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v2alpha1/apiKeys:selfRevoke\x12\xc2\x01\n" +
+	"\x0fSelfIssueApiKey\x12&.talos.v2alpha1.SelfIssueApiKeyRequest\x1a#.talos.v2alpha1.IssueApiKeyResponse\"b\x92A8*\x0fselfIssueApiKeyJ%\n" +
+	"\x03201\x12\x1e\n" +
+	"\x1cAPI key issued successfully.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v2alpha1/self/issuedApiKeys\x12\xb0\x01\n" +
+	"\x15SelfListIssuedApiKeys\x12,.talos.v2alpha1.SelfListIssuedApiKeysRequest\x1a).talos.v2alpha1.ListIssuedApiKeysResponse\">\x92A\x17*\x15selfListIssuedApiKeys\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v2alpha1/self/issuedApiKeys\x12\xdb\x01\n" +
+	"\x16SelfRevokeIssuedApiKey\x12-.talos.v2alpha1.SelfRevokeIssuedApiKeyRequest\x1a\x16.google.protobuf.Empty\"z\x92A@*\x16selfRevokeIssuedApiKeyJ&\n" +
+	"\x03204\x12\x1f\n" +
+	"\x1dAPI key revoked successfully.\x82\xd3\xe4\x93\x021:\x01*\",/v2alpha1/self/issuedApiKeys/{key_id}:revoke\x12\x9b\x01\n" +
 	"\x10AdminDeriveToken\x12\".talos.v2alpha1.DeriveTokenRequest\x1a#.talos.v2alpha1.DeriveTokenResponse\">\x92A\x12*\x10adminDeriveToken\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v2alpha1/admin/apiKeys:derive\x12\x7f\n" +
 	"\aGetJwks\x12\x1e.talos.v2alpha1.GetJWKSRequest\x1a\x1f.talos.v2alpha1.GetJWKSResponse\"3\x92A\t*\agetJwks\x82\xd3\xe4\x93\x02!\x12\x1f/v2alpha1/derivedKeys/jwks.json\x12\x91\x04\n" +
 	"\x11AdminVerifyApiKey\x12#.talos.v2alpha1.VerifyApiKeyRequest\x1a$.talos.v2alpha1.VerifyApiKeyResponse\"\xb0\x03\x92A\x83\x03*\x11adminVerifyApiKeyr\xed\x02\n" +
@@ -3585,8 +3808,8 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\xf0\x01\n" +
 	"\rCache-Control\x12\xdc\x01Cache-directive controlling the verifier cache. `no-cache` forces a fresh database lookup (cache read is bypassed). `no-store` additionally prevents the result from being written to the cache. Any other value is ignored.\x18\x01\n" +
 	"x\n" +
-	"\x06Pragma\x12lHTTP/1.0 alias for `Cache-Control: no-cache`. Behaves identically when set to `no-cache`; ignored otherwise.\x18\x01\x82\xd3\xe4\x93\x02(:\x01*\"#/v2alpha1/admin/apiKeys:batchVerifyB\xe0\x0e\x92A\xa8\r\x12\xce\v\n" +
-	"\rOry Talos API\x12\xb2\vOry Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n" +
+	"\x06Pragma\x12lHTTP/1.0 alias for `Cache-Control: no-cache`. Behaves identically when set to `no-cache`; ignored otherwise.\x18\x01\x82\xd3\xe4\x93\x02(:\x01*\"#/v2alpha1/admin/apiKeys:batchVerifyB\xb5\x0f\x92A\xfd\r\x12\xa3\f\n" +
+	"\rOry Talos API\x12\x87\fOry Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n" +
 	"\n" +
 	"## Authentication\n" +
 	"\n" +
@@ -3594,7 +3817,7 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\n" +
 	"## API surfaces\n" +
 	"\n" +
-	"Talos is a single binary with three deployment modes: **admin** (the full lifecycle and verification surface), **self-service** (only proof-of-possession self-revocation for credential holders), and **all-in-one** (both surfaces in one process). Run the admin and self-service surfaces separately to keep the privileged API off the public network.\n" +
+	"Talos is a single binary with three deployment modes: **admin** (the full lifecycle and verification surface), **self-service** (proof-of-possession self-revocation for credential holders, plus X-User-Id-authenticated self-issue/list/revoke when fronted by a trusted edge proxy), and **all-in-one** (both surfaces in one process). Run the admin and self-service surfaces separately to keep the privileged API off the public network.\n" +
 	"\n" +
 	"## Requests and responses\n" +
 	"\n" +
@@ -3620,7 +3843,7 @@ func file_api_talos_v2alpha1_talos_proto_rawDescGZIP() []byte {
 }
 
 var file_api_talos_v2alpha1_talos_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_api_talos_v2alpha1_talos_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
+var file_api_talos_v2alpha1_talos_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_api_talos_v2alpha1_talos_proto_goTypes = []any{
 	(KeyStatus)(0),                             // 0: talos.v2alpha1.KeyStatus
 	(KeyVisibility)(0),                         // 1: talos.v2alpha1.KeyVisibility
@@ -3668,53 +3891,56 @@ var file_api_talos_v2alpha1_talos_proto_goTypes = []any{
 	(*ActorBalance)(nil),                       // 43: talos.v2alpha1.ActorBalance
 	(*SelfRevokeApiKeyRequest)(nil),            // 44: talos.v2alpha1.SelfRevokeApiKeyRequest
 	(*SelfRevokeApiKeyResponse)(nil),           // 45: talos.v2alpha1.SelfRevokeApiKeyResponse
-	(*structpb.Struct)(nil),                    // 46: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),              // 47: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                // 48: google.protobuf.Duration
-	(*fieldmaskpb.FieldMask)(nil),              // 49: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                      // 50: google.protobuf.Empty
+	(*SelfIssueApiKeyRequest)(nil),             // 46: talos.v2alpha1.SelfIssueApiKeyRequest
+	(*SelfListIssuedApiKeysRequest)(nil),       // 47: talos.v2alpha1.SelfListIssuedApiKeysRequest
+	(*SelfRevokeIssuedApiKeyRequest)(nil),      // 48: talos.v2alpha1.SelfRevokeIssuedApiKeyRequest
+	(*structpb.Struct)(nil),                    // 49: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),              // 50: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                // 51: google.protobuf.Duration
+	(*fieldmaskpb.FieldMask)(nil),              // 52: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                      // 53: google.protobuf.Empty
 }
 var file_api_talos_v2alpha1_talos_proto_depIdxs = []int32{
-	46, // 0: talos.v2alpha1.IssuedApiKey.metadata:type_name -> google.protobuf.Struct
+	49, // 0: talos.v2alpha1.IssuedApiKey.metadata:type_name -> google.protobuf.Struct
 	0,  // 1: talos.v2alpha1.IssuedApiKey.status:type_name -> talos.v2alpha1.KeyStatus
-	47, // 2: talos.v2alpha1.IssuedApiKey.create_time:type_name -> google.protobuf.Timestamp
-	47, // 3: talos.v2alpha1.IssuedApiKey.update_time:type_name -> google.protobuf.Timestamp
-	47, // 4: talos.v2alpha1.IssuedApiKey.expire_time:type_name -> google.protobuf.Timestamp
-	47, // 5: talos.v2alpha1.IssuedApiKey.last_used_time:type_name -> google.protobuf.Timestamp
+	50, // 2: talos.v2alpha1.IssuedApiKey.create_time:type_name -> google.protobuf.Timestamp
+	50, // 3: talos.v2alpha1.IssuedApiKey.update_time:type_name -> google.protobuf.Timestamp
+	50, // 4: talos.v2alpha1.IssuedApiKey.expire_time:type_name -> google.protobuf.Timestamp
+	50, // 5: talos.v2alpha1.IssuedApiKey.last_used_time:type_name -> google.protobuf.Timestamp
 	10, // 6: talos.v2alpha1.IssuedApiKey.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
 	2,  // 7: talos.v2alpha1.IssuedApiKey.revocation_reason:type_name -> talos.v2alpha1.RevocationReason
 	9,  // 8: talos.v2alpha1.IssuedApiKey.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
 	1,  // 9: talos.v2alpha1.IssuedApiKey.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	46, // 10: talos.v2alpha1.ImportedApiKey.metadata:type_name -> google.protobuf.Struct
+	49, // 10: talos.v2alpha1.ImportedApiKey.metadata:type_name -> google.protobuf.Struct
 	0,  // 11: talos.v2alpha1.ImportedApiKey.status:type_name -> talos.v2alpha1.KeyStatus
-	47, // 12: talos.v2alpha1.ImportedApiKey.create_time:type_name -> google.protobuf.Timestamp
-	47, // 13: talos.v2alpha1.ImportedApiKey.update_time:type_name -> google.protobuf.Timestamp
-	47, // 14: talos.v2alpha1.ImportedApiKey.expire_time:type_name -> google.protobuf.Timestamp
-	47, // 15: talos.v2alpha1.ImportedApiKey.last_used_time:type_name -> google.protobuf.Timestamp
+	50, // 12: talos.v2alpha1.ImportedApiKey.create_time:type_name -> google.protobuf.Timestamp
+	50, // 13: talos.v2alpha1.ImportedApiKey.update_time:type_name -> google.protobuf.Timestamp
+	50, // 14: talos.v2alpha1.ImportedApiKey.expire_time:type_name -> google.protobuf.Timestamp
+	50, // 15: talos.v2alpha1.ImportedApiKey.last_used_time:type_name -> google.protobuf.Timestamp
 	10, // 16: talos.v2alpha1.ImportedApiKey.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
 	2,  // 17: talos.v2alpha1.ImportedApiKey.revocation_reason:type_name -> talos.v2alpha1.RevocationReason
 	9,  // 18: talos.v2alpha1.ImportedApiKey.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
 	1,  // 19: talos.v2alpha1.ImportedApiKey.visibility:type_name -> talos.v2alpha1.KeyVisibility
-	47, // 20: talos.v2alpha1.Token.expire_time:type_name -> google.protobuf.Timestamp
-	46, // 21: talos.v2alpha1.Token.claims:type_name -> google.protobuf.Struct
-	48, // 22: talos.v2alpha1.RateLimitPolicy.window:type_name -> google.protobuf.Duration
-	48, // 23: talos.v2alpha1.IssueApiKeyRequest.ttl:type_name -> google.protobuf.Duration
-	46, // 24: talos.v2alpha1.IssueApiKeyRequest.metadata:type_name -> google.protobuf.Struct
+	50, // 20: talos.v2alpha1.Token.expire_time:type_name -> google.protobuf.Timestamp
+	49, // 21: talos.v2alpha1.Token.claims:type_name -> google.protobuf.Struct
+	51, // 22: talos.v2alpha1.RateLimitPolicy.window:type_name -> google.protobuf.Duration
+	51, // 23: talos.v2alpha1.IssueApiKeyRequest.ttl:type_name -> google.protobuf.Duration
+	49, // 24: talos.v2alpha1.IssueApiKeyRequest.metadata:type_name -> google.protobuf.Struct
 	10, // 25: talos.v2alpha1.IssueApiKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
 	9,  // 26: talos.v2alpha1.IssueApiKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
 	1,  // 27: talos.v2alpha1.IssueApiKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
 	6,  // 28: talos.v2alpha1.IssueApiKeyResponse.issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
 	6,  // 29: talos.v2alpha1.ListIssuedApiKeysResponse.issued_api_keys:type_name -> talos.v2alpha1.IssuedApiKey
 	6,  // 30: talos.v2alpha1.UpdateIssuedApiKeyRequest.issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
-	49, // 31: talos.v2alpha1.UpdateIssuedApiKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	46, // 32: talos.v2alpha1.RotateIssuedApiKeyRequest.metadata:type_name -> google.protobuf.Struct
+	52, // 31: talos.v2alpha1.UpdateIssuedApiKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	49, // 32: talos.v2alpha1.RotateIssuedApiKeyRequest.metadata:type_name -> google.protobuf.Struct
 	10, // 33: talos.v2alpha1.RotateIssuedApiKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
 	9,  // 34: talos.v2alpha1.RotateIssuedApiKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
 	1,  // 35: talos.v2alpha1.RotateIssuedApiKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
 	6,  // 36: talos.v2alpha1.RotateIssuedApiKeyResponse.issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
 	6,  // 37: talos.v2alpha1.RotateIssuedApiKeyResponse.old_issued_api_key:type_name -> talos.v2alpha1.IssuedApiKey
-	48, // 38: talos.v2alpha1.ImportApiKeyRequest.ttl:type_name -> google.protobuf.Duration
-	46, // 39: talos.v2alpha1.ImportApiKeyRequest.metadata:type_name -> google.protobuf.Struct
+	51, // 38: talos.v2alpha1.ImportApiKeyRequest.ttl:type_name -> google.protobuf.Duration
+	49, // 39: talos.v2alpha1.ImportApiKeyRequest.metadata:type_name -> google.protobuf.Struct
 	10, // 40: talos.v2alpha1.ImportApiKeyRequest.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
 	9,  // 41: talos.v2alpha1.ImportApiKeyRequest.ip_restriction:type_name -> talos.v2alpha1.IPRestriction
 	1,  // 42: talos.v2alpha1.ImportApiKeyRequest.visibility:type_name -> talos.v2alpha1.KeyVisibility
@@ -3724,73 +3950,81 @@ var file_api_talos_v2alpha1_talos_proto_depIdxs = []int32{
 	21, // 46: talos.v2alpha1.BatchCreateImportedApiKeysResponse.results:type_name -> talos.v2alpha1.BatchCreateImportedApiKeysResult
 	7,  // 47: talos.v2alpha1.ListImportedApiKeysResponse.imported_api_keys:type_name -> talos.v2alpha1.ImportedApiKey
 	7,  // 48: talos.v2alpha1.UpdateImportedApiKeyRequest.imported_api_key:type_name -> talos.v2alpha1.ImportedApiKey
-	49, // 49: talos.v2alpha1.UpdateImportedApiKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	52, // 49: talos.v2alpha1.UpdateImportedApiKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 50: talos.v2alpha1.RevokeIssuedApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
 	2,  // 51: talos.v2alpha1.RevokeImportedApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
 	3,  // 52: talos.v2alpha1.DeriveTokenRequest.algorithm:type_name -> talos.v2alpha1.TokenAlgorithm
-	48, // 53: talos.v2alpha1.DeriveTokenRequest.ttl:type_name -> google.protobuf.Duration
-	46, // 54: talos.v2alpha1.DeriveTokenRequest.custom_claims:type_name -> google.protobuf.Struct
+	51, // 53: talos.v2alpha1.DeriveTokenRequest.ttl:type_name -> google.protobuf.Duration
+	49, // 54: talos.v2alpha1.DeriveTokenRequest.custom_claims:type_name -> google.protobuf.Struct
 	8,  // 55: talos.v2alpha1.DeriveTokenResponse.token:type_name -> talos.v2alpha1.Token
-	46, // 56: talos.v2alpha1.GetJWKSResponse.jwks:type_name -> google.protobuf.Struct
-	47, // 57: talos.v2alpha1.VerifyApiKeyResponse.expire_time:type_name -> google.protobuf.Timestamp
-	46, // 58: talos.v2alpha1.VerifyApiKeyResponse.metadata:type_name -> google.protobuf.Struct
+	49, // 56: talos.v2alpha1.GetJWKSResponse.jwks:type_name -> google.protobuf.Struct
+	50, // 57: talos.v2alpha1.VerifyApiKeyResponse.expire_time:type_name -> google.protobuf.Timestamp
+	49, // 58: talos.v2alpha1.VerifyApiKeyResponse.metadata:type_name -> google.protobuf.Struct
 	5,  // 59: talos.v2alpha1.VerifyApiKeyResponse.error_code:type_name -> talos.v2alpha1.VerificationErrorCode
 	10, // 60: talos.v2alpha1.VerifyApiKeyResponse.rate_limit_policy:type_name -> talos.v2alpha1.RateLimitPolicy
-	47, // 61: talos.v2alpha1.VerifyApiKeyResponse.rate_limit_reset_time:type_name -> google.protobuf.Timestamp
+	50, // 61: talos.v2alpha1.VerifyApiKeyResponse.rate_limit_reset_time:type_name -> google.protobuf.Timestamp
 	1,  // 62: talos.v2alpha1.VerifyApiKeyResponse.visibility:type_name -> talos.v2alpha1.KeyVisibility
 	0,  // 63: talos.v2alpha1.VerifyApiKeyResponse.status:type_name -> talos.v2alpha1.KeyStatus
 	34, // 64: talos.v2alpha1.BatchVerifyApiKeysRequest.requests:type_name -> talos.v2alpha1.VerifyApiKeyRequest
 	35, // 65: talos.v2alpha1.BatchVerifyApiKeysResponse.results:type_name -> talos.v2alpha1.VerifyApiKeyResponse
 	2,  // 66: talos.v2alpha1.SelfRevokeApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
-	11, // 67: talos.v2alpha1.ApiKeys.AdminIssueApiKey:input_type -> talos.v2alpha1.IssueApiKeyRequest
-	13, // 68: talos.v2alpha1.ApiKeys.AdminGetIssuedApiKey:input_type -> talos.v2alpha1.GetIssuedApiKeyRequest
-	14, // 69: talos.v2alpha1.ApiKeys.AdminListIssuedApiKeys:input_type -> talos.v2alpha1.ListIssuedApiKeysRequest
-	16, // 70: talos.v2alpha1.ApiKeys.AdminUpdateIssuedApiKey:input_type -> talos.v2alpha1.UpdateIssuedApiKeyRequest
-	17, // 71: talos.v2alpha1.ApiKeys.AdminRotateIssuedApiKey:input_type -> talos.v2alpha1.RotateIssuedApiKeyRequest
-	28, // 72: talos.v2alpha1.ApiKeys.AdminRevokeIssuedApiKey:input_type -> talos.v2alpha1.RevokeIssuedApiKeyRequest
-	19, // 73: talos.v2alpha1.ApiKeys.AdminImportApiKey:input_type -> talos.v2alpha1.ImportApiKeyRequest
-	20, // 74: talos.v2alpha1.ApiKeys.AdminBatchCreateImportedApiKeys:input_type -> talos.v2alpha1.BatchCreateImportedApiKeysRequest
-	27, // 75: talos.v2alpha1.ApiKeys.AdminUpdateImportedApiKey:input_type -> talos.v2alpha1.UpdateImportedApiKeyRequest
-	25, // 76: talos.v2alpha1.ApiKeys.AdminGetImportedApiKey:input_type -> talos.v2alpha1.GetImportedApiKeyRequest
-	23, // 77: talos.v2alpha1.ApiKeys.AdminListImportedApiKeys:input_type -> talos.v2alpha1.ListImportedApiKeysRequest
-	26, // 78: talos.v2alpha1.ApiKeys.AdminDeleteImportedApiKey:input_type -> talos.v2alpha1.DeleteImportedApiKeyRequest
-	29, // 79: talos.v2alpha1.ApiKeys.AdminRevokeImportedApiKey:input_type -> talos.v2alpha1.RevokeImportedApiKeyRequest
-	44, // 80: talos.v2alpha1.ApiKeys.RevokeApiKey:input_type -> talos.v2alpha1.SelfRevokeApiKeyRequest
-	30, // 81: talos.v2alpha1.ApiKeys.AdminDeriveToken:input_type -> talos.v2alpha1.DeriveTokenRequest
-	32, // 82: talos.v2alpha1.ApiKeys.GetJwks:input_type -> talos.v2alpha1.GetJWKSRequest
-	34, // 83: talos.v2alpha1.ApiKeys.AdminVerifyApiKey:input_type -> talos.v2alpha1.VerifyApiKeyRequest
-	38, // 84: talos.v2alpha1.ApiKeys.AdminIngestUsage:input_type -> talos.v2alpha1.IngestUsageRequest
-	40, // 85: talos.v2alpha1.ApiKeys.AdminSetActorQuota:input_type -> talos.v2alpha1.SetActorQuotaRequest
-	41, // 86: talos.v2alpha1.ApiKeys.AdminTopUpBalance:input_type -> talos.v2alpha1.TopUpBalanceRequest
-	42, // 87: talos.v2alpha1.ApiKeys.AdminGetActorBalance:input_type -> talos.v2alpha1.GetActorBalanceRequest
-	36, // 88: talos.v2alpha1.ApiKeys.AdminBatchVerifyApiKeys:input_type -> talos.v2alpha1.BatchVerifyApiKeysRequest
-	12, // 89: talos.v2alpha1.ApiKeys.AdminIssueApiKey:output_type -> talos.v2alpha1.IssueApiKeyResponse
-	6,  // 90: talos.v2alpha1.ApiKeys.AdminGetIssuedApiKey:output_type -> talos.v2alpha1.IssuedApiKey
-	15, // 91: talos.v2alpha1.ApiKeys.AdminListIssuedApiKeys:output_type -> talos.v2alpha1.ListIssuedApiKeysResponse
-	6,  // 92: talos.v2alpha1.ApiKeys.AdminUpdateIssuedApiKey:output_type -> talos.v2alpha1.IssuedApiKey
-	18, // 93: talos.v2alpha1.ApiKeys.AdminRotateIssuedApiKey:output_type -> talos.v2alpha1.RotateIssuedApiKeyResponse
-	50, // 94: talos.v2alpha1.ApiKeys.AdminRevokeIssuedApiKey:output_type -> google.protobuf.Empty
-	7,  // 95: talos.v2alpha1.ApiKeys.AdminImportApiKey:output_type -> talos.v2alpha1.ImportedApiKey
-	22, // 96: talos.v2alpha1.ApiKeys.AdminBatchCreateImportedApiKeys:output_type -> talos.v2alpha1.BatchCreateImportedApiKeysResponse
-	7,  // 97: talos.v2alpha1.ApiKeys.AdminUpdateImportedApiKey:output_type -> talos.v2alpha1.ImportedApiKey
-	7,  // 98: talos.v2alpha1.ApiKeys.AdminGetImportedApiKey:output_type -> talos.v2alpha1.ImportedApiKey
-	24, // 99: talos.v2alpha1.ApiKeys.AdminListImportedApiKeys:output_type -> talos.v2alpha1.ListImportedApiKeysResponse
-	50, // 100: talos.v2alpha1.ApiKeys.AdminDeleteImportedApiKey:output_type -> google.protobuf.Empty
-	50, // 101: talos.v2alpha1.ApiKeys.AdminRevokeImportedApiKey:output_type -> google.protobuf.Empty
-	45, // 102: talos.v2alpha1.ApiKeys.RevokeApiKey:output_type -> talos.v2alpha1.SelfRevokeApiKeyResponse
-	31, // 103: talos.v2alpha1.ApiKeys.AdminDeriveToken:output_type -> talos.v2alpha1.DeriveTokenResponse
-	33, // 104: talos.v2alpha1.ApiKeys.GetJwks:output_type -> talos.v2alpha1.GetJWKSResponse
-	35, // 105: talos.v2alpha1.ApiKeys.AdminVerifyApiKey:output_type -> talos.v2alpha1.VerifyApiKeyResponse
-	39, // 106: talos.v2alpha1.ApiKeys.AdminIngestUsage:output_type -> talos.v2alpha1.IngestUsageResponse
-	43, // 107: talos.v2alpha1.ApiKeys.AdminSetActorQuota:output_type -> talos.v2alpha1.ActorBalance
-	43, // 108: talos.v2alpha1.ApiKeys.AdminTopUpBalance:output_type -> talos.v2alpha1.ActorBalance
-	43, // 109: talos.v2alpha1.ApiKeys.AdminGetActorBalance:output_type -> talos.v2alpha1.ActorBalance
-	37, // 110: talos.v2alpha1.ApiKeys.AdminBatchVerifyApiKeys:output_type -> talos.v2alpha1.BatchVerifyApiKeysResponse
-	89, // [89:111] is the sub-list for method output_type
-	67, // [67:89] is the sub-list for method input_type
-	67, // [67:67] is the sub-list for extension type_name
-	67, // [67:67] is the sub-list for extension extendee
-	0,  // [0:67] is the sub-list for field type_name
+	51, // 67: talos.v2alpha1.SelfIssueApiKeyRequest.ttl:type_name -> google.protobuf.Duration
+	2,  // 68: talos.v2alpha1.SelfRevokeIssuedApiKeyRequest.reason:type_name -> talos.v2alpha1.RevocationReason
+	11, // 69: talos.v2alpha1.ApiKeys.AdminIssueApiKey:input_type -> talos.v2alpha1.IssueApiKeyRequest
+	13, // 70: talos.v2alpha1.ApiKeys.AdminGetIssuedApiKey:input_type -> talos.v2alpha1.GetIssuedApiKeyRequest
+	14, // 71: talos.v2alpha1.ApiKeys.AdminListIssuedApiKeys:input_type -> talos.v2alpha1.ListIssuedApiKeysRequest
+	16, // 72: talos.v2alpha1.ApiKeys.AdminUpdateIssuedApiKey:input_type -> talos.v2alpha1.UpdateIssuedApiKeyRequest
+	17, // 73: talos.v2alpha1.ApiKeys.AdminRotateIssuedApiKey:input_type -> talos.v2alpha1.RotateIssuedApiKeyRequest
+	28, // 74: talos.v2alpha1.ApiKeys.AdminRevokeIssuedApiKey:input_type -> talos.v2alpha1.RevokeIssuedApiKeyRequest
+	19, // 75: talos.v2alpha1.ApiKeys.AdminImportApiKey:input_type -> talos.v2alpha1.ImportApiKeyRequest
+	20, // 76: talos.v2alpha1.ApiKeys.AdminBatchCreateImportedApiKeys:input_type -> talos.v2alpha1.BatchCreateImportedApiKeysRequest
+	27, // 77: talos.v2alpha1.ApiKeys.AdminUpdateImportedApiKey:input_type -> talos.v2alpha1.UpdateImportedApiKeyRequest
+	25, // 78: talos.v2alpha1.ApiKeys.AdminGetImportedApiKey:input_type -> talos.v2alpha1.GetImportedApiKeyRequest
+	23, // 79: talos.v2alpha1.ApiKeys.AdminListImportedApiKeys:input_type -> talos.v2alpha1.ListImportedApiKeysRequest
+	26, // 80: talos.v2alpha1.ApiKeys.AdminDeleteImportedApiKey:input_type -> talos.v2alpha1.DeleteImportedApiKeyRequest
+	29, // 81: talos.v2alpha1.ApiKeys.AdminRevokeImportedApiKey:input_type -> talos.v2alpha1.RevokeImportedApiKeyRequest
+	44, // 82: talos.v2alpha1.ApiKeys.RevokeApiKey:input_type -> talos.v2alpha1.SelfRevokeApiKeyRequest
+	46, // 83: talos.v2alpha1.ApiKeys.SelfIssueApiKey:input_type -> talos.v2alpha1.SelfIssueApiKeyRequest
+	47, // 84: talos.v2alpha1.ApiKeys.SelfListIssuedApiKeys:input_type -> talos.v2alpha1.SelfListIssuedApiKeysRequest
+	48, // 85: talos.v2alpha1.ApiKeys.SelfRevokeIssuedApiKey:input_type -> talos.v2alpha1.SelfRevokeIssuedApiKeyRequest
+	30, // 86: talos.v2alpha1.ApiKeys.AdminDeriveToken:input_type -> talos.v2alpha1.DeriveTokenRequest
+	32, // 87: talos.v2alpha1.ApiKeys.GetJwks:input_type -> talos.v2alpha1.GetJWKSRequest
+	34, // 88: talos.v2alpha1.ApiKeys.AdminVerifyApiKey:input_type -> talos.v2alpha1.VerifyApiKeyRequest
+	38, // 89: talos.v2alpha1.ApiKeys.AdminIngestUsage:input_type -> talos.v2alpha1.IngestUsageRequest
+	40, // 90: talos.v2alpha1.ApiKeys.AdminSetActorQuota:input_type -> talos.v2alpha1.SetActorQuotaRequest
+	41, // 91: talos.v2alpha1.ApiKeys.AdminTopUpBalance:input_type -> talos.v2alpha1.TopUpBalanceRequest
+	42, // 92: talos.v2alpha1.ApiKeys.AdminGetActorBalance:input_type -> talos.v2alpha1.GetActorBalanceRequest
+	36, // 93: talos.v2alpha1.ApiKeys.AdminBatchVerifyApiKeys:input_type -> talos.v2alpha1.BatchVerifyApiKeysRequest
+	12, // 94: talos.v2alpha1.ApiKeys.AdminIssueApiKey:output_type -> talos.v2alpha1.IssueApiKeyResponse
+	6,  // 95: talos.v2alpha1.ApiKeys.AdminGetIssuedApiKey:output_type -> talos.v2alpha1.IssuedApiKey
+	15, // 96: talos.v2alpha1.ApiKeys.AdminListIssuedApiKeys:output_type -> talos.v2alpha1.ListIssuedApiKeysResponse
+	6,  // 97: talos.v2alpha1.ApiKeys.AdminUpdateIssuedApiKey:output_type -> talos.v2alpha1.IssuedApiKey
+	18, // 98: talos.v2alpha1.ApiKeys.AdminRotateIssuedApiKey:output_type -> talos.v2alpha1.RotateIssuedApiKeyResponse
+	53, // 99: talos.v2alpha1.ApiKeys.AdminRevokeIssuedApiKey:output_type -> google.protobuf.Empty
+	7,  // 100: talos.v2alpha1.ApiKeys.AdminImportApiKey:output_type -> talos.v2alpha1.ImportedApiKey
+	22, // 101: talos.v2alpha1.ApiKeys.AdminBatchCreateImportedApiKeys:output_type -> talos.v2alpha1.BatchCreateImportedApiKeysResponse
+	7,  // 102: talos.v2alpha1.ApiKeys.AdminUpdateImportedApiKey:output_type -> talos.v2alpha1.ImportedApiKey
+	7,  // 103: talos.v2alpha1.ApiKeys.AdminGetImportedApiKey:output_type -> talos.v2alpha1.ImportedApiKey
+	24, // 104: talos.v2alpha1.ApiKeys.AdminListImportedApiKeys:output_type -> talos.v2alpha1.ListImportedApiKeysResponse
+	53, // 105: talos.v2alpha1.ApiKeys.AdminDeleteImportedApiKey:output_type -> google.protobuf.Empty
+	53, // 106: talos.v2alpha1.ApiKeys.AdminRevokeImportedApiKey:output_type -> google.protobuf.Empty
+	45, // 107: talos.v2alpha1.ApiKeys.RevokeApiKey:output_type -> talos.v2alpha1.SelfRevokeApiKeyResponse
+	12, // 108: talos.v2alpha1.ApiKeys.SelfIssueApiKey:output_type -> talos.v2alpha1.IssueApiKeyResponse
+	15, // 109: talos.v2alpha1.ApiKeys.SelfListIssuedApiKeys:output_type -> talos.v2alpha1.ListIssuedApiKeysResponse
+	53, // 110: talos.v2alpha1.ApiKeys.SelfRevokeIssuedApiKey:output_type -> google.protobuf.Empty
+	31, // 111: talos.v2alpha1.ApiKeys.AdminDeriveToken:output_type -> talos.v2alpha1.DeriveTokenResponse
+	33, // 112: talos.v2alpha1.ApiKeys.GetJwks:output_type -> talos.v2alpha1.GetJWKSResponse
+	35, // 113: talos.v2alpha1.ApiKeys.AdminVerifyApiKey:output_type -> talos.v2alpha1.VerifyApiKeyResponse
+	39, // 114: talos.v2alpha1.ApiKeys.AdminIngestUsage:output_type -> talos.v2alpha1.IngestUsageResponse
+	43, // 115: talos.v2alpha1.ApiKeys.AdminSetActorQuota:output_type -> talos.v2alpha1.ActorBalance
+	43, // 116: talos.v2alpha1.ApiKeys.AdminTopUpBalance:output_type -> talos.v2alpha1.ActorBalance
+	43, // 117: talos.v2alpha1.ApiKeys.AdminGetActorBalance:output_type -> talos.v2alpha1.ActorBalance
+	37, // 118: talos.v2alpha1.ApiKeys.AdminBatchVerifyApiKeys:output_type -> talos.v2alpha1.BatchVerifyApiKeysResponse
+	94, // [94:119] is the sub-list for method output_type
+	69, // [69:94] is the sub-list for method input_type
+	69, // [69:69] is the sub-list for extension type_name
+	69, // [69:69] is the sub-list for extension extendee
+	0,  // [0:69] is the sub-list for field type_name
 }
 
 func init() { file_api_talos_v2alpha1_talos_proto_init() }
@@ -3812,7 +4046,7 @@ func file_api_talos_v2alpha1_talos_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_talos_v2alpha1_talos_proto_rawDesc), len(file_api_talos_v2alpha1_talos_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   40,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

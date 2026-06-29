@@ -125,14 +125,20 @@ func HTTPHandlerFromDependencies(ctx context.Context, deps *ServerDependencies, 
 // on mode and pre-built overrides. In all modes a single adapter is returned;
 // per-mode constructors use UnimplementedApiKeysServer to fail
 // closed on methods that are not wired for the current mode.
+//
+// Admin is constructed in every mode (including ModePublic) so the
+// X-User-Id-authenticated Self* RPCs (SelfIssueApiKey, SelfListIssuedApiKeys,
+// SelfRevokeIssuedApiKey) are available on the public surface. ModeAdmin
+// still does not expose those RPCs — the adminOnlyAdapter does not wire
+// them, so they return 404 there.
 func buildAdapters(ctx context.Context, deps *ServerDependencies) (talosv2alpha1.ApiKeysServer, error) {
 	// If a pre-built adapter is provided, use it directly.
 	if deps.PreBuiltAdmin != nil {
 		return deps.PreBuiltAdmin, nil
 	}
 
-	// Public is shared: it handles public revocation and delegates
-	// verify calls from the admin adapter.
+	// Public is shared: it handles public revocation, verifies, and the
+	// X-User-Id-authenticated self-service surface (Self* RPCs).
 	verifier, err := deps.Factory.CreateVerifier(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "create verifier")
@@ -145,21 +151,23 @@ func buildAdapters(ctx context.Context, deps *ServerDependencies) (talosv2alpha1
 	if err != nil {
 		return nil, errors.Wrap(err, "create usage meter")
 	}
-	publicSvc := service.NewPublic(verifier, deps.Factory.ProtoValidator(), rateLimiter, meter)
+
+	// Admin is always constructed: ModeAdmin/ModeAllInOne route its methods
+	// directly via the admin adapter; ModePublic does not expose admin
+	// methods but does expose the Self* RPCs, which need Admin's
+	// persistence + crypto path with actor_id forced from X-User-Id.
+	adminSvc, err := deps.Factory.CreateAdmin(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "create API keys service")
+	}
+
+	publicSvc := service.NewPublic(verifier, deps.Factory.ProtoValidator(), rateLimiter, meter, adminSvc)
 
 	switch deps.Mode {
 	case ModeAllInOne:
-		admin, err := deps.Factory.CreateAdmin(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "create API keys service")
-		}
-		return httpserver.NewAllInOneAdapter(admin, publicSvc), nil
+		return httpserver.NewAllInOneAdapter(adminSvc, publicSvc), nil
 	case ModeAdmin:
-		admin, err := deps.Factory.CreateAdmin(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "create API keys service")
-		}
-		return httpserver.NewAdminOnlyAdapter(admin, publicSvc), nil
+		return httpserver.NewAdminOnlyAdapter(adminSvc, publicSvc), nil
 	case ModePublic:
 		return httpserver.NewPublicOnlyAdapter(publicSvc), nil
 	default:

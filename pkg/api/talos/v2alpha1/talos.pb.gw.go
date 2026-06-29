@@ -583,6 +583,113 @@ func local_request_ApiKeys_RevokeApiKey_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
+func request_ApiKeys_SelfIssueApiKey_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SelfIssueApiKeyRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.SelfIssueApiKey(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ApiKeys_SelfIssueApiKey_0(ctx context.Context, marshaler runtime.Marshaler, server ApiKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SelfIssueApiKeyRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.SelfIssueApiKey(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_ApiKeys_SelfListIssuedApiKeys_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_ApiKeys_SelfListIssuedApiKeys_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SelfListIssuedApiKeysRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiKeys_SelfListIssuedApiKeys_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.SelfListIssuedApiKeys(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ApiKeys_SelfListIssuedApiKeys_0(ctx context.Context, marshaler runtime.Marshaler, server ApiKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SelfListIssuedApiKeysRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiKeys_SelfListIssuedApiKeys_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.SelfListIssuedApiKeys(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_ApiKeys_SelfRevokeIssuedApiKey_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SelfRevokeIssuedApiKeyRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["key_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "key_id")
+	}
+	protoReq.KeyId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "key_id", err)
+	}
+	msg, err := client.SelfRevokeIssuedApiKey(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ApiKeys_SelfRevokeIssuedApiKey_0(ctx context.Context, marshaler runtime.Marshaler, server ApiKeysServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SelfRevokeIssuedApiKeyRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["key_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "key_id")
+	}
+	protoReq.KeyId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "key_id", err)
+	}
+	msg, err := server.SelfRevokeIssuedApiKey(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_ApiKeys_AdminDeriveToken_0(ctx context.Context, marshaler runtime.Marshaler, client ApiKeysClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeriveTokenRequest
@@ -1091,6 +1198,66 @@ func RegisterApiKeysHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 		forward_ApiKeys_RevokeApiKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_SelfIssueApiKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/SelfIssueApiKey", runtime.WithHTTPPathPattern("/v2alpha1/self/issuedApiKeys"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiKeys_SelfIssueApiKey_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_SelfIssueApiKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_ApiKeys_SelfListIssuedApiKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/SelfListIssuedApiKeys", runtime.WithHTTPPathPattern("/v2alpha1/self/issuedApiKeys"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiKeys_SelfListIssuedApiKeys_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_SelfListIssuedApiKeys_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_SelfRevokeIssuedApiKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/SelfRevokeIssuedApiKey", runtime.WithHTTPPathPattern("/v2alpha1/self/issuedApiKeys/{key_id}:revoke"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiKeys_SelfRevokeIssuedApiKey_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_SelfRevokeIssuedApiKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminDeriveToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1529,6 +1696,57 @@ func RegisterApiKeysHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 		forward_ApiKeys_RevokeApiKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_SelfIssueApiKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/SelfIssueApiKey", runtime.WithHTTPPathPattern("/v2alpha1/self/issuedApiKeys"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiKeys_SelfIssueApiKey_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_SelfIssueApiKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_ApiKeys_SelfListIssuedApiKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/SelfListIssuedApiKeys", runtime.WithHTTPPathPattern("/v2alpha1/self/issuedApiKeys"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiKeys_SelfListIssuedApiKeys_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_SelfListIssuedApiKeys_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_ApiKeys_SelfRevokeIssuedApiKey_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/talos.v2alpha1.ApiKeys/SelfRevokeIssuedApiKey", runtime.WithHTTPPathPattern("/v2alpha1/self/issuedApiKeys/{key_id}:revoke"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiKeys_SelfRevokeIssuedApiKey_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ApiKeys_SelfRevokeIssuedApiKey_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_ApiKeys_AdminDeriveToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1683,6 +1901,9 @@ var (
 	pattern_ApiKeys_AdminDeleteImportedApiKey_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "importedApiKeys", "key_id"}, ""))
 	pattern_ApiKeys_AdminRevokeImportedApiKey_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "admin", "importedApiKeys", "key_id"}, "revoke"))
 	pattern_ApiKeys_RevokeApiKey_0                    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v2alpha1", "apiKeys"}, "selfRevoke"))
+	pattern_ApiKeys_SelfIssueApiKey_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "self", "issuedApiKeys"}, ""))
+	pattern_ApiKeys_SelfListIssuedApiKeys_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "self", "issuedApiKeys"}, ""))
+	pattern_ApiKeys_SelfRevokeIssuedApiKey_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2alpha1", "self", "issuedApiKeys", "key_id"}, "revoke"))
 	pattern_ApiKeys_AdminDeriveToken_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "apiKeys"}, "derive"))
 	pattern_ApiKeys_GetJwks_0                         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "derivedKeys", "jwks.json"}, ""))
 	pattern_ApiKeys_AdminVerifyApiKey_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v2alpha1", "admin", "apiKeys"}, "verify"))
@@ -1708,6 +1929,9 @@ var (
 	forward_ApiKeys_AdminDeleteImportedApiKey_0       = runtime.ForwardResponseMessage
 	forward_ApiKeys_AdminRevokeImportedApiKey_0       = runtime.ForwardResponseMessage
 	forward_ApiKeys_RevokeApiKey_0                    = runtime.ForwardResponseMessage
+	forward_ApiKeys_SelfIssueApiKey_0                 = runtime.ForwardResponseMessage
+	forward_ApiKeys_SelfListIssuedApiKeys_0           = runtime.ForwardResponseMessage
+	forward_ApiKeys_SelfRevokeIssuedApiKey_0          = runtime.ForwardResponseMessage
 	forward_ApiKeys_AdminDeriveToken_0                = runtime.ForwardResponseMessage
 	forward_ApiKeys_GetJwks_0                         = runtime.ForwardResponseMessage
 	forward_ApiKeys_AdminVerifyApiKey_0               = runtime.ForwardResponseMessage

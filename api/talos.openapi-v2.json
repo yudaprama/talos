@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Ory Talos API",
-    "description": "Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n\n## Authentication\n\n`Admin*`-prefixed RPCs require admin authentication: send a bearer token in the `Authorization` header. Talos does not bundle an identity provider for the admin surface, so deploy it behind your own authentication and authorization. The self-service `RevokeApiKey` RPC is the exception: it authenticates by proof of possession (the caller supplies the raw credential secret) and needs no admin token.\n\n## API surfaces\n\nTalos is a single binary with three deployment modes: **admin** (the full lifecycle and verification surface), **self-service** (only proof-of-possession self-revocation for credential holders), and **all-in-one** (both surfaces in one process). Run the admin and self-service surfaces separately to keep the privileged API off the public network.\n\n## Requests and responses\n\nThe API speaks JSON over HTTP. All paths are versioned under `/v2alpha1/`. Errors use the standard `google.rpc.Status` shape with a numeric `code`, a human-readable `message`, and a `details` array for machine-readable context.\n\n## Versioning and stability\n\nThis is `v2alpha1`. While the API is in alpha, request and response shapes may change without notice. Pin to a specific build and review the release notes before upgrading.",
+    "description": "Ory Talos is a high-performance API key management service. It handles the full API key lifecycle: issuing keys, verifying them at low latency, deriving short-lived tokens (JWT and Macaroon), and revoking access.\n\n## Authentication\n\n`Admin*`-prefixed RPCs require admin authentication: send a bearer token in the `Authorization` header. Talos does not bundle an identity provider for the admin surface, so deploy it behind your own authentication and authorization. The self-service `RevokeApiKey` RPC is the exception: it authenticates by proof of possession (the caller supplies the raw credential secret) and needs no admin token.\n\n## API surfaces\n\nTalos is a single binary with three deployment modes: **admin** (the full lifecycle and verification surface), **self-service** (proof-of-possession self-revocation for credential holders, plus X-User-Id-authenticated self-issue/list/revoke when fronted by a trusted edge proxy), and **all-in-one** (both surfaces in one process). Run the admin and self-service surfaces separately to keep the privileged API off the public network.\n\n## Requests and responses\n\nThe API speaks JSON over HTTP. All paths are versioned under `/v2alpha1/`. Errors use the standard `google.rpc.Status` shape with a numeric `code`, a human-readable `message`, and a `details` array for machine-readable context.\n\n## Versioning and stability\n\nThis is `v2alpha1`. While the API is in alpha, request and response shapes may change without notice. Pin to a specific build and review the release notes before upgrading.",
     "version": "v2alpha1"
   },
   "tags": [
@@ -18,6 +18,108 @@
     "application/json"
   ],
   "paths": {
+    "/v2alpha1/admin/actorBalances/{actor_id}": {
+      "get": {
+        "summary": "Get Actor Balance (fork)",
+        "description": "Reads an actor's current metering balance (quota + remaining). A missing\nbalance is reported as unlimited (quota 0, remaining 0). Admin access only.",
+        "operationId": "adminGetActorBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "actor_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
+    "/v2alpha1/admin/actorBalances:setQuota": {
+      "post": {
+        "summary": "Set Actor Quota (fork)",
+        "description": "Sets an actor's metering quota and resets its remaining balance to the same\nvalue (a fresh grant). Use to assign or change an actor's plan/tier (e.g.\nfree vs paid). Creates the balance row if absent. quota_micros 0 = unlimited\n(gating off for this actor). Admin access only.",
+        "operationId": "adminSetActorQuota",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SetActorQuotaRequest sets an actor's quota and resets remaining to it (fork).",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SetActorQuotaRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
+    "/v2alpha1/admin/actorBalances:topUp": {
+      "post": {
+        "summary": "Top Up Balance (fork)",
+        "description": "Adds credits to an actor's remaining balance without changing its quota.\nCreates the balance row if absent (quota and remaining both set to the\namount). Admin access only.",
+        "operationId": "adminTopUpBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "TopUpBalanceRequest adds credits to an actor's remaining balance (fork).",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TopUpBalanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
     "/v2alpha1/admin/apiKeys:batchVerify": {
       "post": {
         "summary": "Batch Verify API Keys",
@@ -793,6 +895,41 @@
         ]
       }
     },
+    "/v2alpha1/admin/usage:ingest": {
+      "post": {
+        "summary": "Ingest Usage (fork)",
+        "description": "Records token/cost usage for an actor and atomically debits the actor's\nbalance. Called by the external egent-metering service after each LLM call.\nIdempotent via request_id. Admin access only.",
+        "operationId": "adminIngestUsage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/IngestUsageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "IngestUsageRequest records usage for an actor and debits its balance (fork).\nCalled by the external egent-metering service after each LLM call.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IngestUsageRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
     "/v2alpha1/apiKeys:selfRevoke": {
       "post": {
         "summary": "Revoke API Key (self-service)",
@@ -851,9 +988,152 @@
           "ApiKeys"
         ]
       }
+    },
+    "/v2alpha1/self/issuedApiKeys": {
+      "get": {
+        "summary": "Self-List Issued API Keys",
+        "description": "Lists the caller's API keys. The actor_id filter is forced server-side\nfrom the X-User-Id header — the client cannot list other actors' keys.\nFilter expressions in the request body are ignored.\n\n```http\nGET /v2alpha1/self/issuedApiKeys?page_size=50\nX-User-Id: user_123\n```",
+        "operationId": "selfListIssuedApiKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ListIssuedApiKeysResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "description": "page_size is the maximum number of keys to return. The server clamps\nthis to the configured maximum (default 50, max 1000).",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "description": "page_token is the opaque cursor returned in the previous response's\nnext_page_token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      },
+      "post": {
+        "summary": "Self-Issue API Key",
+        "description": "Creates a new API key bound to the caller's actor_id (from the X-User-Id\nheader). The secret is returned only once in the response and cannot be\nretrieved later. The caller cannot set actor_id, scopes, rate limits,\nIP restrictions, or visibility from this endpoint.\n\n```http\nPOST /v2alpha1/self/issuedApiKeys\nX-User-Id: user_123\n{\n  \"name\": \"my-web-key\",\n  \"ttl\": \"720h\"\n}\n```",
+        "operationId": "selfIssueApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/IssueApiKeyResponse"
+            }
+          },
+          "201": {
+            "description": "API key issued successfully.",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SelfIssueApiKeyRequest is the body of SelfIssueApiKey. The caller may only\nset a display name, TTL, and an idempotency key — everything else\n(actor_id, scopes, rate limits, IP restrictions, visibility) is either\nderived from the header or defaulted by the server.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SelfIssueApiKeyRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
+    "/v2alpha1/self/issuedApiKeys/{key_id}:revoke": {
+      "post": {
+        "summary": "Self-Revoke Issued API Key",
+        "description": "Revokes an issued API key owned by the caller. Ownership is verified\nserver-side: the key's actor_id must match the X-User-Id header before\nrevocation. Returns 404 if the key does not exist or does not belong to\nthe caller (so a caller cannot enumerate other actors' key ids).\n\nPRIVILEGE_WITHDRAWN is rejected here (admin-only) — self-revocation uses\nKEY_COMPROMISE, AFFILIATION_CHANGED, SUPERSEDED, or UNSPECIFIED.\n\n```http\nPOST /v2alpha1/self/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke\nX-User-Id: user_123\n{\n  \"reason\": \"REVOCATION_REASON_KEY_COMPROMISE\"\n}\n```",
+        "operationId": "selfRevokeIssuedApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "204": {
+            "description": "API key revoked successfully.",
+            "schema": {}
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "key_id",
+            "description": "key_id is the path parameter naming the key to revoke. The key must\nbelong to the caller (X-User-Id header), otherwise 404 is returned.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SelfRevokeIssuedApiKeyBody"
+            }
+          }
+        ],
+        "tags": [
+          "ApiKeys"
+        ]
+      }
     }
   },
   "definitions": {
+    "ActorBalance": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "quota_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "total grant (0 = unlimited)"
+        },
+        "remaining_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "remaining balance (micros); \u003c= 0 denies verify when quota \u003e 0"
+        }
+      },
+      "description": "ActorBalance is an actor's metering balance snapshot (fork)."
+    },
     "AdminRevokeImportedApiKeyBody": {
       "type": "object",
       "properties": {
@@ -1183,6 +1463,60 @@
       },
       "description": "ImportedApiKey represents an API key imported from an external system.\nThe raw key is hashed (SHA-512/256) and stored. The original key is never retained."
     },
+    "IngestUsageRequest": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "key_id": {
+          "type": "string",
+          "title": "optional; derived/imported keys may omit"
+        },
+        "usage_type": {
+          "type": "string",
+          "title": "e.g. \"tokens\""
+        },
+        "usage_amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "e.g. prompt+completion token count"
+        },
+        "cost_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "cost x 1_000_000 (integer money)"
+        },
+        "model": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string",
+          "title": "idempotency key (AIP-155)"
+        }
+      },
+      "description": "IngestUsageRequest records usage for an actor and debits its balance (fork).\nCalled by the external egent-metering service after each LLM call."
+    },
+    "IngestUsageResponse": {
+      "type": "object",
+      "properties": {
+        "balance_remaining": {
+          "type": "string",
+          "format": "int64",
+          "title": "post-debit remaining (micros)"
+        },
+        "balance_quota": {
+          "type": "string",
+          "format": "int64",
+          "title": "total grant (0 = unlimited)"
+        },
+        "accepted": {
+          "type": "boolean",
+          "title": "false if a duplicate request_id was ignored"
+        }
+      },
+      "description": "IngestUsageResponse reports the post-debit balance (fork)."
+    },
     "IssueApiKeyRequest": {
       "type": "object",
       "properties": {
@@ -1403,6 +1737,24 @@
         }
       }
     },
+    "SelfIssueApiKeyRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "name is an optional display name for the key. When omitted the server\nsubstitutes a default (e.g. \"self-issued\")."
+        },
+        "ttl": {
+          "type": "string",
+          "description": "ttl sets the expiry as a duration from now. Same encoding rules as\nIssueApiKeyRequest.ttl (Go-style accepted: \"24h\", \"30m\"; standard\nDuration: \"3600s\"). When unset, the project default TTL applies."
+        },
+        "request_id": {
+          "type": "string",
+          "description": "request_id is an optional idempotency key (AIP-155). Replaying a\nrequest with the same request_id returns the originally-issued key\n(without the secret)."
+        }
+      },
+      "description": "SelfIssueApiKeyRequest is the body of SelfIssueApiKey. The caller may only\nset a display name, TTL, and an idempotency key — everything else\n(actor_id, scopes, rate limits, IP restrictions, visibility) is either\nderived from the header or defaulted by the server."
+    },
     "SelfRevokeApiKeyRequest": {
       "type": "object",
       "properties": {
@@ -1420,6 +1772,34 @@
     "SelfRevokeApiKeyResponse": {
       "type": "object",
       "description": "SelfRevokeApiKeyResponse is returned on successful self-revocation.\n\nEmpty on success"
+    },
+    "SelfRevokeIssuedApiKeyBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "$ref": "#/definitions/RevocationReason",
+          "description": "reason is the revocation reason. PRIVILEGE_WITHDRAWN is rejected here\n(admin-only) — self-revocation uses KEY_COMPROMISE, AFFILIATION_CHANGED,\nSUPERSEDED, or UNSPECIFIED."
+        },
+        "description": {
+          "type": "string",
+          "description": "description is an optional free-text explanation. Mirrors the admin\nendpoint's documentation field."
+        }
+      },
+      "description": "SelfRevokeIssuedApiKeyRequest is the body of SelfRevokeIssuedApiKey. The\nkey_id path parameter names the key to revoke; ownership is verified\nserver-side before revocation."
+    },
+    "SetActorQuotaRequest": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "quota_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "0 = unlimited"
+        }
+      },
+      "description": "SetActorQuotaRequest sets an actor's quota and resets remaining to it (fork)."
     },
     "Status": {
       "type": "object",
@@ -1475,6 +1855,20 @@
       "description": "- TOKEN_ALGORITHM_JWT: JWT with EdDSA (self-contained, signed)\n - TOKEN_ALGORITHM_MACAROON: Macaroon with HMAC (self-contained, caveat-based)",
       "title": "TokenAlgorithm specifies the cryptographic algorithm used for derived tokens\nNote: API keys (root tokens) are always opaque; this enum is only for DeriveToken"
     },
+    "TopUpBalanceRequest": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "amount_micros": {
+          "type": "string",
+          "format": "int64",
+          "title": "credits to add (micros)"
+        }
+      },
+      "description": "TopUpBalanceRequest adds credits to an actor's remaining balance (fork)."
+    },
     "VerificationErrorCode": {
       "type": "string",
       "enum": [
@@ -1486,10 +1880,11 @@
         "VERIFICATION_ERROR_SIGNATURE_INVALID",
         "VERIFICATION_ERROR_INTERNAL",
         "VERIFICATION_ERROR_IP_NOT_ALLOWED",
-        "VERIFICATION_ERROR_RATE_LIMITED"
+        "VERIFICATION_ERROR_RATE_LIMITED",
+        "VERIFICATION_ERROR_BALANCE_EXHAUSTED"
       ],
       "default": "VERIFICATION_ERROR_UNSPECIFIED",
-      "description": "- VERIFICATION_ERROR_UNSPECIFIED: No error (key is valid)\n - VERIFICATION_ERROR_INVALID_FORMAT: Credential format is invalid\n - VERIFICATION_ERROR_EXPIRED: Credential has expired\n - VERIFICATION_ERROR_REVOKED: Credential has been revoked\n - VERIFICATION_ERROR_NOT_FOUND: Credential not found in database\n - VERIFICATION_ERROR_SIGNATURE_INVALID: Cryptographic signature verification failed\n - VERIFICATION_ERROR_INTERNAL: Internal server error during verification\n - VERIFICATION_ERROR_IP_NOT_ALLOWED: Request IP is not in the key's allowed CIDR ranges\n - VERIFICATION_ERROR_RATE_LIMITED: Rate limit quota exhausted (commercial-only)",
+      "description": "- VERIFICATION_ERROR_UNSPECIFIED: No error (key is valid)\n - VERIFICATION_ERROR_INVALID_FORMAT: Credential format is invalid\n - VERIFICATION_ERROR_EXPIRED: Credential has expired\n - VERIFICATION_ERROR_REVOKED: Credential has been revoked\n - VERIFICATION_ERROR_NOT_FOUND: Credential not found in database\n - VERIFICATION_ERROR_SIGNATURE_INVALID: Cryptographic signature verification failed\n - VERIFICATION_ERROR_INTERNAL: Internal server error during verification\n - VERIFICATION_ERROR_IP_NOT_ALLOWED: Request IP is not in the key's allowed CIDR ranges\n - VERIFICATION_ERROR_RATE_LIMITED: Rate limit quota exhausted (commercial-only)\n - VERIFICATION_ERROR_BALANCE_EXHAUSTED: Metering balance exhausted (fork)",
       "title": "VerificationErrorCode provides type-safe error codes for verification failures"
     },
     "VerifyApiKeyRequest": {
@@ -1559,6 +1954,16 @@
         "status": {
           "$ref": "#/definitions/KeyStatus",
           "description": "status reports the lifecycle state of the verified key. It is\nKEY_STATUS_UNSPECIFIED when the credential could not be resolved to a\nstored key (for example, parse failures, invalid signatures, or unknown\nkeys). For derived tokens, status reflects the parent key. Disambiguates\nverification success (is_valid) from key status, which previously\noverloaded a single boolean."
+        },
+        "balance_remaining": {
+          "type": "string",
+          "format": "int64",
+          "description": "Metering balance remaining (micros). Set by the metering fork when a balance\npolicy is active for the actor; absent otherwise. 0 with quota 0 = unlimited."
+        },
+        "balance_quota": {
+          "type": "string",
+          "format": "int64",
+          "description": "Metering quota / total grant (micros). 0 means unlimited (fork)."
         }
       }
     }

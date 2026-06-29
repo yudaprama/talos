@@ -34,6 +34,9 @@ const (
 	ApiKeys_AdminDeleteImportedApiKey_FullMethodName       = "/talos.v2alpha1.ApiKeys/AdminDeleteImportedApiKey"
 	ApiKeys_AdminRevokeImportedApiKey_FullMethodName       = "/talos.v2alpha1.ApiKeys/AdminRevokeImportedApiKey"
 	ApiKeys_RevokeApiKey_FullMethodName                    = "/talos.v2alpha1.ApiKeys/RevokeApiKey"
+	ApiKeys_SelfIssueApiKey_FullMethodName                 = "/talos.v2alpha1.ApiKeys/SelfIssueApiKey"
+	ApiKeys_SelfListIssuedApiKeys_FullMethodName           = "/talos.v2alpha1.ApiKeys/SelfListIssuedApiKeys"
+	ApiKeys_SelfRevokeIssuedApiKey_FullMethodName          = "/talos.v2alpha1.ApiKeys/SelfRevokeIssuedApiKey"
 	ApiKeys_AdminDeriveToken_FullMethodName                = "/talos.v2alpha1.ApiKeys/AdminDeriveToken"
 	ApiKeys_GetJwks_FullMethodName                         = "/talos.v2alpha1.ApiKeys/GetJwks"
 	ApiKeys_AdminVerifyApiKey_FullMethodName               = "/talos.v2alpha1.ApiKeys/AdminVerifyApiKey"
@@ -279,6 +282,55 @@ type ApiKeysClient interface {
 	//
 	// ```
 	RevokeApiKey(ctx context.Context, in *SelfRevokeApiKeyRequest, opts ...grpc.CallOption) (*SelfRevokeApiKeyResponse, error)
+	// Self-Issue API Key
+	//
+	// Creates a new API key bound to the caller's actor_id (from the X-User-Id
+	// header). The secret is returned only once in the response and cannot be
+	// retrieved later. The caller cannot set actor_id, scopes, rate limits,
+	// IP restrictions, or visibility from this endpoint.
+	//
+	// ```http
+	// POST /v2alpha1/self/issuedApiKeys
+	// X-User-Id: user_123
+	//
+	//	{
+	//	  "name": "my-web-key",
+	//	  "ttl": "720h"
+	//	}
+	//
+	// ```
+	SelfIssueApiKey(ctx context.Context, in *SelfIssueApiKeyRequest, opts ...grpc.CallOption) (*IssueApiKeyResponse, error)
+	// Self-List Issued API Keys
+	//
+	// Lists the caller's API keys. The actor_id filter is forced server-side
+	// from the X-User-Id header — the client cannot list other actors' keys.
+	// Filter expressions in the request body are ignored.
+	//
+	// ```http
+	// GET /v2alpha1/self/issuedApiKeys?page_size=50
+	// X-User-Id: user_123
+	// ```
+	SelfListIssuedApiKeys(ctx context.Context, in *SelfListIssuedApiKeysRequest, opts ...grpc.CallOption) (*ListIssuedApiKeysResponse, error)
+	// Self-Revoke Issued API Key
+	//
+	// Revokes an issued API key owned by the caller. Ownership is verified
+	// server-side: the key's actor_id must match the X-User-Id header before
+	// revocation. Returns 404 if the key does not exist or does not belong to
+	// the caller (so a caller cannot enumerate other actors' key ids).
+	//
+	// PRIVILEGE_WITHDRAWN is rejected here (admin-only) — self-revocation uses
+	// KEY_COMPROMISE, AFFILIATION_CHANGED, SUPERSEDED, or UNSPECIFIED.
+	//
+	// ```http
+	// POST /v2alpha1/self/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+	// X-User-Id: user_123
+	//
+	//	{
+	//	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+	//	}
+	//
+	// ```
+	SelfRevokeIssuedApiKey(ctx context.Context, in *SelfRevokeIssuedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Derive Token
 	//
 	// Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -520,6 +572,36 @@ func (c *apiKeysClient) RevokeApiKey(ctx context.Context, in *SelfRevokeApiKeyRe
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SelfRevokeApiKeyResponse)
 	err := c.cc.Invoke(ctx, ApiKeys_RevokeApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) SelfIssueApiKey(ctx context.Context, in *SelfIssueApiKeyRequest, opts ...grpc.CallOption) (*IssueApiKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IssueApiKeyResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_SelfIssueApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) SelfListIssuedApiKeys(ctx context.Context, in *SelfListIssuedApiKeysRequest, opts ...grpc.CallOption) (*ListIssuedApiKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListIssuedApiKeysResponse)
+	err := c.cc.Invoke(ctx, ApiKeys_SelfListIssuedApiKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) SelfRevokeIssuedApiKey(ctx context.Context, in *SelfRevokeIssuedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ApiKeys_SelfRevokeIssuedApiKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -841,6 +923,55 @@ type ApiKeysServer interface {
 	//
 	// ```
 	RevokeApiKey(context.Context, *SelfRevokeApiKeyRequest) (*SelfRevokeApiKeyResponse, error)
+	// Self-Issue API Key
+	//
+	// Creates a new API key bound to the caller's actor_id (from the X-User-Id
+	// header). The secret is returned only once in the response and cannot be
+	// retrieved later. The caller cannot set actor_id, scopes, rate limits,
+	// IP restrictions, or visibility from this endpoint.
+	//
+	// ```http
+	// POST /v2alpha1/self/issuedApiKeys
+	// X-User-Id: user_123
+	//
+	//	{
+	//	  "name": "my-web-key",
+	//	  "ttl": "720h"
+	//	}
+	//
+	// ```
+	SelfIssueApiKey(context.Context, *SelfIssueApiKeyRequest) (*IssueApiKeyResponse, error)
+	// Self-List Issued API Keys
+	//
+	// Lists the caller's API keys. The actor_id filter is forced server-side
+	// from the X-User-Id header — the client cannot list other actors' keys.
+	// Filter expressions in the request body are ignored.
+	//
+	// ```http
+	// GET /v2alpha1/self/issuedApiKeys?page_size=50
+	// X-User-Id: user_123
+	// ```
+	SelfListIssuedApiKeys(context.Context, *SelfListIssuedApiKeysRequest) (*ListIssuedApiKeysResponse, error)
+	// Self-Revoke Issued API Key
+	//
+	// Revokes an issued API key owned by the caller. Ownership is verified
+	// server-side: the key's actor_id must match the X-User-Id header before
+	// revocation. Returns 404 if the key does not exist or does not belong to
+	// the caller (so a caller cannot enumerate other actors' key ids).
+	//
+	// PRIVILEGE_WITHDRAWN is rejected here (admin-only) — self-revocation uses
+	// KEY_COMPROMISE, AFFILIATION_CHANGED, SUPERSEDED, or UNSPECIFIED.
+	//
+	// ```http
+	// POST /v2alpha1/self/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+	// X-User-Id: user_123
+	//
+	//	{
+	//	  "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+	//	}
+	//
+	// ```
+	SelfRevokeIssuedApiKey(context.Context, *SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error)
 	// Derive Token
 	//
 	// Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -988,6 +1119,15 @@ func (UnimplementedApiKeysServer) AdminRevokeImportedApiKey(context.Context, *Re
 }
 func (UnimplementedApiKeysServer) RevokeApiKey(context.Context, *SelfRevokeApiKeyRequest) (*SelfRevokeApiKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RevokeApiKey not implemented")
+}
+func (UnimplementedApiKeysServer) SelfIssueApiKey(context.Context, *SelfIssueApiKeyRequest) (*IssueApiKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelfIssueApiKey not implemented")
+}
+func (UnimplementedApiKeysServer) SelfListIssuedApiKeys(context.Context, *SelfListIssuedApiKeysRequest) (*ListIssuedApiKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelfListIssuedApiKeys not implemented")
+}
+func (UnimplementedApiKeysServer) SelfRevokeIssuedApiKey(context.Context, *SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelfRevokeIssuedApiKey not implemented")
 }
 func (UnimplementedApiKeysServer) AdminDeriveToken(context.Context, *DeriveTokenRequest) (*DeriveTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDeriveToken not implemented")
@@ -1285,6 +1425,60 @@ func _ApiKeys_RevokeApiKey_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiKeys_SelfIssueApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelfIssueApiKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiKeysServer).SelfIssueApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiKeys_SelfIssueApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiKeysServer).SelfIssueApiKey(ctx, req.(*SelfIssueApiKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiKeys_SelfListIssuedApiKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelfListIssuedApiKeysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiKeysServer).SelfListIssuedApiKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiKeys_SelfListIssuedApiKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiKeysServer).SelfListIssuedApiKeys(ctx, req.(*SelfListIssuedApiKeysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiKeys_SelfRevokeIssuedApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelfRevokeIssuedApiKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiKeysServer).SelfRevokeIssuedApiKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiKeys_SelfRevokeIssuedApiKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiKeysServer).SelfRevokeIssuedApiKey(ctx, req.(*SelfRevokeIssuedApiKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ApiKeys_AdminDeriveToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeriveTokenRequest)
 	if err := dec(in); err != nil {
@@ -1491,6 +1685,18 @@ var ApiKeys_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RevokeApiKey",
 			Handler:    _ApiKeys_RevokeApiKey_Handler,
+		},
+		{
+			MethodName: "SelfIssueApiKey",
+			Handler:    _ApiKeys_SelfIssueApiKey_Handler,
+		},
+		{
+			MethodName: "SelfListIssuedApiKeys",
+			Handler:    _ApiKeys_SelfListIssuedApiKeys_Handler,
+		},
+		{
+			MethodName: "SelfRevokeIssuedApiKey",
+			Handler:    _ApiKeys_SelfRevokeIssuedApiKey_Handler,
 		},
 		{
 			MethodName: "AdminDeriveToken",

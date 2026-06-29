@@ -28,10 +28,11 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
         "possession (the caller supplies the raw credential secret) and needs no admin token.\n\n"
         "## API surfaces\n\n"
         "Talos is a single binary with three deployment modes: **admin** (the full lifecycle "
-        "and verification surface), **self-service** (only proof-of-possession self-revocation "
-        "for credential holders), and **all-in-one** (both surfaces in one process). Run the "
-        "admin and self-service surfaces separately to keep the privileged API off the public "
-        "network.\n\n"
+        "and verification surface), **self-service** (proof-of-possession self-revocation "
+        "for credential holders, plus X-User-Id-authenticated self-issue/list/revoke when "
+        "fronted by a trusted edge proxy), and **all-in-one** (both surfaces in one process). "
+        "Run the admin and self-service surfaces separately to keep the privileged API off "
+        "the public network.\n\n"
         "## Requests and responses\n\n"
         "The API speaks JSON over HTTP. All paths are versioned under `/v2alpha1/`. Errors use "
         "the standard `google.rpc.Status` shape with a numeric `code`, a human-readable "
@@ -419,6 +420,105 @@ service ApiKeys {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       operation_id: "revokeApiKey"
+    };
+  }
+
+  // ============================================================================
+  // Self-Service Operations (X-User-Id header authenticated)
+  // ============================================================================
+  //
+  // These RPCs authenticate via a trusted X-User-Id HTTP header set by an
+  // external edge proxy (e.g. Ory Oathkeeper from a Kratos session). The
+  // caller's actor_id is taken authoritatively from the header — it is NEVER
+  // read from the request body, so a client cannot mint keys for another
+  // actor.
+  //
+  // Deploy these endpoints behind an edge that injects X-User-Id; without
+  // that header, requests are rejected with Unauthenticated. Do NOT expose
+  // them on a public network without such an edge (mirrors the admin-surface
+  // warning above).
+  //
+  // The self-service surface is intentionally a strict subset of the admin
+  // surface: callers cannot set scopes, rate limits, IP restrictions, or
+  // visibility — those are admin-only knobs. A self-issued key inherits the
+  // default visibility (SECRET) and an empty scope set.
+
+  // Self-Issue API Key
+  //
+  // Creates a new API key bound to the caller's actor_id (from the X-User-Id
+  // header). The secret is returned only once in the response and cannot be
+  // retrieved later. The caller cannot set actor_id, scopes, rate limits,
+  // IP restrictions, or visibility from this endpoint.
+  //
+  // ```http
+  // POST /v2alpha1/self/issuedApiKeys
+  // X-User-Id: user_123
+  // {
+  //   "name": "my-web-key",
+  //   "ttl": "720h"
+  // }
+  // ```
+  rpc SelfIssueApiKey(SelfIssueApiKeyRequest) returns (IssueApiKeyResponse) {
+    option (google.api.http) = {
+      post: "/v2alpha1/self/issuedApiKeys"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "selfIssueApiKey"
+      responses: {
+        key: "201"
+        value: { description: "API key issued successfully." }
+      }
+    };
+  }
+
+  // Self-List Issued API Keys
+  //
+  // Lists the caller's API keys. The actor_id filter is forced server-side
+  // from the X-User-Id header — the client cannot list other actors' keys.
+  // Filter expressions in the request body are ignored.
+  //
+  // ```http
+  // GET /v2alpha1/self/issuedApiKeys?page_size=50
+  // X-User-Id: user_123
+  // ```
+  rpc SelfListIssuedApiKeys(SelfListIssuedApiKeysRequest) returns (ListIssuedApiKeysResponse) {
+    option (google.api.http) = {
+      get: "/v2alpha1/self/issuedApiKeys"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "selfListIssuedApiKeys"
+    };
+  }
+
+  // Self-Revoke Issued API Key
+  //
+  // Revokes an issued API key owned by the caller. Ownership is verified
+  // server-side: the key's actor_id must match the X-User-Id header before
+  // revocation. Returns 404 if the key does not exist or does not belong to
+  // the caller (so a caller cannot enumerate other actors' key ids).
+  //
+  // PRIVILEGE_WITHDRAWN is rejected here (admin-only) — self-revocation uses
+  // KEY_COMPROMISE, AFFILIATION_CHANGED, SUPERSEDED, or UNSPECIFIED.
+  //
+  // ```http
+  // POST /v2alpha1/self/issuedApiKeys/01HQZX9VYQKJB8XQZQXQZQXQXQ:revoke
+  // X-User-Id: user_123
+  // {
+  //   "reason": "REVOCATION_REASON_KEY_COMPROMISE"
+  // }
+  // ```
+  rpc SelfRevokeIssuedApiKey(SelfRevokeIssuedApiKeyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v2alpha1/self/issuedApiKeys/{key_id}:revoke"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "selfRevokeIssuedApiKey"
+      responses: {
+        key: "204"
+        value: { description: "API key revoked successfully." }
+      }
     };
   }
 
@@ -1263,4 +1363,67 @@ message SelfRevokeApiKeyRequest {
 // SelfRevokeApiKeyResponse is returned on successful self-revocation.
 message SelfRevokeApiKeyResponse {
   // Empty on success
+}
+
+// ============================================================================
+// Self-Service (X-User-Id authenticated) Messages
+// ============================================================================
+//
+// These messages back the Self* RPCs. actor_id is conspicuously absent from
+// every request — it is taken authoritatively from the X-User-Id header, so
+// a client cannot spoof another actor's identity via the body.
+
+// SelfIssueApiKeyRequest is the body of SelfIssueApiKey. The caller may only
+// set a display name, TTL, and an idempotency key — everything else
+// (actor_id, scopes, rate limits, IP restrictions, visibility) is either
+// derived from the header or defaulted by the server.
+message SelfIssueApiKeyRequest {
+  // name is an optional display name for the key. When omitted the server
+  // substitutes a default (e.g. "self-issued").
+  string name = 1 [(buf.validate.field).string = {max_len: 255}];
+
+  // ttl sets the expiry as a duration from now. Same encoding rules as
+  // IssueApiKeyRequest.ttl (Go-style accepted: "24h", "30m"; standard
+  // Duration: "3600s"). When unset, the project default TTL applies.
+  google.protobuf.Duration ttl = 2 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE,
+    duration: {gte: {seconds: 1}, lte: {seconds: 315360000}}
+  }];
+
+  // request_id is an optional idempotency key (AIP-155). Replaying a
+  // request with the same request_id returns the originally-issued key
+  // (without the secret).
+  string request_id = 3 [(buf.validate.field).string = {max_len: 36}];
+}
+
+// SelfListIssuedApiKeysRequest is the body of SelfListIssuedApiKeys. The
+// actor_id filter is forced server-side from the X-User-Id header, so this
+// message deliberately omits the filter field present on
+// ListIssuedApiKeysRequest.
+message SelfListIssuedApiKeysRequest {
+  // page_size is the maximum number of keys to return. The server clamps
+  // this to the configured maximum (default 50, max 1000).
+  int32 page_size = 1 [(buf.validate.field).int32 = {gte: 0, lte: 1000}];
+
+  // page_token is the opaque cursor returned in the previous response's
+  // next_page_token.
+  string page_token = 2;
+}
+
+// SelfRevokeIssuedApiKeyRequest is the body of SelfRevokeIssuedApiKey. The
+// key_id path parameter names the key to revoke; ownership is verified
+// server-side before revocation.
+message SelfRevokeIssuedApiKeyRequest {
+  // key_id is the path parameter naming the key to revoke. The key must
+  // belong to the caller (X-User-Id header), otherwise 404 is returned.
+  string key_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // reason is the revocation reason. PRIVILEGE_WITHDRAWN is rejected here
+  // (admin-only) — self-revocation uses KEY_COMPROMISE, AFFILIATION_CHANGED,
+  // SUPERSEDED, or UNSPECIFIED.
+  RevocationReason reason = 2;
+
+  // description is an optional free-text explanation. Mirrors the admin
+  // endpoint's documentation field.
+  string description = 3 [(buf.validate.field).string.max_len = 1024];
 }
