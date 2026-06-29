@@ -522,6 +522,26 @@ service ApiKeys {
     };
   }
 
+  // Self-Get Actor Balance
+  //
+  // Reads the caller's own metering balance (quota + remaining). The actor_id
+  // is taken from the X-User-Id header — there is no path parameter, so a
+  // client cannot read another actor's balance. A missing balance is reported
+  // as unlimited (quota 0, remaining 0), matching AdminGetActorBalance.
+  //
+  // ```http
+  // GET /v2alpha1/self/actorBalance
+  // X-User-Id: user_123
+  // ```
+  rpc SelfGetActorBalance(SelfGetActorBalanceRequest) returns (ActorBalance) {
+    option (google.api.http) = {
+      get: "/v2alpha1/self/actorBalance"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      operation_id: "selfGetActorBalance"
+    };
+  }
+
   // Derive Token
   //
   // Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -1427,3 +1447,8 @@ message SelfRevokeIssuedApiKeyRequest {
   // endpoint's documentation field.
   string description = 3 [(buf.validate.field).string.max_len = 1024];
 }
+
+// SelfGetActorBalanceRequest is the body of SelfGetActorBalance. It is empty
+// because the actor_id is taken authoritatively from the X-User-Id header —
+// there is no path parameter and no body field that could broaden the read.
+message SelfGetActorBalanceRequest {}

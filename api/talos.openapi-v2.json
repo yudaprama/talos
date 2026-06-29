@@ -989,6 +989,30 @@
         ]
       }
     },
+    "/v2alpha1/self/actorBalance": {
+      "get": {
+        "summary": "Self-Get Actor Balance",
+        "description": "Reads the caller's own metering balance (quota + remaining). The actor_id\nis taken from the X-User-Id header — there is no path parameter, so a\nclient cannot read another actor's balance. A missing balance is reported\nas unlimited (quota 0, remaining 0), matching AdminGetActorBalance.\n\n```http\nGET /v2alpha1/self/actorBalance\nX-User-Id: user_123\n```",
+        "operationId": "selfGetActorBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ActorBalance"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "tags": [
+          "ApiKeys"
+        ]
+      }
+    },
     "/v2alpha1/self/issuedApiKeys": {
       "get": {
         "summary": "Self-List Issued API Keys",

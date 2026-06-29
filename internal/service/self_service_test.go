@@ -113,6 +113,15 @@ func TestSelfService_NoHeaderIsUnauthenticated(t *testing.T) {
 		st, _ := status.FromError(err)
 		assert.Equal(t, codes.Unauthenticated, st.Code())
 	})
+
+	t.Run("SelfGetActorBalance", func(t *testing.T) {
+		t.Parallel()
+		// Uses the noop meter (nil in newSelfPublic) — the header check
+		// fires before the meter is touched.
+		_, err := pub.SelfGetActorBalance(context.Background(), &talosv2alpha1.SelfGetActorBalanceRequest{})
+		st, _ := status.FromError(err)
+		assert.Equal(t, codes.Unauthenticated, st.Code())
+	})
 }
 
 // TestSelfService_NilAdminReturnsUnimplemented covers the deployment misconfig

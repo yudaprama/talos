@@ -143,6 +143,12 @@ func (a *adminAdapter) SelfRevokeIssuedApiKey(ctx context.Context, req *talosv2a
 	return a.public.SelfRevokeIssuedApiKey(ctx, req)
 }
 
+// SelfGetActorBalance reads the caller's own metering balance from the
+// X-User-Id header. Read-only, no admin token required.
+func (a *adminAdapter) SelfGetActorBalance(ctx context.Context, req *talosv2alpha1.SelfGetActorBalanceRequest) (*talosv2alpha1.ActorBalance, error) {
+	return a.public.SelfGetActorBalance(ctx, req)
+}
+
 // adminOnlyAdapter exposes all Admin* methods but leaves the self-service
 // RPCs (proof-of-possession RevokeApiKey AND the X-User-Id-authenticated
 // SelfIssueApiKey / SelfListIssuedApiKeys / SelfRevokeIssuedApiKey) wired to
@@ -259,6 +265,12 @@ func (a *publicOnlyAdapter) SelfListIssuedApiKeys(ctx context.Context, req *talo
 // verified before revocation.
 func (a *publicOnlyAdapter) SelfRevokeIssuedApiKey(ctx context.Context, req *talosv2alpha1.SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error) {
 	return a.public.SelfRevokeIssuedApiKey(ctx, req)
+}
+
+// SelfGetActorBalance reads the caller's own metering balance; the actor_id
+// is forced from the X-User-Id header.
+func (a *publicOnlyAdapter) SelfGetActorBalance(ctx context.Context, req *talosv2alpha1.SelfGetActorBalanceRequest) (*talosv2alpha1.ActorBalance, error) {
+	return a.public.SelfGetActorBalance(ctx, req)
 }
 
 func (a *publicOnlyAdapter) GetJwks(ctx context.Context, req *talosv2alpha1.GetJWKSRequest) (*talosv2alpha1.GetJWKSResponse, error) {

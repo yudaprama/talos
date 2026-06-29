@@ -37,6 +37,7 @@ const (
 	ApiKeys_SelfIssueApiKey_FullMethodName                 = "/talos.v2alpha1.ApiKeys/SelfIssueApiKey"
 	ApiKeys_SelfListIssuedApiKeys_FullMethodName           = "/talos.v2alpha1.ApiKeys/SelfListIssuedApiKeys"
 	ApiKeys_SelfRevokeIssuedApiKey_FullMethodName          = "/talos.v2alpha1.ApiKeys/SelfRevokeIssuedApiKey"
+	ApiKeys_SelfGetActorBalance_FullMethodName             = "/talos.v2alpha1.ApiKeys/SelfGetActorBalance"
 	ApiKeys_AdminDeriveToken_FullMethodName                = "/talos.v2alpha1.ApiKeys/AdminDeriveToken"
 	ApiKeys_GetJwks_FullMethodName                         = "/talos.v2alpha1.ApiKeys/GetJwks"
 	ApiKeys_AdminVerifyApiKey_FullMethodName               = "/talos.v2alpha1.ApiKeys/AdminVerifyApiKey"
@@ -331,6 +332,18 @@ type ApiKeysClient interface {
 	//
 	// ```
 	SelfRevokeIssuedApiKey(ctx context.Context, in *SelfRevokeIssuedApiKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Self-Get Actor Balance
+	//
+	// Reads the caller's own metering balance (quota + remaining). The actor_id
+	// is taken from the X-User-Id header — there is no path parameter, so a
+	// client cannot read another actor's balance. A missing balance is reported
+	// as unlimited (quota 0, remaining 0), matching AdminGetActorBalance.
+	//
+	// ```http
+	// GET /v2alpha1/self/actorBalance
+	// X-User-Id: user_123
+	// ```
+	SelfGetActorBalance(ctx context.Context, in *SelfGetActorBalanceRequest, opts ...grpc.CallOption) (*ActorBalance, error)
 	// Derive Token
 	//
 	// Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -602,6 +615,16 @@ func (c *apiKeysClient) SelfRevokeIssuedApiKey(ctx context.Context, in *SelfRevo
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, ApiKeys_SelfRevokeIssuedApiKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiKeysClient) SelfGetActorBalance(ctx context.Context, in *SelfGetActorBalanceRequest, opts ...grpc.CallOption) (*ActorBalance, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActorBalance)
+	err := c.cc.Invoke(ctx, ApiKeys_SelfGetActorBalance_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -972,6 +995,18 @@ type ApiKeysServer interface {
 	//
 	// ```
 	SelfRevokeIssuedApiKey(context.Context, *SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error)
+	// Self-Get Actor Balance
+	//
+	// Reads the caller's own metering balance (quota + remaining). The actor_id
+	// is taken from the X-User-Id header — there is no path parameter, so a
+	// client cannot read another actor's balance. A missing balance is reported
+	// as unlimited (quota 0, remaining 0), matching AdminGetActorBalance.
+	//
+	// ```http
+	// GET /v2alpha1/self/actorBalance
+	// X-User-Id: user_123
+	// ```
+	SelfGetActorBalance(context.Context, *SelfGetActorBalanceRequest) (*ActorBalance, error)
 	// Derive Token
 	//
 	// Mints a short-lived JWT or Macaroon token from an API key. Works with both
@@ -1128,6 +1163,9 @@ func (UnimplementedApiKeysServer) SelfListIssuedApiKeys(context.Context, *SelfLi
 }
 func (UnimplementedApiKeysServer) SelfRevokeIssuedApiKey(context.Context, *SelfRevokeIssuedApiKeyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SelfRevokeIssuedApiKey not implemented")
+}
+func (UnimplementedApiKeysServer) SelfGetActorBalance(context.Context, *SelfGetActorBalanceRequest) (*ActorBalance, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelfGetActorBalance not implemented")
 }
 func (UnimplementedApiKeysServer) AdminDeriveToken(context.Context, *DeriveTokenRequest) (*DeriveTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDeriveToken not implemented")
@@ -1479,6 +1517,24 @@ func _ApiKeys_SelfRevokeIssuedApiKey_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiKeys_SelfGetActorBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelfGetActorBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiKeysServer).SelfGetActorBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiKeys_SelfGetActorBalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiKeysServer).SelfGetActorBalance(ctx, req.(*SelfGetActorBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ApiKeys_AdminDeriveToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeriveTokenRequest)
 	if err := dec(in); err != nil {
@@ -1697,6 +1753,10 @@ var ApiKeys_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SelfRevokeIssuedApiKey",
 			Handler:    _ApiKeys_SelfRevokeIssuedApiKey_Handler,
+		},
+		{
+			MethodName: "SelfGetActorBalance",
+			Handler:    _ApiKeys_SelfGetActorBalance_Handler,
 		},
 		{
 			MethodName: "AdminDeriveToken",

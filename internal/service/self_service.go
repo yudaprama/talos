@@ -211,3 +211,25 @@ func (s *Public) SelfRevokeIssuedApiKey(ctx context.Context, req *talosv2alpha1.
 		Description: req.GetDescription(),
 	})
 }
+
+// SelfGetActorBalance reads the caller's own metering balance. The actor_id
+// is taken from the X-User-Id header — there is no path or body parameter
+// the client can use to read another actor's balance. A missing balance is
+// reported by the meter as unlimited (quota 0, remaining 0), matching the
+// admin endpoint. This method does not need an Admin reference —
+// GetActorBalance already lives on Public.
+func (s *Public) SelfGetActorBalance(ctx context.Context, _ *talosv2alpha1.SelfGetActorBalanceRequest) (_ *talosv2alpha1.ActorBalance, err error) {
+	ctx, span := tracing.Start(ctx, "public.SelfGetActorBalance")
+	defer otelx.End(span, &err)
+
+	actorID, err := actorIDFromHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	span.SetAttributes(attribute.String("actor_id", actorID))
+
+	// GetActorBalance treats quota 0 as unlimited and a missing balance row
+	// as {Quota: 0, Remaining: 0}. That maps cleanly to "the UI shows
+	// 'unlimited' when the user has no plan assigned" — no extra logic here.
+	return s.GetActorBalance(ctx, &talosv2alpha1.GetActorBalanceRequest{ActorId: actorID})
+}
