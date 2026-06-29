@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -9,7 +10,7 @@ import (
 	"github.com/ory/x/logrusx"
 	"github.com/ory/x/sqlcon"
 
-	"github.com/ory/talos/internal/persistence/sqlite"
+	"github.com/ory/talos/internal/persistence/postgres"
 )
 
 // Persister name constants
@@ -100,8 +101,9 @@ func ParseDSN(dsn string) (driverName string, opts ConnectionOptions, err error)
 //   - postgres://user:pass@host:5432/db?max_conns=50
 //   - cockroach://user@host:26257/db?pool_max_conns=100
 func NewDriver(ctx context.Context, dsn string, proprietaryFactories map[string]Factory) (Persister, error) {
-	// Parse DSN to determine driver type (permanent error if invalid)
-	driverName, _, err := ParseDSN(dsn)
+	// Parse DSN to determine driver type (permanent error if invalid) and to
+	// extract connection-pool settings from query parameters.
+	driverName, opts, err := ParseDSN(dsn)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse DSN")
 	}
@@ -110,21 +112,48 @@ func NewDriver(ctx context.Context, dsn string, proprietaryFactories map[string]
 	var driver Persister
 
 	// Check proprietary factories first (only available in Enterprise builds)
-	if factory, ok := proprietaryFactories[driverName]; ok {
-		driver, err = factory(ctx, dsn)
+	switch {
+	case proprietaryFactories[driverName] != nil:
+		driver, err = proprietaryFactories[driverName](ctx, dsn)
 		if err != nil {
 			return nil, errors.Wrapf(err, "initialize %s database driver", driverName)
 		}
-	} else if driverName == "sqlite" {
-		driver, err = sqlite.NewDriver(dsn)
+	case driverName == DriverPostgres || driverName == DriverCockroach:
+		// CockroachDB speaks the PostgreSQL wire protocol, so the same driver
+		// serves both. CleanedDSN has the talos pool query params stripped so
+		// pgx does not choke on them.
+		driver, err = postgres.NewDriver(opts.CleanedDSN)
 		if err != nil {
-			return nil, errors.Wrap(err, "initialize sqlite database driver")
+			return nil, errors.Wrapf(err, "initialize %s database driver", driverName)
 		}
-	} else {
-		return nil, errors.Errorf("unknown database driver: %s. OSS edition supports: sqlite. Enterprise edition adds: postgres, mysql, cockroach", driverName)
+		applyPoolSettings(driver.DB(), opts)
+	default:
+		return nil, errors.Errorf("unknown database driver: %s. Talos supports: postgres, cockroach", driverName)
 	}
 
 	return driver, nil
+}
+
+// applyPoolSettings applies the connection-pool options parsed from the DSN
+// query string to the underlying *sql.DB. Zero values are left at the driver
+// default. PostgreSQL (unlike the old single-writer SQLite path) benefits from
+// a real pool, so callers should size max_conns for their concurrency.
+func applyPoolSettings(sqlDB *sql.DB, opts ConnectionOptions) {
+	if sqlDB == nil {
+		return
+	}
+	if opts.MaxConns > 0 {
+		sqlDB.SetMaxOpenConns(opts.MaxConns)
+	}
+	if opts.MaxIdleConns > 0 {
+		sqlDB.SetMaxIdleConns(opts.MaxIdleConns)
+	}
+	if opts.MaxConnLifetime > 0 {
+		sqlDB.SetConnMaxLifetime(opts.MaxConnLifetime)
+	}
+	if opts.MaxIdleConnTime > 0 {
+		sqlDB.SetConnMaxIdleTime(opts.MaxIdleConnTime)
+	}
 }
 
 // reviewed - @aeneasr - 2026-03-26

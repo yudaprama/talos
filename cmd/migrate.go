@@ -4,15 +4,13 @@ import (
 	"cmp"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/golang-migrate/migrate/v4"
 
-	// Import database drivers for side effects (registers drivers with migrate)
-	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	// Import the PostgreSQL driver for side effects (registers it with migrate).
+	// Talos is PostgreSQL-only; CockroachDB uses the same wire protocol.
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/database/sqlite"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 
 	"github.com/spf13/cobra"
@@ -49,17 +47,14 @@ func newMigrateUpCmd() *cobra.Command {
 The database connection string can be provided via:
   - DB_DSN environment variable
   - --database flag (overrides DB_DSN)`,
-		Example: `  # SQLite
-  {{ .CommandPath }} --database "sqlite3://./data/talos.db"
-
-  # PostgreSQL (commercial)
+		Example: `  # PostgreSQL
   export DB_DSN="postgres://user:pass@localhost:5432/talos?sslmode=disable"
   {{ .CommandPath }}
 
-  # MySQL (commercial)
-  {{ .CommandPath }} --database "mysql://user:pass@tcp(localhost:3306)/talos"
+  # PostgreSQL via flag
+  {{ .CommandPath }} --database "postgres://user:pass@localhost:5432/talos?sslmode=disable"
 
-  # CockroachDB (commercial)
+  # CockroachDB (PostgreSQL wire protocol)
   {{ .CommandPath }} --database "cockroach://user:pass@localhost:5432/talos?sslmode=disable"`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -325,37 +320,11 @@ func newMigrate(dbDSN string) (*migrate.Migrate, error) {
 		return nil, errors.Wrap(err, "create migration source")
 	}
 
-	// Clean the DSN for the database driver
-	// golang-migrate expects slightly different DSN formats
-	cleanedDSN := dbDSN
-	// Check original DSN to determine database type (driverName from GetMigrationsFS is just "." for directory)
-	isSQLite := strings.HasPrefix(dbDSN, "sqlite://") || strings.HasPrefix(dbDSN, "sqlite3://") || strings.HasSuffix(dbDSN, ".db") || dbDSN == ":memory:"
-
-	var databaseURL string
-	if isSQLite {
-		// For sqlite, remove the scheme prefix
-		cleanedDSN = strings.TrimPrefix(cleanedDSN, "sqlite3://")
-		cleanedDSN = strings.TrimPrefix(cleanedDSN, "sqlite://")
-
-		// Normalize relative paths to start with ./
-		// This prevents URL parsing issues where .db/file is interpreted as hostname
-		if !strings.HasPrefix(cleanedDSN, "/") && !strings.HasPrefix(cleanedDSN, "./") && cleanedDSN != ":memory:" {
-			cleanedDSN = "./" + cleanedDSN
-		}
-
-		// SQLite absolute path: sqlite3:///path (three slashes total)
-		// SQLite relative path: sqlite3://./path (two slashes + ./ prefix)
-		databaseURL = fmt.Sprintf("sqlite://%s", cleanedDSN)
-	} else {
-		// For other databases (postgres, mysql, cockroach), use the DSN as-is
-		// golang-migrate accepts the standard URL format
-		databaseURL = dbDSN
-	}
-
+	// golang-migrate accepts the standard postgres:// URL format as-is.
 	m, err := migrate.NewWithSourceInstance(
 		"iofs",
 		sourceDriver,
-		databaseURL,
+		dbDSN,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "create migrate instance")

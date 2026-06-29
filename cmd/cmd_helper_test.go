@@ -22,6 +22,7 @@ import (
 	"github.com/ory/x/cmdx"
 
 	client "github.com/ory/talos/internal/client/generated"
+	"github.com/ory/talos/internal/testutil"
 )
 
 // testContext provides access to a running test server and CLI execution helpers.
@@ -72,19 +73,16 @@ func setupTestServer(t *testing.T) *testContext {
 	httpAddr := fmt.Sprintf("127.0.0.1:%d", ports[0])
 	metricsAddr := fmt.Sprintf("127.0.0.1:%d", ports[1])
 
-	// SQLite database path
-	dbFile := filepath.Join(tmpDir, "test.db")
-	dsn := "sqlite3://" + dbFile
+	// Provision an isolated PostgreSQL schema, run migrations into it, and reuse
+	// its schema-qualified DSN for the server. Skips when TALOS_TEST_DATABASE_URL
+	// is unset. The pre-driver is closed immediately; the server opens its own.
+	preDriver, dsn, err := testutil.InitDriverWithDSN(t, "")
+	require.NoError(t, err, "provision test database")
+	require.NoError(t, preDriver.Close())
 
 	// Write config file
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	writeTestConfig(t, configFile, dsn, jwksURL, httpAddr, metricsAddr)
-
-	// Run migrations via CLI
-	migrateRoot := NewRoot()
-	_, migrateStderr, err := cmdx.ExecCtx(t.Context(), migrateRoot, nil,
-		"migrate", "up", "--database", dsn)
-	require.NoError(t, err, "migration failed: %s", migrateStderr)
 
 	// Start server in background
 	serverCtx, serverCancel := context.WithCancel(t.Context())

@@ -22,7 +22,7 @@ import (
 	"github.com/ory/talos/internal/lastused"
 	"github.com/ory/talos/internal/metrics"
 	db "github.com/ory/talos/internal/persistence/sqlc/generated"
-	"github.com/ory/talos/internal/persistence/sqlite"
+	"github.com/ory/talos/internal/persistence/postgres"
 	"github.com/ory/talos/internal/ratelimit"
 	"github.com/ory/talos/internal/service"
 	"github.com/ory/talos/internal/testutil"
@@ -30,12 +30,12 @@ import (
 )
 
 type corruptScopesPersister struct {
-	*sqlite.Driver
+	*postgres.Driver
 
 	corruptIssuedKeys map[string]struct{}
 }
 
-func newCorruptScopesPersister(driver *sqlite.Driver) *corruptScopesPersister {
+func newCorruptScopesPersister(driver *postgres.Driver) *corruptScopesPersister {
 	return &corruptScopesPersister{
 		Driver:            driver,
 		corruptIssuedKeys: make(map[string]struct{}),

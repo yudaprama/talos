@@ -175,7 +175,7 @@ func initDatabaseFromProvider(ctx context.Context, provider talosconfig.Provider
 		return nil, errors.Errorf("database DSN is required but config key %q is not set", talosconfig.KeyDBDSN)
 	}
 
-	// Parse DSN to determine driver type (from scheme: sqlite://, postgres://, cockroach://)
+	// Parse DSN to determine driver type (from scheme: postgres://, cockroach://)
 	driverType, connOpts, err := persistence.ParseDSN(dsn)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse database DSN")

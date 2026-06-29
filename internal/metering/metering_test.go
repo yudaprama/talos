@@ -5,41 +5,21 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
-	_ "modernc.org/sqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ory/talos/internal/testutil"
 )
 
-const meterSchema = `
-CREATE TABLE networks (id VARCHAR(36) PRIMARY KEY, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL);
-CREATE TABLE actor_balances (
-    nid VARCHAR(36) NOT NULL, actor_id VARCHAR(255) NOT NULL,
-    quota BIGINT NOT NULL DEFAULT 0, remaining BIGINT NOT NULL DEFAULT 0, updated_at DATETIME NOT NULL,
-    PRIMARY KEY (nid, actor_id),
-    FOREIGN KEY (nid) REFERENCES networks (id) ON DELETE CASCADE
-);
-CREATE TABLE api_key_usage (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, nid VARCHAR(36) NOT NULL, actor_id VARCHAR(255) NOT NULL,
-    key_id VARCHAR(36), usage_type VARCHAR(32) NOT NULL, usage_amount BIGINT NOT NULL,
-    cost_micros BIGINT NOT NULL DEFAULT 0, model VARCHAR(255) NOT NULL DEFAULT '',
-    request_id VARCHAR(36), created_at DATETIME NOT NULL,
-    FOREIGN KEY (nid) REFERENCES networks (id) ON DELETE CASCADE
-);
-CREATE UNIQUE INDEX idx_api_key_usage_request ON api_key_usage (nid, request_id) WHERE request_id IS NOT NULL;
-`
-
-// setupMeterDB opens an in-memory SQLite DB with the metering schema. The OSS NID
-// (uuid.Nil) row is inserted so the FK is satisfiable.
+// setupMeterDB provisions an isolated, migrated PostgreSQL schema (with the OSS
+// NID row created by the driver's Initialize) and returns its connection. The
+// metering SQL is exercised against the real production schema. Skips when
+// TALOS_TEST_DATABASE_URL is unset.
 func setupMeterDB(t *testing.T) *sqlx.DB {
 	t.Helper()
-	dbx, err := sqlx.Open("sqlite", ":memory:")
+	driver, err := testutil.InitDriver(t, "")
 	require.NoError(t, err)
-	t.Cleanup(func() { _ = dbx.Close() })
-	_, err = dbx.Exec(meterSchema)
-	require.NoError(t, err)
-	_, err = dbx.Exec("INSERT INTO networks (id, created_at, updated_at) VALUES ('00000000-0000-0000-0000-000000000000', datetime('now'), datetime('now'))")
-	require.NoError(t, err)
-	return dbx
+	return driver.Conn()
 }
 
 func TestNoopMeter(t *testing.T) {

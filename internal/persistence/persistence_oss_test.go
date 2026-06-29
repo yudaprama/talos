@@ -9,7 +9,11 @@ import (
 	"github.com/ory/talos/internal/persistence"
 )
 
-func TestOSSEdition_OnlySQLiteAvailable(t *testing.T) {
+// TestNewDriver_SupportedSchemes verifies driver selection by DSN scheme. Talos
+// is PostgreSQL-only; CockroachDB shares the PostgreSQL wire protocol. Other
+// schemes are rejected. PostgreSQL/CockroachDB DSNs construct successfully
+// without a live database because pgx connects lazily.
+func TestNewDriver_SupportedSchemes(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name           string
@@ -18,53 +22,46 @@ func TestOSSEdition_OnlySQLiteAvailable(t *testing.T) {
 		errorSubstring string
 	}{
 		{
-			name:        "SQLite driver works in OSS",
-			dsn:         "sqlite://" + t.TempDir() + "/test.db",
+			name:        "PostgreSQL driver is supported",
+			dsn:         "postgres://user:pass@localhost:5432/test",
 			expectError: false,
 		},
 		{
-			name:           "PostgreSQL returns Enterprise edition error",
-			dsn:            "postgres://localhost/test",
-			expectError:    true,
-			errorSubstring: "Enterprise edition",
+			name:        "CockroachDB driver is supported",
+			dsn:         "cockroach://root@localhost:26257/test?sslmode=disable",
+			expectError: false,
 		},
 		{
-			name:           "MySQL returns Enterprise edition error",
+			name:           "SQLite is rejected",
+			dsn:            "sqlite://" + t.TempDir() + "/test.db",
+			expectError:    true,
+			errorSubstring: "postgres",
+		},
+		{
+			name:           "MySQL is rejected",
 			dsn:            "mysql://root@localhost:3306/test",
 			expectError:    true,
-			errorSubstring: "Enterprise edition",
-		},
-		{
-			name:           "CockroachDB returns Enterprise edition error",
-			dsn:            "cockroach://root@localhost:26257/test?sslmode=disable",
-			expectError:    true,
-			errorSubstring: "Enterprise edition",
+			errorSubstring: "postgres",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// OSS build: pass nil for proprietary factories
 			driver, err := persistence.NewDriver(t.Context(), tt.dsn, nil)
 
 			if tt.expectError {
 				require.Error(t, err)
-				// Check that error mentions OSS or Enterprise limitation
-				assert.Contains(t, err.Error(), "OSS",
-					"OSS build should mention OSS edition limitation for non-SQLite drivers")
 				if tt.errorSubstring != "" {
 					assert.Contains(t, err.Error(), tt.errorSubstring)
 				}
 				assert.Nil(t, driver)
-			} else {
-				require.NoError(t, err)
-				require.NotNil(t, driver)
-				// Clean up
-				require.NoError(t, driver.Close())
+				return
 			}
+
+			require.NoError(t, err)
+			require.NotNil(t, driver)
+			require.NoError(t, driver.Close())
 		})
 	}
 }
-
-// reviewed - @aeneasr - 2026-03-26

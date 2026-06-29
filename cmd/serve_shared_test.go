@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -84,11 +83,16 @@ func TestInitDatabaseFromProvider(t *testing.T) {
 		require.Error(t, err)
 	})
 
-	t.Run("valid SQLite DSN creates driver", func(t *testing.T) {
+	t.Run("valid PostgreSQL DSN creates driver", func(t *testing.T) {
 		t.Parallel()
-		dbPath := filepath.Join(t.TempDir(), "test.db")
+		// Provision an isolated, already-migrated schema and feed its DSN to the
+		// provider. Skips when TALOS_TEST_DATABASE_URL is unset.
+		preDriver, dsn, err := testutil.InitDriverWithDSN(t, "")
+		require.NoError(t, err)
+		require.NoError(t, preDriver.Close())
+
 		provider := testutil.NewTestProvider(t, configx.WithValues(map[string]any{
-			talosconfig.KeyDBDSN.String(): "sqlite3://" + dbPath + "?_journal=WAL&_timeout=5000",
+			talosconfig.KeyDBDSN.String(): dsn,
 		}))
 
 		driver, err := initDatabaseFromProvider(t.Context(), provider, log, nil)
@@ -238,10 +242,9 @@ func TestInitializeServerDependencies(t *testing.T) {
 		// pre-migrate the database by passing an explicit DSN to InitDriver, then
 		// close that driver and hand the same path to initializeServerDependencies
 		// via the config provider.
-		dbPath := filepath.Join(t.TempDir(), "talos.db")
-		dsn := "sqlite://" + dbPath + "?mode=rwc"
-
-		preDriver, err := testutil.InitDriver(t, dsn)
+		// Pre-migrate an isolated Postgres schema and reuse its schema-qualified
+		// DSN so initializeServerDependencies opens the same migrated schema.
+		preDriver, dsn, err := testutil.InitDriverWithDSN(t, "")
 		require.NoError(t, err, "pre-migrate database")
 		// Close so initializeServerDependencies can open its own connection.
 		require.NoError(t, preDriver.Close())

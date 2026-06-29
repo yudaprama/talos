@@ -1,16 +1,8 @@
 -- Metering (fork): per-actor balance cache + append-only usage ledger.
---
--- Talos OSS has no usage metering (the commercial edition does). This fork adds
--- the minimum storage to back:
---   - VerifyApiKey pre-check: read actor_balances.remaining; when <= 0 the
---     response flips is_valid=false (VERIFICATION_ERROR_BALANCE_EXHAUSTED) so an
---     Ory Oathkeeper authorizer can deny the request before it reaches the LLM.
---   - AdminIngestUsage: append one row to api_key_usage and atomically debit
---     actor_balances.remaining, called by the external egent-metering service.
+-- PostgreSQL port of the SQLite metering migration.
 --
 -- Balance is keyed by (nid, actor_id) — one balance shared across an actor's
--- keys — mirroring how the rate-limit quota lives on the key but scoped per
--- actor. quota = 0 means unlimited (no enforcement). Cost is stored as integer
+-- keys. quota = 0 means unlimited (no enforcement). Cost is stored as integer
 -- micros (cost x 1_000_000) to avoid floating-point money math.
 
 -- Per-actor balance cache.
@@ -20,7 +12,7 @@ CREATE TABLE IF NOT EXISTS actor_balances
     actor_id   VARCHAR(255) NOT NULL,
     quota      BIGINT       NOT NULL DEFAULT 0, -- total credit grant (0 = unlimited)
     remaining  BIGINT       NOT NULL DEFAULT 0, -- current remaining balance (micros)
-    updated_at DATETIME     NOT NULL,
+    updated_at TIMESTAMPTZ  NOT NULL,
     PRIMARY KEY (nid, actor_id),
     FOREIGN KEY (nid) REFERENCES networks (id) ON DELETE CASCADE
 );
@@ -28,7 +20,7 @@ CREATE TABLE IF NOT EXISTS actor_balances
 -- Append-only usage ledger (audit + reconciliation source of truth).
 CREATE TABLE IF NOT EXISTS api_key_usage
 (
-    id           INTEGER      PRIMARY KEY AUTOINCREMENT,
+    id           BIGINT       GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nid          VARCHAR(36)  NOT NULL,
     actor_id     VARCHAR(255) NOT NULL,
     key_id       VARCHAR(36),          -- nullable: derived/imported keys may not map 1:1
@@ -37,7 +29,7 @@ CREATE TABLE IF NOT EXISTS api_key_usage
     cost_micros  BIGINT       NOT NULL DEFAULT 0,
     model        VARCHAR(255) NOT NULL DEFAULT '',
     request_id   VARCHAR(36),          -- idempotency key (AIP-155); unique when set
-    created_at   DATETIME     NOT NULL,
+    created_at   TIMESTAMPTZ  NOT NULL,
     FOREIGN KEY (nid) REFERENCES networks (id) ON DELETE CASCADE
 );
 

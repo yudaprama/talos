@@ -11,9 +11,8 @@ import (
 )
 
 // GetMigrationsFS returns the appropriate migrations filesystem for the given database URL.
-// OSS edition only supports SQLite - delegates to internal package.
+// Talos is PostgreSQL-only - delegates to the internal package.
 func GetMigrationsFS(databaseURL string) (fs.FS, string, error) {
-	// Delegate to internal package which handles OSS validation
 	return migrations.GetMigrationsFS(databaseURL)
 }
 

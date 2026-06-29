@@ -3,11 +3,13 @@ package registry
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 
 	"buf.build/go/protovalidate"
 	"github.com/cockroachdb/errors"
 	"github.com/hashicorp/go-retryablehttp"
+	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/ory/talos/internal/cache"
@@ -19,7 +21,6 @@ import (
 	"github.com/ory/talos/internal/metering"
 	"github.com/ory/talos/internal/metrics"
 	"github.com/ory/talos/internal/persistence"
-	"github.com/ory/talos/internal/persistence/sqlite"
 	db "github.com/ory/talos/internal/persistence/sqlc/generated"
 	"github.com/ory/talos/internal/ratelimit"
 	"github.com/ory/talos/internal/registrytypes"
@@ -285,20 +286,33 @@ func (f *ServiceFactory) GetOrCreateRateLimiter(ctx context.Context) (ratelimit.
 	return f.getOrCreateRateLimiter(ctx)
 }
 
-// GetOrCreateMeter returns the usage meter (metering fork). The OSS build wires
-// a DBMeter over the SQLite driver's connection; if the driver is not the OSS
-// SQLite driver it falls back to a no-op meter. The default quota grant (in
-// micros) is read from metering.default_quota_micros; 0 (the default) leaves
-// gating inert (usage is tracked but never denied) until an operator sets a
-// value > 0. Read once here — the key is immutable (server restart to change).
+// connProvider is satisfied by any persistence driver that exposes its
+// underlying *sqlx.DB so the metering fork can run its usage/balance queries
+// over the same store. Decoupling from the concrete driver type means metering
+// keeps working across backends and never silently degrades to a no-op.
+type connProvider interface {
+	Conn() *sqlx.DB
+}
+
+// GetOrCreateMeter returns the usage meter (metering fork). It wires a DBMeter
+// over the active driver's connection. The default quota grant (in micros) is
+// read from metering.default_quota_micros; 0 (the default) leaves gating inert
+// (usage is tracked but never denied) until an operator sets a value > 0. Read
+// once here — the key is immutable (server restart to change).
+//
+// If the driver does not expose a connection (no real backend), it falls back
+// to a no-op meter but logs an error: metering is mandatory, so a no-op here is
+// a misconfiguration, not an expected path.
 func (f *ServiceFactory) GetOrCreateMeter(ctx context.Context) (metering.Meter, error) {
 	f.meterOnce.Do(func() {
-		if sd, ok := f.driver.(*sqlite.Driver); ok {
+		if cp, ok := f.driver.(connProvider); ok {
 			quotaMicros := int64(f.provider.Int(ctx, talosconfig.KeyMeteringDefaultQuotaMicros))
-			f.meter = metering.NewDBMeter(sd.Conn(), quotaMicros)
-		} else {
-			f.meter = metering.NoopMeter{}
+			f.meter = metering.NewDBMeter(cp.Conn(), quotaMicros)
+			return
 		}
+		slog.ErrorContext(ctx, "metering driver does not expose a connection; falling back to no-op meter — usage will NOT be debited",
+			slog.String("driver", f.driver.DriverName()))
+		f.meter = metering.NoopMeter{}
 	})
 	return f.meter, nil
 }

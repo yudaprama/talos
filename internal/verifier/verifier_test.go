@@ -33,7 +33,7 @@ import (
 	"github.com/ory/talos/internal/errdef"
 	"github.com/ory/talos/internal/lastused"
 	db "github.com/ory/talos/internal/persistence/sqlc/generated"
-	"github.com/ory/talos/internal/persistence/sqlite"
+	"github.com/ory/talos/internal/persistence/postgres"
 
 	"github.com/ory/talos/internal/metrics"
 	"github.com/ory/talos/internal/persistence/sqlutil"
@@ -59,7 +59,7 @@ func newNoopCache() cache.Cache[db.IssuedApiKey] {
 
 // testVerifierEnv bundles all dependencies needed for verifier tests.
 type testVerifierEnv struct {
-	driver   *sqlite.Driver
+	driver   *postgres.Driver
 	provider *config.Provider
 	verifier *Verifier
 }
@@ -109,7 +109,7 @@ func configureProviderForAPIKeys(ctx context.Context, t *testing.T, provider *co
 }
 
 // mustGenerateAndCreateAPIKey generates an API key, creates it in the DB, and returns the full key and key ID.
-func mustGenerateAndCreateAPIKey(ctx context.Context, t *testing.T, driver *sqlite.Driver, hmacSecret, name, actorID string, scopes []string) (fullKey, keyID string) {
+func mustGenerateAndCreateAPIKey(ctx context.Context, t *testing.T, driver *postgres.Driver, hmacSecret, name, actorID string, scopes []string) (fullKey, keyID string) {
 	t.Helper()
 
 	const prefix = "talos"
@@ -130,7 +130,7 @@ func mustGenerateAndCreateAPIKey(ctx context.Context, t *testing.T, driver *sqli
 }
 
 // mustCreateImportedKey creates an imported API key in the DB and returns its key ID.
-func mustCreateImportedKey(ctx context.Context, t *testing.T, driver *sqlite.Driver, credential, name string, scopes json.RawMessage) string {
+func mustCreateImportedKey(ctx context.Context, t *testing.T, driver *postgres.Driver, credential, name string, scopes json.RawMessage) string {
 	t.Helper()
 
 	importedKeyID := crypto.HashImportedAPIKey(credential, contextx.NetworkIDFromContext(ctx).String())

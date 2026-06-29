@@ -1,55 +1,61 @@
-// Package migrations provides embedded SQL migration files for SQLite (OSS edition).
+// Package migrations provides embedded SQL migration files for PostgreSQL.
 package migrations
 
 import (
 	"embed"
 	"io/fs"
-	"strings"
 
 	"github.com/cockroachdb/errors"
 )
 
 // Database driver names (constants for goconst linter)
 const (
-	DriverSQLite      = "sqlite"
-	DriverSQLite3     = "sqlite3"
 	DriverPostgres    = "postgres"
 	DriverPostgreSQL  = "postgresql"
-	DriverMySQL       = "mysql"
 	DriverCockroach   = "cockroach"
 	DriverCockroachDB = "cockroachdb"
 )
 
-// SQLite migrations (OSS edition)
+// PostgreSQL migrations
 //
-//go:embed sqlite/*.sql
-var sqliteFS embed.FS
+//go:embed postgres/*.sql
+var postgresFS embed.FS
 
-// GetMigrationsFS returns the migrations filesystem for SQLite based on database URL.
-// OSS edition only supports SQLite.
+// GetMigrationsFS returns the migrations filesystem for the given database URL.
+// Talos is PostgreSQL-only; any non-postgres DSN is rejected.
+//
+// The returned string is the subdirectory within the embedded FS (also used as
+// the iofs source path in cmd/migrate.go), not a driver identifier.
 func GetMigrationsFS(databaseURL string) (fs.FS, string, error) {
-	// OSS only supports SQLite
-	if !strings.HasPrefix(databaseURL, "sqlite3://") &&
-		!strings.HasPrefix(databaseURL, "sqlite://") &&
-		!strings.Contains(databaseURL, ".db") &&
-		databaseURL != ":memory:" {
-		return nil, "", errors.Errorf("oss edition only supports SQLite databases (got: %s), for PostgreSQL, MySQL, or CockroachDB, use the commercial edition", databaseURL)
-	}
-
-	// Return SQLite filesystem
-	return sqliteFS, DriverSQLite, nil
+	return GetMigrationsFSForDriver(driverFromDSN(databaseURL))
 }
 
 // GetMigrationsFSForDriver returns migrations for a specific database driver.
-// This is used internally by test helpers.
-// OSS only supports SQLite; commercial databases handled by commercial package.
+// This is used internally by test helpers. PostgreSQL-only.
 func GetMigrationsFSForDriver(driver string) (fs.FS, string, error) {
 	switch driver {
-	case DriverSQLite, DriverSQLite3:
-		return sqliteFS, DriverSQLite, nil
+	case DriverPostgres, DriverPostgreSQL, DriverCockroach, DriverCockroachDB:
+		return postgresFS, DriverPostgres, nil
 	default:
-		return nil, "", errors.Errorf("oss edition only supports SQLite driver (got: %s)", driver)
+		return nil, "", errors.Errorf("talos only supports PostgreSQL databases (got driver: %s)", driver)
 	}
 }
 
-// reviewed - @aeneasr - 2026-03-26
+// driverFromDSN extracts the scheme of a DSN (the part before "://") so callers
+// can pass a full DSN to GetMigrationsFS. Returns the raw input when no scheme
+// is present so GetMigrationsFSForDriver can produce a clear error.
+func driverFromDSN(dsn string) string {
+	if i := indexScheme(dsn); i >= 0 {
+		return dsn[:i]
+	}
+	return dsn
+}
+
+func indexScheme(dsn string) int {
+	for i := 0; i+2 < len(dsn); i++ {
+		if dsn[i] == ':' && dsn[i+1] == '/' && dsn[i+2] == '/' {
+			return i
+		}
+	}
+	return -1
+}
