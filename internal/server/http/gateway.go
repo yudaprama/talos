@@ -26,6 +26,7 @@ import (
 	"github.com/ory/talos/internal/config"
 	"github.com/ory/talos/internal/errdef"
 	"github.com/ory/talos/internal/health"
+	"github.com/ory/talos/internal/metering"
 	"github.com/ory/talos/internal/tracing"
 
 	otelcodes "go.opentelemetry.io/otel/codes"
@@ -41,6 +42,7 @@ type GatewayServer struct {
 	mux           *http.ServeMux
 	healthChecker *health.Checker
 	adminAdapter  talosv2alpha1.ApiKeysServer
+	meter         metering.Meter
 	writer        herodot.Writer
 	config        config.ProviderInterface
 }
@@ -59,6 +61,13 @@ func NewGatewayServer(
 		writer:        writer,
 		config:        provider,
 	}
+}
+
+// WithMeter attaches a usage meter to the gateway so it can serve
+// GET /v2alpha1/self/usageHistory. If not set, the handler returns 501.
+func (s *GatewayServer) WithMeter(m metering.Meter) *GatewayServer {
+	s.meter = m
+	return s
 }
 
 // Setup initializes the gateway routes
@@ -106,6 +115,11 @@ func (s *GatewayServer) setupRoutes(gwmux *runtime.ServeMux) {
 	// standard /v2alpha1/admin/apiKeys:verify which always returns 200). Used by
 	// an Ory Oathkeeper remote_json authenticator as its verification backend.
 	s.mux.Handle(GatewayVerifyPath, metrics.Instrument(http.HandlerFunc(s.handleGatewayVerify), GatewayVerifyPath))
+
+	// Self-service usage history: returns the caller's recent api_key_usage rows.
+	// Requires X-User-Id injected by the edge (Oathkeeper cookie_session).
+	const usageHistoryPath = "/v2alpha1/self/usageHistory"
+	s.mux.Handle(usageHistoryPath, metrics.Instrument(http.HandlerFunc(s.handleSelfUsageHistory), usageHistoryPath))
 
 	// Edition-specific routes (e.g. /revisions/talos in commercial builds).
 	s.registerEditionRoutes(metrics, gwmux)

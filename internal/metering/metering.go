@@ -44,6 +44,9 @@ type Meter interface {
 	// quota. Creates the row if absent (quota and remaining set to amountMicros).
 	// Returns the resulting balance.
 	TopUp(ctx context.Context, actorID string, amountMicros int64) (*Balance, error)
+	// ListUsage returns the most recent usage records for the actor, newest first.
+	// limit is clamped to [1, 100] server-side.
+	ListUsage(ctx context.Context, actorID string, limit int) ([]UsageRecord, error)
 	// Enabled reports whether metering is active (false for the no-op).
 	Enabled() bool
 }
@@ -65,6 +68,13 @@ type IngestResult struct {
 	Accepted bool // false if a duplicate RequestID was ignored
 }
 
+// UsageRecord is a single row from api_key_usage, returned by ListUsage.
+type UsageRecord struct {
+	Model      string
+	CostMicros int64
+	CreatedAt  time.Time
+}
+
 // NoopMeter disables metering: balance is unlimited and Ingest records nothing.
 type NoopMeter struct{}
 
@@ -84,6 +94,11 @@ func (NoopMeter) SetQuota(context.Context, string, int64) (*Balance, error) {
 // TopUp records nothing and returns an unlimited balance.
 func (NoopMeter) TopUp(context.Context, string, int64) (*Balance, error) {
 	return &Balance{}, nil
+}
+
+// ListUsage returns an empty slice: the no-op meter records nothing.
+func (NoopMeter) ListUsage(_ context.Context, _ string, _ int) ([]UsageRecord, error) {
+	return nil, nil
 }
 
 // Enabled reports false: the no-op meter performs no tracking.
@@ -216,6 +231,34 @@ func (m *DBMeter) SetQuota(ctx context.Context, actorID string, quotaMicros int6
 		return nil, err
 	}
 	return &bal, nil
+}
+
+// ListUsage returns the most recent usage records for the actor from api_key_usage,
+// ordered newest-first. limit is clamped to [1, 100].
+func (m *DBMeter) ListUsage(ctx context.Context, actorID string, limit int) ([]UsageRecord, error) {
+	nid := contextx.NetworkIDFromContext(ctx).String()
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+	rows, err := m.conn.QueryContext(ctx,
+		`SELECT model, cost_micros, created_at FROM api_key_usage
+		 WHERE nid = $1 AND actor_id = $2
+		 ORDER BY created_at DESC LIMIT $3`,
+		nid, actorID, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var records []UsageRecord
+	for rows.Next() {
+		var rec UsageRecord
+		if err := rows.Scan(&rec.Model, &rec.CostMicros, &rec.CreatedAt); err != nil {
+			return nil, err
+		}
+		records = append(records, rec)
+	}
+	return records, rows.Err()
 }
 
 // TopUp adds credits to the actor's remaining balance without changing its quota

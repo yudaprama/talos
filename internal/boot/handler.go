@@ -80,6 +80,17 @@ func HTTPHandlerFromDependencies(ctx context.Context, deps *ServerDependencies, 
 	// Create HTTP gateway
 	gateway := httpserver.NewGatewayServer(deps.HealthChecker, adminAdapter, deps.Writer, deps.Provider)
 
+	// Wire the usage meter so GET /v2alpha1/self/usageHistory is available.
+	// GetOrCreateMeter is idempotent (sync.Once); skip when no factory is wired
+	// (e.g. test fixtures that supply a PreBuiltAdmin without a full factory).
+	if deps.Factory != nil {
+		meter, mErr := deps.Factory.GetOrCreateMeter(ctx)
+		if mErr != nil {
+			return nil, errors.Wrap(mErr, "create usage meter for gateway")
+		}
+		gateway.WithMeter(meter)
+	}
+
 	setupCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
