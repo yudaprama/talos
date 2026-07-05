@@ -1,0 +1,32 @@
+internal/server/http/gateway.go
+  s_66b340a76f2145::t_9a3ce2f50d15d2 45
+  s_66b340a76f2145::t_4cb9f2e78b9b6c 119-123
+  s_66b340a76f2145::t_51a8969d72903a 66-72
+  s_66b340a76f2145::t_9374350af8186c 29
+internal/server/http/usage_history.go
+  s_66b340a76f2145::t_91f0f65c7d0936 1-71
+internal/metering/metering.go
+  s_66b340a76f2145::t_42c8582f663aee 47-49
+  s_66b340a76f2145::t_88ecf502f3699d 99-103
+  s_66b340a76f2145::t_1c6e5b4996047a 71-77
+  s_66b340a76f2145::t_77c233f2c8ecd3 236-263
+internal/boot/handler.go
+  s_66b340a76f2145::t_5c42654bcb69a0 83-92
+  s_66b340a76f2145::t_f161c59b75e8f5 93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e391f3c0be919451f17a8c0a23a32feace9213fe",
+  "prompts": {},
+  "sessions": {
+    "s_66b340a76f2145": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b043ae81-569f-4fb2-88fb-b0cb0d576665",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "yudaprama <yudhaprama@icloud.com>"
+    }
+  }
+}
