@@ -60,6 +60,7 @@ type IngestRequest struct {
 	CostMicros int64  // cost x 1_000_000 (this is what gets debited)
 	Model      string
 	RequestID  string // optional idempotency key (AIP-155)
+	SessionID  string // optional chat/session id for per-session usage attribution
 }
 
 // IngestResult is the outcome of an Ingest call.
@@ -73,6 +74,7 @@ type UsageRecord struct {
 	Model      string
 	CostMicros int64
 	CreatedAt  time.Time
+	SessionID  string
 }
 
 // NoopMeter disables metering: balance is unlimited and Ingest records nothing.
@@ -186,9 +188,9 @@ func (m *DBMeter) Ingest(ctx context.Context, req IngestRequest) (*IngestResult,
 	defer func() { _ = tx.Rollback() }()
 
 	if _, err := tx.ExecContext(ctx,
-		`INSERT INTO api_key_usage (nid, actor_id, key_id, usage_type, usage_amount, cost_micros, model, request_id, created_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		nid, req.ActorID, keyID, req.UsageType, req.Amount, req.CostMicros, req.Model, reqID, now,
+		`INSERT INTO api_key_usage (nid, actor_id, key_id, usage_type, usage_amount, cost_micros, model, request_id, created_at, session_id)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+		nid, req.ActorID, keyID, req.UsageType, req.Amount, req.CostMicros, req.Model, reqID, now, req.SessionID,
 	); err != nil {
 		return nil, err
 	}
@@ -244,7 +246,7 @@ func (m *DBMeter) ListUsage(ctx context.Context, actorID string, limit int) ([]U
 		limit = 50
 	}
 	rows, err := m.conn.QueryContext(ctx,
-		`SELECT model, cost_micros, created_at FROM api_key_usage
+		`SELECT model, cost_micros, created_at, session_id FROM api_key_usage
 		 WHERE nid = $1 AND actor_id = $2
 		 ORDER BY created_at DESC LIMIT $3`,
 		nid, actorID, limit,
@@ -256,7 +258,7 @@ func (m *DBMeter) ListUsage(ctx context.Context, actorID string, limit int) ([]U
 	var records []UsageRecord
 	for rows.Next() {
 		var rec UsageRecord
-		if err := rows.Scan(&rec.Model, &rec.CostMicros, &rec.CreatedAt); err != nil {
+		if err := rows.Scan(&rec.Model, &rec.CostMicros, &rec.CreatedAt, &rec.SessionID); err != nil {
 			return nil, err
 		}
 		records = append(records, rec)

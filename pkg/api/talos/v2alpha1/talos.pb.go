@@ -2771,6 +2771,7 @@ type IngestUsageRequest struct {
 	CostMicros    int64                  `protobuf:"varint,5,opt,name=cost_micros,json=costMicros,proto3" json:"cost_micros,omitempty"`    // cost x 1_000_000 (integer money)
 	Model         string                 `protobuf:"bytes,6,opt,name=model,proto3" json:"model,omitempty"`
 	RequestId     *string                `protobuf:"bytes,7,opt,name=request_id,json=requestId,proto3,oneof" json:"request_id,omitempty"` // idempotency key (AIP-155)
+	SessionId     string                 `protobuf:"bytes,8,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`       // optional; chat/session id for per-session usage
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2850,6 +2851,13 @@ func (x *IngestUsageRequest) GetModel() string {
 func (x *IngestUsageRequest) GetRequestId() string {
 	if x != nil && x.RequestId != nil {
 		return *x.RequestId
+	}
+	return ""
+}
+
+func (x *IngestUsageRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
 	}
 	return ""
 }
@@ -3705,7 +3713,7 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"\brequests\x18\x01 \x03(\v2#.talos.v2alpha1.VerifyApiKeyRequestB\n" +
 	"\xbaH\a\x92\x01\x04\b\x01\x10dR\brequests\"\\\n" +
 	"\x1aBatchVerifyApiKeysResponse\x12>\n" +
-	"\aresults\x18\x01 \x03(\v2$.talos.v2alpha1.VerifyApiKeyResponseR\aresults\"\xfe\x01\n" +
+	"\aresults\x18\x01 \x03(\v2$.talos.v2alpha1.VerifyApiKeyResponseR\aresults\"\x9d\x02\n" +
 	"\x12IngestUsageRequest\x12%\n" +
 	"\bactor_id\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\aactorId\x12\x15\n" +
@@ -3717,7 +3725,9 @@ const file_api_talos_v2alpha1_talos_proto_rawDesc = "" +
 	"costMicros\x12\x14\n" +
 	"\x05model\x18\x06 \x01(\tR\x05model\x12\"\n" +
 	"\n" +
-	"request_id\x18\a \x01(\tH\x00R\trequestId\x88\x01\x01B\r\n" +
+	"request_id\x18\a \x01(\tH\x00R\trequestId\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\b \x01(\tR\tsessionIdB\r\n" +
 	"\v_request_id\"\x83\x01\n" +
 	"\x13IngestUsageResponse\x12+\n" +
 	"\x11balance_remaining\x18\x01 \x01(\x03R\x10balanceRemaining\x12#\n" +

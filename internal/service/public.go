@@ -216,6 +216,7 @@ func (s *Public) IngestUsage(ctx context.Context, req *talosv2alpha1.IngestUsage
 		CostMicros: req.GetCostMicros(),
 		Model:      req.GetModel(),
 		RequestID:  req.GetRequestId(),
+		SessionID:  req.GetSessionId(),
 	})
 	if err != nil {
 		return nil, errdef.InternalError("ingest usage").WithWrap(errors.WithStack(err))

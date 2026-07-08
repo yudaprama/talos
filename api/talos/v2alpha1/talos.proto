@@ -1337,6 +1337,7 @@ message IngestUsageRequest {
   int64 cost_micros = 5;                   // cost x 1_000_000 (integer money)
   string model = 6;
   optional string request_id = 7;          // idempotency key (AIP-155)
+  string session_id = 8;                    // optional; chat/session id for per-session usage
 }
 
 // IngestUsageResponse reports the post-debit balance (fork).

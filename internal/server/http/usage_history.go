@@ -14,6 +14,7 @@ type usageHistoryRecord struct {
 	Model      string    `json:"model"`
 	CostMicros int64     `json:"costMicros"`
 	CreatedAt  time.Time `json:"createdAt"`
+	SessionID  string    `json:"sessionId,omitempty"`
 }
 
 // handleSelfUsageHistory serves GET /v2alpha1/self/usageHistory.
@@ -57,6 +58,7 @@ func (s *GatewayServer) handleSelfUsageHistory(w http.ResponseWriter, r *http.Re
 			Model:      rec.Model,
 			CostMicros: rec.CostMicros,
 			CreatedAt:  rec.CreatedAt,
+			SessionID:  rec.SessionID,
 		}
 	}
 
