@@ -1,0 +1,37 @@
+internal/persistence/migrations/postgres/000003_add_session_id.down.sql
+  s_eeccb9f27ffaf4::t_86836d16f2b0ee 1-2
+api/talos.swagger.json
+  s_eeccb9f27ffaf4::t_e5cdba4ea22ee2 1-1999
+internal/metering/metering.go
+  s_eeccb9f27ffaf4::t_cb77026fd9ffb2 63
+  s_eeccb9f27ffaf4::t_94237b2fba9f14 191-193
+  s_eeccb9f27ffaf4::t_9042dac6ceabf8 77
+  s_eeccb9f27ffaf4::t_8bec8f104ed6ea 249,261
+internal/persistence/migrations/postgres/000003_add_session_id.up.sql
+  s_eeccb9f27ffaf4::t_02432c57c1b036 1-7
+api/talos/v2alpha1/talos.proto
+  s_eeccb9f27ffaf4::t_0630c05ee49807 1340
+internal/service/public.go
+  s_eeccb9f27ffaf4::t_8314865075ab05 219
+internal/server/http/usage_history.go
+  s_eeccb9f27ffaf4::t_113860fdf91da5 61
+  s_eeccb9f27ffaf4::t_24676fb8a16590 17
+pkg/api/talos/v2alpha1/talos.pb.go
+  s_eeccb9f27ffaf4::t_623b89f2a39f87 2774,2858-2864,3716,3728-3730
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "90a53a11e2acb3caa165ea177402cb9cea152211",
+  "prompts": {},
+  "sessions": {
+    "s_eeccb9f27ffaf4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e12366f4-a90c-49f4-96b0-3f9a0b3a33e2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "yudaprama <yudhaprama@icloud.com>"
+    }
+  }
+}
