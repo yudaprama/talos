@@ -1,0 +1,19 @@
+internal/metering/metering.go
+  s_eeccb9f27ffaf4::t_8500fd1c93ba21 200-202,204,206
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "31b5dfc68f4631ecb45045b5acc4a78158530e37",
+  "prompts": {},
+  "sessions": {
+    "s_eeccb9f27ffaf4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e12366f4-a90c-49f4-96b0-3f9a0b3a33e2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "yudaprama <yudhaprama@icloud.com>"
+    }
+  }
+}
