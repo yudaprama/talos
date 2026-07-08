@@ -197,10 +197,13 @@ func (m *DBMeter) Ingest(ctx context.Context, req IngestRequest) (*IngestResult,
 	// (remaining = grant - cost), otherwise decrement the existing remaining.
 	var bal Balance
 	if err := tx.QueryRowContext(ctx,
+		// Cast the arithmetic params to bigint: without a column context the
+		// driver sends $3/$4 as untyped, so `$3 - $4` fails with
+		// "operator is not unique: unknown - unknown" (SQLSTATE 42725).
 		`INSERT INTO actor_balances (nid, actor_id, quota, remaining, updated_at)
-		 VALUES ($1, $2, $3, $3 - $4, $5)
+		 VALUES ($1, $2, $3, $3::bigint - $4::bigint, $5)
 		 ON CONFLICT (nid, actor_id) DO UPDATE
-		 SET remaining = actor_balances.remaining - $4, updated_at = $5
+		 SET remaining = actor_balances.remaining - $4::bigint, updated_at = $5
 		 RETURNING quota, remaining`,
 		nid, req.ActorID, m.defaultQuotaMicros, req.CostMicros, now,
 	).Scan(&bal.Quota, &bal.Remaining); err != nil {
