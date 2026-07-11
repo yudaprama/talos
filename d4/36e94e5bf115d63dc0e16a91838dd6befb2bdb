@@ -1,0 +1,25 @@
+internal/cache/registry_test.go
+  s_d05c223fc807ea::t_a4c1ca1a56c206 89-93
+internal/cache/memory.go
+  s_d05c223fc807ea::t_0bdc1663ab0756 1-103,105-114
+  s_d05c223fc807ea::t_a3ab3b7fea5bb6 104
+internal/registry/factory.go
+  s_d05c223fc807ea::t_633f31ffffbea2 196-198
+  s_d05c223fc807ea::t_1631cfa7f3406d 199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "d436e94e5bf115d63dc0e16a91838dd6befb2bdb",
+  "prompts": {},
+  "sessions": {
+    "s_d05c223fc807ea": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0af831153ffez61tPXi2CxwQfb",
+        "model": "hy3-free"
+      },
+      "human_author": "yudaprama <yudhaprama@icloud.com>"
+    }
+  }
+}
