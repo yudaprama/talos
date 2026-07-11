@@ -193,7 +193,10 @@ func (f *ServiceFactory) createCache(ctx context.Context, config *cache.Config) 
 	case fn.AddCase("noop"):
 		return cache.NewNoopCache[db.IssuedApiKey](), nil
 	case fn.AddCase("memory"):
-		return nil, errdef.ErrPaymentRequired().WithReasonf("Memory cache requires license.")
+		// In this fork the in-memory backend is freely available (upstream
+		// gated it behind a commercial license). Redis remains unavailable in
+		// OSS; wire a CacheFactory via commercial build tags if needed.
+		return cache.NewMemoryCache[db.IssuedApiKey](config, cacheNamespace)
 	case fn.AddCase("redis"):
 		return nil, errdef.ErrPaymentRequired().WithReasonf("Redis cache requires license.")
 	default:

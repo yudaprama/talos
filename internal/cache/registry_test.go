@@ -86,11 +86,11 @@ func TestEditionBehavior(t *testing.T) {
 		require.NoError(t, err)
 		t.Cleanup(func() { _ = factory.Close() })
 
-		// Test: Try to create a admin (which creates cache internally)
-		// In OSS, this should fail with ErrPaymentRequired for memory cache
-		_, err = factory.CreateAdmin(ctx)
-		require.Error(t, err)
-		require.ErrorIs(t, err, errdef.ErrPaymentRequired())
+		// Test: In this fork the in-memory backend is freely available in OSS
+		// (upstream gated it behind a license), so admin creation must succeed.
+		admin, err := factory.CreateAdmin(ctx)
+		require.NoError(t, err)
+		require.NotNil(t, admin)
 	})
 
 	t.Run("Noop cache availability", func(t *testing.T) {
