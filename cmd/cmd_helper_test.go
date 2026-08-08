@@ -299,7 +299,7 @@ log:
 func waitForServer(t *testing.T, endpoint string) {
 	t.Helper()
 
-	httpClient := &http.Client{Timeout: 500 * time.Millisecond}
+	httpClient := &http.Client{Timeout: 500 * time.Millisecond, Transport: testutil.NewTestTransport(t)}
 	deadline := time.Now().Add(15 * time.Second)
 
 	for time.Now().Before(deadline) {

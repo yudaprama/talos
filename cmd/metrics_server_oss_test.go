@@ -14,6 +14,7 @@ import (
 	"github.com/ory/herodot"
 
 	"github.com/ory/talos/internal/health"
+	"github.com/ory/talos/internal/testutil"
 )
 
 // TestOSSMetricsServerExposesPrometheus verifies that the metrics HTTP server
@@ -32,7 +33,7 @@ func TestOSSMetricsServerExposesPrometheus(t *testing.T) {
 
 	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.URL+"/metrics/prometheus", nil)
 	require.NoError(t, err)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := testutil.NewTestHTTPClient(t).Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
 	body, _ := io.ReadAll(resp.Body)
