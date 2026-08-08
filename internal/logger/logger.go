@@ -4,6 +4,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -61,6 +62,56 @@ func NewLogger(level string, format string) *Logger {
 		handler = slog.NewTextHandler(os.Stderr, opts)
 	default:
 		handler = slog.NewTextHandler(os.Stderr, opts)
+	}
+
+	// Create logger with common fields
+	logger := slog.New(handler)
+	logger = logger.With(
+		slog.String("service", "talos-server"),
+		slog.Int("pid", os.Getpid()),
+	)
+
+	return NewLoggerWithWriter(os.Stderr, level, format)
+}
+
+// NewLoggerWithWriter creates a new structured logger that writes to w.
+// Used by tests to capture log output; production code uses NewLogger.
+func NewLoggerWithWriter(w io.Writer, level string, format string) *Logger {
+	// Parse log level
+	var (
+		handler            slog.Handler
+		logLevel           slog.Level
+		includeStackTraces = true
+	)
+
+	switch level {
+	case "debug":
+		logLevel = slog.LevelDebug
+	case "info":
+		logLevel = slog.LevelInfo
+	case "warn":
+		logLevel = slog.LevelWarn
+		includeStackTraces = false
+	case "error":
+		logLevel = slog.LevelError
+		includeStackTraces = false
+	default:
+		logLevel = slog.LevelInfo
+	}
+
+	opts := &slog.HandlerOptions{
+		Level:     logLevel,
+		AddSource: false,
+	}
+
+	// Create handler based on format
+	switch format {
+	case "json":
+		handler = slog.NewJSONHandler(w, opts)
+	case "text", "":
+		handler = slog.NewTextHandler(w, opts)
+	default:
+		handler = slog.NewTextHandler(w, opts)
 	}
 
 	// Create logger with common fields
