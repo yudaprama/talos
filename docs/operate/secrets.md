@@ -16,18 +16,24 @@ secrets:
   hmac:
     current: "use-a-random-64-char-hmac-secret-for-api-key-checksum-validation"
     retired:
-      - "previous-hmac-secret-rotated-out-on-2026-03-01-padded-to-64chars-"
+      - value: "previous-hmac-secret-rotated-out-on-2026-03-01-padded-to-64chars-"
+        expires_at: "2026-06-01T00:00:00Z"
 ```
 
 `secrets.hmac.current` is the only required secret. Talos derives the macaroon root key and the
 pagination cursor encryption key from it, so you don't configure those separately.
 
+Each retired entry is an object with a required `value` and an optional `expires_at` RFC 3339 UTC
+timestamp. Once `expires_at` passes, Talos drops the entry and no longer accepts signatures made
+with it. Omit `expires_at` to keep the entry valid indefinitely (the previous behavior). Set an
+expiry to make a forgotten retired secret age out on its own.
+
 ## Secret types
 
-| Secret                 | Purpose                                                                    | Required           |
-| ---------------------- | -------------------------------------------------------------------------- | ------------------ |
-| `secrets.hmac.current` | API key checksum HMAC, macaroon root-key derivation, pagination cursor key | Yes (min 32 chars) |
-| `secrets.hmac.retired` | Older HMAC secrets accepted during verification only                       | No                 |
+| Secret                 | Purpose                                                                         | Required           |
+| ---------------------- | ------------------------------------------------------------------------------- | ------------------ |
+| `secrets.hmac.current` | API key checksum HMAC, macaroon root-key derivation, pagination cursor key      | Yes (min 32 chars) |
+| `secrets.hmac.retired` | Older HMAC secrets accepted during verification only, each with optional expiry | No                 |
 
 ## Macaroon root-key derivation
 
@@ -49,9 +55,9 @@ once. Verification falls back through `secrets.hmac.retired` for both purposes.
 ## Pagination-token secret
 
 The list endpoints (`AdminListIssuedApiKeys` and `AdminListImportedApiKeys`) return an opaque
-`next_page_token` that encrypts the cursor (last item ID and network ID) with NaCl secretbox. Talos
-derives the encryption key from `secrets.hmac.current` using the same domain-separated HMAC-SHA256
-construction as the macaroon root key:
+`next_page_token` that encrypts the cursor (last item ID and network ID) with XChaCha20-Poly1305.
+Talos derives the encryption key from `secrets.hmac.current` using the same domain-separated
+HMAC-SHA256 construction as the macaroon root key:
 
 ```text
 pagination_cursor_key = HMAC-SHA256(secrets.hmac.current, "talos/pagination/v1/cursor-key")
@@ -70,7 +76,7 @@ so keep the previous secret in `retired` for at least the longest paging session
 
 ## Secret rotation
 
-1. Move the existing `current` value into the `retired` list.
+1. Move the existing `current` value into the `retired` list as a `{ value, expires_at }` entry.
 2. Set a new `current` value generated with a cryptographically secure RNG.
 3. Either restart Ory Talos or wait for config hot-reload to pick up the change.
 
@@ -84,12 +90,14 @@ secrets:
   hmac:
     current: "newly-rotated-hmac-secret-padded-to-64-random-chars--------"
     retired:
-      - "previous-hmac-secret-still-trusted-during-verification-padded--"
+      - value: "previous-hmac-secret-still-trusted-during-verification-padded--"
+        expires_at: "2026-06-01T00:00:00Z"
 ```
 
-During verification, Ory Talos tries `current` first, then each entry in `retired` in order. Talos
-always issues new keys with `current`. Remove a value from `retired` only after every key issued
-with it has expired or been rotated.
+During verification, Ory Talos tries `current` first, then each unexpired entry in `retired` in
+order. Talos always issues new keys with `current`. Set `expires_at` to at least the longest
+lifetime of any credential still signed with the retired secret, so no valid token is rejected
+early.
 
 ## Generating secrets
 
@@ -103,11 +111,14 @@ leave fewer than 64; the result always stays well above the 32-char minimum.
 ## Environment variables
 
 ```shell
-export TALOS_SECRETS_HMAC_CURRENT="64-char-hmac-secret-required-for-key-operations"
-export TALOS_SECRETS_HMAC_RETIRED="previous-hmac-secret-1,previous-hmac-secret-2"
+export SECRETS_HMAC_CURRENT="64-char-hmac-secret-required-for-key-operations"
+export SECRETS_HMAC_RETIRED='[{"value":"previous-hmac-secret-1"},{"value":"previous-hmac-secret-2","expires_at":"2026-06-01T00:00:00Z"}]'
 ```
+
+`secrets.hmac.retired` is an array of `{ value, expires_at }` objects, so set it from an environment
+variable as a JSON array.
 
 Inject these from a secrets manager (HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager, or
 Kubernetes `Secret`). Never check secrets into version control. See the
 [Configuration reference](../reference/config.md) for the complete env-var mapping rules
-(`TALOS_`-prefix precedence, underscore-to-dot conversion, and list parsing).
+(precedence, underscore-to-dot conversion, and list parsing).
