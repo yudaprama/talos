@@ -1903,6 +1903,76 @@ func (s *DriverTestSuite) TestAPIKeyRotation(t *testing.T) {
 		assert.Equal(t, oldKeyID, result.OldKey.KeyID)
 		assert.Equal(t, newKeyID, result.NewKey.KeyID)
 	})
+
+	t.Run("Rotation sets revocation expiry on old key", func(t *testing.T) {
+		t.Parallel()
+		now := time.Now().UTC()
+
+		testCases := []struct {
+			name              string
+			originalExpiresAt *time.Time
+			description       string
+		}{
+			{
+				name:              "without expiration",
+				originalExpiresAt: nil,
+				description:       "NULL expires_at must be set to now + 30 days",
+			},
+			{
+				name:              "expiring sooner than 30 days",
+				originalExpiresAt: new(now.Add(10 * 24 * time.Hour)),
+				description:       "expires_at < 30 days must be extended to now + 30 days",
+			},
+			{
+				name:              "expiring later than 30 days",
+				originalExpiresAt: new(now.Add(60 * 24 * time.Hour)),
+				description:       "expires_at > 30 days must remain unchanged",
+			},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+				oldKeyID := uuid.Must(uuid.NewV4()).String()
+				newKeyID := uuid.Must(uuid.NewV4()).String()
+				actorID := "rotate-expiry-owner-" + uuid.Must(uuid.NewV4()).String()
+
+				createParams := newCreateParams(oldKeyID, "Expiry Rotation Key", actorID, []string{"read"})
+				createParams.ExpiresAt = tc.originalExpiresAt
+				_, err := s.createAPIKey(createParams)
+				require.NoError(t, err)
+
+				testNow := time.Now().UTC()
+				result, err := s.driver.RotateIssuedAPIKeyAtomic(s.ctx(), oldKeyID, func(_ db.IssuedApiKey) (persistencetypes.RotateIssuedAPIKeyParams, error) {
+					return persistencetypes.RotateIssuedAPIKeyParams{
+						OldKeyID:    oldKeyID,
+						NewKeyID:    newKeyID,
+						Name:        "Expiry Rotation Key (rotated)",
+						TokenPrefix: "pk_test_",
+						ActorID:     actorID,
+						Scopes:      []string{"read"},
+						Metadata:    json.RawMessage(`{}`),
+					}, nil
+				})
+				require.NoError(t, err)
+
+				expectedExpiresAt := sqlutil.CalculateRevocationExpiry(testNow, tc.originalExpiresAt)
+
+				// The persisted old key must carry the revocation expiry.
+				revokedKey, err := s.driver.GetIssuedAPIKey(s.ctx(), oldKeyID)
+				require.NoError(t, err)
+				assert.Equal(t, int32(talosv2alpha1.KeyStatus_KEY_STATUS_REVOKED), revokedKey.Status)
+				require.NotNil(t, revokedKey.ExpiresAt, "expires_at must not be NULL after rotation (description: %s)", tc.description)
+				assert.WithinDuration(t, *expectedExpiresAt, *revokedKey.ExpiresAt, 5*time.Second,
+					"expires_at should be %v (description: %s)", *expectedExpiresAt, tc.description)
+
+				// The rotation result's old key must reflect the post-revoke state.
+				require.NotNil(t, result.OldKey.ExpiresAt, "rotation result old key must carry the updated expires_at")
+				assert.WithinDuration(t, *expectedExpiresAt, *result.OldKey.ExpiresAt, 5*time.Second,
+					"rotation result old key expires_at should be %v (description: %s)", *expectedExpiresAt, tc.description)
+			})
+		}
+	})
 }
 
 // TestImportedAPIKeyRotation tests the two-step imported key rotation workflow:

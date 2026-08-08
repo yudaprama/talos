@@ -1175,6 +1175,43 @@ func TestUpdateIssuedAPIKey(t *testing.T) {
 		assert.Equal(t, []string{"read:users", "write:users"}, resp.Scopes)
 	})
 
+	t.Run("clear scopes via mask with empty scopes", func(t *testing.T) {
+		t.Parallel()
+		key := issueKeyForUpdate(t, svc, ctx, "ScopesClear", []string{"read:users", "write:users"})
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
+				KeyId: key.KeyId,
+			},
+			UpdateMask: &fieldmaskpb.FieldMask{
+				Paths: []string{"scopes"},
+			},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, resp.Scopes)
+
+		// The clear must be persisted, not just reflected in the response.
+		getResp, err := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{KeyId: key.KeyId})
+		require.NoError(t, err)
+		assert.Empty(t, getResp.Scopes)
+	})
+
+	t.Run("empty scopes without mask preserves existing scopes", func(t *testing.T) {
+		t.Parallel()
+		key := issueKeyForUpdate(t, svc, ctx, "ScopesLegacy", []string{"read:users"})
+		resp, err := svc.UpdateIssuedAPIKey(ctx, &talosv2alpha1.UpdateIssuedApiKeyRequest{
+			IssuedApiKey: &talosv2alpha1.IssuedApiKey{
+				KeyId: key.KeyId,
+				Name:  "Legacy Update",
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"read:users"}, resp.Scopes)
+
+		getResp, err := svc.GetIssuedAPIKey(ctx, &talosv2alpha1.GetIssuedApiKeyRequest{KeyId: key.KeyId})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"read:users"}, getResp.Scopes)
+	})
+
 	t.Run("update metadata via mask", func(t *testing.T) {
 		t.Parallel()
 		key := issueKeyForUpdate(t, svc, ctx, "MetaMask", []string{"read:users"})

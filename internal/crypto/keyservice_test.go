@@ -263,6 +263,41 @@ func TestKeyService_NoURLsConfigured(t *testing.T) {
 	})
 }
 
+func TestKeyService_ErrorsDoNotLeakKeyMaterial(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.WithValue(t.Context(), contextx.NIDKey{}, uuid.Nil)
+
+	t.Run("fetch failure does not leak the base64 payload", func(t *testing.T) {
+		t.Parallel()
+
+		// An invalid base64 payload with a recognizable marker stands in for a private JWKS.
+		const secretPayload = "SECRETMARKER!!!not-base64"
+		ks := newTestKeyServiceWithURL(t, "base64://"+secretPayload)
+
+		_, err := ks.LoadSigningKeys(ctx)
+		require.Error(t, err)
+		assert.NotContains(t, err.Error(), secretPayload)
+		assert.NotContains(t, err.Error(), "SECRETMARKER")
+		assert.Contains(t, err.Error(), "urls[0]")
+	})
+
+	t.Run("parse failure does not leak decoded key material", func(t *testing.T) {
+		t.Parallel()
+
+		// Valid base64 but invalid JWKS so jwk.Parse fails after a successful fetch.
+		const secretJWKS = `{"keys":[{"kty":"oct","k":"SECRETKEYMATERIALAAAA"`
+		encoded := base64.StdEncoding.EncodeToString([]byte(secretJWKS))
+		ks := newTestKeyServiceWithURL(t, "base64://"+encoded)
+
+		_, err := ks.LoadSigningKeys(ctx)
+		require.Error(t, err)
+		assert.NotContains(t, err.Error(), "SECRETKEYMATERIAL")
+		assert.NotContains(t, err.Error(), encoded)
+		assert.Contains(t, err.Error(), "urls[0]")
+	})
+}
+
 type tenantSigningURLProvider struct {
 	urlsByNID         map[string][]string
 	signingKeyIDByNID map[string]string

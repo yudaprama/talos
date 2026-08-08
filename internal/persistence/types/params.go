@@ -153,7 +153,6 @@ type UpdateFields struct {
 	ScopesJSON      json.RawMessage
 	MetadataJSON    json.RawMessage
 	AllowedCIDRs    json.RawMessage
-	HasScopes       bool
 	HasMetadata     bool
 	HasAllowedCIDRs bool
 }
@@ -168,14 +167,15 @@ func (p UpdateIssuedAPIKeyParams) PreparedFields() (UpdateFields, error) {
 func prepareUpdateFields(scopes []string, metadata json.RawMessage, allowedCIDRs json.RawMessage) (UpdateFields, error) {
 	var fields UpdateFields
 
-	if len(scopes) > 0 {
-		scopesJSON, err := json.Marshal(scopes)
-		if err != nil {
-			return UpdateFields{}, errors.Wrap(err, "marshal scopes")
-		}
-		fields.HasScopes = true
-		fields.ScopesJSON = scopesJSON
+	// Scopes are always written: both service callers (issued and imported key
+	// updates) pass the full merged value (existing-or-patched), so an empty
+	// slice is an explicit clear, not a "skip this column" signal. Marshal nil
+	// as [] so the JSON column never receives null.
+	scopesJSON, err := json.Marshal(sqlutil.NonNilSlice(scopes))
+	if err != nil {
+		return UpdateFields{}, errors.Wrap(err, "marshal scopes")
 	}
+	fields.ScopesJSON = scopesJSON
 
 	if len(metadata) > 0 {
 		fields.HasMetadata = true
@@ -190,11 +190,9 @@ func prepareUpdateFields(scopes []string, metadata json.RawMessage, allowedCIDRs
 	return fields, nil
 }
 
-// JSONScopes returns the scopes payload or nil when no update is requested.
+// JSONScopes returns the scopes payload. It is always non-nil because updates
+// carry the full merged scopes value; an empty array clears the scopes.
 func (u UpdateFields) JSONScopes() json.RawMessage {
-	if !u.HasScopes {
-		return nil
-	}
 	return u.ScopesJSON
 }
 

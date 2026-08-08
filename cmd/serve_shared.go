@@ -65,7 +65,7 @@ func initializeServerDependencies(ctx context.Context, provider talosconfig.Prov
 
 	// Set up tracing - we use a global trace provider instead of injecting it.
 	if tp, err := tracing.InitTracer(ctx, provider); err != nil {
-		log.Warn("Failed to initialize tracing", slog.String("error", err.Error()))
+		log.Error("Failed to initialize tracer; tracing is disabled and audit events will be dropped", slog.String("error", err.Error()))
 	} else if tp != nil {
 		cleanups = append(cleanups, func() {
 			log.Info("Stopping tracer")
