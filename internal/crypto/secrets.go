@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"log/slog"
 	"slices"
+	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 
@@ -22,9 +25,11 @@ type ConfigProvider interface {
 	Strings(ctx context.Context, key talosconfig.Key) []string
 }
 
-// HMACSecretsForVerification returns all HMAC secrets (current + retired) for verification.
+// HMACSecretsForVerification returns all HMAC secrets (current + active retired) for verification.
 // Returns an error if the project has no HMAC key configured.
-// Returns: [current, ...retired] so that keys signed with a retired secret still verify.
+// Returns: [current, ...active_retired] so that keys signed with a retired secret still verify.
+// Retired secrets whose expiry has passed are dropped so a forgotten retired secret
+// cannot be used forever.
 func HMACSecretsForVerification(ctx context.Context, provider ConfigProvider) ([]string, error) {
 	current := provider.String(ctx, talosconfig.KeySecretsHMACCurrent)
 	if current == "" {
@@ -32,7 +37,8 @@ func HMACSecretsForVerification(ctx context.Context, provider ConfigProvider) ([
 	}
 
 	retired := provider.Strings(ctx, talosconfig.KeySecretsHMACRetired)
-	return slices.Concat([]string{current}, retired), nil
+	active := filterExpiredStrings(retired, time.Now().UTC())
+	return slices.Concat([]string{current}, active), nil
 }
 
 // HMACSecretForSigning returns the current HMAC secret for signing new keys.
@@ -70,6 +76,33 @@ func PaginationKeysForVerification(ctx context.Context, provider ConfigProvider)
 		keys[i] = DerivePaginationKey(s)
 	}
 	return keys, nil
+}
+
+// filterExpiredStrings filters out entries matching "secret|RFC3339" where the
+// timestamp is in the past. Bare strings (no "|") are always kept.
+// A malformed timestamp is logged and the entry is kept (fail-safe: the
+// credential it represents is honored rather than silently dropped).
+func filterExpiredStrings(values []string, now time.Time) []string {
+	active := make([]string, 0, len(values))
+	for _, v := range values {
+		if idx := strings.LastIndex(v, "|"); idx > 0 {
+			ts, err := time.Parse(time.RFC3339, v[idx+1:])
+			if err != nil {
+				slog.Default().Warn(
+					"malformed retired secret expiry, keeping entry",
+					slog.String("error", err.Error()),
+				)
+				active = append(active, v)
+				continue
+			}
+			if !now.Before(ts) {
+				continue // expired
+			}
+			v = v[:idx] // strip the expiry suffix
+		}
+		active = append(active, v)
+	}
+	return active
 }
 
 // reviewed - @aeneasr - 2026-03-26

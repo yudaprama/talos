@@ -8,11 +8,12 @@ BUILD_TIME ?= $(shell date -u '+%Y-%m-%d_%H:%M:%S')
 LDFLAGS := -ldflags="-w -s -X github.com/ory/talos/internal/version.Version=$(VERSION) -X github.com/ory/talos/internal/version.Commit=$(COMMIT) -X github.com/ory/talos/internal/version.BuildTime=$(BUILD_TIME)"
 
 # Tools (run from go.mod)
-BUF := go run github.com/bufbuild/buf/cmd/buf@v1.59.0
-SQLC := go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0
-GOLANGCI_LINT := .bin/golangci-lint
 OPENAPI_GENERATOR_VERSION := v2.28.0
 ORY_CLI_VERSION := v1.2.0
+# Pin prettier so fmt/fmt-check are deterministic. An unpinned `npx prettier`
+# resolves whatever version is latest at run time, so a new release could flip
+# fmt-check red with no code change.
+PRETTIER_VERSION := 3.8.3
 
 .PHONY: help
 help: ## Show this help
@@ -38,17 +39,17 @@ build-commercial: ## Build commercial binary
 
 .PHONY: test
 test: test-db-check ## Run tests (use TAGS=commercial or PKG=./internal/crypto or ARGS=-v)
-	@export TEST_POSTGRES_DSN='postgres://postgres:secret@localhost:5433/talos_test?sslmode=disable&pool_mode=standard' && \
-		export TEST_MYSQL_DSN='mysql://root:secret@tcp(localhost:3307)/talos_test?parseTime=true&multiStatements=true&maxAllowedPacket=67108864&timeout=30s&readTimeout=30s&writeTimeout=30s' && \
-		export TEST_COCKROACH_DSN='cockroach://root@localhost:26258/talos_test?sslmode=disable&pool_mode=standard' && \
+	TEST_POSTGRES_DSN='postgres://postgres:secret@localhost:5433/talos_test?sslmode=disable&pool_mode=standard' \
+		TEST_MYSQL_DSN='mysql://root:secret@tcp(localhost:3307)/talos_test?parseTime=true&multiStatements=true&maxAllowedPacket=67108864&timeout=30s&readTimeout=30s&writeTimeout=30s' \
+		TEST_COCKROACH_DSN='cockroach://root@localhost:26258/talos_test?sslmode=disable&pool_mode=standard' \
 		go test -race -timeout 2m $(if $(TAGS),-tags $(TAGS)) $(if $(PKG),$(PKG),./...) $(ARGS)
 
 .PHONY: coverage
 coverage: test-db-check ## Run tests with coverage report
 	@rm -f coverage*.out coverage*.html
-	@export TEST_POSTGRES_DSN='postgres://postgres:secret@localhost:5433/talos_test?sslmode=disable&pool_mode=standard' && \
-		export TEST_MYSQL_DSN='mysql://root:secret@tcp(localhost:3307)/talos_test?parseTime=true&multiStatements=true&maxAllowedPacket=67108864&timeout=30s&readTimeout=30s&writeTimeout=30s' && \
-		export TEST_COCKROACH_DSN='cockroach://root@localhost:26258/talos_test?sslmode=disable&pool_mode=standard' && \
+	TEST_POSTGRES_DSN='postgres://postgres:secret@localhost:5433/talos_test?sslmode=disable&pool_mode=standard' \
+		TEST_MYSQL_DSN='mysql://root:secret@tcp(localhost:3307)/talos_test?parseTime=true&multiStatements=true&maxAllowedPacket=67108864&timeout=30s&readTimeout=30s&writeTimeout=30s' \
+		TEST_COCKROACH_DSN='cockroach://root@localhost:26258/talos_test?sslmode=disable&pool_mode=standard' \
 		go test -race -count=1 -timeout 2m -coverpkg=$(if $(PKG),$(PKG),./...) -coverprofile=coverage$(if $(TAGS),-$(TAGS)).out -covermode=atomic $(if $(TAGS),-tags $(TAGS)) $(if $(PKG),$(PKG),./...) $(ARGS)
 	@echo ""
 	@echo "Coverage: $$(go tool cover -func=coverage$(if $(TAGS),-$(TAGS)).out | tail -1 | awk '{print $$NF}')"
@@ -56,8 +57,8 @@ coverage: test-db-check ## Run tests with coverage report
 	@echo "Report: coverage$(if $(TAGS),-$(TAGS)).html"
 
 .PHONY: lint
-lint: $(GOLANGCI_LINT) ## Run linters (use FIX=1 to auto-fix, TAGS=commercial for commercial build)
-	$(GOLANGCI_LINT) run $(if $(FIX),--fix) $(if $(TAGS),--build-tags $(TAGS)) --timeout 5m
+lint: ## Run linters (use FIX=1 to auto-fix, TAGS=commercial for commercial build)
+	@go tool golangci-lint run $(if $(FIX),--fix) $(if $(TAGS),--build-tags $(TAGS)) --timeout 5m
 
 # Paths to format/check: every top-level entry except the vendored oryx/ module
 # (synced from github.com/ory/x). Pass directories (not an explicit file list) so
@@ -65,13 +66,14 @@ lint: $(GOLANGCI_LINT) ## Run linters (use FIX=1 to auto-fix, TAGS=commercial fo
 # talos tooling must never reformat vendored or generated code.
 FMT_GO_PATHS = $(wildcard *.go) $(shell find . -maxdepth 1 -mindepth 1 -type d -not -name oryx -not -name '.*')
 
-.PHONY: fmt
+.PHONY: fmt format
+format: fmt ## Alias per Ory convention
 fmt: ## Format code
-	@PATH="$(PWD)/.bin:$$PATH" gofumpt -w $(FMT_GO_PATHS)
-	@PATH="$(PWD)/.bin:$$PATH" goimports -w -local github.com/ory $(FMT_GO_PATHS)
+	@go tool gofumpt -w $(FMT_GO_PATHS)
+	@go tool goimports -w -local github.com/ory $(FMT_GO_PATHS)
 	@go fix ./...
 	@go mod tidy
-	@npx prettier --write "**/*.{js,jsx,ts,tsx,md,mdx}" --log-level warn
+	@npx prettier@$(PRETTIER_VERSION) --write "**/*.{js,jsx,ts,tsx,md,mdx}" --log-level warn
 
 .PHONY: fmt-check
 fmt-check: fmt-check-gofumpt fmt-check-goimports fmt-check-gomod fmt-check-prettier ## Check code formatting without rewriting files
@@ -85,11 +87,11 @@ endef
 
 .PHONY: fmt-check-gofumpt
 fmt-check-gofumpt:
-	$(call fail-if-output,make fmt,PATH="$(PWD)/.bin:$$PATH" gofumpt -l $(FMT_GO_PATHS))
+	$(call fail-if-output,make fmt,go tool gofumpt -l $(FMT_GO_PATHS))
 
 .PHONY: fmt-check-goimports
 fmt-check-goimports:
-	$(call fail-if-output,make fmt,PATH="$(PWD)/.bin:$$PATH" goimports -l -local github.com/ory $(FMT_GO_PATHS))
+	$(call fail-if-output,make fmt,go tool goimports -l -local github.com/ory $(FMT_GO_PATHS))
 
 .PHONY: fmt-check-gomod
 fmt-check-gomod:
@@ -97,14 +99,18 @@ fmt-check-gomod:
 
 .PHONY: fmt-check-prettier
 fmt-check-prettier:
-	@npx prettier --check "**/*.{js,jsx,ts,tsx,md,mdx}" --log-level warn
+	@npx prettier@$(PRETTIER_VERSION) --check "**/*.{js,jsx,ts,tsx,md,mdx}" --log-level warn
 
 .PHONY: generate-openapi
-generate-openapi: .bin/ory ## Rename generated OpenAPI v2 spec and produce OpenAPI v3 spec
+generate-openapi: .bin/ory ## Rename generated OpenAPI v2 spec and produce OpenAPI v3 spec with patches applied
 	@echo "Renaming OpenAPI v2 spec..."
 	@mv api/talos.swagger.json api/talos.openapi-v2.json
-	@echo "Generating OpenAPI v3 spec..."
-	@.bin/ory dev openapi migrate api/talos.openapi-v2.json api/talos.openapi-v3.json
+	@echo "Generating OpenAPI v3 spec and applying patches..."
+	@.bin/ory dev openapi migrate \
+		-p file://.schema/openapi/patches/responses.yaml \
+		-p file://.schema/openapi/patches/jwks.yaml \
+		api/talos.openapi-v2.json api/talos.openapi-v3.json
+	@printf '\n' >> api/talos.openapi-v3.json
 
 .PHONY: generate-sdk
 generate-sdk: ## Generate Go HTTP client from OpenAPI spec
@@ -123,25 +129,23 @@ generate-sdk: ## Generate Go HTTP client from OpenAPI spec
 .PHONY: generate
 generate: ## Generate code (proto, sqlc, client, docs, cli docs, ts client)
 	@echo "Generating protobuf code and API documentation..."
-	@PATH="$(PWD)/.bin:$$PATH" $(BUF) generate
-	@echo "Post-processing OpenAPI specs..."
+	@go tool buf generate
+	@echo "Migrating OpenAPI spec to v3 and applying patches..."
 	@$(MAKE) generate-openapi
 	@echo "Generating HTTP SDKs..."
 	@$(MAKE) generate-sdk
 	@echo "Generating SQL queries (SQLite - OSS)..."
-	@$(SQLC) generate -f internal/persistence/sqlc/sqlc.yaml
+	@go tool sqlc generate -f internal/persistence/sqlc/sqlc.yaml
 	@if [ -f commercial/persistence/sqlc/sqlc.yaml ]; then \
 		echo "Generating SQL queries (PostgreSQL + MySQL - Commercial)..."; \
-		$(SQLC) generate -f commercial/persistence/sqlc/sqlc.yaml; \
+		go tool sqlc generate -f commercial/persistence/sqlc/sqlc.yaml; \
 	else \
 		echo "Skipping commercial SQL queries (commercial/ not present - OSS build)"; \
 	fi
 	@echo "Generating CLI documentation..."
 	@go run ./cmd/clidoc ./docs/reference/cli
-	@echo "Building documentation test tool..."
-	@go build -o .bin/doctest ./tools/doctest
 	@echo "Syncing documentation code blocks from source..."
-	@.bin/doctest --sync docs/integrate/sdk/go.md
+	@go run ./tools/doctest --sync docs/integrate/sdk/go.md
 	@echo "Generating API reference docs from OpenAPI spec..."
 	@$(MAKE) build-api-doc
 	@echo "Generating configuration reference..."
@@ -170,6 +174,12 @@ generate: ## Generate code (proto, sqlc, client, docs, cli docs, ts client)
 # ============================================================================
 # OSS sync manifest (monorepo-only; not synced to github.com/ory/talos)
 # ============================================================================
+
+.PHONY: update-go-modules go-mod-tidy
+update-go-modules: go-mod-tidy
+go-mod-tidy:
+	@go mod tidy
+	@$(MAKE) generate-oss-manifest
 
 .PHONY: generate-oss-manifest
 generate-oss-manifest: ## Regenerate the cloudlib-free .oss/{go.mod,go.sum} for the OSS sync
@@ -255,11 +265,6 @@ test-db-check:
 # Quality
 # ============================================================================
 
-.PHONY: build-doctest
-build-doctest: ## Build doctest tool for executable documentation
-	@echo "Building doctest tool..."
-	@go build -o .bin/doctest ./tools/doctest
-
 .PHONY: build-config-doc
 build-config-doc: ## Generate config reference doc from JSON Schema
 	@go run ./tools/config-doc-gen > docs/reference/config.md
@@ -289,18 +294,16 @@ docs-drift: ## Check docs for drift against proto, swagger, config schema
 	@go run ./tools/docs-drift-check docs
 
 .PHONY: docs-sync
-docs-sync: build-doctest ## Sync doc code blocks from source file regions
+docs-sync: ## Sync doc code blocks from source file regions
 	@echo "Syncing documentation code blocks..."
-	@.bin/doctest --sync docs/integrate/sdk/go.md
+	@go run ./tools/doctest --sync docs/integrate/sdk/go.md
 
 .PHONY: docs-exec-test
-docs-exec-test: build-doctest ## Test docs executable examples
-	@echo "Building doctest server binary..."
-	@CGO_ENABLED=1 go build -o .bin/talos .
+docs-exec-test: ## Test docs executable examples
 	@echo "Testing documentation (executable code blocks)..."
 	@find docs -path "docs/.deprecated" -prune -o -name "*.md" -print | \
 		xargs grep -l "doctest:" | \
-		xargs -I{} .bin/doctest {}
+		xargs -I{} go run ./tools/doctest {}
 
 .PHONY: docs-build
 docs-build: ## Build Docusaurus docs site
@@ -373,10 +376,6 @@ docker: ## Start dev environment (use CMD=up|down)
 # Setup
 # ============================================================================
 
-$(GOLANGCI_LINT):
-	@mkdir -p .bin
-	@curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b .bin v2.10.1
-
 .PHONY: deps
 deps: ## Download dependencies
 	@go mod download
@@ -386,17 +385,6 @@ deps: ## Download dependencies
 	@mkdir -p .bin
 	@curl --retry 7 --retry-connrefused https://raw.githubusercontent.com/ory/meta/master/install.sh | bash -s -- -b .bin ory $(ORY_CLI_VERSION)
 	@touch -a -m .bin/ory
-
-.PHONY: tools
-tools: $(GOLANGCI_LINT) .bin/ory ## Install dev tools
-	@mkdir -p .bin
-	@GOBIN=$(PWD)/.bin go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.27.7
-	@GOBIN=$(PWD)/.bin go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.27.7
-	@GOBIN=$(PWD)/.bin go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.3
-	@GOBIN=$(PWD)/.bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
-	@GOBIN=$(PWD)/.bin go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@v1.5.1
-	@GOBIN=$(PWD)/.bin go install mvdan.cc/gofumpt@v0.10.0
-	@GOBIN=$(PWD)/.bin go install golang.org/x/tools/cmd/goimports@v0.45.0
 
 .PHONY: docs
 docs: ## Serve documentation (use CMD=build|start)

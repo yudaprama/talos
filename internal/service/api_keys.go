@@ -1252,12 +1252,15 @@ type batchCandidate struct {
 
 // BatchImportAPIKeys imports multiple external API keys.
 //
-// The handler intentionally does not run protoValidator.Validate(req) because
-// the per-item ImportApiKeyRequest rules would short-circuit the whole batch
-// on a single bad item, contradicting AIP-231's per-item success/failure
-// contract. The min_items/max_items constraint on requests is enforced below
-// by the explicit length checks; per-item rules run inside the loop via
-// validation.ValidateAndNormalizeImportRequest.
+// The handler intentionally does not run protoValidator.Validate(req) on the
+// whole request because the per-item ImportApiKeyRequest rules would
+// short-circuit the entire batch on a single bad item, contradicting
+// AIP-231's per-item success/failure contract. The min_items/max_items
+// constraint on requests is enforced below by the explicit length checks.
+// Instead, the same proto rules that guard single ImportAPIKey run per item
+// inside the loop (protoValidator.Validate on each ImportApiKeyRequest),
+// followed by validation.ValidateAndNormalizeImportRequest, so a violating
+// item fails individually while its siblings proceed.
 func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.BatchCreateImportedApiKeysRequest) (_ *talosv2alpha1.BatchCreateImportedApiKeysResponse, err error) {
 	nid := contextx.NetworkIDFromContext(ctx).String()
 	keys := req.GetRequests()
@@ -1287,6 +1290,14 @@ func (s *Admin) BatchImportAPIKeys(ctx context.Context, req *talosv2alpha1.Batch
 	for i, keyReq := range keys {
 		if keyReq == nil {
 			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, "batch item is required")
+			continue
+		}
+
+		// Enforce the same buf.validate rules as single ImportAPIKey (raw_key,
+		// name, actor_id, scopes, request_id constraints) per item so the batch
+		// path cannot bypass proto validation. A violation fails only this item.
+		if validateErr := s.protoValidator.Validate(keyReq); validateErr != nil {
+			results[i] = batchImportErrorResult(i, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, validateErr.Error())
 			continue
 		}
 

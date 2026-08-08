@@ -232,6 +232,45 @@ func TestBatchImportAPIKeys_AllFailuresReturnError(t *testing.T) {
 	}
 }
 
+func TestBatchImportAPIKeys_ProtoValidationPerItem(t *testing.T) {
+	t.Parallel()
+
+	svc, _, ctx := setupTestService(t)
+
+	overlongName := strings.Repeat("n", 256)
+
+	batch := []*talosv2alpha1.ImportApiKeyRequest{
+		{RawKey: "proto-valid-1-abcdefghijklmnopqrstuvwxyz123456", Name: "proto-valid-name-1", ActorId: "proto-owner"},
+		{RawKey: "proto-overlong-name-abcdefghijklmnopqrstuvwxyz", Name: overlongName, ActorId: "proto-owner"},
+		{RawKey: "proto-valid-2-abcdefghijklmnopqrstuvwxyz123456", Name: "proto-valid-name-2", ActorId: "proto-owner"},
+	}
+
+	resp, err := svc.BatchImportAPIKeys(ctx, &talosv2alpha1.BatchCreateImportedApiKeysRequest{Requests: batch})
+	require.NoError(t, err)
+	require.NotNil(t, resp)
+
+	assert.Equal(t, int32(2), resp.GetSuccessCount())
+	assert.Equal(t, int32(1), resp.GetFailureCount())
+	require.Len(t, resp.GetResults(), len(batch))
+
+	assert.NotNil(t, resp.GetResults()[0].GetImportedApiKey())
+	assert.Equal(t, talosv2alpha1.BatchCreateImportedApiKeysErrorCode_BATCH_CREATE_IMPORTED_API_KEYS_ERROR_INVALID_ARGUMENT, resp.GetResults()[1].GetErrorCode())
+	assert.Contains(t, resp.GetResults()[1].GetErrorMessage(), "name")
+	assert.NotNil(t, resp.GetResults()[2].GetImportedApiKey())
+
+	// Guard against divergence: single import must reject the same violation.
+	single, err := svc.ImportAPIKey(ctx, &talosv2alpha1.ImportApiKeyRequest{
+		RawKey:  "proto-single-overlong-abcdefghijklmnopqrstuvwxyz",
+		Name:    overlongName,
+		ActorId: "proto-owner",
+	})
+	require.Error(t, err)
+	assert.Nil(t, single)
+	var herodotErr *herodot.DefaultError
+	require.True(t, errors.As(err, &herodotErr))
+	assert.Equal(t, 400, herodotErr.CodeField)
+}
+
 func TestBatchImportAPIKeys_DuplicateWithinSameBatch(t *testing.T) {
 	t.Parallel()
 

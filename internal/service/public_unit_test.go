@@ -40,6 +40,9 @@ func (f *fakeMeter) TopUp(_ context.Context, actorID string, amountMicros int64)
 	f.lastActor, f.lastArg = actorID, amountMicros
 	return &metering.Balance{Quota: 1000, Remaining: amountMicros}, nil
 }
+func (f *fakeMeter) ListUsage(_ context.Context, _ string, _ int) ([]metering.UsageRecord, error) {
+	return nil, nil
+}
 func (f *fakeMeter) Enabled() bool { return true }
 
 // controlledLimiter is a test-local ratelimit.Limiter whose behaviour is

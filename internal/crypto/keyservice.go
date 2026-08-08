@@ -119,15 +119,17 @@ func (ks *KeyService) LoadSigningKeys(ctx context.Context) (result jwk.Set, err 
 
 	keySet := jwk.NewSet()
 
-	for _, keyURL := range keyURLs {
+	for i, keyURL := range keyURLs {
 		keyData, err := ks.fetcher.FetchContext(ctx, keyURL)
 		if err != nil {
-			return nil, errors.Wrapf(err, "fetch signing key from %s", keyURL)
+			// Reference the URL by index only: base64:// URLs embed the full private JWKS,
+			// and error messages flow into logs and trace span statuses.
+			return nil, errors.Wrapf(err, "fetch signing key from urls[%d]", i)
 		}
 
 		fetchedSet, err := jwk.Parse(keyData.Bytes())
 		if err != nil {
-			return nil, errors.Wrapf(err, "parse signing key from %s", keyURL)
+			return nil, errors.Wrapf(err, "parse signing key from urls[%d]", i)
 		}
 
 		for i := range fetchedSet.Len() {
